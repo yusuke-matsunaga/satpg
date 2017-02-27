@@ -16,7 +16,6 @@
 
 #include "TestVector.h"
 #include "NodeValList.h"
-#include "sa/DetectOp.h"
 
 #include "SimNode.h"
 #include "SimFFR.h"

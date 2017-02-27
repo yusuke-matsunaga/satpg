@@ -15,7 +15,7 @@
 
 #include "sa/DtpgStats.h"
 #include "sa/BackTracer.h"
-#include "sa/ModelValMap.h"
+#include "ValMap.h"
 
 #include "ym/SatSolver.h"
 #include "ym/SatStats.h"
@@ -457,7 +457,7 @@ DtpgImpl::solve(const TpgFault* fault,
     timer.start();
 
     // パタンが求まった．
-    ModelValMap val_map(mGvarMap, mFvarMap, model);
+    ValMap val_map(mGvarMap, mFvarMap, model);
 
     // バックトレースを行う．
     const TpgNode* start_node = fault->tpg_onode()->ffr_root();

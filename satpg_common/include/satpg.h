@@ -115,8 +115,12 @@ class NodeValList;
 class TestVector;
 class TvMgr;
 
+class DetectOp;
+class UntestOp;
+
 class GateLitMap;
 class VidMap;
+class ValMap;
 
 class Fsim;
 

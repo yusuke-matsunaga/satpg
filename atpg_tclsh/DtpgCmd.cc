@@ -18,10 +18,10 @@
 #include "Fsim.h"
 #include "NodeValList.h"
 #include "sa/BackTracer.h"
-#include "sa/DetectOp.h"
-#include "sa/DopList.h"
-#include "sa/UntestOp.h"
-#include "sa/UopList.h"
+#include "DetectOp.h"
+#include "DopList.h"
+#include "UntestOp.h"
+#include "UopList.h"
 
 
 BEGIN_NAMESPACE_YM_SATPG
@@ -30,8 +30,8 @@ void
 run_single(nsSa::Dtpg& dtpg,
 	   const TpgNetwork& network,
 	   TpgFaultMgr& fmgr,
-	   nsSa::DetectOp& dop,
-	   nsSa::UntestOp& uop,
+	   DetectOp& dop,
+	   UntestOp& uop,
 	   nsSa::DtpgStats& stats)
 {
   ymuint nf = network.rep_fault_num();
@@ -56,8 +56,8 @@ void
 run_mffc(nsSa::Dtpg& dtpg,
 	 const TpgNetwork& network,
 	 TpgFaultMgr& fmgr,
-	 nsSa::DetectOp& dop,
-	 nsSa::UntestOp& uop,
+	 DetectOp& dop,
+	 UntestOp& uop,
 	 nsSa::DtpgStats& stats)
 {
   ymuint n = network.mffc_num();
@@ -198,14 +198,14 @@ DtpgCmd::cmd_proc(TclObjVector& objv)
 
   string option_str = mPoptOpt->val();
 
-  nsSa::DopList dop_list;
-  nsSa::UopList uop_list;
+  DopList dop_list;
+  UopList uop_list;
 
   if ( !mPoptNoPat->is_specified() ) {
-    dop_list.add(nsSa::new_DopTvList(_tv_mgr(), _sa_tv_list()));
+    dop_list.add(new_DopTvList(_tv_mgr(), _sa_tv_list()));
   }
-  dop_list.add(nsSa::new_DopBase(_fault_mgr()));
-  uop_list.add(nsSa::new_UopBase(_fault_mgr()));
+  dop_list.add(new_DopBase(_fault_mgr()));
+  uop_list.add(new_UopBase(_fault_mgr()));
 
   ymuint xmode = 0;
   if ( mPoptX->is_specified() ) {
@@ -215,10 +215,10 @@ DtpgCmd::cmd_proc(TclObjVector& objv)
   nsSa::BackTracer bt(xmode, _network().node_num());
 
   if ( mPoptDrop->is_specified() ) {
-    dop_list.add(nsSa::new_DopDrop(_fault_mgr(), _fsim3()));
+    dop_list.add(new_DopDrop(_fault_mgr(), _fsim3()));
   }
   if ( mPoptVerify->is_specified() ) {
-    dop_list.add(nsSa::new_DopVerify(_fsim3()));
+    dop_list.add(new_DopVerify(_fsim3()));
   }
 
   bool timer_enable = true;

@@ -50,10 +50,28 @@ set (tpg_network_SOURCES
 
   tpg_network/GateLitMap_vect.cc
   tpg_network/GateLitMap_vid.cc
+
+  tpg_network/ValMap.cc
   )
 
 set (fsim_SOURCES
   fsim/Fsim.cc
+  )
+
+set (dop_SOURCES
+  dop/DopBase.cc
+  dop/DopDrop.cc
+  dop/DopDummy.cc
+  dop/DopList.cc
+  dop/DopTvList.cc
+  dop/DopVerify.cc
+  )
+
+set (uop_SOURCES
+  uop/UopBase.cc
+  uop/UopDummy.cc
+  uop/UopList.cc
+  uop/UopSkip.cc
   )
 
 set (sa_SOURCES
@@ -64,21 +82,9 @@ set (sa_SOURCES
   sa/bt/BtJustBase.cc
   sa/bt/BtSimple.cc
 
-  sa/dop/DopBase.cc
-  sa/dop/DopDrop.cc
-  sa/dop/DopDummy.cc
-  sa/dop/DopList.cc
-  sa/dop/DopTvList.cc
-  sa/dop/DopVerify.cc
-
   sa/dtpg/Dtpg.cc
   sa/dtpg/DtpgImpl.cc
   sa/dtpg/DtpgImplM.cc
-
-  sa/uop/UopBase.cc
-  sa/uop/UopDummy.cc
-  sa/uop/UopList.cc
-  sa/uop/UopSkip.cc
 
   sa/minpat/Verifier.cc
   sa/minpat/MinPatBase.cc
@@ -101,7 +107,6 @@ set (sa_SOURCES
   sa/struct_sat/StructSat.cc
   sa/struct_sat/FoCone.cc
   sa/struct_sat/Extractor.cc
-  sa/struct_sat/ModelValMap.cc
   )
 
 set (td_SOURCES
@@ -123,7 +128,6 @@ set (td_SOURCES
   td/struct_sat/ConeBase.cc
   td/struct_sat/FoCone.cc
   td/struct_sat/MffcCone.cc
-  td/struct_sat/ModelValMap.cc
   td/struct_sat/Extractor.cc
   )
 
@@ -134,6 +138,8 @@ set (td_SOURCES
 ym_add_object_library ( satpg_common
   ${tpg_network_SOURCES}
   ${fsim_SOURCES}
+  ${dop_SOURCES}
+  ${uop_SOURCES}
   ${sa_SOURCES}
   ${td_SOURCES}
   )

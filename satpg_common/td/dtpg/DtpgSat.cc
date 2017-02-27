@@ -11,13 +11,13 @@
 
 #include "TpgFault.h"
 
-#include "td/DetectOp.h"
-#include "td/UntestOp.h"
+#include "DetectOp.h"
+#include "UntestOp.h"
 #include "td/DtpgStats.h"
 
 #include "td/BackTracer.h"
 #include "NodeValList.h"
-#include "td/ModelValMap.h"
+#include "ValMap.h"
 
 #include "ym/SatSolver.h"
 #include "ym/SatStats.h"
@@ -178,7 +178,7 @@ DtpgSat::solve(SatSolver& solver,
     timer.start();
 
     // パタンが求まった．
-    ModelValMap val_map(hvar_map, gvar_map, fvar_map, model);
+    ValMap val_map(hvar_map, gvar_map, fvar_map, model);
 
     // バックトレースを行う．
     mBackTracer(root, output_list, val_map, mLastAssign);

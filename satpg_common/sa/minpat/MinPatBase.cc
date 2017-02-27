@@ -17,7 +17,7 @@
 
 #include "TvMgr.h"
 
-#include "sa/ModelValMap.h"
+#include "ValMap.h"
 #include "sa/StructSat.h"
 
 #include "FgMgrBase.h"
@@ -334,7 +334,7 @@ MinPatBase::make_testvector(TpgNetwork& network,
   ASSERT_COND ( sat_ans == kB3True );
 
   const VidMap& var_map = struct_sat.var_map();
-  ModelValMap val_map(var_map, var_map, sat_model);
+  ValMap val_map(var_map, var_map, sat_model);
   ymuint ni = network.input_num();
   for (ymuint i = 0; i < ni; ++ i) {
     const TpgNode* node = network.input(i);

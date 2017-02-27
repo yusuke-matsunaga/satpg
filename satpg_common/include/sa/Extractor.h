@@ -10,7 +10,7 @@
 
 
 #include "sa/sa_nsdef.h"
-#include "sa/ValMap.h"
+#include "ValMap.h"
 #include "ym/HashSet.h"
 #include "ym/HashMap.h"
 

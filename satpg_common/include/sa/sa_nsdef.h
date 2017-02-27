@@ -38,11 +38,8 @@ BEGIN_NAMESPACE_YM_SATPG_SA
 class FoCone;
 class StructSat;
 class BackTracer;
-class DetectOp;
-class UntestOp;
 class Dtpg;
 class DtpgStats;
-class ValMap;
 class Rtpg;
 class RtpgStats;
 class MinPat;

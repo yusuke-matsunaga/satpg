@@ -19,7 +19,7 @@
 
 #include "sa/StructSat.h"
 #include "sa/FoCone.h"
-#include "sa/ModelValMap.h"
+#include "ValMap.h"
 
 #include "sa/BackTracer.h"
 
@@ -299,7 +299,7 @@ FaultAnalyzer::analyze_fault(const TpgFault* fault,
     focone->get_suf_list(sat_model, fault, suf_list);
     NodeValList& pi_suf_list = fi.mPiSufficientAssignment;
     {
-      ModelValMap val_map(focone->gvar_map(), focone->fvar_map(), sat_model);
+      ValMap val_map(focone->gvar_map(), focone->fvar_map(), sat_model);
 
       BackTracer backtracer(2, mMaxNodeId);
       backtracer(fault->tpg_onode(), NodeValList(), focone->output_list(), val_map, pi_suf_list);

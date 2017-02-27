@@ -16,8 +16,8 @@
 #include "NodeValList.h"
 #include "sa/BackTracer.h"
 #include "Fsim.h"
-#include "sa/DetectOp.h"
-#include "sa/DopList.h"
+#include "DetectOp.h"
+#include "DopList.h"
 #include "ym/StopWatch.h"
 
 
