@@ -235,22 +235,36 @@ public:
 
 private:
   //////////////////////////////////////////////////////////////////////
-  // 内部で用いられる2値用の下請け関数
+  // 内部で用いられる下請け関数
   //////////////////////////////////////////////////////////////////////
 
   /// @brief 一つのパタンを全ビットに展開して設定する．
   /// @param[in] tv 設定するテストベクタ
   void
-  _sa_set_sp(const TestVector* tv);
+  _set_sp(const TestVector* tv);
 
   /// @brief 一つのパタンを全ビットに展開して設定する．
   /// @param[in] assign_list 設定する値の割り当てリスト
   void
-  _sa_set_sp(const NodeValList& assign_list);
+  _set_sp(const NodeValList& assign_list);
+
+  /// @brief 一つのパタンを全ビットに展開して設定する．
+  /// @param[in] tv 設定するテストベクタ
+  ///
+  /// こちらは遷移故障の２時刻目用
+  void
+  _set_sp2(const TestVector* tv);
+
+  /// @brief 一つのパタンを全ビットに展開して設定する．
+  /// @param[in] assign_list 設定する値の割り当てリスト
+  ///
+  /// こちらは遷移故障の２時刻目用
+  void
+  _set_sp2(const NodeValList& assign_list);
 
   /// @brief 複数のパタンを設定する．
   void
-  _sa_set_pp();
+  _set_pp();
 
   /// @brief SPSFP故障シミュレーションの本体
   /// @param[in] f 対象の故障
@@ -264,16 +278,56 @@ private:
   ymuint
   _sa_sppfp();
 
+  /// @brief SPSFP故障シミュレーションの本体
+  /// @param[in] f 対象の故障
+  /// @retval true 故障の検出が行えた．
+  /// @retval false 故障の検出が行えなかった．
+  bool
+  _td_spsfp(const TpgFault* f);
+
+  /// @brief SPPFP故障シミュレーションの本体
+  /// @return 検出された故障数を返す．
+  ymuint
+  _td_sppfp();
+
   /// @brief 正常値の計算を行う．
   ///
   /// 入力ノードに gval の設定は済んでいるものとする．
   void
   _calc_gval();
 
+  /// @brief 1時刻前の正常値の計算を行う．
+  ///
+  /// 結果は mPrevValArray に格納される．
+  /// と同時に現在の時刻のDFFの出力も設定される．
+  void
+  _calc_pval();
+
+  /// @brief FFR の根から故障伝搬シミュレーションを行う．
+  /// @param[in] root FFRの根のノード
+  /// @return 伝搬したビットに1を立てたビットベクタ
+  PackedVal
+  _prop_sim(SimNode* root);
+
+  /// @brief FFR内の故障シミュレーションを行う．
+  /// @param[in] fault 対象の故障
+  PackedVal
+  _fault_prop(SimFault* fault);
+
   /// @brief FFR内の故障シミュレーションを行う．
   /// @param[in] fault_list 故障のリスト
   PackedVal
   _fault_prop(const vector<SimFault*>& fault_list);
+
+  /// @brief 故障の活性化条件を求める．(縮退故障用)
+  /// @param[in] fault 対象の故障
+  PackedVal
+  _sa_fault_act(SimFault* fault);
+
+  /// @brief 故障の活性化条件を求める．(遷移故障用)
+  /// @param[in] fault 対象の故障
+  PackedVal
+  _td_fault_act(SimFault* fault);
 
   /// @brief 故障をスキャンして結果をセットする(sppfp用)
   /// @param[in] fault_list 故障のリスト
@@ -328,17 +382,32 @@ private:
   // データメンバ
   //////////////////////////////////////////////////////////////////////
 
+  // 外部入力数
+  ymuint mInputNum;
+
+  // 外部出力数
+  ymuint mOutputNum;
+
+  // DFF数
+  ymuint mDffNum;
+
   // 全ての SimNode を納めた配列
   vector<SimNode*> mNodeArray;
 
-  // 外部入力に対応する SimNode を納めた配列
-  vector<SimNode*> mInputArray;
+  // PPIに対応する SimNode を納めた配列
+  // サイズは mInputNum + mDffNum
+  vector<SimNode*> mPPIArray;
 
-  // 外部出力に対応する SimNode を納めた配列
-  vector<SimNode*> mOutputArray;
+  // PPOに対応する SimNode を納めた配列
+  // サイズは mOutputNum + mDffNum
+  vector<SimNode*> mPPOArray;
 
   // 入力からのトポロジカル順に並べた logic ノードの配列
   vector<SimNode*> mLogicArray;
+
+  // ブロードサイド方式用の１時刻前の値を保持する配列
+  // サイズは mNodeArray.size()
+  vector<FSIM_VALTYPE> mPrevValArray;
 
   // FFR を納めた配列
   vector<SimFFR> mFFRArray;
