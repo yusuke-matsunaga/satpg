@@ -61,6 +61,23 @@ val3_to_packedval(Val3 val)
 #endif
 }
 
+// bit のビットに値を設定する．
+inline
+void
+bit_set(FSIM_VALTYPE& val,
+	Val3 ival,
+	PackedVal bit)
+{
+#if FSIM_VAL2
+  if ( ival == kVal1 ) {
+    val |= bit;
+  }
+#elif FSIM_VAL3
+  FSIM_VALTYPE val1 = val3_to_packedval(ival);
+  val.set_with_mask(val1, bit);
+#endif
+}
+
 END_NONAMESPACE
 
 
@@ -141,41 +158,18 @@ Tv2InputVals::~Tv2InputVals()
 void
 Tv2InputVals::set_val1(FSIM_CLASSNAME& fsim) const
 {
-#warning "TODO: なるべく #if を使わないコードにする．"
-#warning "TODO: set_val1 と set_val2 のコードを共通にする．"
-
   // 設定されていないビットはどこか他の設定されているビットをコピーする．
   ymuint npi = fsim.ppi_num();
   for (ymuint i = 0; i < npi; ++ i) {
     SimNode* simnode = fsim.ppi(i);
-#if FSIM_VAL2
-    PackedVal val = kPvAll0;
-#elif FSIM_VAL3
-    PackedVal val0 = kPvAll0;
-    PackedVal val1 = kPvAll0;
-#endif
+    FSIM_VALTYPE val = init_val();
     PackedVal bit = 1ULL;
     for (ymuint j = 0; j < kPvBitLen; ++ j, bit <<= 1) {
       ymuint pos = (mPatMap & bit) ? j : mPatFirstBit;
       Val3 ival = mPatArray[pos]->ppi_val(i);
-#if FSIM_VAL2
-      if ( ival == kVal1 ) {
-	val |= bit;
-      }
-#elif FSIM_VAL3
-      if ( ival == kVal1 ) {
-	val1 |= bit;
-      }
-      else if ( ival == kVal0 ) {
-	val0 |= bit;
-      }
-#endif
+      bit_set(val, ival, bit);
     }
-#if FSIM_VAL2
     simnode->set_val(val);
-#elif FSIM_VAL3
-    simnode->set_val(PackedVal3(val0, val1));
-#endif
   }
 }
 
@@ -184,41 +178,18 @@ Tv2InputVals::set_val1(FSIM_CLASSNAME& fsim) const
 void
 Tv2InputVals::set_val2(FSIM_CLASSNAME& fsim) const
 {
-#warning "TODO: なるべく #if を使わないコードにする．"
-#warning "TODO: set_val1 と set_val2 のコードを共通にする．"
-
   // 設定されていないビットはどこか他の設定されているビットをコピーする．
   ymuint ni = fsim.input_num();
   for (ymuint i = 0; i < ni; ++ i) {
     SimNode* simnode = fsim.ppi(i);
-#if FSIM_VAL2
-    PackedVal val = kPvAll0;
-#elif FSIM_VAL3
-    PackedVal val0 = kPvAll0;
-    PackedVal val1 = kPvAll0;
-#endif
+    FSIM_VALTYPE val = init_val();
     PackedVal bit = 1ULL;
     for (ymuint j = 0; j < kPvBitLen; ++ j, bit <<= 1) {
       ymuint pos = (mPatMap & bit) ? j : mPatFirstBit;
       Val3 ival = mPatArray[pos]->aux_input_val(i);
-#if FSIM_VAL2
-      if ( ival == kVal1 ) {
-	val |= bit;
-      }
-#elif FSIM_VAL3
-      if ( ival == kVal1 ) {
-	val1 |= bit;
-      }
-      else if ( ival == kVal0 ) {
-	val0 |= bit;
-      }
-#endif
+      bit_set(val, ival, bit);
     }
-#if FSIM_VAL2
     simnode->set_val(val);
-#elif FSIM_VAL3
-    simnode->set_val(PackedVal3(val0, val1));
-#endif
   }
 }
 

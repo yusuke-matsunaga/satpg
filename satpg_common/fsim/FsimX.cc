@@ -47,67 +47,6 @@ END_NAMESPACE_YM_SATPG
 
 BEGIN_NAMESPACE_YM_SATPG_FSIM
 
-BEGIN_NONAMESPACE
-
-// 0/1 を PackedVal/PackedVal3 に変換する．
-inline
-FSIM_VALTYPE
-int_to_packedval(int val)
-{
-#if FSIM_VAL2
-  return val ? kPvAll1 : kPvAll0;
-#elif FSIM_VAL3
-  return val ? PackedVal3(kPvAll1) : PackedVal3(kPvAll0);
-#endif
-}
-
-// Val3 を PackedVal/PackedVal3 に変換する．
-inline
-FSIM_VALTYPE
-val3_to_packedval(Val3 val)
-{
-#if FSIM_VAL2
-  // kValX は kVal0 とみなす．
-  return (val == kVal1) ? kPvAll1 : kPvAll0;
-#elif FSIM_VAL3
-  switch ( val ) {
-  case kValX: return PackedVal3(kPvAll0, kPvAll0);
-  case kVal0: return PackedVal3(kPvAll1, kPvAll0);
-  case kVal1: return PackedVal3(kPvAll0, kPvAll1);
-  }
-#endif
-}
-
-#if 0
-// 故障の活性化条件を返す．
-inline
-PackedVal
-_fault_diff(const TpgFault* f,
-	    FSIM_VALTYPE val)
-{
-#if FSIM_VAL2
-  return ( f->val() == 1 ) ? ~val : val;
-#elif FSIM_VAL3
-  return ( f->val() == 1 ) ? val.val0() : val.val1();
-#endif
-}
-
-// 遷移故障の初期化条件を返す．
-inline
-PackedVal
-_fault_eq(const TpgFault* f,
-	  FSIM_VALTYPE val)
-{
-#if FSIM_VAL2
-  return ( f->val() == 1 ) ? val : ~val;
-#elif FSIM_VAL3
-  return ( f->val() == 1 ) ? val.val1() : val.val0();
-#endif
-}
-#endif
-
-END_NONAMESPACE
-
 //////////////////////////////////////////////////////////////////////
 // FsimX
 //////////////////////////////////////////////////////////////////////
