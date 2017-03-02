@@ -8,6 +8,7 @@
 
 
 #include "TvMgr.h"
+#include "TpgNetwork.h"
 
 
 BEGIN_NAMESPACE_YM_SATPG
@@ -55,21 +56,19 @@ TvMgr::clear()
 }
 
 // @brief 初期化する．
-// @param[in] input_num 入力数
-// @param[in] dff_num DFF数
+// @param[in] network 対象のネットワーク
 //
 // 副作用で最初に clear() が呼ばれる．
 void
-TvMgr::init(ymuint input_num,
-	    ymuint dff_num)
+TvMgr::init(const TpgNetwork& network)
 {
   clear();
 
-  mInputNum = input_num;
-  mDffNum = dff_num;
+  mInputNum = network.input_num();
+  mDffNum = network.dff_num();
 
-  mSaVectLen = input_num + dff_num;
-  mTdVectLen = input_num + input_num + dff_num;
+  mSaVectLen = mInputNum + mDffNum;
+  mTdVectLen = mInputNum + mInputNum + mDffNum;
   if ( mSaVectLen == 0 ) {
     // 0 だとヤバい
     mSaVectLen = 1;

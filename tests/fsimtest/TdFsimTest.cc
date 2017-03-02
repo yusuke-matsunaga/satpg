@@ -336,7 +336,7 @@ fsim2test(int argc,
   fsim->set_network(network);
 
   TvMgr tvmgr;
-  tvmgr.init(network.input_num(), network.dff_num());
+  tvmgr.init(network);
 
   RandGen rg;
   vector<const TestVector*> tv_list;

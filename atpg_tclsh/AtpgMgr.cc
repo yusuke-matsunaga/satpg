@@ -85,13 +85,9 @@ AtpgMgr::after_set_network()
   delete mFaultMgr;
   mFaultMgr = new TpgFaultMgr(_network());
 
-  mTvMgr->clear();
-  mTvMgr->init(mNetwork.ppi_num(), mNetwork.dff_num());
-  mFsim2->set_network(mNetwork);
-  mFsim3->set_network(mNetwork);
-
-  //mTdTvMgr->clear();
-  //mTdTvMgr->init(mNetwork.input_num(), mNetwork.dff_num());
+  mTvMgr->init(_network());
+  mFsim2->set_network(_network());
+  mFsim3->set_network(_network());
 }
 
 END_NAMESPACE_YM_SATPG

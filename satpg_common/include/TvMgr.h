@@ -44,13 +44,11 @@ public:
   clear();
 
   /// @brief 初期化する．
-  /// @param[in] input_num 入力数
-  /// @param[in] dff_num DFF数
+  /// @param[in] network 対象のネットワーク
   ///
   /// 副作用で最初に clear() が呼ばれる．
   void
-  init(ymuint input_num,
-       ymuint dff_num);
+  init(const TpgNetwork& network);
 
   /// @brief 入力数を返す．
   ymuint
