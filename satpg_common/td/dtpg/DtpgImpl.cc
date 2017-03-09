@@ -141,6 +141,9 @@ DtpgImpl::gen_cnf_base()
   set_tfo_mark(mRoot);
   for (ymuint rpos = 0; rpos < mNodeList.size(); ++ rpos) {
     const TpgNode* node = mNodeList[rpos];
+    if ( node->is_dff_output() ) {
+      mDffList.push_back(node->dff());
+    }
     ymuint nfo = node->fanout_num();
     for (ymuint i = 0; i < nfo; ++ i) {
       const TpgNode* onode = node->fanout(i);
