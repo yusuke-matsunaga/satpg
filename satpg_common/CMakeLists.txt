@@ -114,7 +114,6 @@ set (sa_SOURCES
   )
 
 set (td_SOURCES
-  td/rtpg/FopRtpg.cc
   td/rtpg/RtpgP1.cc
   td/rtpg/RtpgP2.cc
 

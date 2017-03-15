@@ -143,6 +143,9 @@ dtpg_test(int argc,
   bool blif = false;
   bool iscas89 = false;
 
+  bool sa_mode = false;
+  bool td_mode = false;
+
   bool single = false;
   bool ffr = false;
   bool mffc = false;
@@ -192,6 +195,20 @@ dtpg_test(int argc,
 	}
 	iscas89 = true;
       }
+      else if ( strcmp(argv[pos], "--stuck-at") == 0 ) {
+	if ( td_mode ) {
+	  cerr << "--stuck-at and --transition-delay are mutually exclusive" << endl;
+	  return -1;
+	}
+	sa_mode = true;
+      }
+      else if ( strcmp(argv[pos], "--transition-delay") == 0 ) {
+	if ( td_mode ) {
+	  cerr << "--stuck-at and --transition-delay are mutually exclusive" << endl;
+	  return -1;
+	}
+	td_mode = true;
+      }
       else if ( strcmp(argv[pos], "--bt0") == 0 ) {
 	if ( bt_mode != -1 ) {
 	  cerr << "--bt0, --bt1, and --bt2 are mutually exclusive" << endl;
@@ -240,6 +257,11 @@ dtpg_test(int argc,
     mffc = true;
   }
 
+  if ( !sa_mode && !td_mode ) {
+    // sa_mode をデフォルトにする．
+    sa_mode = true;
+  }
+
   if ( !blif && !iscas89 ) {
     // とりあえず blif をデフォルトにする．
     blif = true;
@@ -268,6 +290,12 @@ dtpg_test(int argc,
     ASSERT_NOT_REACHED;
   }
 
+  if ( td_mode && network.dff_num() == 0 ) {
+    cerr << "Network is combinational, stuck-at mode is assumed" << endl;
+    td_mode = false;
+    sa_mode = true;
+  }
+
   if ( dump ) {
     print_network(cout, network);
   }
@@ -277,14 +305,18 @@ dtpg_test(int argc,
   if ( verify ) {
     fsim = new_Fsim3();
     fsim->set_network(network);
-    dop_list.add(new_DopSaVerify(*fsim));
+    if ( sa_mode ) {
+      dop_list.add(new_DopSaVerify(*fsim));
+    }
+    else {
+      dop_list.add(new_DopTdVerify(*fsim));
+    }
   }
 
   TpgFaultMgr fmgr(network);
 
   BackTracer bt(bt_mode, network.node_num());
 
-  bool td_mode = false;
   Dtpg dtpg(sat_type, sat_option, sat_outp, td_mode, bt);
 
   StopWatch timer;

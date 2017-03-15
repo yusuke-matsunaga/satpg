@@ -13,7 +13,6 @@
 #include "TestVector.h"
 #include "Fsim.h"
 #include "td/RtpgStats.h"
-#include "FopRtpg.h"
 #include "ym/StopWatch.h"
 #include "ym/RandCombiGen.h"
 
@@ -142,10 +141,6 @@ RtpgP2::run(TpgFaultMgr& fmgr,
   TestVector* tv1 = tvmgr.new_td_vector();
   TestVector* tv2 = tvmgr.new_td_vector();
 
-  FopRtpg op(fsim, fmgr);
-
-  op.init();
-
   ymuint gnum = 0;
   ymuint pat_num = 0;
 
@@ -189,16 +184,19 @@ RtpgP2::run(TpgFaultMgr& fmgr,
 
 
       if ( wsa1 <= wsa_limit ) {
-	op.clear_count();
 
-	fsim.td_sppfp(tv1);
+	ymuint det_count = fsim.td_sppfp(tv1);
 	++ pat_num;
 
-	ymuint det_count = op.count(0);
 	if ( det_count > 0 ) {
 	  tvlist.push_back(tv1);
 	  tv1 = tvmgr.new_td_vector();
 	  ++ epat_num;
+	  for (ymuint i = 0; i < det_count; ++ i) {
+	    const TpgFault* f = fsim.det_fault(i);
+	    fmgr.set_status(f, kFsDetected);
+	    fsim.set_skip(f);
+	  }
 	}
 
 	total_det_count += det_count;
