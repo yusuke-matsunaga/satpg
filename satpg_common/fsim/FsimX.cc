@@ -650,6 +650,52 @@ FSIM_CLASSNAME::_ppsfp(FaultProp& fault_prop)
   return mDetNum;
 }
 
+// @brief 与えられたパタンに対する信号遷移回数を計算する．
+// @param[in] tv テストベクタ
+// @param[in] weighted 重み付けをするかどうかのフラグ
+//
+// weightedの意味は以下の通り
+// - false: ゲートの出力の遷移回数の和
+// - true : ゲートの出力の遷移回数に(ファンアウト数＋１)を掛けたものの和
+ymuint
+FSIM_CLASSNAME::td_calc_wsa(const TestVector* tv,
+			    bool weighted)
+{
+  TvInputVals iv(tv);
+
+  // 正常値の計算を行う．
+  _td_calc_gval(iv);
+
+  ymuint wsa = 0;
+  for (vector<SimNode*>::iterator p = mPPIArray.begin();
+       p != mPPIArray.end(); ++ p) {
+    SimNode* node = *p;
+    wsa += _calc_wsa(node, weighted);
+  }
+  for (vector<SimNode*>::iterator q = mLogicArray.begin();
+       q != mLogicArray.end(); ++ q) {
+    SimNode* node = *q;
+    wsa += _calc_wsa(node, weighted);
+  }
+
+  return wsa;
+}
+
+// @brief ノードの出力の(重み付き)信号遷移回数を求める．
+ymuint
+FSIM_CLASSNAME::_calc_wsa(SimNode* node,
+			  bool weighted)
+{
+  ymuint wsa = 0;
+  if ( mPrevValArray[node->id()] != node->val() ) {
+    wsa = 1;
+    if ( weighted ) {
+      wsa += node->fanout_num();
+    }
+  }
+  return wsa;
+}
+
 // @brief 正常値の計算を行う．(縮退故障用)
 // @param[in] input_vals 入力値
 void

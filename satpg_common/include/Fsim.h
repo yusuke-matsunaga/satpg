@@ -191,6 +191,18 @@ public:
   ymuint
   td_ppsfp() = 0;
 
+  /// @brief 与えられたパタンに対する信号遷移回数を計算する．
+  /// @param[in] tv テストベクタ
+  /// @param[in] weighted 重み付けをするかどうかのフラグ
+  ///
+  /// weightedの意味は以下の通り
+  /// - false: ゲートの出力の遷移回数の和
+  /// - true : ゲートの出力の遷移回数に(ファンアウト数＋１)を掛けたものの和
+  virtual
+  ymuint
+  td_calc_wsa(const TestVector* tv,
+	      bool weighted) = 0;
+
 
 public:
   //////////////////////////////////////////////////////////////////////
