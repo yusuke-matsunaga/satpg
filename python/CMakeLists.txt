@@ -37,7 +37,7 @@ set_source_files_properties (
 cython_add_module ( satpg
   ${CYTHON_SOURCES}
   $<TARGET_OBJECTS:satpg_common>
-  $<TARGET_OBJECTS:ym_common>
+  $<TARGET_OBJECTS:ym_base>
   $<TARGET_OBJECTS:ym_logic>
   $<TARGET_OBJECTS:ym_cell>
   $<TARGET_OBJECTS:ym_bnet>
