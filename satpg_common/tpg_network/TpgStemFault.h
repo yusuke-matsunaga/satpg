@@ -32,7 +32,7 @@ public:
 	       const char* name,
 	       int val,
 	       const TpgNode* node,
-	       const TpgFault* rep_fault);
+	       TpgFault* rep_fault);
 
   /// @brief デストラクタ
   virtual

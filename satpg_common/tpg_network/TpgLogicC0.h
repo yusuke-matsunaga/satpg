@@ -9,7 +9,7 @@
 /// All rights reserved.
 
 
-#include "TpgLogic0.h"
+#include "TpgLogic.h"
 
 
 BEGIN_NAMESPACE_YM_SATPG
@@ -25,9 +25,7 @@ public:
 
   /// @brief コンストラクタ
   /// @param[in] id ID番号
-  /// @param[in] name 名前
-  TpgLogicC0(ymuint id,
-	     const char* name);
+  TpgLogicC0(ymuint id);
 
   /// @brief デストラクタ
   ~TpgLogicC0();
@@ -51,7 +49,7 @@ public:
   virtual
   void
   make_cnf(SatSolver& solver,
-	   const LitMap& lit_map) const;
+	   const GateLitMap& lit_map) const;
 
 
 private:

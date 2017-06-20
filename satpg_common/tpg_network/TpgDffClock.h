@@ -1,0 +1,64 @@
+#ifndef TPGDFFCLOCK_H
+#define TPGDFFCLOCK_H
+
+/// @file TpgDffClock.h
+/// @brief TpgDffClock のヘッダファイル
+/// @author Yusuke Matsunaga (松永 裕介)
+///
+/// Copyright (C) 2016 Yusuke Matsunaga
+/// All rights reserved.
+
+
+#include "TpgDffControl.h"
+
+
+BEGIN_NAMESPACE_YM_SATPG
+
+//////////////////////////////////////////////////////////////////////
+/// @class TpgDffClock TpgDffClock.h "TpgDffClock.h"
+/// @brief DFFのクロックを表すクラス
+//////////////////////////////////////////////////////////////////////
+class TpgDffClock :
+  public TpgDffControl
+{
+public:
+
+  /// @brief コンストラクタ
+  /// @param[in] id ID番号
+  /// @param[in] dff 接続しているDFF
+  /// @param[in] fanin ファンインのノード
+  TpgDffClock(ymuint id,
+	      TpgDff* dff,
+	      TpgNode* fanin);
+
+  /// @brief デストラクタ
+  ~TpgDffClock();
+
+
+public:
+  //////////////////////////////////////////////////////////////////////
+  // 外部インターフェイス
+  //////////////////////////////////////////////////////////////////////
+
+  /// @brief DFF のクロック端子に接続している出力タイプの時 true を返す．
+  virtual
+  bool
+  is_dff_clock() const;
+
+
+public:
+  //////////////////////////////////////////////////////////////////////
+  // 内部で用いられる関数
+  //////////////////////////////////////////////////////////////////////
+
+
+private:
+  //////////////////////////////////////////////////////////////////////
+  // データメンバ
+  //////////////////////////////////////////////////////////////////////
+
+};
+
+END_NAMESPACE_YM_SATPG
+
+#endif // TPGDFFCLOCK_H

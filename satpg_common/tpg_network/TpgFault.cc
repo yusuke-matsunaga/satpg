@@ -25,16 +25,38 @@ BEGIN_NAMESPACE_YM_SATPG
 // @param[in] rep_fault 代表故障
 TpgFault::TpgFault(ymuint id,
 		   int val,
-		   const TpgFault* rep_fault) :
-  mId(id),
-  mVal(val),
+		   TpgFault* rep_fault) :
   mRepFault(rep_fault)
 {
+  // val は 0 か 1 のはずだが念の為マスクしておく
+  mIdVal = (id << 1) | static_cast<ymuint>(val & 1);
 }
 
 // @brief デストラクタ
 TpgFault::~TpgFault()
 {
+}
+
+// @brief 代表故障を設定する．
+// @param[in] rep 代表故障
+void
+TpgFault::set_rep(TpgFault* rep)
+{
+  mRepFault = rep;
+}
+
+// @brief FFRを設定する．
+void
+TpgFault::set_ffr(const TpgFFR* ffr)
+{
+  mFFR = ffr;
+}
+
+// @brief MFFCを設定する．
+void
+TpgFault::set_mffc(const TpgMFFC* mffc)
+{
+  mMFFC = mffc;
 }
 
 // @brief ストリーム出力演算子
@@ -62,7 +84,7 @@ TpgStemFault::TpgStemFault(ymuint id,
 			   const char* name,
 			   int val,
 			   const TpgNode* node,
-			   const TpgFault* rep_fault) :
+			   TpgFault* rep_fault) :
   TpgFault(id, val, rep_fault),
   mNodeName(name),
   mTpgNode(node)
@@ -152,7 +174,7 @@ TpgBranchFault::TpgBranchFault(ymuint id,
 			       const TpgNode* onode,
 			       const TpgNode* inode,
 			       ymuint tpg_pos,
-			       const TpgFault* rep_fault) :
+			       TpgFault* rep_fault) :
   TpgFault(id, val, rep_fault),
   mNodeName(name),
   mOnode(onode),

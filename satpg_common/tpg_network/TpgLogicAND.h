@@ -9,10 +9,7 @@
 /// All rights reserved.
 
 
-#include "TpgLogic2.h"
-#include "TpgLogic3.h"
-#include "TpgLogic4.h"
-#include "TpgLogicN.h"
+#include "TpgLogic.h"
 
 
 BEGIN_NAMESPACE_YM_SATPG
@@ -28,12 +25,11 @@ public:
 
   /// @brief コンストラクタ
   /// @param[in] id ID番号
-  /// @param[in] name 名前
-  /// @param[in] inode0, inode1 ファンインのノード
+  /// @param[in] fanin_list ファンインのリスト
+  ///
+  /// fanin_list.size() == 2 であることを仮定している．
   TpgLogicAND2(ymuint id,
-	       const char* name,
-	       TpgNode* inode0,
-	       TpgNode* inode1);
+	       const vector<TpgNode*>& fanin_list);
 
   /// @brief デストラクタ
   ~TpgLogicAND2();
@@ -89,7 +85,7 @@ public:
   virtual
   void
   make_cnf(SatSolver& solver,
-	   const LitMap& lit_map) const;
+	   const GateLitMap& lit_map) const;
 
   /// @brief 入出力の関係を表す CNF 式を生成する(故障あり)．
   /// @param[in] solver SAT ソルバ
@@ -103,20 +99,7 @@ public:
   make_faulty_cnf(SatSolver& solver,
 		  ymuint fpos,
 		  int fval,
-		  const LitMap& lit_map) const;
-
-
-private:
-  //////////////////////////////////////////////////////////////////////
-  // 内部で用いられる関数
-  //////////////////////////////////////////////////////////////////////
-
-
-private:
-  //////////////////////////////////////////////////////////////////////
-  // データメンバ
-  //////////////////////////////////////////////////////////////////////
-
+		  const GateLitMap& lit_map) const;
 
 };
 
@@ -132,13 +115,11 @@ public:
 
   /// @brief コンストラクタ
   /// @param[in] id ID番号
-  /// @param[in] name 名前
-  /// @param[in] inode0, inode1, inode2 ファンインのノード
+  /// @param[in] fanin_list ファンインのリスト
+  ///
+  /// fanin_list.size() == 3 であることを仮定している．
   TpgLogicAND3(ymuint id,
-	       const char* name,
-	       TpgNode* inode0,
-	       TpgNode* inode1,
-	       TpgNode* inode2);
+	       const vector<TpgNode*>& fanin_list);
 
   /// @brief デストラクタ
   ~TpgLogicAND3();
@@ -194,7 +175,7 @@ public:
   virtual
   void
   make_cnf(SatSolver& solver,
-	   const LitMap& lit_map) const;
+	   const GateLitMap& lit_map) const;
 
   /// @brief 入出力の関係を表す CNF 式を生成する(故障あり)．
   /// @param[in] solver SAT ソルバ
@@ -208,20 +189,7 @@ public:
   make_faulty_cnf(SatSolver& solver,
 		  ymuint fpos,
 		  int fval,
-		  const LitMap& lit_map) const;
-
-
-private:
-  //////////////////////////////////////////////////////////////////////
-  // 内部で用いられる関数
-  //////////////////////////////////////////////////////////////////////
-
-
-private:
-  //////////////////////////////////////////////////////////////////////
-  // データメンバ
-  //////////////////////////////////////////////////////////////////////
-
+		  const GateLitMap& lit_map) const;
 
 };
 
@@ -237,14 +205,11 @@ public:
 
   /// @brief コンストラクタ
   /// @param[in] id ID番号
-  /// @param[in] name 名前
-  /// @param[in] inode0, inode1, inode2, inode3 ファンインのノード
+  /// @param[in] fanin_list ファンインのリスト
+  ///
+  /// fanin_list.size() == 4 であることを仮定している．
   TpgLogicAND4(ymuint id,
-	       const char* name,
-	       TpgNode* inode0,
-	       TpgNode* inode1,
-	       TpgNode* inode2,
-	       TpgNode* inode3);
+	       const vector<TpgNode*>& fanin_list);
 
   /// @brief デストラクタ
   ~TpgLogicAND4();
@@ -300,7 +265,7 @@ public:
   virtual
   void
   make_cnf(SatSolver& solver,
-	   const LitMap& lit_map) const;
+	   const GateLitMap& lit_map) const;
 
   /// @brief 入出力の関係を表す CNF 式を生成する(故障あり)．
   /// @param[in] solver SAT ソルバ
@@ -314,26 +279,13 @@ public:
   make_faulty_cnf(SatSolver& solver,
 		  ymuint fpos,
 		  int fval,
-		  const LitMap& lit_map) const;
-
-
-private:
-  //////////////////////////////////////////////////////////////////////
-  // 内部で用いられる関数
-  //////////////////////////////////////////////////////////////////////
-
-
-private:
-  //////////////////////////////////////////////////////////////////////
-  // データメンバ
-  //////////////////////////////////////////////////////////////////////
-
+		  const GateLitMap& lit_map) const;
 
 };
 
 
 //////////////////////////////////////////////////////////////////////
-/// @class TpgLogicANDN TpgLogicAND.h "TpgLogicAND.h"
+/// @class TpgLogicAND TpgLogicAND.h "TpgLogicAND.h"
 /// @brief N入力ANDを表すクラス
 //////////////////////////////////////////////////////////////////////
 class TpgLogicANDN :
@@ -343,15 +295,7 @@ public:
 
   /// @brief コンストラクタ
   /// @param[in] id ID番号
-  /// @param[in] name 名前
-  /// @param[in] fanin_num ファンイン数
-  /// @param[in] fanin_array ファンインの配列
-  /// @param[in] fault_array 入力の故障の配列
-  TpgLogicANDN(ymuint id,
-	       const char* name,
-	       ymuint fanin_num,
-	       TpgNode** fanin_array,
-	       TpgFault** fault_array);
+  TpgLogicANDN(ymuint id);
 
   /// @brief デストラクタ
   ~TpgLogicANDN();
@@ -407,7 +351,7 @@ public:
   virtual
   void
   make_cnf(SatSolver& solver,
-	   const LitMap& lit_map) const;
+	   const GateLitMap& lit_map) const;
 
   /// @brief 入出力の関係を表す CNF 式を生成する(故障あり)．
   /// @param[in] solver SAT ソルバ
@@ -421,7 +365,7 @@ public:
   make_faulty_cnf(SatSolver& solver,
 		  ymuint fpos,
 		  int fval,
-		  const LitMap& lit_map) const;
+		  const GateLitMap& lit_map) const;
 
 
 private:

@@ -10,7 +10,8 @@
 #include "AtpgMgr.h"
 #include "TpgNetwork.h"
 #include "TpgFault.h"
-#include "FaultMgr.h"
+#include "TpgFaultMgr.h"
+
 #include "TvMgr.h"
 #include "Fsim.h"
 
@@ -25,11 +26,11 @@ BEGIN_NAMESPACE_YM_SATPG
 AtpgMgr::AtpgMgr() :
   mTimer(TM_SIZE, TM_MISC)
 {
-  mFaultMgr = new FaultMgr();
+  mFaultMgr = nullptr;
+
   mTvMgr = new TvMgr();
 
-  mFsim = new_Fsim2();
-  mTFsim = new_TFsim2();
+  mFsim2 = new_Fsim2();
   mFsim3 = new_Fsim3();
 }
 
@@ -38,8 +39,7 @@ AtpgMgr::~AtpgMgr()
 {
   delete mFaultMgr;
   delete mTvMgr;
-  delete mFsim;
-  delete mTFsim;
+  delete mFsim2;
   delete mFsim3;
 }
 
@@ -82,14 +82,12 @@ AtpgMgr::misc_time() const
 void
 AtpgMgr::after_set_network()
 {
-  mFaultMgr->set_faults(mNetwork);
+  delete mFaultMgr;
+  mFaultMgr = new TpgFaultMgr(_network());
 
-  mTvMgr->clear();
-  mTvMgr->init(mNetwork.input_num2());
-
-  mFsim->set_network(mNetwork);
-  mTFsim->set_network(mNetwork);
-  mFsim3->set_network(mNetwork);
+  mTvMgr->init(_network());
+  mFsim2->set_network(_network());
+  mFsim3->set_network(_network());
 }
 
 END_NAMESPACE_YM_SATPG

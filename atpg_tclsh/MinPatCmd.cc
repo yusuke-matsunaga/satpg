@@ -8,8 +8,8 @@
 
 
 #include "MinPatCmd.h"
-#include "MinPat.h"
-#include "MinPatStats.h"
+#include "sa/MinPat.h"
+#include "sa/MinPatStats.h"
 #include "ym/TclPopt.h"
 
 
@@ -84,36 +84,36 @@ MinPatCmd::cmd_proc(TclObjVector& objv)
   ymuint thval = mPoptThVal->val();
   bool rep_faults = mPoptRepFaults->is_specified();
 
-  MinPat* minpat = nullptr;
+  nsSa::MinPat* minpat = nullptr;
 
   if ( simple ) {
-    minpat = new_MinPatSimple(group_dominance, rep_faults);
+    minpat = nsSa::new_MinPatSimple(group_dominance, rep_faults);
   }
   else if ( simple2 ) {
-    minpat = new_MinPatSimple2(group_dominance);
+    minpat = nsSa::new_MinPatSimple2(group_dominance);
   }
   else if ( dsatur ) {
-    minpat = new_MinPatDsatur();
+    minpat = nsSa::new_MinPatDsatur();
   }
   else if ( dsatur2 ) {
-    minpat = new_MinPatDsatur2();
+    minpat = nsSa::new_MinPatDsatur2();
   }
   else {
-    minpat = new_MinPat(group_dominance);
+    minpat = nsSa::new_MinPat(group_dominance);
   }
 
   minpat->set_verbose(verbose);
 
   USTime time;
-  minpat->run(_network(), _fault_mgr(), _tv_mgr(),  _fsim(), _fsim3(),
+  minpat->run(_network(), _fault_mgr(), _tv_mgr(),  _fsim2(), _fsim3(),
 	      exact, compaction, fast_compaction, mc_compaction, has_thval, thval,
-	      _tv_list(), time);
+	      _sa_tv_list(), time);
 
   delete minpat;
 
   if ( print_stats ) {
     cout << " # of patterns: "
-	 << setw(10) << _tv_list().size()
+	 << setw(10) << _sa_tv_list().size()
 	 << ": " << time << endl;
   }
 

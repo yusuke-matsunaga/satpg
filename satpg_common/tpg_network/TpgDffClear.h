@@ -1,0 +1,64 @@
+#ifndef TPGDFFCLEAR_H
+#define TPGDFFCLEAR_H
+
+/// @file TpgDffClear.h
+/// @brief TpgDffClear のヘッダファイル
+/// @author Yusuke Matsunaga (松永 裕介)
+///
+/// Copyright (C) 2016 Yusuke Matsunaga
+/// All rights reserved.
+
+
+#include "TpgDffControl.h"
+
+
+BEGIN_NAMESPACE_YM_SATPG
+
+//////////////////////////////////////////////////////////////////////
+/// @class TpgDffClear TpgDffClear.h "TpgDffClear.h"
+/// @brief DFFのクリア端子を表すクラス
+//////////////////////////////////////////////////////////////////////
+class TpgDffClear :
+  public TpgDffControl
+{
+public:
+
+  /// @brief コンストラクタ
+  /// @param[in] id ID番号
+  /// @param[in] dff 接続しているDFF
+  /// @param[in] fanin ファンインのノード
+  TpgDffClear(ymuint id,
+	      TpgDff* dff,
+	      TpgNode* fanin);
+
+  /// @brief デストラクタ
+  ~TpgDffClear();
+
+
+public:
+  //////////////////////////////////////////////////////////////////////
+  // 外部インターフェイス
+  //////////////////////////////////////////////////////////////////////
+
+  /// @brief DFF のクリア端子に接続している力タイプの時 true を返す．
+  virtual
+  bool
+  is_dff_clear() const;
+
+
+public:
+  //////////////////////////////////////////////////////////////////////
+  // 内部で用いられる関数
+  //////////////////////////////////////////////////////////////////////
+
+
+private:
+  //////////////////////////////////////////////////////////////////////
+  // データメンバ
+  //////////////////////////////////////////////////////////////////////
+
+};
+
+END_NAMESPACE_YM_SATPG
+
+#endif // TPGDFFCLEAR_H

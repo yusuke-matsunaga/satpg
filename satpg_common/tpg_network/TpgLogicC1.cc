@@ -19,10 +19,8 @@ BEGIN_NAMESPACE_YM_SATPG
 
 // @brief コンストラクタ
 // @param[in] id ID番号
-// @param[in] name 名前
-TpgLogicC1::TpgLogicC1(ymuint id,
-		       const char* name) :
-  TpgLogic0(id, name)
+TpgLogicC1::TpgLogicC1(ymuint id) :
+  TpgLogic0(id)
 {
 }
 
@@ -45,7 +43,7 @@ TpgLogicC1::gate_type() const
 // @param[in] lit_map 入出力とリテラルの対応マップ
 void
 TpgLogicC1::make_cnf(SatSolver& solver,
-		     const LitMap& lit_map) const
+		     const GateLitMap& lit_map) const
 {
   SatLiteral olit = lit_map.output();
   solver.add_clause(olit);

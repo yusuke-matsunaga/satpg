@@ -9,7 +9,7 @@
 /// All rights reserved.
 
 
-#include "TpgLogic2.h"
+#include "TpgLogic.h"
 
 
 BEGIN_NAMESPACE_YM_SATPG
@@ -25,12 +25,9 @@ public:
 
   /// @brief コンストラクタ
   /// @param[in] id ID番号
-  /// @param[in] name 名前
-  /// @param[in] inode0, inode1 ファンインのノード
+  /// @param[in] fanin_list ファンインのリスト
   TpgLogicXNOR2(ymuint id,
-		const char* name,
-		TpgNode* inode0,
-		TpgNode* inode1);
+		const vector<TpgNode*>& fanin_list);
 
   /// @brief デストラクタ
   ~TpgLogicXNOR2();
@@ -86,7 +83,7 @@ public:
   virtual
   void
   make_cnf(SatSolver& solver,
-	   const LitMap& lit_map) const;
+	   const GateLitMap& lit_map) const;
 
   /// @brief 入出力の関係を表す CNF 式を生成する(故障あり)．
   /// @param[in] solver SAT ソルバ
@@ -100,7 +97,7 @@ public:
   make_faulty_cnf(SatSolver& solver,
 		  ymuint fpos,
 		  int fval,
-		  const LitMap& lit_map) const;
+		  const GateLitMap& lit_map) const;
 
 
 private:

@@ -19,13 +19,10 @@ BEGIN_NAMESPACE_YM_SATPG
 
 // @brief コンストラクタ
 // @param[in] id ID番号
-// @param[in] name 名前
-// @param[in] inode0, inode1 ファンインのノード
+// @param[in] fanin_list ファンインのリスト
 TpgLogicXOR2::TpgLogicXOR2(ymuint id,
-			   const char* name,
-			   TpgNode* inode0,
-			   TpgNode* inode1) :
-  TpgLogic2(id, name, inode0, inode1)
+			   const vector<TpgNode*>& fanin_list) :
+  TpgLogic2(id, fanin_list)
 {
 }
 
@@ -88,15 +85,13 @@ TpgLogicXOR2::noval() const
 // @param[in] lit_map 入出力とリテラルの対応マップ
 void
 TpgLogicXOR2::make_cnf(SatSolver& solver,
-		      const LitMap& lit_map) const
+		      const GateLitMap& lit_map) const
 {
   SatLiteral ilit0 = lit_map.input(0);
   SatLiteral ilit1 = lit_map.input(1);
   SatLiteral olit  = lit_map.output();
-  solver.add_clause(~ilit0, ~ilit1, ~olit);
-  solver.add_clause(~ilit0,  ilit1,  olit);
-  solver.add_clause( ilit0, ~ilit1,  olit);
-  solver.add_clause( ilit0,  ilit1, ~olit);
+
+  solver.add_xorgate_rel(olit, ilit0, ilit1);
 }
 
 // @brief 入出力の関係を表す CNF 式を生成する(故障あり)．
@@ -110,18 +105,16 @@ void
 TpgLogicXOR2::make_faulty_cnf(SatSolver& solver,
 			      ymuint fpos,
 			      int fval,
-			      const LitMap& lit_map) const
+			      const GateLitMap& lit_map) const
 {
   ymuint pos = (fpos == 0) ? 1 : 0;
   SatLiteral ilit0 = lit_map.input(pos);
   SatLiteral olit  = lit_map.output();
   if ( fval == 0 ) {
-    solver.add_clause(~ilit0,  olit);
-    solver.add_clause( ilit0, ~olit);
+    solver.add_eq_rel(olit, ilit0);
   }
   else {
-    solver.add_clause(~ilit0, ~olit);
-    solver.add_clause( ilit0,  olit);
+    solver.add_neq_rel(olit, ilit0);
   }
 }
 

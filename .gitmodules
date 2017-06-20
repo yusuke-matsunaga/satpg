@@ -22,3 +22,6 @@
 [submodule "ym-tclpp"]
 	path = ym-tclpp
 	url = git@github.com:yusuke-matsunaga/ym-tclpp.git
+[submodule "ym-base"]
+	path = ym-base
+	url = git@github.com:yusuke-matsunaga/ym-base.git

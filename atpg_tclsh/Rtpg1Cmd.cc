@@ -8,11 +8,12 @@
 
 
 #include "Rtpg1Cmd.h"
-#include "RtpgTP.h"
-#include "RtpgStats.h"
-#include "FaultMgr.h"
+#include "TpgFaultMgr.h"
+#include "td/Rtpg.h"
+#include "td/RtpgStats.h"
 #include "Fsim.h"
 #include "TvMgr.h"
+#include "TestVector.h"
 #include "ym/TclPopt.h"
 #include "ym/RandGen.h"
 
@@ -60,13 +61,13 @@ Rtpg1Cmd::cmd_proc(TclObjVector& objv)
     return TCL_ERROR;
   }
 
-  RtpgTP* rtpg = nullptr;
+  nsTd::Rtpg* rtpg = nullptr;
   if ( mPoptMcmc->is_specified() ) {
     ymuint nbits = mPoptMcmc->val();
-    rtpg = new_RtpgTP2(nbits);
+    rtpg = nsTd::new_RtpgP2(nbits);
   }
   else {
-    rtpg = new_RtpgTP1();
+    rtpg = nsTd::new_RtpgP1();
   }
 
   bool n_flag = false;
@@ -101,15 +102,16 @@ Rtpg1Cmd::cmd_proc(TclObjVector& objv)
     // 平均の WSA を求める．
     RandGen randgen;
     ymuint n_count = 10000;
-    Fsim& fsim = _tfsim();
+    Fsim& fsim = _fsim2();
     TvMgr& tvmgr = _tv_mgr();
-    TestVector* tv = tvmgr.new_vector();
+    TestVector* tv = tvmgr.new_td_vector();
     ymuint wsa_sum = 0;
     ymuint wsa_max = 0;
     ymuint wsa_min = 0;
     for (ymuint i = 0; i < n_count; ++ i) {
       tv->set_from_random(randgen);
-      ymuint wsa1 = fsim.calc_wsa(tv);
+      //ymuint wsa1 = fsim.calc_wsa(tv);
+      ymuint wsa1 = 0;
       wsa_sum += wsa1;
       if ( wsa_max < wsa1 ) {
 	wsa_max = wsa1;
@@ -137,21 +139,14 @@ Rtpg1Cmd::cmd_proc(TclObjVector& objv)
     max_i = 0;
   }
 
-  FaultMgr& fmgr = _fault_mgr();
-  Fsim& fsim = _tfsim();
+  TpgFaultMgr& fmgr = _fault_mgr();
+  Fsim& fsim = _fsim2();
   TvMgr& tvmgr = _tv_mgr();
-  const vector<const TpgFault*>& fault_list = fmgr.remain_list();
 
-  vector<const TpgFault*> det_fault_list;
-  vector<TestVector*>& tv_list = _tv_list();
-  RtpgStats stats;
+  vector<const TestVector*>& tv_list = _td_tv_list();
+  nsTd::RtpgStats stats;
 
-  rtpg->run(fault_list, tvmgr, fsim, min_f, max_i, max_pat, wsa_limit, det_fault_list, tv_list, stats);
-
-  for (ymuint i = 0; i < det_fault_list.size(); ++ i) {
-    const TpgFault* fault = det_fault_list[i];
-    fmgr.set_status(fault, kFsDetected);
-  }
+  rtpg->run(fmgr, tvmgr, fsim, min_f, max_i, max_pat, wsa_limit, tv_list, stats);
 
   after_update_faults();
 

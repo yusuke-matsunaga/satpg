@@ -11,10 +11,12 @@
 #include "ym/TclPopt.h"
 #include "AtpgMgr.h"
 #include "TpgNetwork.h"
+#include "TpgMFFC.h"
+#include "TpgFaultMgr.h"
 #include "DtpgStats.h"
-#include "DtpgEngine.h"
-#include "FaultMgr.h"
+#include "Dtpg.h"
 #include "Fsim.h"
+#include "NodeValList.h"
 #include "BackTracer.h"
 #include "DetectOp.h"
 #include "DopList.h"
@@ -23,6 +25,64 @@
 
 
 BEGIN_NAMESPACE_YM_SATPG
+
+void
+run_single(Dtpg& dtpg,
+	   const TpgNetwork& network,
+	   TpgFaultMgr& fmgr,
+	   DetectOp& dop,
+	   UntestOp& uop,
+	   DtpgStats& stats)
+{
+  ymuint nf = network.rep_fault_num();
+  for (ymuint i = 0; i < nf; ++ i) {
+    const TpgFault* fault = network.rep_fault(i);
+    if ( fmgr.status(fault) == kFsUndetected ) {
+      const TpgFFR* ffr = fault->ffr();
+      dtpg.gen_ffr_cnf(network, ffr, stats);
+      NodeValList nodeval_list;
+      SatBool3 ans = dtpg.dtpg(fault, nodeval_list, stats);
+      if ( ans == kB3True ) {
+	dop(fault, nodeval_list);
+      }
+      else if ( ans == kB3False ) {
+	uop(fault);
+      }
+    }
+  }
+}
+
+void
+run_mffc(Dtpg& dtpg,
+	 const TpgNetwork& network,
+	 TpgFaultMgr& fmgr,
+	 DetectOp& dop,
+	 UntestOp& uop,
+	 DtpgStats& stats)
+{
+  ymuint n = network.mffc_num();
+  for (ymuint i = 0; i < n; ++ i) {
+    const TpgMFFC* mffc = network.mffc(i);
+
+    dtpg.gen_mffc_cnf(network, mffc, stats);
+
+    ymuint nf = mffc->fault_num();
+    for (ymuint j = 0; j < nf; ++ j) {
+      const TpgFault* fault = mffc->fault(j);
+      if ( fmgr.status(fault) == kFsUndetected ) {
+	// 故障に対するテスト生成を行なう．
+	NodeValList nodeval_list;
+	SatBool3 ans = dtpg.dtpg(fault, nodeval_list, stats);
+	if ( ans == kB3True ) {
+	  dop(fault, nodeval_list);
+	}
+	else if ( ans == kB3False ) {
+	  uop(fault);
+	}
+      }
+    }
+  }
+}
 
 //////////////////////////////////////////////////////////////////////
 // テストパタン生成を行うコマンド
@@ -34,7 +94,7 @@ DtpgCmd::DtpgCmd(AtpgMgr* mgr) :
 {
   mPoptVerbose = new TclPoptInt(this, "verbose",
 				"specify verbose level (0, 1, 2, ...)");
-  mPoptSat = new TclPopt(this, "sat",
+  mPoptSat = new TclPoptStr(this, "sat",
 			 "SAT mode");
   mPoptSatOption = new TclPoptStr(this, "sat-option",
 			 "SAT option <STRING>");
@@ -44,8 +104,12 @@ DtpgCmd::DtpgCmd(AtpgMgr* mgr) :
 			     "MINISAT mode");
   mPoptMiniSat2 = new TclPopt(this, "minisat2",
 			     "MINISAT-2 mode");
+  mPoptYmSat1 = new TclPopt(this, "ymsat1",
+			    "YmSat1 mode");
   mPoptPrintStats = new TclPopt(this, "print_stats",
 				"print statistics");
+  mPoptSingle0 = new TclPopt(this, "single0",
+			     "original single mode");
   mPoptSingle = new TclPopt(this, "single",
 			    "single mode");
   mPoptMFFC = new TclPopt(this, "mffc",
@@ -69,7 +133,7 @@ DtpgCmd::DtpgCmd(AtpgMgr* mgr) :
 
   new_popt_group(mPoptSat, mPoptMiniSat, mPoptMiniSat2, mPoptSatRec);
 
-  TclPoptGroup* g0 = new_popt_group(mPoptSingle, mPoptMFFC);
+  TclPoptGroup* g0 = new_popt_group(mPoptSingle0, mPoptSingle, mPoptMFFC);
 
   new_popt_group(mPoptTimer, mPoptNoTimer);
 }
@@ -105,17 +169,7 @@ DtpgCmd::cmd_proc(TclObjVector& objv)
     sat_option = mPoptSatOption->val();
   }
   if ( mPoptSat->is_specified() ) {
-    sat_type = "";
-  }
-  else if ( mPoptSatRec->is_specified() ) {
-    sat_type = "satrec";
-    outp = &cout;
-  }
-  else if ( mPoptMiniSat->is_specified() ) {
-    sat_type = "minisat";
-  }
-  else if ( mPoptMiniSat2->is_specified() ) {
-    sat_type = "minisat2";
+    sat_type = mPoptSat->val();
   }
   else {
     sat_type = "";
@@ -135,6 +189,9 @@ DtpgCmd::cmd_proc(TclObjVector& objv)
       engine_type = "single";
     }
   }
+  else if ( mPoptSingle0->is_specified() ) {
+    engine_type = "single0";
+  }
   else if ( mPoptMFFC->is_specified() ) {
     engine_type = "mffc";
   }
@@ -145,7 +202,7 @@ DtpgCmd::cmd_proc(TclObjVector& objv)
   UopList uop_list;
 
   if ( !mPoptNoPat->is_specified() ) {
-    dop_list.add(new_DopTvList(_tv_mgr(), _tv_list()));
+    dop_list.add(new_DopTvListSa(_tv_mgr(), _sa_tv_list()));
   }
   dop_list.add(new_DopBase(_fault_mgr()));
   uop_list.add(new_UopBase(_fault_mgr()));
@@ -155,13 +212,13 @@ DtpgCmd::cmd_proc(TclObjVector& objv)
     xmode = mPoptX->val();
   }
 
-  BackTracer bt(_network().node_num());
+  BackTracer bt(xmode, _network().node_num());
 
   if ( mPoptDrop->is_specified() ) {
     dop_list.add(new_DopDrop(_fault_mgr(), _fsim3()));
   }
   if ( mPoptVerify->is_specified() ) {
-    dop_list.add(new_DopVerify(_fsim3()));
+    dop_list.add(new_DopSaVerify(_fsim3()));
   }
 
   bool timer_enable = true;
@@ -169,26 +226,27 @@ DtpgCmd::cmd_proc(TclObjVector& objv)
     timer_enable = false;
   }
 
-  DtpgEngine* engine = nullptr;
+  _fsim3().set_skip_all();
+  for (ymuint i = 0; i < _fault_mgr().max_fault_id(); ++ i) {
+    const TpgFault* f = _fault_mgr().fault(i);
+    if ( f != nullptr && _fault_mgr().status(f) == kFsUndetected ) {
+      _fsim3().clear_skip(f);
+    }
+  }
+
+  bool td_mode = false;
+  Dtpg dtpg(sat_type, sat_option, outp, td_mode, bt);
+
+  DtpgStats stats;
   if ( engine_type == "single" ) {
-    engine = new_DtpgSatS(sat_type, sat_option, outp, bt, dop_list, uop_list);
+    run_single(dtpg, _network(), _fault_mgr(), dop_list, uop_list, stats);
   }
   else if ( engine_type == "mffc" ) {
-    engine = new_DtpgSatH(sat_type, sat_option, outp, bt, dop_list, uop_list);
+    run_mffc(dtpg, _network(), _fault_mgr(), dop_list, uop_list, stats);
   }
   else {
-    // デフォルトフォールバック
-    engine = new_DtpgSatS(sat_type, sat_option, outp, bt, dop_list, uop_list);
+    run_single(dtpg, _network(), _fault_mgr(), dop_list, uop_list, stats);
   }
-
-  engine->set_option(option_str);
-  engine->timer_enable(timer_enable);
-
-  const vector<const TpgFault*>& fault_list = _fault_mgr().remain_list();
-  DtpgStats stats;
-  engine->run(_network(), _fault_mgr(), _fsim3(), fault_list, stats);
-
-  delete engine;
 
   after_update_faults();
 
@@ -296,6 +354,13 @@ DtpgCmd::cmd_proc(TclObjVector& objv)
 	   << "  " << setw(8) << stats.mAbortTime.sys_time_usec() / stats.mAbortCount
 	   << "s usec" << endl;
     }
+    cout << endl
+	 << "*** backtrace time ***" << endl
+	 << "  " << stats.mBackTraceTime
+	 << "  " << setw(8) << stats.mBackTraceTime.usr_time_usec() / stats.mDetCount
+	 << "u usec"
+	 << "  " << setw(8) << stats.mBackTraceTime.sys_time_usec() / stats.mDetCount
+	 << "s usec" << endl;
     cout.flags(save);
   }
 

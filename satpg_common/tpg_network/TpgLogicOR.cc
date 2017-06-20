@@ -19,13 +19,10 @@ BEGIN_NAMESPACE_YM_SATPG
 
 // @brief コンストラクタ
 // @param[in] id ID番号
-// @param[in] name 名前
-// @param[in] inode0, inode1 ファンインのノード
+// @param[in] fanin_list ファンインのリスト
 TpgLogicOR2::TpgLogicOR2(ymuint id,
-			 const char* name,
-			 TpgNode* inode0,
-			 TpgNode* inode1) :
-  TpgLogic2(id, name, inode0, inode1)
+			 const vector<TpgNode*>& fanin_list) :
+  TpgLogic2(id, fanin_list)
 {
 }
 
@@ -88,14 +85,13 @@ TpgLogicOR2::noval() const
 // @param[in] lit_map 入出力とリテラルの対応マップ
 void
 TpgLogicOR2::make_cnf(SatSolver& solver,
-		      const LitMap& lit_map) const
+		      const GateLitMap& lit_map) const
 {
+  SatLiteral olit  = lit_map.output();
   SatLiteral ilit0 = lit_map.input(0);
   SatLiteral ilit1 = lit_map.input(1);
-  SatLiteral olit  = lit_map.output();
-  solver.add_clause(~ilit0,          olit);
-  solver.add_clause(~ilit1,          olit);
-  solver.add_clause( ilit0,  ilit1, ~olit);
+
+  solver.add_orgate_rel(olit, ilit0, ilit1);
 }
 
 // @brief 入出力の関係を表す CNF 式を生成する(故障あり)．
@@ -109,14 +105,19 @@ void
 TpgLogicOR2::make_faulty_cnf(SatSolver& solver,
 			     ymuint fpos,
 			     int fval,
-			     const LitMap& lit_map) const
+			     const GateLitMap& lit_map) const
 {
   ASSERT_COND( fval == 0 );
-  ymuint pos = (fpos == 0) ? 1 : 0;
-  SatLiteral ilit0 = lit_map.input(pos);
+
   SatLiteral olit  = lit_map.output();
-  solver.add_clause(~ilit0,  olit);
-  solver.add_clause( ilit0, ~olit);
+  SatLiteral ilit0;
+
+  switch ( fpos ) {
+  case 0: ilit0 = lit_map.input(1); break;
+  case 1: ilit0 = lit_map.input(0); break;
+  }
+
+  solver.add_eq_rel(olit, ilit0);
 }
 
 
@@ -126,14 +127,10 @@ TpgLogicOR2::make_faulty_cnf(SatSolver& solver,
 
 // @brief コンストラクタ
 // @param[in] id ID番号
-// @param[in] name 名前
-// @param[in] inode0, inode1, inode2 ファンインのノード
+// @param[in] fanin_list ファンインのリスト
 TpgLogicOR3::TpgLogicOR3(ymuint id,
-			 const char* name,
-			 TpgNode* inode0,
-			 TpgNode* inode1,
-			 TpgNode* inode2) :
-  TpgLogic3(id, name, inode0, inode1, inode2)
+			 const vector<TpgNode*>& fanin_list) :
+  TpgLogic3(id, fanin_list)
 {
 }
 
@@ -196,16 +193,14 @@ TpgLogicOR3::noval() const
 // @param[in] lit_map 入出力とリテラルの対応マップ
 void
 TpgLogicOR3::make_cnf(SatSolver& solver,
-		      const LitMap& lit_map) const
+		      const GateLitMap& lit_map) const
 {
+  SatLiteral olit  = lit_map.output();
   SatLiteral ilit0 = lit_map.input(0);
   SatLiteral ilit1 = lit_map.input(1);
   SatLiteral ilit2 = lit_map.input(2);
-  SatLiteral olit  = lit_map.output();
-  solver.add_clause(~ilit0,                  olit);
-  solver.add_clause(~ilit1,                  olit);
-  solver.add_clause(~ilit2,                  olit);
-  solver.add_clause( ilit0,  ilit1,  ilit2, ~olit);
+
+  solver.add_orgate_rel(olit, ilit0, ilit1, ilit2);
 }
 
 // @brief 入出力の関係を表す CNF 式を生成する(故障あり)．
@@ -219,31 +214,32 @@ void
 TpgLogicOR3::make_faulty_cnf(SatSolver& solver,
 			     ymuint fpos,
 			     int fval,
-			     const LitMap& lit_map) const
+			     const GateLitMap& lit_map) const
 {
   ASSERT_COND( fval == 0 );
-  ymuint pos0;
-  ymuint pos1;
+
+  SatLiteral olit  = lit_map.output();
+  SatLiteral ilit0;
+  SatLiteral ilit1;
+
   switch ( fpos ) {
   case 0:
-    pos0 = 1;
-    pos1 = 2;
+    ilit0 = lit_map.input(1);
+    ilit1 = lit_map.input(2);
     break;
+
   case 1:
-    pos0 = 0;
-    pos1 = 2;
+    ilit0 = lit_map.input(0);
+    ilit1 = lit_map.input(2);
     break;
+
   case 2:
-    pos0 = 0;
-    pos1 = 1;
+    ilit0 = lit_map.input(0);
+    ilit1 = lit_map.input(1);
     break;
   }
-  SatLiteral ilit0 = lit_map.input(pos0);
-  SatLiteral ilit1 = lit_map.input(pos1);
-  SatLiteral olit  = lit_map.output();
-  solver.add_clause(~ilit0,          olit);
-  solver.add_clause(~ilit1,          olit);
-  solver.add_clause( ilit0,  ilit1, ~olit);
+
+  solver.add_orgate_rel(olit, ilit0, ilit1);
 }
 
 
@@ -253,15 +249,10 @@ TpgLogicOR3::make_faulty_cnf(SatSolver& solver,
 
 // @brief コンストラクタ
 // @param[in] id ID番号
-// @param[in] name 名前
-// @param[in] inode0, inode1, inode2, inode3 ファンインのノード
+// @param[in] fanin_list ファンインのリスト
 TpgLogicOR4::TpgLogicOR4(ymuint id,
-			 const char* name,
-			 TpgNode* inode0,
-			 TpgNode* inode1,
-			 TpgNode* inode2,
-			 TpgNode* inode3) :
-  TpgLogic4(id, name, inode0, inode1, inode2, inode3)
+			 const vector<TpgNode*>& fanin_list) :
+  TpgLogic4(id, fanin_list)
 {
 }
 
@@ -324,18 +315,15 @@ TpgLogicOR4::noval() const
 // @param[in] lit_map 入出力とリテラルの対応マップ
 void
 TpgLogicOR4::make_cnf(SatSolver& solver,
-		      const LitMap& lit_map) const
+		      const GateLitMap& lit_map) const
 {
+  SatLiteral olit  = lit_map.output();
   SatLiteral ilit0 = lit_map.input(0);
   SatLiteral ilit1 = lit_map.input(1);
   SatLiteral ilit2 = lit_map.input(2);
   SatLiteral ilit3 = lit_map.input(3);
-  SatLiteral olit  = lit_map.output();
-  solver.add_clause(~ilit0,                          olit);
-  solver.add_clause(~ilit1,                          olit);
-  solver.add_clause(~ilit2,                          olit);
-  solver.add_clause(~ilit3,                          olit);
-  solver.add_clause( ilit0,  ilit1,  ilit2,  ilit3, ~olit);
+
+  solver.add_orgate_rel(olit, ilit0, ilit1, ilit2, ilit3);
 }
 
 // @brief 入出力の関係を表す CNF 式を生成する(故障あり)．
@@ -349,44 +337,43 @@ void
 TpgLogicOR4::make_faulty_cnf(SatSolver& solver,
 			     ymuint fpos,
 			     int fval,
-			     const LitMap& lit_map) const
+			     const GateLitMap& lit_map) const
 {
   ASSERT_COND( fval == 0 );
-  ymuint pos0;
-  ymuint pos1;
-  ymuint pos2;
+
+  SatLiteral olit  = lit_map.output();
+  SatLiteral ilit0;
+  SatLiteral ilit1;
+  SatLiteral ilit2;
+
   switch ( fpos ) {
   case 0:
-    pos0 = 1;
-    pos1 = 2;
-    pos2 = 3;
+    ilit0 = lit_map.input(1);
+    ilit1 = lit_map.input(2);
+    ilit2 = lit_map.input(3);
     break;
+
   case 1:
-    pos0 = 0;
-    pos1 = 2;
-    pos2 = 3;
+    ilit0 = lit_map.input(0);
+    ilit1 = lit_map.input(2);
+    ilit2 = lit_map.input(3);
     break;
+
   case 2:
-    pos0 = 0;
-    pos1 = 1;
-    pos2 = 3;
+    ilit0 = lit_map.input(0);
+    ilit1 = lit_map.input(1);
+    ilit2 = lit_map.input(3);
     break;
+
   case 3:
-    pos0 = 0;
-    pos1 = 1;
-    pos2 = 2;
+    ilit0 = lit_map.input(0);
+    ilit1 = lit_map.input(1);
+    ilit2 = lit_map.input(2);
     break;
   }
-  SatLiteral ilit0 = lit_map.input(pos0);
-  SatLiteral ilit1 = lit_map.input(pos1);
-  SatLiteral ilit2 = lit_map.input(pos2);
-  SatLiteral olit  = lit_map.output();
-  solver.add_clause(~ilit0,                  olit);
-  solver.add_clause(~ilit1,                  olit);
-  solver.add_clause(~ilit2,                  olit);
-  solver.add_clause( ilit0,  ilit1,  ilit2, ~olit);
-}
 
+  solver.add_orgate_rel(olit, ilit0, ilit1, ilit2);
+}
 
 //////////////////////////////////////////////////////////////////////
 // クラス TpgLogicORN
@@ -394,16 +381,8 @@ TpgLogicOR4::make_faulty_cnf(SatSolver& solver,
 
 // @brief コンストラクタ
 // @param[in] id ID番号
-// @param[in] name 名前
-// @param[in] fanin_num ファンイン数
-// @param[in] fanin_array ファンインの配列
-// @param[in] fault_array 入力の故障の配列
-TpgLogicORN::TpgLogicORN(ymuint id,
-			 const char* name,
-			 ymuint fanin_num,
-			 TpgNode** fanin_array,
-			 TpgFault** fault_array) :
-  TpgLogicN(id, name, fanin_num, fanin_array, fault_array)
+TpgLogicORN::TpgLogicORN(ymuint id) :
+  TpgLogicN(id)
 {
 }
 
@@ -466,18 +445,17 @@ TpgLogicORN::noval() const
 // @param[in] lit_map 入出力とリテラルの対応マップ
 void
 TpgLogicORN::make_cnf(SatSolver& solver,
-		      const LitMap& lit_map) const
+		      const GateLitMap& lit_map) const
 {
   SatLiteral olit  = lit_map.output();
   ymuint ni = fanin_num();
-  vector<SatLiteral> tmp_lits(ni + 1);
+  vector<SatLiteral> ilits(ni);
   for (ymuint i = 0; i < ni; ++ i) {
     SatLiteral ilit = lit_map.input(i);
-    solver.add_clause(~ilit, olit);
-    tmp_lits[i] = ilit;
+    ilits[i] = ilit;
   }
-  tmp_lits[ni] = ~olit;
-  solver.add_clause(tmp_lits);
+
+  solver.add_orgate_rel(olit, ilits);
 }
 
 // @brief 入出力の関係を表す CNF 式を生成する(故障あり)．
@@ -491,23 +469,23 @@ void
 TpgLogicORN::make_faulty_cnf(SatSolver& solver,
 			     ymuint fpos,
 			     int fval,
-			     const LitMap& lit_map) const
+			     const GateLitMap& lit_map) const
 {
   ASSERT_COND( fval == 0 );
+
   SatLiteral olit  = lit_map.output();
   ymuint ni = fanin_num();
-  vector<SatLiteral> tmp_lits;
-  tmp_lits.reserve(ni);
+  vector<SatLiteral> ilits;
+  ilits.reserve(ni - 1);
   for (ymuint i = 0; i < ni; ++ i) {
     if ( i == fpos ) {
       continue;
     }
     SatLiteral ilit = lit_map.input(i);
-    solver.add_clause(~ilit, olit);
-    tmp_lits.push_back(ilit);
+    ilits.push_back(ilit);
   }
-  tmp_lits.push_back(~olit);
-  solver.add_clause(tmp_lits);
+
+  solver.add_orgate_rel(olit, ilits);
 }
 
 END_NAMESPACE_YM_SATPG

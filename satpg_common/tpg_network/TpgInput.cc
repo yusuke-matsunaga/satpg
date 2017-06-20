@@ -18,13 +18,10 @@ BEGIN_NAMESPACE_YM_SATPG
 
 // @brief コンストラクタ
 // @param[in] id ID番号
-// @param[in] name 名前
 // @param[in] input_id 入力番号
 TpgInput::TpgInput(ymuint id,
-		   const char* name,
 		   ymuint input_id) :
-  TpgNode(id, name),
-  mInputId(input_id)
+  TpgPPI(id, input_id)
 {
 }
 
@@ -34,61 +31,10 @@ TpgInput::~TpgInput()
 }
 
 // @brief 外部入力タイプの時 true を返す．
-// @note FF 出力もここに含まれる．
 bool
-TpgInput::is_input() const
+TpgInput::is_primary_input() const
 {
   return true;
-}
-
-// @brief 外部入力タイプの時に入力番号を返す．
-//
-// node = TpgNetwork::input(node->input_id()
-// の関係を満たす．
-// is_input() が false の場合の返り値は不定
-ymuint
-TpgInput::input_id() const
-{
-  return mInputId;
-}
-
-// @brief 入出力の関係を表す CNF 式を生成する．
-// @param[in] solver SAT ソルバ
-// @param[in] lit_map 入出力とリテラルの対応マップ
-void
-TpgInput::make_cnf(SatSolver& solver,
-		   const LitMap& lit_map) const
-{
-  // なにもしない．
-}
-
-// @brief 出力の故障を得る．
-// @param[in] val 故障値 ( 0 / 1 )
-const TpgFault*
-TpgInput::output_fault(int val) const
-{
-  ASSERT_COND( val == 0 || val == 1 );
-  return mFaults[val % 2];
-}
-
-// @brief 出力の故障を得る．
-// @param[in] val 故障値 ( 0 / 1 )
-TpgFault*
-TpgInput::output_fault(int val)
-{
-  ASSERT_COND( val == 0 || val == 1 );
-  return mFaults[val % 2];
-}
-
-// @brief 出力の故障を設定する．
-// @param[in] val 故障値 ( 0 / 1 )
-// @param[in] fault 故障
-void
-TpgInput::set_output_fault(int val,
-			   TpgFault* fault)
-{
-  ASSERT_COND( val == 0 || val == 1 );
-  mFaults[val % 2] = fault;
 }
 
 END_NAMESPACE_YM_SATPG

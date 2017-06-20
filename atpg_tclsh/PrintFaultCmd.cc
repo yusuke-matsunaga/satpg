@@ -10,7 +10,7 @@
 #include "PrintFaultCmd.h"
 #include "AtpgMgr.h"
 #include "TpgFault.h"
-#include "FaultMgr.h"
+#include "TpgFaultMgr.h"
 #include "ym/TclPopt.h"
 
 
@@ -62,33 +62,32 @@ PrintFaultCmd::cmd_proc(TclObjVector& objv)
   // 参照を使いたいのでめんどくさいことをやっている．
   ostream& out = *osp;
 
-  FaultMgr& fmgr = _fault_mgr();
-
-  vector<const TpgFault*>::const_iterator b = fmgr.remain_list().begin();
-  vector<const TpgFault*>::const_iterator e = fmgr.remain_list().end();
-
+  FaultStatus type = kFsUndetected;
   if ( mPoptType->is_specified() ) {
     string tmp = mPoptType->val();
     if ( tmp == "detected" ) {
-      b = fmgr.det_list().begin();
-      e = fmgr.det_list().end();
+      type = kFsDetected;
     }
     else if ( tmp == "untestable" ) {
-      b = fmgr.untest_list().begin();
-      e = fmgr.untest_list().end();
+      type = kFsUntestable;
     }
     else if ( tmp == "remain" ) {
-      b = fmgr.remain_list().begin();
-      e = fmgr.remain_list().end();
+      type = kFsUndetected;
     }
     else {
       print_usage();
     }
   }
 
-  for (vector<const TpgFault*>::const_iterator p = b; p != e; ++ p) {
-    const TpgFault* f = *p;
-    out << f->str() << endl;
+  TpgFaultMgr& fmgr = _fault_mgr();
+
+  const TpgNetwork& network = _network();
+  ymuint n = network.rep_fault_num();
+  for (ymuint i = 0; i < n; ++ i) {
+    const TpgFault* f = network.rep_fault(i);
+    if ( fmgr.status(f) == type ) {
+      out << f->str() << endl;
+    }
   }
 
   return TCL_OK;

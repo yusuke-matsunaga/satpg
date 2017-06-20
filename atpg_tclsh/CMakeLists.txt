@@ -27,6 +27,7 @@ set (atpg_tclsh_SOURCES
   RtpgCmd.cc
   Rtpg1Cmd.cc
   DtpgCmd.cc
+  DtpgMinPowerCmd.cc
   MinPatCmd.cc
   )
 
@@ -38,7 +39,9 @@ set (atpg_tclsh_SOURCES
 add_executable(atpg_tclsh
   ${atpg_tclsh_SOURCES}
   $<TARGET_OBJECTS:satpg_common>
-  $<TARGET_OBJECTS:ym_common_a>
+  $<TARGET_OBJECTS:satpg_fsim2>
+  $<TARGET_OBJECTS:satpg_fsim3>
+  $<TARGET_OBJECTS:ym_base_a>
   $<TARGET_OBJECTS:ym_logic_a>
   $<TARGET_OBJECTS:ym_cell_a>
   $<TARGET_OBJECTS:ym_bnet_a>
@@ -61,6 +64,12 @@ target_link_libraries(atpg_tclsh
   ${TCL_LIBRARY}
   )
 
+if ( GPERFTOOLS_FOUND )
+  target_link_libraries ( atpg_tclsh
+    ${GPERFTOOLS_LIBRARIES}
+    )
+endif ()
+
 
 # ===================================================================
 #  release with debug info ターゲットの設定
@@ -69,7 +78,9 @@ target_link_libraries(atpg_tclsh
 add_executable(atpg_tclsh_p
   ${atpg_tclsh_SOURCES}
   $<TARGET_OBJECTS:satpg_common_p>
-  $<TARGET_OBJECTS:ym_common_p>
+  $<TARGET_OBJECTS:satpg_fsim2_p>
+  $<TARGET_OBJECTS:satpg_fsim3_p>
+  $<TARGET_OBJECTS:ym_base_p>
   $<TARGET_OBJECTS:ym_logic_p>
   $<TARGET_OBJECTS:ym_cell_p>
   $<TARGET_OBJECTS:ym_bnet_p>
@@ -106,7 +117,9 @@ endif ()
 add_executable(atpg_tclsh_d
   ${atpg_tclsh_SOURCES}
   $<TARGET_OBJECTS:satpg_common_d>
-  $<TARGET_OBJECTS:ym_common_d>
+  $<TARGET_OBJECTS:satpg_fsim2_d>
+  $<TARGET_OBJECTS:satpg_fsim3_d>
+  $<TARGET_OBJECTS:ym_base_d>
   $<TARGET_OBJECTS:ym_logic_d>
   $<TARGET_OBJECTS:ym_cell_d>
   $<TARGET_OBJECTS:ym_bnet_d>
@@ -124,6 +137,12 @@ target_link_libraries(atpg_tclsh_d
   ${YM_LIB_DEPENDS}
   ${TCL_LIBRARY}
   )
+
+if ( GPERFTOOLS_FOUND )
+  target_link_libraries ( atpg_tclsh_d
+    ${GPERFTOOLS_LIBRARIES}
+    )
+endif ()
 
 
 # ===================================================================

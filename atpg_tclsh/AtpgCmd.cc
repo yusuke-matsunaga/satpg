@@ -3,16 +3,16 @@
 /// @brief AtpgCmd の実装ファイル
 /// @author Yusuke Matsunaga (松永 裕介)
 ///
-/// Copyright (C) 2005-2010, 2012, 2014 Yusuke Matsunaga
+/// Copyright (C) 2016 Yusuke Matsunaga
 /// All rights reserved.
 
 
 #include "AtpgCmd.h"
 #include "AtpgMgr.h"
+#include "TpgFaultMgr.h"
 #include "TpgNetwork.h"
 #include "TpgNode.h"
 #include "TpgFault.h"
-#include "FaultMgr.h"
 #include "ym/BnNode.h"
 
 
@@ -139,8 +139,8 @@ AtpgCmd::after_set_network()
   int varflag = 0;
   set_var(varname, "input_num", network.input_num(), varflag);
   set_var(varname, "output_num", network.output_num(), varflag);
-  set_var(varname, "ff_num", network.input_num2() - network.input_num(), varflag);
-  set_var(varname, "logic_num", network.node_num() - network.input_num2() - network.output_num2(), varflag);
+  set_var(varname, "ff_num", network.dff_num(), varflag);
+  set_var(varname, "logic_num", network.node_num() - network.input_num() - network.output_num(), varflag);
   set_var(varname, "buff_num", n_buff, varflag);
   set_var(varname, "not_num", n_not, varflag);
   set_var(varname, "and_num", n_and, varflag);
@@ -170,16 +170,21 @@ AtpgCmd::after_set_network()
 void
 AtpgCmd::after_update_faults()
 {
-  FaultMgr& fault_mgr = _fault_mgr();
-
   // 諸元を TCL 変数にセットしておく
-  const vector<const TpgFault*>& remain_list = fault_mgr.remain_list();
-  const vector<const TpgFault*>& untest_list = fault_mgr.untest_list();
   ymuint n_all = _network().max_fault_id();
-  ymuint n_rep = fault_mgr.rep_list().size();
-  ymuint n_remain = remain_list.size();
-  ymuint n_untest = untest_list.size();
-  ymuint n_det = n_rep - n_remain - n_untest;
+  ymuint n_rep = _network().rep_fault_num();
+  ymuint n_remain = 0;
+  ymuint n_untest = 0;
+  ymuint n_det = 0;
+  for (ymuint i = 0; i < n_rep; ++ i) {
+    const TpgFault* fault = _network().rep_fault(i);
+    switch ( _fault_mgr().status(fault) ) {
+    case kFsDetected:   ++ n_det; break;
+    case kFsUntestable: ++ n_untest; break;
+    case kFsUndetected: ++ n_remain; break;
+    default: break;
+    }
+  }
 
   TclObj varname = "::atpg::info";
   int varflag = 0;
@@ -236,7 +241,7 @@ AtpgCmd::_network()
 }
 
 // @brief FaultMgr を取り出す．
-FaultMgr&
+TpgFaultMgr&
 AtpgCmd::_fault_mgr()
 {
   return mMgr->_fault_mgr();
@@ -250,24 +255,17 @@ AtpgCmd::_tv_mgr()
 }
 
 // @brief テストベクタのリストを取り出す．
-vector<TestVector*>&
-AtpgCmd::_tv_list()
+vector<const TestVector*>&
+AtpgCmd::_sa_tv_list()
 {
-  return mMgr->_tv_list();
+  return mMgr->_sa_tv_list();
 }
 
 // @brief 2値の故障シミュレータを取り出す．
 Fsim&
-AtpgCmd::_fsim()
+AtpgCmd::_fsim2()
 {
-  return mMgr->_fsim();
-}
-
-// @brief 遷移故障用の2値の故障シミュレータを取り出す．
-Fsim&
-AtpgCmd::_tfsim()
-{
-  return mMgr->_tfsim();
+  return mMgr->_fsim2();
 }
 
 // @brief 3値の故障シミュレータを返す．
@@ -275,6 +273,13 @@ Fsim&
 AtpgCmd::_fsim3()
 {
   return mMgr->_fsim3();
+}
+
+// @brief テストベクタのリストを取り出す．
+vector<const TestVector*>&
+AtpgCmd::_td_tv_list()
+{
+  return mMgr->_td_tv_list();
 }
 
 // @brief ファイル読み込みに関わる時間を得る．

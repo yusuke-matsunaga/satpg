@@ -78,7 +78,8 @@ configure_file(
 # インクルードパスの設定
 # ===================================================================
 include_directories (
-  ${PROJECT_SOURCE_DIR}/include
+  ${PROJECT_SOURCE_DIR}/satpg_common/include
+  ${PROJECT_SOURCE_DIR}/ym-base/include
   ${PROJECT_SOURCE_DIR}/ym-bnet/include
   ${PROJECT_SOURCE_DIR}/ym-cell/include
   ${PROJECT_SOURCE_DIR}/ym-common/include
@@ -96,6 +97,7 @@ include_directories (
 # ===================================================================
 
 add_subdirectory ( ym-common )
+add_subdirectory ( ym-base )
 add_subdirectory ( ym-logic )
 add_subdirectory ( ym-cell )
 add_subdirectory ( ym-bnet )
@@ -104,10 +106,18 @@ add_subdirectory ( ym-mincov )
 add_subdirectory ( ym-sat )
 add_subdirectory ( ym-tclpp )
 
+add_subdirectory ( tests/fsimtest )
+add_subdirectory ( tests/dtpgtest )
+add_subdirectory ( tests/tpgnetworktest )
+#add_subdirectory ( tests )
 add_subdirectory ( gtest )
 add_subdirectory ( satpg_common )
 add_subdirectory ( atpg_tclsh )
-add_subdirectory ( python )
+#add_subdirectory ( python )
+
+if ( DOXYGEN_FOUND )
+  add_subdirectory ( doxygen-src )
+endif ()
 
 
 # ===================================================================

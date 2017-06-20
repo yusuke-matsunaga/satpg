@@ -9,7 +9,7 @@
 /// All rights reserved.
 
 
-#include "TpgLogic1.h"
+#include "TpgLogic.h"
 
 
 BEGIN_NAMESPACE_YM_SATPG
@@ -25,11 +25,9 @@ public:
 
   /// @brief コンストラクタ
   /// @param[in] id ID番号
-  /// @param[in] name 名前
-  /// @param[in] inode ファンインのノード
+  /// @param[in] fanin ファンイン
   TpgLogicBUFF(ymuint id,
-	       const char* name,
-	       TpgNode* inode);
+	       TpgNode* fanin);
 
   /// @brief デストラクタ
   ~TpgLogicBUFF();
@@ -47,13 +45,45 @@ public:
   GateType
   gate_type() const;
 
+  /// @brief controling value を得る．
+  ///
+  /// is_logic() が false の場合の返り値は不定
+  /// ない場合は kValX を返す．
+  virtual
+  Val3
+  cval() const;
+
+  /// @brief noncontroling valueを得る．
+  ///
+  /// is_logic() が false の場合の返り値は不定
+  /// ない場合は kValX を返す．
+  virtual
+  Val3
+  nval() const;
+
+  /// @brief controling output value を得る．
+  ///
+  /// is_logic() が false の場合の返り値は不定
+  /// ない場合は kValX を返す．
+  virtual
+  Val3
+  coval() const;
+
+  /// @brief noncontroling output value を得る．
+  ///
+  /// is_logic() が false の場合の返り値は不定
+  /// ない場合は kValX を返す．
+  virtual
+  Val3
+  noval() const;
+
   /// @brief 入出力の関係を表す CNF 式を生成する．
   /// @param[in] solver SAT ソルバ
   /// @param[in] lit_map 入出力とリテラルの対応マップ
   virtual
   void
   make_cnf(SatSolver& solver,
-	   const LitMap& lit_map) const;
+	   const GateLitMap& lit_map) const;
 
   /// @brief 入出力の関係を表す CNF 式を生成する(故障あり)．
   /// @param[in] solver SAT ソルバ
@@ -67,7 +97,7 @@ public:
   make_faulty_cnf(SatSolver& solver,
 		  ymuint fpos,
 		  int fval,
-		  const LitMap& lit_map) const;
+		  const GateLitMap& lit_map) const;
 
 
 private:

@@ -19,12 +19,10 @@ BEGIN_NAMESPACE_YM_SATPG
 
 // @brief コンストラクタ
 // @param[in] id ID番号
-// @param[in] name 名前
-// @param[in] inode ファンインのノード
+// @param[in] fanin ファンイン
 TpgLogicBUFF::TpgLogicBUFF(ymuint id,
-			   const char* name,
-			   TpgNode* inode) :
-  TpgLogic1(id, name, inode)
+			   TpgNode* fanin) :
+  TpgLogic1(id, fanin)
 {
 }
 
@@ -42,17 +40,56 @@ TpgLogicBUFF::gate_type() const
   return kGateBUFF;
 }
 
+// @brief controling value を得る．
+//
+// is_logic() が false の場合の返り値は不定
+// ない場合は kValX を返す．
+Val3
+TpgLogicBUFF::cval() const
+{
+  return kValX;
+}
+
+// @brief noncontroling valueを得る．
+//
+// is_logic() が false の場合の返り値は不定
+// ない場合は kValX を返す．
+Val3
+TpgLogicBUFF::nval() const
+{
+  return kValX;
+}
+
+// @brief controling output value を得る．
+//
+// is_logic() が false の場合の返り値は不定
+// ない場合は kValX を返す．
+Val3
+TpgLogicBUFF::coval() const
+{
+  return kValX;
+}
+
+// @brief noncontroling output value を得る．
+//
+// is_logic() が false の場合の返り値は不定
+// ない場合は kValX を返す．
+Val3
+TpgLogicBUFF::noval() const
+{
+  return kValX;
+}
+
 // @brief 入出力の関係を表す CNF 式を生成する．
 // @param[in] solver SAT ソルバ
 // @param[in] lit_map 入出力とリテラルの対応マップ
 void
 TpgLogicBUFF::make_cnf(SatSolver& solver,
-		       const LitMap& lit_map) const
+		       const GateLitMap& lit_map) const
 {
   SatLiteral ilit = lit_map.input(0);
   SatLiteral olit = lit_map.output();
-  solver.add_clause( ilit, ~olit);
-  solver.add_clause(~ilit,  olit);
+  solver.add_eq_rel(ilit, olit);
 }
 
 // @brief 入出力の関係を表す CNF 式を生成する(故障あり)．
@@ -66,7 +103,7 @@ void
 TpgLogicBUFF::make_faulty_cnf(SatSolver& solver,
 			      ymuint fpos,
 			      int fval,
-			      const LitMap& lit_map) const
+			      const GateLitMap& lit_map) const
 {
   SatLiteral olit = lit_map.output();
   if ( fval == 0 ) {

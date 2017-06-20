@@ -38,7 +38,7 @@ public:
 		 const TpgNode* onode,
 		 const TpgNode* inode,
 		 ymuint tpg_pos,
-		 const TpgFault* rep_fault);
+		 TpgFault* rep_fault);
 
   /// @brief デストラクタ
   virtual
