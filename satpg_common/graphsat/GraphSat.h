@@ -121,7 +121,7 @@ public:
   /// @note 変数番号は 0 から始まる．
   virtual
   VarId
-  new_var();
+  new_variable();
 
   /// @brief 節を追加する．
   /// @param[in] lits リテラルのベクタ

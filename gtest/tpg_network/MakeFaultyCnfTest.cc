@@ -78,10 +78,10 @@ MakeFaultyCnfTest::do_test(ymuint ni,
   for (ymuint i = 0; i < ni; ++ i) {
     TpgNode* node = TpgNode::make_input(i, string(), i, 1, mAlloc);
     mInputs[i] = node;
-    SatVarId var = mSolver.new_var();
+    SatVarId var = mSolver.new_variable();
     mIvars[i] = var;
   }
-  mOvar = mSolver.new_var();
+  mOvar = mSolver.new_variable();
 
   TpgNode* prim_node = TpgNode::make_logic(ni, string(), gate_type, mInputs, 1, mAlloc);
 

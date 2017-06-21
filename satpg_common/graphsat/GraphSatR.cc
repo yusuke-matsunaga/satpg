@@ -33,9 +33,9 @@ GraphSatR::~GraphSatR()
 // @return 新しい変数番号を返す．
 // @note 変数番号は 0 から始まる．
 VarId
-GraphSatR::new_var()
+GraphSatR::new_variable()
 {
-  VarId id = GraphSat::new_var();
+  VarId id = GraphSat::new_variable();
 
   mOut << "N" << endl
        << "# varid = " << id << endl;

@@ -111,7 +111,7 @@ DtpgImplM::make_mffc_condition()
   // 各FFRの根にXORゲートを挿入した故障回路を作る．
   // そのXORをコントロールする入力変数を作る．
   for (ymuint i = 0; i < mElemArray.size(); ++ i) {
-    mElemVarArray[i] = solver().new_var();
+    mElemVarArray[i] = solver().new_variable();
 
 #if DEBUG_DTPGM
     DEBUG_OUT << "cvar(Elem#" << i << ") = " << mElemVarArray[i] << endl;
@@ -132,7 +132,7 @@ DtpgImplM::make_mffc_condition()
     for (ymuint i = 0; i < nfo; ++ i) {
       const TpgNode* onode = node->fanout(i);
       if ( fvar(onode) == gvar(onode) ) {
-	SatVarId var = solver().new_var();
+	SatVarId var = solver().new_variable();
 	set_fvar(onode, var);
 	node_list.push_back(onode);
 
@@ -151,7 +151,7 @@ DtpgImplM::make_mffc_condition()
     for (ymuint i = 0; i < nfo; ++ i) {
       const TpgNode* onode = node->fanout(i);
       if ( fvar(onode) == gvar(onode) ) {
-	SatVarId var = solver().new_var();
+	SatVarId var = solver().new_variable();
 	set_fvar(onode, var);
 	node_list.push_back(onode);
 
@@ -172,7 +172,7 @@ DtpgImplM::make_mffc_condition()
       continue;
     }
 
-    SatVarId fvar = solver().new_var();
+    SatVarId fvar = solver().new_variable();
     set_fvar(node, fvar);
 
     inject_fault(i, gvar(node));
@@ -192,7 +192,7 @@ DtpgImplM::make_mffc_condition()
     if ( elem_pos != -1 ) {
       // 実際のゲートの出力と ovar の間に XOR ゲートを挿入する．
       // XORの一方の入力は mElemVarArray[elem_pos]
-      ovar = solver().new_var();
+      ovar = solver().new_variable();
       inject_fault(elem_pos, ovar);
     }
     // ほとんど GateLitMap_vid(node, fvar_map()) を使いたいのだが

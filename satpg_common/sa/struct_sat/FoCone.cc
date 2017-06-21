@@ -173,13 +173,13 @@ FoCone::mark_tfo_tfi(const vector<const TpgNode*>& node_list,
   for (ymuint i = 0; i < mTfoNum; ++ i) {
     const TpgNode* node = mNodeList[i];
     mStructSat.make_tfi_cnf(node);
-    SatVarId fvar = solver().new_var();
+    SatVarId fvar = solver().new_variable();
     set_fvar(node, fvar);
     if ( debug ) {
       cout << "fvar(Node#" << node->id() << ") = " << fvar << endl;
     }
     if ( use_dvar ) {
-      SatVarId dvar = solver().new_var();
+      SatVarId dvar = solver().new_variable();
       set_dvar(node, dvar);
     }
   }

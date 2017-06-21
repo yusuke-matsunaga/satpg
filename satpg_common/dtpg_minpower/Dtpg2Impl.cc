@@ -181,7 +181,7 @@ Dtpg2Impl::make_xor(const vector<SatVarId>& var_list,
   ymuint n2 = start + (n / 2);
   SatLiteral lit1 = make_xor(var_list, start, n2);
   SatLiteral lit2 = make_xor(var_list, n2, end);
-  SatVarId ovar = mSolver.new_var();
+  SatVarId ovar = mSolver.new_variable();
   SatLiteral olit(ovar);
   mSolver.add_xorgate_rel(olit, lit1, lit2);
   return olit;
@@ -296,9 +296,9 @@ Dtpg2Impl::gen_cnf_base()
   // TFO の部分に変数を割り当てる．
   for (ymuint rpos = 0; rpos < tfo_num; ++ rpos) {
     const TpgNode* node = mNodeList[rpos];
-    SatVarId gvar = mSolver.new_var();
-    SatVarId fvar = mSolver.new_var();
-    SatVarId dvar = mSolver.new_var();
+    SatVarId gvar = mSolver.new_variable();
+    SatVarId fvar = mSolver.new_variable();
+    SatVarId dvar = mSolver.new_variable();
 
     mGvarMap.set_vid(node, gvar);
     mFvarMap.set_vid(node, fvar);
@@ -314,7 +314,7 @@ Dtpg2Impl::gen_cnf_base()
   // TFI の部分に変数を割り当てる．
   for (ymuint rpos = tfo_num; rpos < tfi_num; ++ rpos) {
     const TpgNode* node = mNodeList[rpos];
-    SatVarId gvar = mSolver.new_var();
+    SatVarId gvar = mSolver.new_variable();
 
     mGvarMap.set_vid(node, gvar);
     mFvarMap.set_vid(node, gvar);
@@ -328,7 +328,7 @@ Dtpg2Impl::gen_cnf_base()
   // TFI2 の部分に変数を割り当てる．
   for (ymuint rpos = 0; rpos < tfi2_num; ++ rpos) {
     const TpgNode* node = mNodeList2[rpos];
-    SatVarId hvar = mSolver.new_var();
+    SatVarId hvar = mSolver.new_variable();
 
     mHvarMap.set_vid(node, hvar);
 

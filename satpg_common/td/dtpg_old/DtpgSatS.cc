@@ -230,9 +230,9 @@ DtpgSatS::run_single(const TpgFault* fault)
   // TFO の部分に変数を割り当てる．
   for (ymuint rpos = 0; rpos < tfo_num; ++ rpos) {
     const TpgNode* node = mNodeList[rpos];
-    SatVarId gvar = solver.new_var();
-    SatVarId fvar = solver.new_var();
-    SatVarId dvar = solver.new_var();
+    SatVarId gvar = solver.new_variable();
+    SatVarId fvar = solver.new_variable();
+    SatVarId dvar = solver.new_variable();
 
     gvar_map.set_vid(node, gvar);
     fvar_map.set_vid(node, fvar);
@@ -242,7 +242,7 @@ DtpgSatS::run_single(const TpgFault* fault)
   // TFI の部分に変数を割り当てる．
   for (ymuint rpos = tfo_num; rpos < tfi_num; ++ rpos) {
     const TpgNode* node = mNodeList[rpos];
-    SatVarId gvar = solver.new_var();
+    SatVarId gvar = solver.new_variable();
 
     gvar_map.set_vid(node, gvar);
     fvar_map.set_vid(node, gvar);
@@ -251,7 +251,7 @@ DtpgSatS::run_single(const TpgFault* fault)
   // TFI2 の部分に変数を割り当てる．
   for (ymuint rpos = 0; rpos < tfi2_num; ++ rpos) {
     const TpgNode* node = mNodeList2[rpos];
-    SatVarId hvar = solver.new_var();
+    SatVarId hvar = solver.new_variable();
 
     hvar_map.set_vid(node, hvar);
   }
@@ -288,7 +288,7 @@ DtpgSatS::run_single(const TpgFault* fault)
   else {
     ymuint ni = fnode->fanin_num();
     vector<SatVarId> ivars(ni);
-    SatVarId fvar = solver.new_var();
+    SatVarId fvar = solver.new_variable();
     for (ymuint i = 0; i < ni; ++ i) {
       if ( i == fault->tpg_pos() ) {
 	ivars[i] = fvar;

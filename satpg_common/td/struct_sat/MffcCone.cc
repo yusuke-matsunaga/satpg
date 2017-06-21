@@ -34,7 +34,7 @@ MffcCone::MffcCone(StructSat& struct_sat,
   for (ymuint i = 0; i < mffc->elem_num(); ++ i) {
     const TpgNode* node = mffc->elem(i)->root();
     mElemList[i] = node;
-    mElemVarList[i] = solver().new_var();
+    mElemVarList[i] = solver().new_variable();
     elem_map[node->id()] = i;
   }
 
@@ -46,7 +46,7 @@ MffcCone::MffcCone(StructSat& struct_sat,
     int fpos = elem_map[node->id()];
     if ( fpos >= 0 ) {
       // 出力に故障挿入変数との XOR ゲートを挿入する．
-      SatVarId tmp_var = solver().new_var();
+      SatVarId tmp_var = solver().new_variable();
       ymuint ni = node->fanin_num();
       vector<SatVarId> tmp_ivars(ni);
       for (ymuint j = 0; j < ni; ++ j) {

@@ -304,7 +304,7 @@ StructSat::make_tfi_cnf(const TpgNode* node)
   }
 
   // node に対応する変数を用意する．
-  SatVarId gvar = mSolver.new_var();
+  SatVarId gvar = mSolver.new_variable();
   set_var(node, gvar);
 
   // node の入出力の関係を表す節を作る．

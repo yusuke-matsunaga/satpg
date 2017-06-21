@@ -139,7 +139,7 @@ GraphSat::sane() const
 // @return 新しい変数番号を返す．
 // @note 変数番号は 0 から始まる．
 VarId
-GraphSat::new_var()
+GraphSat::new_variable()
 {
   if ( decision_level() != 0 ) {
     // エラー
@@ -1182,7 +1182,7 @@ GraphSat::add_clause_sub(ymuint lit_num)
     }
     if ( l.varid().val() >= mVarNum ) {
       // 範囲外
-      // new_var() で確保した変数番号よりも大きい変数番号が
+      // new_variable() で確保した変数番号よりも大きい変数番号が
       // 使われていた．
       // TODO: エラー対策．
       cout << "Error![GraphSat]: literal(" << l << "): out of range"
