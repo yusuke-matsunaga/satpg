@@ -32,6 +32,16 @@ class Fsim
 {
 public:
 
+  /// @brief 2値版の故障シミュレータを生成するクラスメソッド
+  static
+  Fsim*
+  new_Fsim2();
+
+  /// @brief 3値版の故障シミュレータを生成するクラスメソッド
+  static
+  Fsim*
+  new_Fsim3();
+
   virtual
   ~Fsim() { }
 
@@ -252,21 +262,6 @@ public:
   det_fault_pat(ymuint pos) = 0;
 
 };
-
-
-//////////////////////////////////////////////////////////////////////
-// Fsim の派生クラスのインスタンスを生成する関数
-//////////////////////////////////////////////////////////////////////
-
-/// @brief 2値版の故障シミュレータ
-extern
-Fsim*
-new_Fsim2();
-
-/// @brief 3値版の故障シミュレータ
-extern
-Fsim*
-new_Fsim3();
 
 END_NAMESPACE_YM_SATPG
 

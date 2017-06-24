@@ -303,7 +303,7 @@ dtpg_test(int argc,
   Fsim* fsim = nullptr;
   DopList dop_list;
   if ( verify ) {
-    fsim = new_Fsim3();
+    fsim = Fsim::new_Fsim3();
     fsim->set_network(network);
     if ( sa_mode ) {
       dop_list.add(new_DopSaVerify(*fsim));

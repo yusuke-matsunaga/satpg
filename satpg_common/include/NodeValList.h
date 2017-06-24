@@ -135,6 +135,13 @@ public:
   NodeVal
   operator[](ymuint pos) const;
 
+  /// @brief 要素を返す．
+  /// @param[in] pos 位置 ( 0 <= pos < size() )
+  ///
+  /// operator[] の別名
+  NodeVal
+  elem(ymuint pos) const;
+
   /// @brief 矛盾した内容になっていないかチェックする．
   /// @return 正しければ true を返す．
   ///
@@ -315,6 +322,17 @@ NodeValList::add(const TpgNode* node,
 inline
 NodeVal
 NodeValList::operator[](ymuint pos) const
+{
+  return elem(pos);
+}
+
+// @brief 要素を返す．
+// @param[in] pos 位置 ( 0 <= pos < size() )
+//
+// operator[] の別名
+inline
+NodeVal
+NodeValList::elem(ymuint pos) const
 {
   ASSERT_COND( pos < size() );
   return mAsList[pos];

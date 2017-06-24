@@ -319,10 +319,10 @@ fsim2test(int argc,
 
   Fsim* fsim = nullptr;
   if ( fsim2 ) {
-    fsim = new_Fsim2();
+    fsim = Fsim::new_Fsim2();
   }
   else if ( fsim3 ) {
-    fsim = new_Fsim3();
+    fsim = Fsim::new_Fsim3();
   }
   else {
     ASSERT_NOT_REACHED;

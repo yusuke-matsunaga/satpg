@@ -30,13 +30,13 @@ BEGIN_NAMESPACE_YM_SATPG
 
 #if FSIM_VAL2
 Fsim*
-new_Fsim2()
+Fsim::new_Fsim2()
 {
   return new nsFsim2::Fsim2();
 }
 #elif FSIM_VAL3
 Fsim*
-new_Fsim3()
+Fsim::new_Fsim3()
 {
   return new nsFsim3::Fsim3();
 }

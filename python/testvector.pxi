@@ -18,10 +18,11 @@ cdef class TestVector :
     ## @brief 初期化
     def __cinit__(TestVector self) :
         self._thisptr = NULL
+        self._tvmgr = None
 
     ## @brief 終了処理
     def __dealloc__(TestVector self) :
-        if self._thisptr != NULL :
+        if self._thisptr != NULL and self._tvmgr != None :
             self._tvmgr.delete_vector(self)
 
 

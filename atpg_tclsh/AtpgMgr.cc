@@ -30,8 +30,8 @@ AtpgMgr::AtpgMgr() :
 
   mTvMgr = new TvMgr();
 
-  mFsim2 = new_Fsim2();
-  mFsim3 = new_Fsim3();
+  mFsim2 = Fsim::new_Fsim2();
+  mFsim3 = Fsim::new_Fsim3();
 }
 
 // @brief デストラクタ
