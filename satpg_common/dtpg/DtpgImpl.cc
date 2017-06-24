@@ -482,8 +482,6 @@ DtpgImpl::add_assign(NodeValList& assign_list,
 // @brief 一つの SAT問題を解く．
 // @param[in] fault 対象の故障
 // @param[in] assumptions 値の決まっている変数のリスト
-// @param[in] root 故障位置のノード
-// @param[in] output_list 故障に関係のある外部出力のリスト
 // @param[out] nodeval_list 結果の値割り当てリスト
 // @param[inout] stats DTPGの統計情報
 // @return 結果を返す．
@@ -499,9 +497,11 @@ DtpgImpl::solve(const TpgFault* fault,
   SatStats prev_stats;
   mSolver.get_stats(prev_stats);
 
+  // FFR 内の故障伝搬条件を assign_list に入れる．
   NodeValList assign_list;
   make_ffr_condition(fault, assign_list);
 
+  // assign_list の内容と assumptions を足したものを assumptions1 に入れる．
   ymuint n0 = assumptions.size();
   ymuint n = assign_list.size();
   vector<SatLiteral> assumptions1(n + n0);
