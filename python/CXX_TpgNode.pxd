@@ -10,6 +10,7 @@ from libcpp cimport bool
 from libcpp.string cimport string
 from CXX_TpgDff cimport TpgDff
 from CXX_TpgFault cimport TpgFault
+from CXX_Val3 cimport Val3
 
 ctypedef unsigned int ymuint
 
@@ -35,10 +36,10 @@ cdef extern from "TpgNode.h" namespace "nsYm::nsSatpg" :
         ymuint output_id2()
         TpgDff* dff()
 #        GateType gate_type()
-#        Val3 cval()
-#        Val3 nval()
-#        Val3 coval()
-#        Val3 noval()
+        Val3 cval()
+        Val3 nval()
+        Val3 coval()
+        Val3 noval()
         ymuint fanin_num()
         TpgNode* fanin(ymuint)
         ymuint fanout_num()
