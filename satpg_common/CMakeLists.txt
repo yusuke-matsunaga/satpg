@@ -98,7 +98,7 @@ set (jt_SOURCES
   jt/Just1.cc
   jt/Just2.cc
   jt/JustBase.cc
-  Jt/JustSimple.cc
+  jt/JustSimple.cc
   )
 
 set (sa_SOURCES

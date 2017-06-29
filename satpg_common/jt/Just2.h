@@ -83,21 +83,73 @@ private:
 	   int time,
 	   NodeValList& pi_assign_list);
 
-  /// @brief 指定したファンインに対する値の割当数を数える．
+  /// @brief 重みの計算を行う．
+  /// @param[in] node 対象のノード
+  /// @param[in] time タイムフレーム ( 0 or 1 )
+  void
+  add_weight(const TpgNode* node,
+	     int time);
+
+  /// @brief すべてのファンインに対して add_weight() を呼ぶ．
+  /// @param[in] node 対象のノード
+  /// @param[in] time タイムフレーム ( 0 or 1 )
+  void
+  aw_all(const TpgNode* node,
+	 int time);
+
+  /// @brief 指定した値を持つファンインに対して add_weight() を呼ぶ．
   /// @param[in] node 対象のノード
   /// @param[in] ipos ファンインの位置番号 ( 0 <= ipos < node->fanin_num() )
   /// @param[in] time タイムフレーム ( 0 or 1 )
-  /// @return 新規に値の割り当てられるノード数を返す．
-  ymuint
-  count_one(const TpgNode* node,
-	    ymuint ipos,
-	    int time);
+  void
+  aw_one(const TpgNode* node,
+	 Val3 val,
+	 int time);
+
+  /// @brief 見積もり値の計算を行う．
+  /// @param[in] node 対象のノード
+  /// @param[in] time タイムフレーム ( 0 or 1 )
+  void
+  calc_value(const TpgNode* node,
+	     int time);
+
+  /// @brief すべてのファンインに対して calc_value() を呼ぶ．
+  /// @param[in] node 対象のノード
+  /// @param[in] time タイムフレーム ( 0 or 1 )
+  void
+  cv_all(const TpgNode* node,
+	 int time);
+
+  /// @brief 指定した値を持つファンインに対して calc_value() を呼ぶ．
+  /// @param[in] node 対象のノード
+  /// @param[in] ipos ファンインの位置番号 ( 0 <= ipos < node->fanin_num() )
+  /// @param[in] time タイムフレーム ( 0 or 1 )
+  void
+  cv_one(const TpgNode* node,
+	 Val3 val,
+	 int time);
+
+  /// @brief 重みを考えた価値を返す．
+  /// @param[in] node 対象のノード
+  /// @param[in] time タイムフレーム ( 0 or 1 )
+  double
+  node_value(const TpgNode* node,
+	     int time) const;
 
 
 private:
   //////////////////////////////////////////////////////////////////////
   // データメンバ
   //////////////////////////////////////////////////////////////////////
+
+  // ノードのリスト
+  vector<const TpgNode*> mNodeList[2];
+
+  // 重み配列
+  vector<ymuint> mWeightArray;
+
+  // 作業用の配列
+  vector<double> mTmpArray;
 
 };
 

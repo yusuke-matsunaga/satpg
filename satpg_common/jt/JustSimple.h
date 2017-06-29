@@ -18,7 +18,8 @@ BEGIN_NAMESPACE_YM_SATPG
 /// @class JustSimple JustSimple.h "JustSimple.h"
 /// @brief 正当化に必要な割当を求めるファンクター
 //////////////////////////////////////////////////////////////////////
-class JustSimple
+class JustSimple :
+  public JustBase
 {
 public:
 

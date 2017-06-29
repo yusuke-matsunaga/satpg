@@ -12,6 +12,18 @@
 
 BEGIN_NAMESPACE_YM_SATPG
 
+// @brief Just1 を生成する．
+// @param[in] td_mode 遷移故障モードの時 true にするフラグ
+// @param[in] max_id ID番号の最大値
+// @param[in] val_map ノードの値を保持するクラス
+Justifier*
+new_Just1(bool td_mode,
+	  ymuint max_id,
+	  const ValMap& val_map)
+{
+  return new Just1(td_mode, max_id, val_map);
+}
+
 //////////////////////////////////////////////////////////////////////
 // クラス Just1
 //////////////////////////////////////////////////////////////////////
