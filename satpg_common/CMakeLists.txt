@@ -94,6 +94,13 @@ set (bt_SOURCES
   bt/BtSimple.cc
   )
 
+set (jt_SOURCES
+  jt/Just1.cc
+  jt/Just2.cc
+  jt/JustBase.cc
+  Jt/JustSimple.cc
+  )
+
 set (sa_SOURCES
   sa/minpat/Verifier.cc
   sa/minpat/MinPatBase.cc
@@ -141,6 +148,7 @@ ym_add_object_library ( satpg_common
   ${dop_SOURCES}
   ${uop_SOURCES}
   ${bt_SOURCES}
+  ${jt_SOURCES}
   ${sa_SOURCES}
   ${td_SOURCES}
   )
