@@ -68,6 +68,13 @@ DetectOp*
 new_DopTvListTd(TvMgr& tvmgr,
 		vector<const TestVector*>& tvlist);
 
+/// @brief 'verify' タイプを生成する．
+/// @param[in] fsim 故障シミュレータ
+/// @param[in] td_mode 遷移故障モードの時 true にするフラグ
+DetectOp*
+new_DopVerify(Fsim& fsim,
+	      bool td_mode);
+
 /// @brief 'sa-verify' タイプを生成する．
 /// @param[in] fsim 故障シミュレータ
 DetectOp*

@@ -75,8 +75,7 @@ set (dop_SOURCES
   dop/DopDummy.cc
   dop/DopList.cc
   dop/DopTvList.cc
-  dop/DopSaVerify.cc
-  dop/DopTdVerify.cc
+  dop/DopVerify.cc
   )
 
 set (uop_SOURCES
