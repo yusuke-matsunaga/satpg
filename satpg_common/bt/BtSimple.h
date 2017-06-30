@@ -84,12 +84,6 @@ private:
   // データメンバ
   //////////////////////////////////////////////////////////////////////
 
-  // ノード番号の最大値
-  ymuint mMaxId;
-
-  // tfi_recur/tfi_recur0 で用いるマークの配列
-  vector<ymuint8> mMarkArray;
-
 };
 
 END_NAMESPACE_YM_SATPG

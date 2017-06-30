@@ -9,7 +9,7 @@
 /// All rights reserved.
 
 
-#include "BtJustBase.h"
+#include "BtImpl.h"
 #include "ym/UnitAlloc.h"
 
 
@@ -20,7 +20,7 @@ BEGIN_NAMESPACE_YM_SATPG
 /// @brief 必要なノードのみ正当化する BackTracer
 //////////////////////////////////////////////////////////////////////
 class BtJust2 :
-  public BtJustBase
+  public BtImpl
 {
 public:
 
@@ -84,49 +84,27 @@ private:
 
   /// @brief solve 中で変数割り当ての正当化を行なう．
   /// @param[in] node 対象のノード
-  /// @param[in] val_map ノードの値の割当を保持するクラス
-  /// @note node の値割り当てを正当化する．
-  /// @note 正当化に用いられているノードには mark3 がつく．
-  /// @note mark3 がついたノードは mBwdNodeList に格納される．
+  /// @param[in] time タイムフレーム ( 0 or 1 )
   NodeList*
-  justify(const TpgNode* node);
+  justify(const TpgNode* node,
+	  int time);
 
   /// @brief すべてのファンインに対して justify() を呼ぶ．
   /// @param[in] node 対象のノード
+  /// @param[in] time タイムフレーム ( 0 or 1 )
   /// @param[in] val_map ノードの値の割当を保持するクラス
   NodeList*
-  just_sub1(const TpgNode* node);
+  just_all(const TpgNode* node,
+	   int time);
 
   /// @brief 指定した値を持つのファンインに対して justify() を呼ぶ．
   /// @param[in] node 対象のノード
-  /// @param[in] val_map ノードの値の割当を保持するクラス
+  /// @param[in] time タイムフレーム ( 0 or 1 )
   /// @param[in] val 値
   NodeList*
-  just_sub2(const TpgNode* node,
-	    Val3 val);
-
-  /// @brief solve 中で変数割り当ての正当化を行なう．
-  /// @param[in] node 対象のノード
-  /// @param[in] val_map ノードの値の割当を保持するクラス
-  /// @note node の値割り当てを正当化する．
-  /// @note 正当化に用いられているノードには mark3 がつく．
-  /// @note mark3 がついたノードは mBwdNodeList に格納される．
-  NodeList*
-  justify0(const TpgNode* node);
-
-  /// @brief すべてのファンインに対して justify() を呼ぶ．
-  /// @param[in] node 対象のノード
-  /// @param[in] val_map ノードの値の割当を保持するクラス
-  NodeList*
-  just0_sub1(const TpgNode* node);
-
-  /// @brief 指定した値を持つのファンインに対して justify() を呼ぶ．
-  /// @param[in] node 対象のノード
-  /// @param[in] val_map ノードの値の割当を保持するクラス
-  /// @param[in] val 値
-  NodeList*
-  just0_sub2(const TpgNode* node,
-	     Val3 val);
+  just_one(const TpgNode* node,
+	   int time,
+	   Val3 val);
 
   /// @brief 新しいリストのセルを返す．
   NodeList*
@@ -147,6 +125,12 @@ private:
   void
   list_free(NodeList* node_list);
 
+  /// @brief 2つのセルを比較する．
+  static
+  int
+  list_compare(const NodeList* left,
+	       const NodeList* right);
+
 
 private:
   //////////////////////////////////////////////////////////////////////
@@ -161,9 +145,6 @@ private:
 
   // node->id() をキーにして入力番号のリストを納める配列
   vector<NodeList*> mJustArray;
-
-  // node->id() をキーにして入力番号のリストを納める配列
-  vector<NodeList*> mJust0Array;
 
 };
 

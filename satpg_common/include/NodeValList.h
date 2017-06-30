@@ -21,6 +21,8 @@ BEGIN_NAMESPACE_YM_SATPG
 /// 昔の C でよく使われていたポインタの下位ビットが0であることを
 /// 利用して，そこにフラグを埋め込むテクニック
 /// C++ の時代では醜いことこのうえない．
+///
+/// なお，縮退故障モードのときは時刻は 1 となる．
 //////////////////////////////////////////////////////////////////////
 class NodeVal
 {
@@ -33,7 +35,7 @@ public:
 
   /// @brief 値を指定したコンストラクタ
   /// @param[in] node ノード
-  /// @param[in] time 時刻(0 or 1)
+  /// @param[in] time 時刻 ( 0 or 1 )
   /// @param[in] val 値
   NodeVal(const TpgNode* node,
 	  int time,
@@ -103,7 +105,7 @@ public:
 
   /// @brief 値を追加する．
   /// @param[in] node ノード
-  /// @param[in] time 時刻(0 or 1)
+  /// @param[in] time 時刻 ( 0 or 1 )
   /// @param[in] val 値
   void
   add(const TpgNode* node,

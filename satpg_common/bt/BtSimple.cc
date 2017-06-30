@@ -24,8 +24,7 @@ BEGIN_NAMESPACE_YM_SATPG
 BtSimple::BtSimple(ymuint max_id,
 		   bool td_mode,
 		   const ValMap& val_map) :
-  BtImpl(td_mode, val_map),
-  mMarkArray(max_id, 0)
+  BtImpl(max_id, td_mode, val_map)
 {
 }
 
@@ -54,7 +53,7 @@ BtSimple::run(const NodeValList& assign_list,
   for (vector<const TpgNode*>::const_iterator p = output_list.begin();
        p != output_list.end(); ++ p) {
     const TpgNode* node = *p;
-    if ( gval(node) != fval(node) ) {
+    if ( gval(node, 1) != fval(node, 1) ) {
       tfi_recur(node, pi_assign_list);
     }
   }
@@ -85,27 +84,22 @@ void
 BtSimple::tfi_recur(const TpgNode* node,
 		    NodeValList& assign_list)
 {
-  if ( (mMarkArray[node->id()] & 1U) == 1U ) {
+  if ( justified_mark(node, 1) ) {
     return;
   }
-  mMarkArray[node->id()] |= 1U;
+  set_justified(node, 1);
 
-  if ( node->is_ppi() ) {
+  if ( node->is_primary_input() ) {
+    record_value(node, 1, assign_list);
+  }
+  else if ( node->is_dff_output() ) {
     if ( td_mode() ) {
-      if ( node->is_primary_input() ) {
-	record_value(node, 1, assign_list);
-      }
-      else if ( node->is_dff_output() ) {
-	const TpgDff* dff = node->dff();
-	const TpgNode* alt_node = dff->input();
-	tfi_recur0(alt_node, assign_list);
-      }
-      else {
-	ASSERT_NOT_REACHED;
-      }
+      const TpgDff* dff = node->dff();
+      const TpgNode* alt_node = dff->input();
+      tfi_recur0(alt_node, assign_list);
     }
     else {
-      record_value(node, 0, assign_list);
+      record_value(node, 1, assign_list);
     }
   }
   else {
@@ -124,10 +118,10 @@ void
 BtSimple::tfi_recur0(const TpgNode* node,
 		     NodeValList& assign_list)
 {
-  if ( (mMarkArray[node->id()] & 2U) == 2U ) {
+  if ( justified_mark(node, 0) ) {
     return;
   }
-  mMarkArray[node->id()] |= 2U;
+  set_justified(node, 0);
 
   if ( node->is_ppi() ) {
     record_value(node, 0, assign_list);

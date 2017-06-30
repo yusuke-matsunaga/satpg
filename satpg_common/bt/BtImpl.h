@@ -26,9 +26,11 @@ class BtImpl
 public:
 
   /// @brief コンストラクタ
+  /// @param[in] max_id ノード番号の最大値
   /// @param[in] td_mode 遷移故障モードの時 true にするフラグ
   /// @param[in] val_map ノードの値を保持するクラス
-  BtImpl(bool td_mode,
+  BtImpl(ymuint max_id,
+	 bool td_mode,
 	 const ValMap& val_map);
 
   /// @brief デストラクタ
@@ -67,17 +69,35 @@ protected:
   bool
   td_mode() const;
 
+  /// @brief justified マークをつけ，mJustifiedNodeList に加える．
+  /// @param[in] node 対象のノード
+  /// @param[in] time タイムフレーム ( 0 or 1 )
+  void
+  set_justified(const TpgNode* node,
+		int time);
+
+  /// @brief justified マークを読む．
+  /// @param[in] node 対象のノード
+  /// @param[in] time タイムフレーム ( 0 or 1 )
+  bool
+  justified_mark(const TpgNode* node,
+		 int time);
+
   /// @brief ノードの正常値を返す．
   /// @param[in] node ノード
   /// @param[in] time 時刻 ( 0 or 1 )
   Val3
   gval(const TpgNode* node,
-       int time = 1) const;
+       int time) const;
 
   /// @brief ノードの故障地を返す．
   /// @param[in] node ノード
+  /// @param[in] time 時刻 ( 0 or 1 )
+  ///
+  /// time = 0 のときは gval(node, 0) を返す．
   Val3
-  fval(const TpgNode* node) const;
+  fval(const TpgNode* node,
+       int time) const;
 
   /// @brief 入力ノードの値を記録する．
   /// @param[in] node 対象の外部入力ノード
@@ -101,6 +121,9 @@ private:
   // ノードの値を保持するクラス
   const ValMap& mValMap;
 
+  // 個々のノードのマークを表す配列
+  vector<ymuint8> mMarkArray;
+
 };
 
 
@@ -116,6 +139,30 @@ BtImpl::td_mode() const
   return mTdMode;
 }
 
+// @brief justified マークをつける．
+// @param[in] node 対象のノード
+// @param[in] time タイムフレーム ( 0 or 1 )
+inline
+void
+BtImpl::set_justified(const TpgNode* node,
+		      int time)
+{
+  time &= 1;
+  mMarkArray[node->id()] |= (1U << time);
+}
+
+// @brief justified マークを読む．
+// @param[in] node 対象のノード
+// @param[in] time タイムフレーム ( 0 or 1 )
+inline
+bool
+BtImpl::justified_mark(const TpgNode* node,
+		       int time)
+{
+  time &= 1;
+  return static_cast<bool>((mMarkArray[node->id()] >> time) & 1U);
+}
+
 // @brief ノードの正常値を返す．
 // @param[in] node ノード
 // @param[in] time 時刻 ( 0 or 1 )
@@ -129,11 +176,18 @@ BtImpl::gval(const TpgNode* node,
 
 // @brief ノードの故障地を返す．
 // @param[in] node ノード
+// @param[in] time 時刻 ( 0 or 1 )
 inline
 Val3
-BtImpl::fval(const TpgNode* node) const
+BtImpl::fval(const TpgNode* node,
+	     int time) const
 {
-  return mValMap.fval(node);
+  if ( time == 0 ) {
+    return mValMap.gval(node, 0);
+  }
+  else {
+    return mValMap.fval(node);
+  }
 }
 
 // @brief 入力ノードの値を記録する．

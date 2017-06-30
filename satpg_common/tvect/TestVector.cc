@@ -164,7 +164,7 @@ TestVector::set_from_assign_list(const NodeValList& assign_list)
     const TpgNode* node = nv.node();
     ASSERT_COND( node->is_ppi() );
     if ( is_sa_mode() ) {
-      ASSERT_COND( nv.time() == 0 );
+      ASSERT_COND( nv.time() == 1 );
 
       ymuint id = node->input_id();
       set_ppi_val(id, val);
@@ -173,8 +173,6 @@ TestVector::set_from_assign_list(const NodeValList& assign_list)
       if ( node->is_primary_input() ) {
 	ymuint id = node->input_id();
 	if ( nv.time() == 1 ) {
-	  ASSERT_COND( is_td_mode() );
-
 	  set_aux_input_val(id, val);
 	}
 	else {

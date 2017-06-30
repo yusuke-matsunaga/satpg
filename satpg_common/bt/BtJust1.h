@@ -9,7 +9,7 @@
 /// All rights reserved.
 
 
-#include "BtJustBase.h"
+#include "BtImpl.h"
 
 
 BEGIN_NAMESPACE_YM_SATPG
@@ -19,7 +19,7 @@ BEGIN_NAMESPACE_YM_SATPG
 /// @brief 必要なノードのみ正当化する BackTracer
 //////////////////////////////////////////////////////////////////////
 class BtJust1 :
-  public BtJustBase
+  public BtImpl
 {
 public:
 
@@ -62,62 +62,35 @@ protected:
 
   /// @brief solve 中で変数割り当ての正当化を行なう．
   /// @param[in] node 対象のノード
-  /// @param[in] val_map ノードの値の割当を保持するクラス
+  /// @param[in] time タイムフレーム ( 0 or 1 )
   /// @param[out] assign_list 値の割当リスト
-  /// @note node の値割り当てを正当化する．
-  /// @note 正当化に用いられているノードには mark3 がつく．
-  /// @note mark3 がついたノードは mBwdNodeList に格納される．
+  ///
+  /// node の値割り当てを正当化する．<br>
+  /// 正当化に用いられているノードには印がつく．
   void
   justify(const TpgNode* node,
+	  int time,
 	  NodeValList& assign_list);
 
   /// @brief すべてのファンインに対して justify() を呼ぶ．
   /// @param[in] node 対象のノード
-  /// @param[in] val_map ノードの値の割当を保持するクラス
+  /// @param[in] time タイムフレーム ( 0 or 1 )
   /// @param[out] assign_list 値の割当リスト
   void
-  just_sub1(const TpgNode* node,
-	    NodeValList& assign_list);
-
-  /// @brief 指定した値を持つのファンインに対して justify() を呼ぶ．
-  /// @param[in] node 対象のノード
-  /// @param[in] val_map ノードの値の割当を保持するクラス
-  /// @param[in] val 値
-  /// @param[out] assign_list 値の割当リスト
-  void
-  just_sub2(const TpgNode* node,
-	    Val3 val,
-	    NodeValList& assign_list);
-
-  /// @brief solve 中で変数割り当ての正当化を行なう．
-  /// @param[in] node 対象のノード
-  /// @param[in] val_map ノードの値の割当を保持するクラス
-  /// @param[out] assign_list 値の割当リスト
-  /// @note node の値割り当てを正当化する．
-  /// @note 正当化に用いられているノードには mark3 がつく．
-  /// @note mark3 がついたノードは mBwdNodeList に格納される．
-  void
-  justify0(const TpgNode* node,
+  just_all(const TpgNode* node,
+	   int time,
 	   NodeValList& assign_list);
 
-  /// @brief すべてのファンインに対して justify() を呼ぶ．
-  /// @param[in] node 対象のノード
-  /// @param[in] val_map ノードの値の割当を保持するクラス
-  /// @param[out] assign_list 値の割当リスト
-  void
-  just0_sub1(const TpgNode* node,
-	     NodeValList& assign_list);
-
   /// @brief 指定した値を持つのファンインに対して justify() を呼ぶ．
   /// @param[in] node 対象のノード
-  /// @param[in] val_map ノードの値の割当を保持するクラス
+  /// @param[in] time タイムフレーム ( 0 or 1 )
   /// @param[in] val 値
   /// @param[out] assign_list 値の割当リスト
   void
-  just0_sub2(const TpgNode* node,
-	     Val3 val,
-	     NodeValList& assign_list);
-
+  just_one(const TpgNode* node,
+	   int time,
+	   Val3 val,
+	   NodeValList& assign_list);
 
 private:
   //////////////////////////////////////////////////////////////////////

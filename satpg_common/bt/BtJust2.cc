@@ -24,10 +24,9 @@ BEGIN_NAMESPACE_YM_SATPG
 BtJust2::BtJust2(ymuint max_id,
 		 bool td_mode,
 		 const ValMap& val_map) :
-  BtJustBase(max_id, td_mode, val_map),
+  BtImpl(max_id, td_mode, val_map),
   mAlloc(sizeof(NodeList), 1024),
-  mJustArray(max_id, nullptr),
-  mJust0Array(max_id, nullptr)
+  mJustArray(max_id * 2, nullptr)
 {
 }
 
@@ -55,50 +54,29 @@ BtJust2::run(const NodeValList& assign_list,
   for (ymuint i = 0; i < assign_list.size(); ++ i) {
     NodeVal nv = assign_list[i];
     const TpgNode* node = nv.node();
-    NodeList* node_list = nullptr;
-    if ( td_mode() ) {
-      if ( nv.time() == 0 ) {
-	node_list = justify0(node);
-      }
-      else {
-	node_list = justify(node);
-      }
-    }
-    else {
-      node_list = justify(node);
-    }
-    if ( node_list0 == nullptr ) {
-      node_list0 = node_list;
-    }
-    else {
-      list_merge(node_list0, node_list);
-    }
+    NodeList* node_list = justify(node, nv.time());
+    list_merge(node_list0, node_list);
   }
 
   // 故障差の伝搬している外部出力を選ぶ．
-  ymuint nmin = 0;
+  ymuint nmin = -1;
   NodeList* best_list = nullptr;
   for (vector<const TpgNode*>::const_iterator p = output_list.begin();
        p != output_list.end(); ++ p) {
     const TpgNode* node = *p;
-    if ( gval(node) != fval(node) ) {
+    if ( gval(node, 1) != fval(node, 1) ) {
       // 正当化を行う．
-      NodeList* node_list = justify(node);
+      NodeList* node_list = justify(node, 1);
       ymuint n = list_size(node_list);
-      if ( nmin == 0 || nmin > n ) {
+      if ( nmin > n ) {
 	nmin = n;
 	best_list = node_list;
       }
     }
   }
-  ASSERT_COND( nmin > 0 );
+  ASSERT_COND( nmin != -1 );
 
-  if ( best_list == nullptr ) {
-    best_list = node_list0;
-  }
-  else {
-    list_merge(best_list, node_list0);
-  }
+  list_merge(best_list, node_list0);
 
   for (NodeList* tmp = best_list; tmp; tmp = tmp->mLink) {
     const TpgNode* node = tmp->mNode;
@@ -109,100 +87,99 @@ BtJust2::run(const NodeValList& assign_list,
 
 // @brief solve 中で変数割り当ての正当化を行なう．
 // @param[in] node 対象のノード
-// @note node の値割り当てを正当化する．
-// @note 正当化に用いられているノードには mJustifiedMark がつく．
-// @note mJustifiedMmark がついたノードは mJustifiedNodeList に格納される．
+// @param[in] time タイムフレーム ( 0 or 1 )
 BtJust2::NodeList*
-BtJust2::justify(const TpgNode* node)
+BtJust2::justify(const TpgNode* node,
+		 int time)
 {
-  if ( justified_mark(node) ) {
-    return mJustArray[node->id()];
+  NodeList*& node_list = mJustArray[node->id() * 2 + time];
+  if ( justified_mark(node, time) ) {
+    return node_list;
   }
-  set_justified(node);
+  set_justified(node, time);
 
-  if ( node->is_ppi() ) {
-    if ( td_mode() ) {
-      if ( node->is_primary_input() ) {
-	// val を記録
-	mJustArray[node->id()] = new_list_cell(node, 1);
-      }
-      else if ( node->is_dff_output() ) {
-	// 1時刻前のタイムフレームに戻る．
-	const TpgDff* dff = node->dff();
-	const TpgNode* alt_node = dff->input();
-	mJustArray[node->id()] = justify0(alt_node);
-      }
+  if ( node->is_primary_input() ) {
+    // val を記録
+    node_list = new_list_cell(node, time);
+    return node_list;
+  }
+  if ( node->is_dff_output() ) {
+    if ( time == 1 && td_mode() ) {
+      // 1時刻前のタイムフレームに戻る．
+      const TpgDff* dff = node->dff();
+      const TpgNode* alt_node = dff->input();
+      node_list = justify(alt_node, 0);
     }
     else {
       // val を記録
-      mJustArray[node->id()] = new_list_cell(node, 0);
+      node_list = new_list_cell(node, time);
     }
-    return mJustArray[node->id()];
+    return node_list;
   }
 
-  Val3 gval = this->gval(node);
-  Val3 fval = this->fval(node);
+  Val3 gval = this->gval(node, time);
+  Val3 fval = this->fval(node, time);
 
   if ( gval != fval ) {
     // 正常値と故障値が異なっていたら
     // すべてのファンインをたどる．
-    return just_sub1(node);
+    return just_all(node, time);
   }
 
   switch ( node->gate_type() ) {
   case kGateBUFF:
   case kGateNOT:
     // 無条件で唯一のファンインをたどる．
-    return just_sub1(node);
+    return just_all(node, time);
 
   case kGateAND:
     if ( gval == kVal1 ) {
       // すべてのファンインノードをたどる．
-      return just_sub1(node);
+      return just_all(node, time);
     }
     else if ( gval == kVal0 ) {
       // 0の値を持つ最初のノードをたどる．
-      return just_sub2(node, kVal0);
+      return just_one(node, time, kVal0);
     }
     break;
 
   case kGateNAND:
     if ( gval == kVal1 ) {
       // 0の値を持つ最初のノードをたどる．
-      return just_sub2(node, kVal0);
+      return just_one(node, time, kVal0);
     }
     else if ( gval == kVal0 ) {
       // すべてのファンインノードをたどる．
-      return just_sub1(node);
+      return just_all(node, time);
     }
     break;
 
   case kGateOR:
     if ( gval == kVal1 ) {
       // 1の値を持つ最初のノードをたどる．
-      return just_sub2(node, kVal1);
+      return just_one(node, time, kVal1);
     }
     else if ( gval == kVal0 ) {
       // すべてのファンインノードをたどる．
-      return just_sub1(node);
+      return just_all(node, time);
     }
     break;
 
   case kGateNOR:
     if ( gval == kVal1 ) {
       // すべてのファンインノードをたどる．
-      return just_sub1(node);
+      return just_all(node, time);
     }
     else if ( gval == kVal0 ) {
       // 1の値を持つ最初のノードをたどる．
-      return just_sub2(node, kVal1);
+      return just_one(node, time, kVal1);
     }
     break;
 
   case kGateXOR:
   case kGateXNOR:
     // すべてのファンインノードをたどる．
-    return just_sub1(node);
+    return just_all(node, time);
     break;
 
   default:
@@ -215,14 +192,16 @@ BtJust2::justify(const TpgNode* node)
 
 // @brief すべてのファンインに対して justify() を呼ぶ．
 // @param[in] node 対象のノード
+// @param[in] time タイムフレーム ( 0 or 1 )
 BtJust2::NodeList*
-BtJust2::just_sub1(const TpgNode* node)
+BtJust2::just_all(const TpgNode* node,
+		  int time)
 {
-  NodeList*& node_list = mJustArray[node->id()];
+  NodeList*& node_list = mJustArray[node->id() * 2 + time];
   ymuint ni = node->fanin_num();
   for (ymuint i = 0; i < ni; ++ i) {
     const TpgNode* inode = node->fanin(i);
-    NodeList* node_list1 = justify(inode);
+    NodeList* node_list1 = justify(inode, time);
     list_merge(node_list, node_list1);
   }
   return node_list;
@@ -230,10 +209,12 @@ BtJust2::just_sub1(const TpgNode* node)
 
 // @brief 指定した値を持つのファンインに対して justify() を呼ぶ．
 // @param[in] node 対象のノード
+// @param[in] time タイムフレーム ( 0 or 1 )
 // @param[in] val 値
 BtJust2::NodeList*
-BtJust2::just_sub2(const TpgNode* node,
-		   Val3 val)
+BtJust2::just_one(const TpgNode* node,
+		  int time,
+		  Val3 val)
 {
   ymuint ni = node->fanin_num();
   // まず gval と fval が等しい場合を探す．
@@ -241,12 +222,12 @@ BtJust2::just_sub2(const TpgNode* node,
   ymuint min = 0;
   for (ymuint i = 0; i < ni; ++ i) {
     const TpgNode* inode = node->fanin(i);
-    Val3 igval = gval(inode);
-    Val3 ifval = fval(inode);
+    Val3 igval = gval(inode, time);
+    Val3 ifval = fval(inode, time);
     if ( igval != ifval || igval != val ) {
       continue;
     }
-    NodeList* node_list1 = justify(inode);
+    NodeList* node_list1 = justify(inode, time);
     ymuint n = list_size(node_list1);
     if ( min == 0 || min > n ) {
       pos = i;
@@ -254,26 +235,27 @@ BtJust2::just_sub2(const TpgNode* node,
     }
   }
   if ( pos < ni ) {
-    NodeList*& node_list = mJustArray[node->id()];
-    list_merge(node_list, mJustArray[node->fanin(pos)->id()]);
+    NodeList*& node_list = mJustArray[node->id() * 2 + time];
+    list_merge(node_list, mJustArray[node->fanin(pos)->id() * 2 + time]);
     return node_list;
   }
 
+  // 次に gval と fval が異なる場合を探す．
   ymuint gpos = ni;
   ymuint fpos = ni;
-  ymuint gmin = 0;
-  ymuint fmin = 0;
+  ymuint gmin = -1;
+  ymuint fmin = -1;
   for (ymuint i = 0; i < ni; ++ i) {
     const TpgNode* inode = node->fanin(i);
-    Val3 igval = gval(inode);
-    Val3 ifval = fval(inode);
+    Val3 igval = gval(inode, time);
+    Val3 ifval = fval(inode, time);
     if ( igval != val && ifval != val ) {
       continue;
     }
-    NodeList* node_list1 = justify(inode);
+    NodeList* node_list1 = justify(inode, time);
     ymuint n = list_size(node_list1);
     if ( igval == val ) {
-      if ( gmin == 0 || gmin > n ) {
+      if ( gmin > n ) {
 	gpos = i;
 	gmin = n;
       }
@@ -288,139 +270,10 @@ BtJust2::just_sub2(const TpgNode* node,
   ASSERT_COND( gpos < ni );
   ASSERT_COND( fpos < ni );
   ASSERT_COND( gpos != fpos );
-  NodeList*& node_list = mJustArray[node->id()];
-  list_merge(node_list, mJustArray[node->fanin(gpos)->id()]);
-  list_merge(node_list, mJustArray[node->fanin(fpos)->id()]);
-  return node_list;
-}
+  NodeList*& node_list = mJustArray[node->id() * 2 + time];
+  list_merge(node_list, mJustArray[node->fanin(gpos)->id() * 2 + time]);
+  list_merge(node_list, mJustArray[node->fanin(fpos)->id() * 2 + time]);
 
-// @brief solve 中で変数割り当ての正当化を行なう．
-// @param[in] node 対象のノード
-// @note node の値割り当てを正当化する．
-// @note 正当化に用いられているノードには mJustifiedMark がつく．
-// @note mJustifiedMmark がついたノードは mJustifiedNodeList に格納される．
-BtJust2::NodeList*
-BtJust2::justify0(const TpgNode* node)
-{
-  if ( justified0_mark(node) ) {
-    return mJust0Array[node->id()];
-  }
-  set_justified0(node);
-
-  if ( node->is_ppi() ) {
-    // val を記録
-    mJust0Array[node->id()] = new_list_cell(node, 0);
-    return mJust0Array[node->id()];
-  }
-
-  Val3 gval = this->gval(node, 0);
-
-  switch ( node->gate_type() ) {
-  case kGateBUFF:
-  case kGateNOT:
-    // 無条件で唯一のファンインをたどる．
-    return just0_sub1(node);
-
-  case kGateAND:
-    if ( gval == kVal1 ) {
-      // すべてのファンインノードをたどる．
-      return just0_sub1(node);
-    }
-    else if ( gval == kVal0 ) {
-      // 0の値を持つ最初のノードをたどる．
-      return just0_sub2(node, kVal0);
-    }
-    break;
-
-  case kGateNAND:
-    if ( gval == kVal1 ) {
-      // 0の値を持つ最初のノードをたどる．
-      return just0_sub2(node, kVal0);
-    }
-    else if ( gval == kVal0 ) {
-      // すべてのファンインノードをたどる．
-      return just0_sub1(node);
-    }
-    break;
-
-  case kGateOR:
-    if ( gval == kVal1 ) {
-      // 1の値を持つ最初のノードをたどる．
-      return just0_sub2(node, kVal1);
-    }
-    else if ( gval == kVal0 ) {
-      // すべてのファンインノードをたどる．
-      return just0_sub1(node);
-    }
-    break;
-
-  case kGateNOR:
-    if ( gval == kVal1 ) {
-      // すべてのファンインノードをたどる．
-      return just0_sub1(node);
-    }
-    else if ( gval == kVal0 ) {
-      // 1の値を持つ最初のノードをたどる．
-      return just0_sub2(node, kVal1);
-    }
-    break;
-
-  case kGateXOR:
-  case kGateXNOR:
-    // すべてのファンインノードをたどる．
-    return just0_sub1(node);
-    break;
-
-  default:
-    ASSERT_NOT_REACHED;
-    break;
-  }
-
-  return nullptr;
-}
-
-// @brief すべてのファンインに対して justify() を呼ぶ．
-// @param[in] node 対象のノード
-BtJust2::NodeList*
-BtJust2::just0_sub1(const TpgNode* node)
-{
-  NodeList*& node_list = mJust0Array[node->id()];
-  ymuint ni = node->fanin_num();
-  for (ymuint i = 0; i < ni; ++ i) {
-    const TpgNode* inode = node->fanin(i);
-    NodeList* node_list1 = justify0(inode);
-    list_merge(node_list, node_list1);
-  }
-  return node_list;
-}
-
-// @brief 指定した値を持つのファンインに対して justify() を呼ぶ．
-// @param[in] node 対象のノード
-// @param[in] val 値
-BtJust2::NodeList*
-BtJust2::just0_sub2(const TpgNode* node,
-		    Val3 val)
-{
-  ymuint ni = node->fanin_num();
-  ymuint pos = ni;
-  ymuint min = 0;
-  for (ymuint i = 0; i < ni; ++ i) {
-    const TpgNode* inode = node->fanin(i);
-    Val3 igval = gval(inode, 0);
-    if ( igval != val ) {
-      continue;
-    }
-    NodeList* node_list1 = justify0(inode);
-    ymuint n = list_size(node_list1);
-    if ( min == 0 || min > n ) {
-      pos = i;
-      min = n;
-    }
-  }
-  ASSERT_COND( pos < ni );
-
-  NodeList*& node_list = mJust0Array[node->id()];
-  list_merge(node_list, mJust0Array[node->fanin(pos)->id()]);
   return node_list;
 }
 
@@ -445,10 +298,11 @@ BtJust2::list_merge(NodeList*& dst_list,
   NodeList** pdst = &dst_list;
   NodeList* src = src_list;
   while ( *pdst != nullptr && src != nullptr ) {
-    if ( (*pdst)->mNode->id() < src->mNode->id() ) {
+    int r = list_compare((*pdst), src);
+    if ( r < 0 ) {
       pdst = &(*pdst)->mLink;
     }
-    else if ( (*pdst)->mNode->id() > src->mNode->id() ) {
+    else if ( r > 0 ) {
       NodeList* tmp = new_list_cell(src->mNode, src->mTime);
       NodeList* next = *pdst;
       *pdst = tmp;
@@ -488,6 +342,26 @@ BtJust2::list_free(NodeList* node_list)
     mAlloc.put_memory(sizeof(NodeList), tmp);
     tmp = next;
   }
+}
+
+// ２つのセルを比較する．
+int
+BtJust2::list_compare(const NodeList* left,
+		      const NodeList* right)
+{
+  if ( left->mNode->id() < right->mNode->id() ) {
+    return -1;
+  }
+  if ( left->mNode->id() > right->mNode->id() ) {
+    return 1;
+  }
+  if ( left->mTime < right->mTime ) {
+    return -1;
+  }
+  if ( left->mTime > right->mTime ) {
+    return 1;
+  }
+  return 0;
 }
 
 END_NAMESPACE_YM_SATPG
