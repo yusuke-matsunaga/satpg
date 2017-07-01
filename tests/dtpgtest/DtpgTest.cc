@@ -17,6 +17,7 @@
 #include "BackTracer.h"
 #include "Fsim.h"
 #include "DetectOp.h"
+#include "DopVerifyResult.h"
 #include "DopList.h"
 #include "ym/StopWatch.h"
 
@@ -302,15 +303,11 @@ dtpg_test(int argc,
 
   Fsim* fsim = nullptr;
   DopList dop_list;
+  DopVerifyResult result;
   if ( verify ) {
     fsim = Fsim::new_Fsim3();
     fsim->set_network(network);
-    if ( sa_mode ) {
-      dop_list.add(new_DopSaVerify(*fsim));
-    }
-    else {
-      dop_list.add(new_DopTdVerify(*fsim));
-    }
+    dop_list.add(new_DopVerify(*fsim, result, !sa_mode));
   }
 
   TpgFaultMgr fmgr(network);
@@ -335,6 +332,16 @@ dtpg_test(int argc,
   }
   else {
     ASSERT_NOT_REACHED;
+  }
+
+  if ( verify ) {
+    ymuint n = result.error_count();
+    for (ymuint i = 0; i < n; ++ i) {
+      const TpgFault* f = result.error_fault(i);
+      const NodeValList& assign_list = result.error_assign_list(i);
+      cout << "Error: " << f->str() << " is not detected with "
+	   << assign_list << endl;
+    }
   }
 
   delete fsim;

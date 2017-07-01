@@ -70,20 +70,26 @@ new_DopTvListTd(TvMgr& tvmgr,
 
 /// @brief 'verify' タイプを生成する．
 /// @param[in] fsim 故障シミュレータ
+/// @param[in] result 結果を格納するオブジェクト
 /// @param[in] td_mode 遷移故障モードの時 true にするフラグ
 DetectOp*
 new_DopVerify(Fsim& fsim,
+	      DopVerifyResult& result,
 	      bool td_mode);
 
 /// @brief 'sa-verify' タイプを生成する．
 /// @param[in] fsim 故障シミュレータ
+/// @param[in] result 結果を格納するオブジェクト
 DetectOp*
-new_DopSaVerify(Fsim& fsim);
+new_DopSaVerify(Fsim& fsim,
+		DopVerifyResult& result);
 
 /// @brief 'td-verify' タイプを生成する．
 /// @param[in] fsim 故障シミュレータ
+/// @param[in] result 結果を格納するオブジェクト
 DetectOp*
-new_DopTdVerify(Fsim& fsim);
+new_DopTdVerify(Fsim& fsim,
+		DopVerifyResult& result);
 
 /// @brief 'dummy' タイプを生成する．
 DetectOp*

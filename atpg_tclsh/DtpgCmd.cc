@@ -20,6 +20,7 @@
 #include "BackTracer.h"
 #include "DetectOp.h"
 #include "DopList.h"
+#include "DopVerifyResult.h"
 #include "UntestOp.h"
 #include "UopList.h"
 
@@ -232,13 +233,10 @@ DtpgCmd::cmd_proc(TclObjVector& objv)
   if ( mPoptDrop->is_specified() ) {
     dop_list.add(new_DopDrop(_fault_mgr(), _fsim3()));
   }
+
+  DopVerifyResult verify_result;
   if ( mPoptVerify->is_specified() ) {
-    if ( sa_mode ) {
-      dop_list.add(new_DopSaVerify(_fsim3()));
-    }
-    else {
-      dop_list.add(new_DopTdVerify(_fsim3()));
-    }
+    dop_list.add(new_DopVerify(_fsim3(), verify_result, !sa_mode));
   }
 
   bool timer_enable = true;
@@ -268,6 +266,17 @@ DtpgCmd::cmd_proc(TclObjVector& objv)
   }
 
   after_update_faults();
+
+  // -verify オプションの処理
+  if ( mPoptVerify->is_specified() ) {
+    ymuint n = verify_result.error_count();
+    for (ymuint i = 0; i < n; ++ i) {
+      const TpgFault* f = verify_result.error_fault(i);
+      const NodeValList& assign_list = verify_result.error_assign_list(i);
+      cout << "Error: " << f->str() << " is not detected with "
+	   << assign_list << endl;
+    }
+  }
 
   // -print_stats オプションの処理
   if ( print_stats ) {

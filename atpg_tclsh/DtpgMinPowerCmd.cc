@@ -22,6 +22,7 @@
 #include "BackTracer.h"
 #include "DetectOp.h"
 #include "DopList.h"
+#include "DopVerifyResult.h"
 #include "UntestOp.h"
 #include "UopList.h"
 
@@ -144,12 +145,13 @@ DtpgMinPowerCmd::cmd_proc(TclObjVector& objv)
   }
 
   BackTracer bt(xmode, _network().node_num());
+  DopVerifyResult verify_result;
 
   if ( mPoptDrop->is_specified() ) {
     dop_list.add(new_DopDrop(_fault_mgr(), _fsim3()));
   }
   if ( mPoptVerify->is_specified() ) {
-    dop_list.add(new_DopTdVerify(_fsim3()));
+    dop_list.add(new_DopTdVerify(_fsim3(), verify_result));
   }
 
   bool timer_enable = true;
@@ -190,6 +192,17 @@ DtpgMinPowerCmd::cmd_proc(TclObjVector& objv)
 	   dop_list, uop_list, stats);
 
   after_update_faults();
+
+  // -verify オプションの処理
+  if ( mPoptVerify->is_specified() ) {
+    ymuint n = verify_result.error_count();
+    for (ymuint i = 0; i < n; ++ i) {
+      const TpgFault* f = verify_result.error_fault(i);
+      const NodeValList& assign_list = verify_result.error_assign_list(i);
+      cout << "Error: " << f->str() << " is not detected with "
+	   << assign_list << endl;
+    }
+  }
 
   { // 求まったパタンの平均の遷移回数を求める．
     ymuint wsa_sum = 0;

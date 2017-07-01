@@ -117,6 +117,7 @@ class TvMgr;
 
 class Dtpg;
 class DetectOp;
+class DopVerifyResult;
 class UntestOp;
 
 class BackTracer;

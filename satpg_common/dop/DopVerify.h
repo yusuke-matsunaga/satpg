@@ -25,8 +25,10 @@ public:
 
   /// @brief コンストラクタ
   /// @param[in] fsim 故障シミュレータ
+  /// @param[in] result 結果を格納するオブジェクト
   /// @param[in] td_mode 遷移故障モードの時に true にするフラグ
   DopVerify(Fsim& fsim,
+	    DopVerifyResult& result,
 	    bool td_mode);
 
   /// @brief デストラクタ
@@ -55,6 +57,9 @@ private:
 
   // 故障シミュレータ
   Fsim& mFsim;
+
+  // 結果を格納するオブジェクト
+  DopVerifyResult& mResult;
 
   // 遷移故障モードフラグ
   bool mTdMode;

@@ -8,6 +8,7 @@
 
 
 #include "DopVerify.h"
+#include "DopVerifyResult.h"
 #include "TpgFault.h"
 #include "Fsim.h"
 #include "NodeValList.h"
@@ -17,27 +18,34 @@ BEGIN_NAMESPACE_YM_SATPG
 
 // @brief 'verify' タイプを生成する．
 // @param[in] fsim 故障シミュレータ
+// @param[in] result 結果を格納するオブジェクト
+// @param[in] td_mode 遷移故障モードの時 true にするフラグ
 DetectOp*
 new_DopVerify(Fsim& fsim,
+	      DopVerifyResult& result,
 	      bool td_mode)
 {
-  return new DopVerify(fsim, td_mode);
+  return new DopVerify(fsim, result, td_mode);
 }
 
 // @brief 'sa-verify' タイプを生成する．
 // @param[in] fsim 故障シミュレータ
+// @param[in] result 結果を格納するオブジェクト
 DetectOp*
-new_DopSaVerify(Fsim& fsim)
+new_DopSaVerify(Fsim& fsim,
+		DopVerifyResult& result)
 {
-  return new DopVerify(fsim, false);
+  return new DopVerify(fsim, result, false);
 }
 
 // @brief 'td-verify' タイプを生成する．
 // @param[in] fsim 故障シミュレータ
+// @param[in] result 結果を格納するオブジェクト
 DetectOp*
-new_DopTdVerify(Fsim& fsim)
+new_DopTdVerify(Fsim& fsim,
+		DopVerifyResult& result)
 {
-  return new DopVerify(fsim, true);
+  return new DopVerify(fsim, result, true);
 }
 
 
@@ -47,10 +55,13 @@ new_DopTdVerify(Fsim& fsim)
 
 // @brief コンストラクタ
 // @param[in] fsim 故障シミュレータ
+// @param[in] result 結果を格納するオブジェクト
 // @param[in] td_mode 遷移故障モードの時に true にするフラグ
 DopVerify::DopVerify(Fsim& fsim,
+		     DopVerifyResult& result,
 		     bool td_mode) :
   mFsim(fsim),
+  mResult(result),
   mTdMode(td_mode)
 {
 }
@@ -68,9 +79,11 @@ DopVerify::operator()(const TpgFault* f,
 		      const NodeValList& assign_list)
 {
   bool detect = mFsim.spsfp(assign_list, f, mTdMode);
-  if ( !detect ) {
-    cout << "Error: " << f->str() << " is not detected with "
-	 << assign_list << endl;
+  if ( detect ) {
+    mResult.add_good(f);
+  }
+  else {
+    mResult.add_error(f, assign_list);
   }
 }
 
