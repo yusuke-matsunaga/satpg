@@ -133,225 +133,13 @@ usage()
   cerr << "USAGE: " << argv0 << " ?--single|--mffc? --blif|--iscas89 <file>" << endl;
 }
 
-int
-dtpg_test(int argc,
-	  char** argv)
+void
+print_stats(const TpgNetwork& network,
+	    ymuint detect_num,
+	    ymuint untest_num,
+	    const USTime& time,
+	    const DtpgStats& stats)
 {
-  string sat_type;
-  string sat_option;
-  ostream* sat_outp = nullptr;
-
-  bool blif = false;
-  bool iscas89 = false;
-
-  bool sa_mode = false;
-  bool td_mode = false;
-
-  bool single = false;
-  bool ffr = false;
-  bool mffc = false;
-
-  bool dump = false;
-  bool verify = false;
-
-  int bt_mode = -1;
-
-  argv0 = argv[0];
-
-  ymuint pos = 1;
-  for ( ; pos < argc; ++ pos) {
-    if ( argv[pos][0] == '-' ) {
-      if ( strcmp(argv[pos], "--single") == 0 ) {
-	if ( ffr || mffc ) {
-	  cerr << "--single, --ffr and --mffc are mutually exclusive" << endl;
-	  return -1;
-	}
-	single = true;
-      }
-      else if ( strcmp(argv[pos], "--ffr") == 0 ) {
-	if ( single || mffc ) {
-	  cerr << "--single, --ffr  and --mffc are mutually exclusive" << endl;
-	  return -1;
-	}
-	ffr = true;
-      }
-      else if ( strcmp(argv[pos], "--mffc") == 0 ) {
-	if ( single || ffr ) {
-	  cerr << "--single, --ffr and --mffc are mutually exclusive" << endl;
-	  return -1;
-	}
-	mffc = true;
-      }
-      else if ( strcmp(argv[pos], "--blif") == 0 ) {
-	if ( iscas89 ) {
-	  cerr << "--blif and --iscas89 are mutually exclusive" << endl;
-	  return -1;
-	}
-	blif = true;
-      }
-      else if ( strcmp(argv[pos], "--iscas89") == 0 ) {
-	if ( blif ) {
-	  cerr << "--blif and --iscas89 are mutually exclusive" << endl;
-	  return -1;
-	}
-	iscas89 = true;
-      }
-      else if ( strcmp(argv[pos], "--stuck-at") == 0 ) {
-	if ( td_mode ) {
-	  cerr << "--stuck-at and --transition-delay are mutually exclusive" << endl;
-	  return -1;
-	}
-	sa_mode = true;
-      }
-      else if ( strcmp(argv[pos], "--transition-delay") == 0 ) {
-	if ( td_mode ) {
-	  cerr << "--stuck-at and --transition-delay are mutually exclusive" << endl;
-	  return -1;
-	}
-	td_mode = true;
-      }
-      else if ( strcmp(argv[pos], "--bt0") == 0 ) {
-	if ( bt_mode != -1 ) {
-	  cerr << "--bt0, --bt1, and --bt2 are mutually exclusive" << endl;
-	  return -1;
-	}
-	bt_mode = 0;
-      }
-      else if ( strcmp(argv[pos], "--bt1") == 0 ) {
-	if ( bt_mode != -1 ) {
-	  cerr << "--bt0, --bt1, and --bt2 are mutually exclusive" << endl;
-	  return -1;
-	}
-	bt_mode = 1;
-      }
-      else if ( strcmp(argv[pos], "--bt2") == 0 ) {
-	if ( bt_mode != -1 ) {
-	  cerr << "--bt0, --bt1, and --bt2 are mutually exclusive" << endl;
-	  return -1;
-	}
-	bt_mode = 2;
-      }
-      else if ( strcmp(argv[pos], "--verify") == 0 ) {
-	verify = true;
-      }
-      else if ( strcmp(argv[pos], "--dump") == 0 ) {
-	dump = true;
-      }
-      else {
-	cerr << argv[pos] << ": illegal option" << endl;
-	usage();
-	return -1;
-      }
-    }
-    else {
-      break;
-    }
-  }
-
-  if ( pos != argc - 1 ) {
-    usage();
-    return -1;
-  }
-
-  if ( !single && !ffr && !mffc ) {
-    // mffc をデフォルトにする．
-    mffc = true;
-  }
-
-  if ( !sa_mode && !td_mode ) {
-    // sa_mode をデフォルトにする．
-    sa_mode = true;
-  }
-
-  if ( !blif && !iscas89 ) {
-    // とりあえず blif をデフォルトにする．
-    blif = true;
-  }
-
-  if ( bt_mode == -1 ) {
-    // bt0 をデフォルトにする．
-    bt_mode = 0;
-  }
-
-  string filename = argv[pos];
-  TpgNetwork network;
-  if ( blif ) {
-    if ( !network.read_blif(filename) ) {
-      cerr << "Error in reading " << filename << endl;
-      return -1;
-    }
-  }
-  else if ( iscas89 ) {
-    if ( !network.read_iscas89(filename) ) {
-      cerr << "Error in reading " << filename << endl;
-      return -1;
-    }
-  }
-  else {
-    ASSERT_NOT_REACHED;
-  }
-
-  if ( td_mode && network.dff_num() == 0 ) {
-    cerr << "Network is combinational, stuck-at mode is assumed" << endl;
-    td_mode = false;
-    sa_mode = true;
-  }
-
-  if ( dump ) {
-    print_network(cout, network);
-  }
-
-  Fsim* fsim = nullptr;
-  DopList dop_list;
-  DopVerifyResult result;
-  if ( verify ) {
-    fsim = Fsim::new_Fsim3();
-    fsim->set_network(network);
-    dop_list.add(new_DopVerify(*fsim, result, !sa_mode));
-  }
-
-  TpgFaultMgr fmgr(network);
-
-  BackTracer bt(bt_mode, network.node_num());
-
-  Dtpg dtpg(sat_type, sat_option, sat_outp, td_mode, bt);
-
-  StopWatch timer;
-  timer.start();
-
-  DtpgStats stats;
-  pair<ymuint, ymuint> num_pair;
-  if ( single ) {
-    num_pair = single_test(dtpg, network, fmgr, dop_list, stats);
-  }
-  else if ( ffr ) {
-    num_pair = ffr_test(dtpg, network, fmgr, dop_list, stats);
-  }
-  else if ( mffc ) {
-    num_pair = mffc_test(dtpg, network, fmgr, dop_list, stats);
-  }
-  else {
-    ASSERT_NOT_REACHED;
-  }
-
-  if ( verify ) {
-    ymuint n = result.error_count();
-    for (ymuint i = 0; i < n; ++ i) {
-      const TpgFault* f = result.error_fault(i);
-      const NodeValList& assign_list = result.error_assign_list(i);
-      cout << "Error: " << f->str() << " is not detected with "
-	   << assign_list << endl;
-    }
-  }
-
-  delete fsim;
-
-  timer.stop();
-  USTime time = timer.time();
-
-  ymuint detect_num = num_pair.first;
-  ymuint untest_num = num_pair.second;
-
   cout << "# of inputs             = " << network.input_num() << endl
        << "# of outputs            = " << network.output_num() << endl
        << "# of DFFs               = " << network.dff_num() << endl
@@ -473,8 +261,229 @@ dtpg_test(int argc,
        << "  " << setw(8) << stats.mBackTraceTime.sys_time_usec() / stats.mDetCount
        << "s usec" << endl;
   cout.flags(save);
+}
 
-  return 0;
+int
+dtpg_test(int argc,
+	  char** argv)
+{
+  string sat_type;
+  string sat_option;
+  ostream* sat_outp = nullptr;
+
+  bool blif = false;
+  bool iscas89 = false;
+
+  bool sa_mode = false;
+  bool td_mode = false;
+
+  bool single = false;
+  bool ffr = false;
+  bool mffc = false;
+
+  bool dump = false;
+
+  bool verbose = false;
+
+  int bt_mode = -1;
+
+  argv0 = argv[0];
+
+  ymuint pos = 1;
+  for ( ; pos < argc; ++ pos) {
+    if ( argv[pos][0] == '-' ) {
+      if ( strcmp(argv[pos], "--single") == 0 ) {
+	if ( ffr || mffc ) {
+	  cerr << "--single, --ffr and --mffc are mutually exclusive" << endl;
+	  return -1;
+	}
+	single = true;
+      }
+      else if ( strcmp(argv[pos], "--ffr") == 0 ) {
+	if ( single || mffc ) {
+	  cerr << "--single, --ffr  and --mffc are mutually exclusive" << endl;
+	  return -1;
+	}
+	ffr = true;
+      }
+      else if ( strcmp(argv[pos], "--mffc") == 0 ) {
+	if ( single || ffr ) {
+	  cerr << "--single, --ffr and --mffc are mutually exclusive" << endl;
+	  return -1;
+	}
+	mffc = true;
+      }
+      else if ( strcmp(argv[pos], "--blif") == 0 ) {
+	if ( iscas89 ) {
+	  cerr << "--blif and --iscas89 are mutually exclusive" << endl;
+	  return -1;
+	}
+	blif = true;
+      }
+      else if ( strcmp(argv[pos], "--iscas89") == 0 ) {
+	if ( blif ) {
+	  cerr << "--blif and --iscas89 are mutually exclusive" << endl;
+	  return -1;
+	}
+	iscas89 = true;
+      }
+      else if ( strcmp(argv[pos], "--stuck-at") == 0 ) {
+	if ( td_mode ) {
+	  cerr << "--stuck-at and --transition-delay are mutually exclusive" << endl;
+	  return -1;
+	}
+	sa_mode = true;
+      }
+      else if ( strcmp(argv[pos], "--transition-delay") == 0 ) {
+	if ( td_mode ) {
+	  cerr << "--stuck-at and --transition-delay are mutually exclusive" << endl;
+	  return -1;
+	}
+	td_mode = true;
+      }
+      else if ( strcmp(argv[pos], "--bt0") == 0 ) {
+	if ( bt_mode != -1 ) {
+	  cerr << "--bt0, --bt1, and --bt2 are mutually exclusive" << endl;
+	  return -1;
+	}
+	bt_mode = 0;
+      }
+      else if ( strcmp(argv[pos], "--bt1") == 0 ) {
+	if ( bt_mode != -1 ) {
+	  cerr << "--bt0, --bt1, and --bt2 are mutually exclusive" << endl;
+	  return -1;
+	}
+	bt_mode = 1;
+      }
+      else if ( strcmp(argv[pos], "--bt2") == 0 ) {
+	if ( bt_mode != -1 ) {
+	  cerr << "--bt0, --bt1, and --bt2 are mutually exclusive" << endl;
+	  return -1;
+	}
+	bt_mode = 2;
+      }
+      else if ( strcmp(argv[pos], "--dump") == 0 ) {
+	dump = true;
+      }
+      else if ( strcmp(argv[pos], "--verbose") == 0 ) {
+	verbose = true;
+      }
+      else {
+	cerr << argv[pos] << ": illegal option" << endl;
+	usage();
+	return -1;
+      }
+    }
+    else {
+      break;
+    }
+  }
+
+  if ( pos != argc - 1 ) {
+    usage();
+    return -1;
+  }
+
+  if ( !single && !ffr && !mffc ) {
+    // mffc をデフォルトにする．
+    mffc = true;
+  }
+
+  if ( !sa_mode && !td_mode ) {
+    // sa_mode をデフォルトにする．
+    sa_mode = true;
+  }
+
+  if ( !blif && !iscas89 ) {
+    // とりあえず blif をデフォルトにする．
+    blif = true;
+  }
+
+  if ( bt_mode == -1 ) {
+    // bt0 をデフォルトにする．
+    bt_mode = 0;
+  }
+
+  string filename = argv[pos];
+  TpgNetwork network;
+  if ( blif ) {
+    if ( !network.read_blif(filename) ) {
+      cerr << "Error in reading " << filename << endl;
+      return -1;
+    }
+  }
+  else if ( iscas89 ) {
+    if ( !network.read_iscas89(filename) ) {
+      cerr << "Error in reading " << filename << endl;
+      return -1;
+    }
+  }
+  else {
+    ASSERT_NOT_REACHED;
+  }
+
+  if ( td_mode && network.dff_num() == 0 ) {
+    cerr << "Network is combinational, stuck-at mode is assumed" << endl;
+    td_mode = false;
+    sa_mode = true;
+  }
+
+  if ( dump ) {
+    print_network(cout, network);
+  }
+
+  Fsim* fsim = nullptr;
+  DopList dop_list;
+  DopVerifyResult result;
+
+  fsim = Fsim::new_Fsim3();
+  fsim->set_network(network);
+  dop_list.add(new_DopVerify(*fsim, result, td_mode));
+
+  TpgFaultMgr fmgr(network);
+
+  BackTracer bt(bt_mode, network.node_num());
+
+  Dtpg dtpg(sat_type, sat_option, sat_outp, td_mode, bt);
+
+  StopWatch timer;
+  timer.start();
+
+  DtpgStats stats;
+  pair<ymuint, ymuint> num_pair;
+  if ( single ) {
+    num_pair = single_test(dtpg, network, fmgr, dop_list, stats);
+  }
+  else if ( ffr ) {
+    num_pair = ffr_test(dtpg, network, fmgr, dop_list, stats);
+  }
+  else if ( mffc ) {
+    num_pair = mffc_test(dtpg, network, fmgr, dop_list, stats);
+  }
+  else {
+    ASSERT_NOT_REACHED;
+  }
+
+  delete fsim;
+
+  timer.stop();
+
+  if ( verbose ) {
+    ymuint detect_num = num_pair.first;
+    ymuint untest_num = num_pair.second;
+    USTime time = timer.time();
+    print_stats(network, detect_num, untest_num, time, stats);
+  }
+
+  ymuint n = result.error_count();
+  for (ymuint i = 0; i < n; ++ i) {
+    const TpgFault* f = result.error_fault(i);
+    const NodeValList& assign_list = result.error_assign_list(i);
+    cout << "Error: " << f->str() << " is not detected with "
+	 << assign_list << endl;
+  }
+
+  return n;
 }
 
 END_NAMESPACE_YM_SATPG
