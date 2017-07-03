@@ -125,8 +125,7 @@ DtpgTestWithParam::do_test()
 string
 DtpgTestWithParam::filename()
 {
-  string path("DATAPATH");
-  return path + std::get<0>(GetParam());
+  return DATAPATH + std::get<0>(GetParam());
 }
 
 // @brief テストパラメータからテストモードを取り出す．
@@ -156,7 +155,7 @@ TEST_P(DtpgTestWithParam, test1)
 }
 
 INSTANTIATE_TEST_CASE_P(DtpgTest, DtpgTestWithParam,
-			::testing::Combine(::testing::Values("s27.blif", "s35932.blif"),
+			::testing::Combine(::testing::Values("s27.blif", "s1196.blif"),
 					   ::testing::Values("single", "ffr", "mffc"),
 					   ::testing::Values(false, true),
 					   ::testing::Range(0, 3)));

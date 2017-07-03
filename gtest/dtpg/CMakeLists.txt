@@ -41,7 +41,7 @@ target_compile_options ( DtpgTest
   )
 
 target_compile_definitions ( DtpgTest
-  PRIVATE "-DDATAPATH=${CMAKE_CURRENT_SOURCE_DIR}/data"
+  PRIVATE "-DDATAPATH=\"${CMAKE_CURRENT_SOURCE_DIR}/data/\""
   )
 
 target_link_libraries ( DtpgTest
