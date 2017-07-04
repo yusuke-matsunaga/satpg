@@ -14,40 +14,44 @@ from CXX_TpgNetwork cimport TpgNetwork as CXX_TpgNetwork
 
 ## @brief TvMgr の Python バージョン
 cdef class TvMgr :
-    cdef CXX_TvMgr _this
+    cdef CXX_TvMgr* _thisptr
+
+    ## @brief 初期化
+    def __init__(TvMgr self, TpgNetwork network) :
+        self._thisptr = new CXX_TvMgr(network._this)
+
+    ## @brief 終了処理
+    def __dealloc__(TvMgr self) :
+        if self._thisptr != NULL :
+            del self._thisptr
 
     ## @brief クリアする
     def clear(TvMgr self) :
-        self._this.clear()
-
-    ## @brief 初期化する．
-    # @param[in] network 対象のネットワーク
-    def init(TvMgr self, TpgNetwork network) :
-        self._this.init(network._this)
+        self._thisptr.clear()
 
     ## @brief 入力数を得る．
     @property
     def input_num(TvMgr self) :
-        return self._this.input_num()
+        return self._thisptr.input_num()
 
     ## @brief DFF数を得る．
     @property
     def dff_num(TvMgr self) :
-        return self._this.dff_num()
+        return self._thisptr.dff_num()
 
     ## @brief 縮退故障モードのベクタ長を返す．
     @property
     def sa_vect_len(TvMgr self) :
-        return self._this.sa_vect_len()
+        return self._thisptr.sa_vect_len()
 
     ## @brief 遷移故障モードのベクタ長を返す．
     @property
     def td_vect_len(TvMgr self) :
-        return self._this.td_vect_len()
+        return self._thisptr.td_vect_len()
 
     ## @brief 縮退故障用のテストベクタを生成する．
     def new_sa_vector(TvMgr self) :
-        cdef CXX_TestVector* c_vect = self._this.new_sa_vector()
+        cdef CXX_TestVector* c_vect = self._thisptr.new_sa_vector()
         ans = TestVector()
         ans._thisptr = c_vect
         ans._tvmgr = self
@@ -55,7 +59,7 @@ cdef class TvMgr :
 
     ## @brief 縮退故障用のテストベクタを生成する．
     def new_td_vector(TvMgr self) :
-        cdef CXX_TestVector* c_vect = self._this.new_td_vector()
+        cdef CXX_TestVector* c_vect = self._thisptr.new_td_vector()
         ans = TestVector()
         ans._thisptr = c_vect
         ans._tvmgr = self
@@ -63,6 +67,5 @@ cdef class TvMgr :
 
     ## @brief テストベクタを削除する．
     def delete_vector(TvMgr self, TestVector vect) :
-        if not vect.is_valid :
-            return
-        self._this.delete_vector(vect._thisptr)
+        if vect.is_valid :
+            self._thisptr.delete_vector(vect._thisptr)

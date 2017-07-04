@@ -15,9 +15,8 @@ cdef extern from "TvMgr.h" namespace "nsYm::nsSatpg" :
 
     ## @brief TvMgr の cython バージョン
     cdef cppclass TvMgr :
-        TvMgr()
+        TvMgr(const TpgNetwork& network)
         void clear()
-        void init(const TpgNetwork& network)
         ymuint input_num()
         ymuint dff_num()
         ymuint sa_vect_len()

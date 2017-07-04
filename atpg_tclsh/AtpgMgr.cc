@@ -27,9 +27,7 @@ AtpgMgr::AtpgMgr() :
   mTimer(TM_SIZE, TM_MISC)
 {
   mFaultMgr = nullptr;
-
-  mTvMgr = new TvMgr();
-
+  mTvMgr = nullptr;
   mFsim2 = nullptr;
   mFsim3 = nullptr;
 }
@@ -83,12 +81,12 @@ void
 AtpgMgr::after_set_network()
 {
   delete mFaultMgr;
+  delete mTvMgr;
   delete mFsim2;
   delete mFsim3;
 
   mFaultMgr = new TpgFaultMgr(_network());
-
-  mTvMgr->init(_network());
+  mTvMgr = new TvMgr(_network());
   mFsim2 = Fsim::new_Fsim2(_network());
   mFsim3 = Fsim::new_Fsim3(_network());
 }
