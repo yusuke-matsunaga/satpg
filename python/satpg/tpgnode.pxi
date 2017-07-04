@@ -9,6 +9,7 @@
 from libcpp.string cimport string
 from CXX_TpgNode cimport TpgNode as CXX_TpgNode
 from CXX_TpgDff cimport TpgDff as CXX_TpgDff
+from CXX_GateType cimport GateType as CXX_GateType
 from CXX_TpgFault cimport TpgFault as CXX_TpgFault
 
 
@@ -71,6 +72,17 @@ cdef class TpgNode :
             return None
         c_dff = self._thisptr.dff()
         return to_TpgDff(c_dff)
+
+    ## @brief ゲートタイプを返す．
+    #
+    # 論理ゲート型でない場合は不定
+    @property
+    def gate_type(self) :
+        cdef CXX_GateType c_gt
+        if not self._is_valid :
+            return None
+        c_gt = self._thisptr.gate_type()
+        return to_GateType(c_gt)
 
     ## @brief ファンイン数を返す．
     #

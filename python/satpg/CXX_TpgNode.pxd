@@ -8,6 +8,7 @@
 
 from libcpp cimport bool
 from libcpp.string cimport string
+from CXX_GateType cimport GateType
 from CXX_TpgDff cimport TpgDff
 from CXX_TpgFault cimport TpgFault
 from CXX_Val3 cimport Val3
@@ -35,7 +36,7 @@ cdef extern from "TpgNode.h" namespace "nsYm::nsSatpg" :
         ymuint output_id()
         ymuint output_id2()
         TpgDff* dff()
-#        GateType gate_type()
+        GateType gate_type()
         Val3 cval()
         Val3 nval()
         Val3 coval()
