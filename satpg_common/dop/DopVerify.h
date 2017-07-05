@@ -26,10 +26,8 @@ public:
   /// @brief コンストラクタ
   /// @param[in] fsim 故障シミュレータ
   /// @param[in] result 結果を格納するオブジェクト
-  /// @param[in] fault_type 故障の種類
   DopVerify(Fsim& fsim,
-	    DopVerifyResult& result,
-	    FaultType fault_type);
+	    DopVerifyResult& result);
 
   /// @brief デストラクタ
   virtual
@@ -60,9 +58,6 @@ private:
 
   // 結果を格納するオブジェクト
   DopVerifyResult& mResult;
-
-  // 故障の種類
-  FaultType mFaultType;
 
 };
 

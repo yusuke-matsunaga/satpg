@@ -35,13 +35,19 @@ public:
   // 外部インターフェイス
   //////////////////////////////////////////////////////////////////////
 
-  /// @brief 1時刻目の値を設定する．
+  /// @brief 値を設定する．(縮退故障用)
+  /// @param[in] fsim 故障シミュレータ
+  virtual
+  void
+  set_val(FSIM_CLASSNAME& fsim) const = 0;
+
+  /// @brief 1時刻目の値を設定する．(遷移故障用)
   /// @param[in] fsim 故障シミュレータ
   virtual
   void
   set_val1(FSIM_CLASSNAME& fsim) const = 0;
 
-  /// @brief 2時刻目の値を設定する．
+  /// @brief 2時刻目の値を設定する．(遷移故障用)
   /// @param[in] fsim 故障シミュレータ
   virtual
   void
@@ -85,13 +91,19 @@ public:
   // 外部インターフェイス
   //////////////////////////////////////////////////////////////////////
 
-  /// @brief 1時刻目の値を設定する．
+  /// @brief 値を設定する．(縮退故障用)
+  /// @param[in] fsim 故障シミュレータ
+  virtual
+  void
+  set_val(FSIM_CLASSNAME& fsim) const;
+
+  /// @brief 1時刻目の値を設定する．(遷移故障用)
   /// @param[in] fsim 故障シミュレータ
   virtual
   void
   set_val1(FSIM_CLASSNAME& fsim) const;
 
-  /// @brief 2時刻目の値を設定する．
+  /// @brief 2時刻目の値を設定する．(遷移故障用)
   /// @param[in] fsim 故障シミュレータ
   virtual
   void
@@ -140,13 +152,19 @@ public:
   // 外部インターフェイス
   //////////////////////////////////////////////////////////////////////
 
-  /// @brief 1時刻目の値を設定する．
+  /// @brief 値を設定する．(縮退故障用)
+  /// @param[in] fsim 故障シミュレータ
+  virtual
+  void
+  set_val(FSIM_CLASSNAME& fsim) const;
+
+  /// @brief 1時刻目の値を設定する．(遷移故障用)
   /// @param[in] fsim 故障シミュレータ
   virtual
   void
   set_val1(FSIM_CLASSNAME& fsim) const;
 
-  /// @brief 2時刻目の値を設定する．
+  /// @brief 2時刻目の値を設定する．(遷移故障用)
   /// @param[in] fsim 故障シミュレータ
   virtual
   void
@@ -199,13 +217,19 @@ public:
   // 外部インターフェイス
   //////////////////////////////////////////////////////////////////////
 
-  /// @brief 1時刻目の値を設定する．
+  /// @brief 値を設定する．(縮退故障用)
+  /// @param[in] fsim 故障シミュレータ
+  virtual
+  void
+  set_val(FSIM_CLASSNAME& fsim) const;
+
+  /// @brief 1時刻目の値を設定する．(遷移故障用)
   /// @param[in] fsim 故障シミュレータ
   virtual
   void
   set_val1(FSIM_CLASSNAME& fsim) const;
 
-  /// @brief 2時刻目の値を設定する．
+  /// @brief 2時刻目の値を設定する．(遷移故障用)
   /// @param[in] fsim 故障シミュレータ
   virtual
   void

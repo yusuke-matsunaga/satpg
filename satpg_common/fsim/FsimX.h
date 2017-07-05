@@ -24,20 +24,16 @@ BEGIN_NAMESPACE_YM_SATPG_FSIM
 class SimFFR;
 class SimNode;
 class InputVals;
-class FaultProp;
 
 //////////////////////////////////////////////////////////////////////
 /// @class FSIM_CLASSNAME FsimX.h "FsimX.h"
 /// @brief 故障シミュレーションを行うモジュール
 ///
-/// 実際のクラス名は Fsim2 か Fsim3 である．
+/// 実際のクラス名は FsimSa2, FsimSa3, FsimTd2, FsimTd3 である．
 //////////////////////////////////////////////////////////////////////
 class FSIM_CLASSNAME :
   public Fsim
 {
-  friend class SaFaultProp;
-  friend class TdFaultProp;
-
 public:
 
   /// @brief コンストラクタ
@@ -79,7 +75,7 @@ public:
 
 public:
   //////////////////////////////////////////////////////////////////////
-  // 縮退故障用の故障シミュレーションを行う関数
+  // 故障シミュレーションを行う関数
   //////////////////////////////////////////////////////////////////////
 
   /// @brief SPSFP故障シミュレーションを行う．
@@ -89,8 +85,8 @@ public:
   /// @retval false 故障の検出が行えなかった．
   virtual
   bool
-  sa_spsfp(const TestVector* tv,
-	   const TpgFault* f);
+  spsfp(const TestVector* tv,
+	const TpgFault* f);
 
   /// @brief SPSFP故障シミュレーションを行う．
   /// @param[in] assign_list 値の割当リスト
@@ -99,8 +95,8 @@ public:
   /// @retval false 故障の検出が行えなかった．
   virtual
   bool
-  sa_spsfp(const NodeValList& assign_list,
-	   const TpgFault* f);
+  spsfp(const NodeValList& assign_list,
+	const TpgFault* f);
 
   /// @brief ひとつのパタンで故障シミュレーションを行う．
   /// @param[in] tv テストベクタ
@@ -109,7 +105,7 @@ public:
   /// 検出された故障は det_fault() で取得する．
   virtual
   ymuint
-  sa_sppfp(const TestVector* tv);
+  sppfp(const TestVector* tv);
 
   /// @brief ひとつのパタンで故障シミュレーションを行う．
   /// @param[in] assign_list 値の割当リスト
@@ -118,7 +114,7 @@ public:
   /// 検出された故障は det_fault() で取得する．
   virtual
   ymuint
-  sa_sppfp(const NodeValList& assign_list);
+  sppfp(const NodeValList& assign_list);
 
   /// @brief 複数のパタンで故障シミュレーションを行う．
   /// @return 検出された故障数を返す．
@@ -127,60 +123,13 @@ public:
   /// 最低1つのパタンが set_pattern() で設定されている必要がある．<br>
   virtual
   ymuint
-  sa_ppsfp();
+  ppsfp();
 
 
 public:
   //////////////////////////////////////////////////////////////////////
   // 遷移故障用の故障シミュレーションを行う関数
   //////////////////////////////////////////////////////////////////////
-
-  /// @brief SPSFP故障シミュレーションを行う．
-  /// @param[in] tv テストベクタ
-  /// @param[in] f 対象の故障
-  /// @retval true 故障の検出が行えた．
-  /// @retval false 故障の検出が行えなかった．
-  virtual
-  bool
-  td_spsfp(const TestVector* tv,
-	   const TpgFault* f);
-
-  /// @brief SPSFP故障シミュレーションを行う．
-  /// @param[in] assign_list 値の割当リスト
-  /// @param[in] f 対象の故障
-  /// @retval true 故障の検出が行えた．
-  /// @retval false 故障の検出が行えなかった．
-  virtual
-  bool
-  td_spsfp(const NodeValList& assign_list,
-	   const TpgFault* f);
-
-  /// @brief ひとつのパタンで故障シミュレーションを行う．
-  /// @param[in] tv テストベクタ
-  /// @return 検出された故障数を返す．
-  ///
-  /// 検出された故障は det_fault() で取得する．
-  virtual
-  ymuint
-  td_sppfp(const TestVector* tv);
-
-  /// @brief ひとつのパタンで故障シミュレーションを行う．
-  /// @param[in] assign_list 値の割当リスト
-  /// @return 検出された故障数を返す．
-  ///
-  /// 検出された故障は det_fault() で取得する．
-  virtual
-  ymuint
-  td_sppfp(const NodeValList& assign_list);
-
-  /// @brief 複数のパタンで故障シミュレーションを行う．
-  /// @return 検出された故障数を返す．
-  ///
-  /// 検出された故障は det_fault() で取得する．<br>
-  /// 最低1つのパタンが set_pattern() で設定されている必要がある．<br>
-  virtual
-  ymuint
-  td_ppsfp();
 
   /// @brief 与えられたパタンに対する信号遷移回数を計算する．
   /// @param[in] tv テストベクタ
@@ -191,8 +140,8 @@ public:
   /// - true : ゲートの出力の遷移回数に(ファンアウト数＋１)を掛けたものの和
   virtual
   ymuint
-  td_calc_wsa(const TestVector* tv,
-	      bool weighted);
+  calc_wsa(const TestVector* tv,
+	   bool weighted);
 
 
 public:
@@ -277,37 +226,28 @@ private:
 
   /// @brief SPSFP故障シミュレーションの本体
   /// @param[in] f 対象の故障
-  /// @param[in] fault_prop 故障伝搬を行うファンクタ
   /// @retval true 故障の検出が行えた．
   /// @retval false 故障の検出が行えなかった．
   bool
-  _spsfp(const TpgFault* f,
-	 FaultProp& fault_prop);
+  _spsfp(const TpgFault* f);
 
   /// @brief SPPFP故障シミュレーションの本体
-  /// @param[in] fault_prop 故障伝搬を行うファンクタ
   /// @return 検出された故障数を返す．
   ymuint
-  _sppfp(FaultProp& fault_prop);
+  _sppfp();
 
   /// @brief PPSFP故障シミュレーションの本体
-  /// @param[in] fault_prop 故障伝搬を行うファンクタ
   /// @return 検出された故障数を返す．
   ///
   /// 検出された故障は det_fault() で取得する．<br>
   /// 最低1つのパタンが set_pattern() で設定されている必要がある．<br>
   ymuint
-  _ppsfp(FaultProp& fault_prop);
+  _ppsfp();
 
-  /// @brief 正常値の計算を行う．(縮退故障用)
+  /// @brief 正常値の計算を行う．
   /// @param[in] input_vals 入力値
   void
-  _sa_calc_gval(const InputVals& input_vals);
-
-  /// @brief 正常値の計算を行う．(遷移故障用)
-  /// @param[in] input_vals 入力値
-  void
-  _td_calc_gval(const InputVals& input_vals);
+  _calc_gval(const InputVals& input_vals);
 
   /// @brief 値の計算を行う．
   ///
@@ -335,23 +275,16 @@ private:
   PackedVal
   _ffr_prop(SimFault* fault);
 
-  /// @brief FFR内の故障シミュレーションを行う．(縮退故障用)
+  /// @brief FFR内の故障シミュレーションを行う．
   /// @param[in] fault 対象の故障
   PackedVal
-  _sa_fault_prop(SimFault* fault);
+  _fault_prop(SimFault* fault);
 
-  /// @brief FFR内の故障シミュレーションを行う．(遷移故障用)
-  /// @param[in] fault 対象の故障
-  PackedVal
-  _td_fault_prop(SimFault* fault);
-
-  /// @brief 個々の故障に FaultProp を適用する．
+  /// @brief 個々の故障の故障伝搬条件を計算する．
   /// @param[in] fault_list 故障のリスト
-  /// @param[in] 故障伝搬を行うファンクタ
   /// @return 全ての故障の伝搬結果のORを返す．
   PackedVal
-  _foreach_faults(const vector<SimFault*>& fault_list,
-		  FaultProp& fault_prop);
+  _foreach_faults(const vector<SimFault*>& fault_list);
 
   /// @brief 故障の活性化条件を求める．
   /// @param[in] fault 対象の故障
@@ -539,11 +472,11 @@ _fault_eq(const TpgFault* f,
 
 END_NONAMESPACE
 
-// @brief FFR内の故障シミュレーションを行う．(縮退故障用)
+// @brief FFR内の故障シミュレーションを行う．
 // @param[in] fault 対象の故障
 inline
 PackedVal
-FSIM_CLASSNAME::_sa_fault_prop(SimFault* fault)
+FSIM_CLASSNAME::_fault_prop(SimFault* fault)
 {
   // 故障の活性化条件を求める．
   PackedVal cval = _fault_cond(fault);
@@ -551,25 +484,16 @@ FSIM_CLASSNAME::_sa_fault_prop(SimFault* fault)
   // FFR 内の故障伝搬を行う．
   PackedVal lobs = _ffr_prop(fault);
 
+#if FSIM_SA
   return cval & lobs;
-}
-
-// @brief FFR内の故障シミュレーションを行う．(遷移故障用)
-// @param[in] fault 対象の故障
-inline
-PackedVal
-FSIM_CLASSNAME::_td_fault_prop(SimFault* fault)
-{
-  // 故障の活性化条件を求める．
-  PackedVal cval = _fault_cond(fault);
-
+#elif FSIM_TD
   // 1時刻前の条件を求める．
   PackedVal pval = _fault_prev_cond(fault);
 
-  // FFR 内の故障伝搬を行う．
-  PackedVal lobs = _ffr_prop(fault);
-
   return lobs & cval & pval;
+#else
+  return 0UL;
+#endif
 }
 
 // @brief FFR内の伝搬条件を求める．

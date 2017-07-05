@@ -105,7 +105,7 @@ RtpgP1::run(TpgFaultMgr& fmgr,
       continue;
     }
 
-    ymuint det_count = fsim.td_sppfp(tv);
+    ymuint det_count = fsim.sppfp(tv);
     ++ pat_num;
 
     if ( det_count > 0 ) {

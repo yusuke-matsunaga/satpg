@@ -60,7 +60,7 @@ Verifier::check(Fsim& fsim,
       break;
     }
 
-    ymuint n = fsim.sa_ppsfp();
+    ymuint n = fsim.ppsfp();
     fsim.clear_patterns();
     wpos = 0;
 

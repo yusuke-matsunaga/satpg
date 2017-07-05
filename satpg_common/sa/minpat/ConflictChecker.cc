@@ -466,7 +466,7 @@ ConflictChecker::do_fsim(const vector<ymuint>& fid_list)
       cout << "\rFSIM: " << base;
       cout.flush();
     }
-    mFsim.sa_ppsfp();
+    mFsim.ppsfp();
     record_pat(fid_list);
     base += wpos;
     mFsim.clear_patterns();
@@ -490,7 +490,7 @@ ConflictChecker::do_fsim(const vector<ymuint>& fid_list)
       cout << "\rFSIM: " << base;
       cout.flush();
     }
-    mFsim.sa_ppsfp();
+    mFsim.ppsfp();
     ymuint nchg = 0;
     nchg += record_pat(fid_list);
     base += kPvBitLen;

@@ -35,15 +35,19 @@ public:
 
   /// @brief 2値版の故障シミュレータを生成するクラスメソッド
   /// @param[in] network ネットワーク
+  /// @param[in] fault_type 故障の型
   static
   Fsim*
-  new_Fsim2(const TpgNetwork& network);
+  new_Fsim2(const TpgNetwork& network,
+	    FaultType fault_type);
 
   /// @brief 3値版の故障シミュレータを生成するクラスメソッド
   /// @param[in] network ネットワーク
+  /// @param[in] fault_type 故障の型
   static
   Fsim*
-  new_Fsim3(const TpgNetwork& network);
+  new_Fsim3(const TpgNetwork& network,
+	    FaultType fault_type);
 
   virtual
   ~Fsim() { }
@@ -93,7 +97,7 @@ public:
 
 public:
   //////////////////////////////////////////////////////////////////////
-  // 縮退故障用の故障シミュレーションを行う関数
+  // 故障シミュレーションを行う関数
   //////////////////////////////////////////////////////////////////////
 
   /// @brief SPSFP故障シミュレーションを行う．
@@ -103,8 +107,8 @@ public:
   /// @retval false 故障の検出が行えなかった．
   virtual
   bool
-  sa_spsfp(const TestVector* tv,
-	   const TpgFault* f) = 0;
+  spsfp(const TestVector* tv,
+	const TpgFault* f) = 0;
 
   /// @brief SPSFP故障シミュレーションを行う．
   /// @param[in] assign_list 値の割当リスト
@@ -113,8 +117,8 @@ public:
   /// @retval false 故障の検出が行えなかった．
   virtual
   bool
-  sa_spsfp(const NodeValList& assign_list,
-	   const TpgFault* f) = 0;
+  spsfp(const NodeValList& assign_list,
+	const TpgFault* f) = 0;
 
   /// @brief ひとつのパタンで故障シミュレーションを行う．
   /// @param[in] tv テストベクタ
@@ -123,7 +127,7 @@ public:
   /// 検出された故障は det_fault() で取得する．
   virtual
   ymuint
-  sa_sppfp(const TestVector* tv) = 0;
+  sppfp(const TestVector* tv) = 0;
 
   /// @brief ひとつのパタンで故障シミュレーションを行う．
   /// @param[in] assign_list 値の割当リスト
@@ -132,7 +136,7 @@ public:
   /// 検出された故障は det_fault() で取得する．
   virtual
   ymuint
-  sa_sppfp(const NodeValList& assign_list) = 0;
+  sppfp(const NodeValList& assign_list) = 0;
 
   /// @brief 複数のパタンで故障シミュレーションを行う．
   /// @return 検出された故障数を返す．
@@ -141,60 +145,13 @@ public:
   /// 最低1つのパタンが set_pattern() で設定されている必要がある．<br>
   virtual
   ymuint
-  sa_ppsfp() = 0;
+  ppsfp() = 0;
 
 
 public:
   //////////////////////////////////////////////////////////////////////
   // 遷移故障用の故障シミュレーションを行う関数
   //////////////////////////////////////////////////////////////////////
-
-  /// @brief SPSFP故障シミュレーションを行う．
-  /// @param[in] tv テストベクタ
-  /// @param[in] f 対象の故障
-  /// @retval true 故障の検出が行えた．
-  /// @retval false 故障の検出が行えなかった．
-  virtual
-  bool
-  td_spsfp(const TestVector* tv,
-	   const TpgFault* f) = 0;
-
-  /// @brief SPSFP故障シミュレーションを行う．
-  /// @param[in] assign_list 値の割当リスト
-  /// @param[in] f 対象の故障
-  /// @retval true 故障の検出が行えた．
-  /// @retval false 故障の検出が行えなかった．
-  virtual
-  bool
-  td_spsfp(const NodeValList& assign_list,
-	   const TpgFault* f) = 0;
-
-  /// @brief ひとつのパタンで故障シミュレーションを行う．
-  /// @param[in] tv テストベクタ
-  /// @return 検出された故障数を返す．
-  ///
-  /// 検出された故障は det_fault() で取得する．
-  virtual
-  ymuint
-  td_sppfp(const TestVector* tv) = 0;
-
-  /// @brief ひとつのパタンで故障シミュレーションを行う．
-  /// @param[in] assign_list 値の割当リスト
-  /// @return 検出された故障数を返す．
-  ///
-  /// 検出された故障は det_fault() で取得する．
-  virtual
-  ymuint
-  td_sppfp(const NodeValList& assign_list) = 0;
-
-  /// @brief 複数のパタンで故障シミュレーションを行う．
-  /// @return 検出された故障数を返す．
-  ///
-  /// 検出された故障は det_fault() で取得する．<br>
-  /// 最低1つのパタンが set_pattern() で設定されている必要がある．<br>
-  virtual
-  ymuint
-  td_ppsfp() = 0;
 
   /// @brief 与えられたパタンに対する信号遷移回数を計算する．
   /// @param[in] tv テストベクタ
@@ -205,65 +162,8 @@ public:
   /// - true : ゲートの出力の遷移回数に(ファンアウト数＋１)を掛けたものの和
   virtual
   ymuint
-  td_calc_wsa(const TestVector* tv,
-	      bool weighted) = 0;
-
-
-public:
-  //////////////////////////////////////////////////////////////////////
-  // 縮退故障用と遷移故障用の故障シミュレーションを引数で切り替える関数
-  //////////////////////////////////////////////////////////////////////
-
-  /// @brief SPSFP故障シミュレーションを行う．
-  /// @param[in] tv テストベクタ
-  /// @param[in] f 対象の故障
-  /// @param[in] fault_type 故障の種類
-  /// @retval true 故障の検出が行えた．
-  /// @retval false 故障の検出が行えなかった．
-  bool
-  spsfp(const TestVector* tv,
-	const TpgFault* f,
-	FaultType fault_type);
-
-  /// @brief SPSFP故障シミュレーションを行う．
-  /// @param[in] assign_list 値の割当リスト
-  /// @param[in] f 対象の故障
-  /// @param[in] fault_type 故障の種類
-  /// @retval true 故障の検出が行えた．
-  /// @retval false 故障の検出が行えなかった．
-  bool
-  spsfp(const NodeValList& assign_list,
-	const TpgFault* f,
-	FaultType fault_type);
-
-  /// @brief ひとつのパタンで故障シミュレーションを行う．
-  /// @param[in] tv テストベクタ
-  /// @param[in] fault_type 故障の種類
-  /// @return 検出された故障数を返す．
-  ///
-  /// 検出された故障は det_fault() で取得する．
-  ymuint
-  sppfp(const TestVector* tv,
-	FaultType fault_type);
-
-  /// @brief ひとつのパタンで故障シミュレーションを行う．
-  /// @param[in] assign_list 値の割当リスト
-  /// @param[in] fault_type 故障の種類
-  /// @return 検出された故障数を返す．
-  ///
-  /// 検出された故障は det_fault() で取得する．
-  ymuint
-  sppfp(const NodeValList& assign_list,
-	FaultType fault_type);
-
-  /// @brief 複数のパタンで故障シミュレーションを行う．
-  /// @return 検出された故障数を返す．
-  /// @param[in] fault_type 故障の種類
-  ///
-  /// 検出された故障は det_fault() で取得する．<br>
-  /// 最低1つのパタンが set_pattern() で設定されている必要がある．<br>
-  ymuint
-  ppsfp(FaultType fault_type);
+  calc_wsa(const TestVector* tv,
+	   bool weighted) = 0;
 
 
 public:
@@ -319,117 +219,6 @@ public:
 //////////////////////////////////////////////////////////////////////
 // インライン関数の定義
 //////////////////////////////////////////////////////////////////////
-
-// @brief SPSFP故障シミュレーションを行う．
-// @param[in] tv テストベクタ
-// @param[in] f 対象の故障
-// @param[in] fault_type 故障の種類
-// @retval true 故障の検出が行えた．
-// @retval false 故障の検出が行えなかった．
-inline
-bool
-Fsim::spsfp(const TestVector* tv,
-	    const TpgFault* f,
-	    FaultType fault_type)
-{
-  if ( fault_type == kFtStuckAt ) {
-    return sa_spsfp(tv, f);
-  }
-  if ( fault_type == kFtTransitionDelay ) {
-    return td_spsfp(tv, f);
-  }
-
-  ASSERT_NOT_REACHED;
-  return false;
-}
-
-// @brief SPSFP故障シミュレーションを行う．
-// @param[in] assign_list 値の割当リスト
-// @param[in] f 対象の故障
-// @param[in] fault_type 故障の種類
-// @retval true 故障の検出が行えた．
-// @retval false 故障の検出が行えなかった．
-inline
-bool
-Fsim::spsfp(const NodeValList& assign_list,
-	    const TpgFault* f,
-	    FaultType fault_type)
-{
-  if ( fault_type == kFtStuckAt ) {
-    return sa_spsfp(assign_list, f);
-  }
-  if ( fault_type == kFtTransitionDelay ) {
-    return td_spsfp(assign_list, f);
-  }
-
-  ASSERT_NOT_REACHED;
-  return false;
-}
-
-// @brief ひとつのパタンで故障シミュレーションを行う．
-// @param[in] tv テストベクタ
-// @param[in] fault_type 故障の種類
-// @return 検出された故障数を返す．
-//
-// 検出された故障は det_fault() で取得する．
-inline
-ymuint
-Fsim::sppfp(const TestVector* tv,
-	    FaultType fault_type)
-{
-  if ( fault_type == kFtStuckAt ) {
-    return sa_sppfp(tv);
-  }
-  if ( fault_type == kFtTransitionDelay ) {
-    return td_sppfp(tv);
-  }
-
-  ASSERT_NOT_REACHED;
-  return 0;
-}
-
-// @brief ひとつのパタンで故障シミュレーションを行う．
-// @param[in] assign_list 値の割当リスト
-// @param[in] fault_type 故障の種類
-// @return 検出された故障数を返す．
-//
-// 検出された故障は det_fault() で取得する．
-inline
-ymuint
-Fsim::sppfp(const NodeValList& assign_list,
-	    FaultType fault_type)
-{
-  if ( fault_type == kFtStuckAt ) {
-    return sa_sppfp(assign_list);
-  }
-  if ( fault_type == kFtTransitionDelay ) {
-    return td_sppfp(assign_list);
-  }
-
-  ASSERT_NOT_REACHED;
-  return 0;
-}
-
-// @brief 複数のパタンで故障シミュレーションを行う．
-// @return 検出された故障数を返す．
-// @param[in] fault_type 故障の種類
-//
-// 検出された故障は det_fault() で取得する．<br>
-// 最低1つのパタンが set_pattern() で設定されている必要がある．<br>
-inline
-ymuint
-Fsim::ppsfp(FaultType fault_type)
-{
-  if ( fault_type == kFtStuckAt ) {
-    return sa_ppsfp();
-  }
-  if ( fault_type == kFtTransitionDelay ) {
-    return td_ppsfp();
-  }
-
-  ASSERT_NOT_REACHED;
-  return 0;
-}
 
 END_NAMESPACE_YM_SATPG
 

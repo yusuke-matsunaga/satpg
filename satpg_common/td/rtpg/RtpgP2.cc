@@ -185,7 +185,7 @@ RtpgP2::run(TpgFaultMgr& fmgr,
 
       if ( wsa1 <= wsa_limit ) {
 
-	ymuint det_count = fsim.td_sppfp(tv1);
+	ymuint det_count = fsim.sppfp(tv1);
 	++ pat_num;
 
 	if ( det_count > 0 ) {

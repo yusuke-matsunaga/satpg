@@ -110,7 +110,7 @@ Rtpg1Cmd::cmd_proc(TclObjVector& objv)
     ymuint wsa_min = 0;
     for (ymuint i = 0; i < n_count; ++ i) {
       tv->set_from_random(randgen);
-      ymuint wsa1 = fsim.td_calc_wsa(tv, false);
+      ymuint wsa1 = fsim.calc_wsa(tv, false);
       wsa_sum += wsa1;
       if ( wsa_max < wsa1 ) {
 	wsa_max = wsa1;

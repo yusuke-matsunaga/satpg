@@ -151,7 +151,7 @@ DtpgMinPowerCmd::cmd_proc(TclObjVector& objv)
     dop_list.add(new_DopDrop(_td_fault_mgr(), _fsim3()));
   }
   if ( mPoptVerify->is_specified() ) {
-    dop_list.add(new_DopTdVerify(_fsim3(), verify_result));
+    dop_list.add(new_DopVerify(_fsim3(), verify_result));
   }
 
   bool timer_enable = true;
@@ -176,7 +176,7 @@ DtpgMinPowerCmd::cmd_proc(TclObjVector& objv)
     for (ymuint i = 0; i < max_pat; ++ i) {
       tv->set_from_random(randgen);
 
-      ymuint wsa = _fsim2().td_calc_wsa(tv, false);
+      ymuint wsa = _fsim2().calc_wsa(tv, false);
       wsa_sum += wsa;
     }
     double wsa_ave = static_cast<double>(wsa_sum) / static_cast<double>(max_pat);
@@ -212,7 +212,7 @@ DtpgMinPowerCmd::cmd_proc(TclObjVector& objv)
     for (ymuint i = 0; i < np; ++ i) {
       const TestVector* tv = _td_tv_list()[i];
       //cout << tv->hex_str() << endl;
-      ymuint wsa = _fsim2().td_calc_wsa(tv, false);
+      ymuint wsa = _fsim2().calc_wsa(tv, false);
       wsa_sum += wsa;
       wsa_list.push_back(wsa);
     }

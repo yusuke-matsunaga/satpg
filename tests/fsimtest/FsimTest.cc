@@ -50,7 +50,7 @@ spsfp_test(const TpgNetwork& network,
       if ( mark[f->id()] ) {
 	continue;
       }
-      if ( fsim.sa_spsfp(tv, f) ) {
+      if ( fsim.spsfp(tv, f) ) {
 	++ det_num;
 	detect = true;
 	mark[f->id()] = true;
@@ -75,7 +75,7 @@ sppfp_test(Fsim& fsim,
   ymuint nv = tv_list.size();
   for (ymuint i = 0; i < nv; ++ i) {
     const TestVector* tv = tv_list[i];
-    ymuint n = fsim.sa_sppfp(tv);
+    ymuint n = fsim.sppfp(tv);
     if ( n > 0 ) {
       det_num += n;
       ++ nepat;
@@ -106,7 +106,7 @@ ppsfp_test(Fsim& fsim,
     fsim.set_pattern(wpos, tv);
     ++ wpos;
     if ( wpos == kPvBitLen ) {
-      ymuint n = fsim.sa_ppsfp();
+      ymuint n = fsim.ppsfp();
 
       ymuint nb = wpos;
       PackedVal dpat_all = 0ULL;
@@ -136,7 +136,7 @@ ppsfp_test(Fsim& fsim,
     }
   }
   if ( wpos > 0 ) {
-    ymuint n = fsim.sa_ppsfp();
+    ymuint n = fsim.ppsfp();
 
     ymuint nb = wpos;
     PackedVal dpat_all = 0ULL;
@@ -319,10 +319,10 @@ fsim2test(int argc,
 
   Fsim* fsim = nullptr;
   if ( fsim2 ) {
-    fsim = Fsim::new_Fsim2(network);
+    fsim = Fsim::new_Fsim2(network, kFtStuckAt);
   }
   else if ( fsim3 ) {
-    fsim = Fsim::new_Fsim3(network);
+    fsim = Fsim::new_Fsim3(network, kFtStuckAt);
   }
   else {
     ASSERT_NOT_REACHED;

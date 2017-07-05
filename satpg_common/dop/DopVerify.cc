@@ -19,33 +19,11 @@ BEGIN_NAMESPACE_YM_SATPG
 // @brief 'verify' タイプを生成する．
 // @param[in] fsim 故障シミュレータ
 // @param[in] result 結果を格納するオブジェクト
-// @param[in] fault_type 故障の種類
 DetectOp*
 new_DopVerify(Fsim& fsim,
-	      DopVerifyResult& result,
-	      FaultType fault_type)
+	      DopVerifyResult& result)
 {
-  return new DopVerify(fsim, result, fault_type);
-}
-
-// @brief 'sa-verify' タイプを生成する．
-// @param[in] fsim 故障シミュレータ
-// @param[in] result 結果を格納するオブジェクト
-DetectOp*
-new_DopSaVerify(Fsim& fsim,
-		DopVerifyResult& result)
-{
-  return new DopVerify(fsim, result, kFtStuckAt);
-}
-
-// @brief 'td-verify' タイプを生成する．
-// @param[in] fsim 故障シミュレータ
-// @param[in] result 結果を格納するオブジェクト
-DetectOp*
-new_DopTdVerify(Fsim& fsim,
-		DopVerifyResult& result)
-{
-  return new DopVerify(fsim, result, kFtTransitionDelay);
+  return new DopVerify(fsim, result);
 }
 
 
@@ -56,13 +34,10 @@ new_DopTdVerify(Fsim& fsim,
 // @brief コンストラクタ
 // @param[in] fsim 故障シミュレータ
 // @param[in] result 結果を格納するオブジェクト
-// @param[in] fault_type 故障の種類
 DopVerify::DopVerify(Fsim& fsim,
-		     DopVerifyResult& result,
-		     FaultType fault_type) :
+		     DopVerifyResult& result) :
   mFsim(fsim),
-  mResult(result),
-  mFaultType(fault_type)
+  mResult(result)
 {
 }
 
@@ -78,7 +53,7 @@ void
 DopVerify::operator()(const TpgFault* f,
 		      const NodeValList& assign_list)
 {
-  bool detect = mFsim.spsfp(assign_list, f, mFaultType);
+  bool detect = mFsim.spsfp(assign_list, f);
   if ( detect ) {
     mResult.add_good(f);
   }

@@ -275,7 +275,7 @@ DomChecker::do_fsim(const vector<ymuint>& fid_list)
       cout << "\rFSIM: " << setw(6) << npat;
       cout.flush();
     }
-    mFsim.sa_ppsfp();
+    mFsim.ppsfp();
     record_dom_cand();
     npat += wpos;
     mFsim.clear_patterns();
@@ -300,7 +300,7 @@ DomChecker::do_fsim(const vector<ymuint>& fid_list)
       cout << "\rFSIM: " << setw(6) << npat;
       cout.flush();
     }
-    mFsim.sa_ppsfp();
+    mFsim.ppsfp();
     ymuint nchg = 0;
     nchg += record_dom_cand();
     npat += kPvBitLen;

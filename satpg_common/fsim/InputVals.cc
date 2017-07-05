@@ -97,7 +97,20 @@ TvInputVals::~TvInputVals()
 {
 }
 
-// @brief 1時刻目の値を設定する．
+// @brief 値を設定する．(縮退故障用)
+// @param[in] fsim 故障シミュレータ
+void
+TvInputVals::set_val(FSIM_CLASSNAME& fsim) const
+{
+  ymuint npi = fsim.ppi_num();
+  for (ymuint i = 0; i < npi; ++ i) {
+    SimNode* simnode = fsim.ppi(i);
+    Val3 val3 = mTestVector->ppi_val(i);
+    simnode->set_val(val3_to_packedval(val3));
+  }
+}
+
+// @brief 1時刻目の値を設定する．(遷移故障用)
 // @param[in] fsim 故障シミュレータ
 void
 TvInputVals::set_val1(FSIM_CLASSNAME& fsim) const
@@ -110,7 +123,7 @@ TvInputVals::set_val1(FSIM_CLASSNAME& fsim) const
   }
 }
 
-// @brief 2時刻目の値を設定する．
+// @brief 2時刻目の値を設定する．(縮退故障用)
 // @param[in] fsim 故障シミュレータ
 void
 TvInputVals::set_val2(FSIM_CLASSNAME& fsim) const
@@ -122,6 +135,7 @@ TvInputVals::set_val2(FSIM_CLASSNAME& fsim) const
     simnode->set_val(val3_to_packedval(val3));
   }
 }
+
 
 //////////////////////////////////////////////////////////////////////
 // クラス Tv2InputVals
@@ -153,7 +167,27 @@ Tv2InputVals::~Tv2InputVals()
 {
 }
 
-// @brief 1時刻目の値を設定する．
+// @brief 値を設定する．(縮退故障用)
+// @param[in] fsim 故障シミュレータ
+void
+Tv2InputVals::set_val(FSIM_CLASSNAME& fsim) const
+{
+  // 設定されていないビットはどこか他の設定されているビットをコピーする．
+  ymuint npi = fsim.ppi_num();
+  for (ymuint i = 0; i < npi; ++ i) {
+    SimNode* simnode = fsim.ppi(i);
+    FSIM_VALTYPE val = init_val();
+    PackedVal bit = 1ULL;
+    for (ymuint j = 0; j < kPvBitLen; ++ j, bit <<= 1) {
+      ymuint pos = (mPatMap & bit) ? j : mPatFirstBit;
+      Val3 ival = mPatArray[pos]->ppi_val(i);
+      bit_set(val, ival, bit);
+    }
+    simnode->set_val(val);
+  }
+}
+
+// @brief 1時刻目の値を設定する．(遷移故障用)
 // @param[in] fsim 故障シミュレータ
 void
 Tv2InputVals::set_val1(FSIM_CLASSNAME& fsim) const
@@ -173,7 +207,7 @@ Tv2InputVals::set_val1(FSIM_CLASSNAME& fsim) const
   }
 }
 
-// @brief 2時刻目の値を設定する．
+// @brief 2時刻目の値を設定する．(遷移故障用)
 // @param[in] fsim 故障シミュレータ
 void
 Tv2InputVals::set_val2(FSIM_CLASSNAME& fsim) const
@@ -210,7 +244,28 @@ NvlInputVals::~NvlInputVals()
 {
 }
 
-// @brief 1時刻目の値を設定する．
+// @brief 設定する．(遷移故障用)
+// @param[in] fsim 故障シミュレータ
+void
+NvlInputVals::set_val(FSIM_CLASSNAME& fsim) const
+{
+  FSIM_VALTYPE val0 = init_val();
+  ymuint npi = fsim.ppi_num();
+  for (ymuint i = 0; i < npi; ++ i) {
+    SimNode* simnode = fsim.ppi(i);
+    simnode->set_val(val0);
+  }
+
+  ymuint n = mAssignList.size();
+  for (ymuint i = 0; i < n; ++ i) {
+    NodeVal nv = mAssignList[i];
+    ymuint iid = nv.node()->input_id();
+    SimNode* simnode = fsim.ppi(iid);
+    simnode->set_val(int_to_packedval(nv.val()));
+  }
+}
+
+// @brief 1時刻目の値を設定する．(遷移故障用)
 // @param[in] fsim 故障シミュレータ
 void
 NvlInputVals::set_val1(FSIM_CLASSNAME& fsim) const
@@ -233,7 +288,7 @@ NvlInputVals::set_val1(FSIM_CLASSNAME& fsim) const
   }
 }
 
-// @brief 2時刻目の値を設定する．
+// @brief 2時刻目の値を設定する．(遷移故障用)
 // @param[in] fsim 故障シミュレータ
 void
 NvlInputVals::set_val2(FSIM_CLASSNAME& fsim) const

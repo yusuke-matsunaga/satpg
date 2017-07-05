@@ -16,11 +16,12 @@ cdef class Fsim :
     cdef CXX_Fsim* _thisptr
 
     ## @brief 初期化
-    def __cinit__(Fsim self, name, TpgNetwork network) :
+    def __cinit__(Fsim self, name, TpgNetwork network, fault_type) :
+        cdef CXX_FaultType c_ftype = from_FaultType(fault_type)
         if name == 'Fsim2' :
-            self._thisptr = CXX_Fsim.new_Fsim2(network._this)
+            self._thisptr = CXX_Fsim.new_Fsim2(network._this, c_ftype)
         elif name == 'Fsim3' :
-            self._thisptr = CXX_Fsim.new_Fsim3(network._this)
+            self._thisptr = CXX_Fsim.new_Fsim3(network._this, c_ftype)
         else :
             assert False
 
@@ -65,74 +66,29 @@ cdef class Fsim :
             c_fault_list.push_back(fault._thisptr)
         self._thisptr.clear_skip(c_fault_list)
 
-    ## @brief 縮退故障モードで SPSFP シミュレーションを行う．
-    def sa_spsfp(Fsim self, TestVector tv, TpgFault f) :
-        return self._thisptr.sa_spsfp(tv._thisptr, f._thisptr)
-
-    ## @brief 縮退故障モードで SPSFP シミュレーションを行う．
-    def sa_spsfp(Fsim self, NodeValList assign_list, TpgFault f) :
-        return self._thisptr.sa_spsfp(assign_list._this, f._thisptr)
-
-    ## @brief 縮退故障モードで SPPFP シミュレーションを行う．
-    def sa_sppfp(Fsim self, TestVector tv) :
-        return self._thisptr.sa_sppfp(tv._thisptr)
-
-    ## @brief 縮退故障モードで SPPFP シミュレーションを行う．
-    def sa_sppfp(Fsim self, NodeValList assign_list) :
-        return self._thisptr.sa_sppfp(assign_list._this)
-
-    ## @brief 縮退故障モードで PPSFP シミュレーションを行う．
-    def sa_ppsfp(Fsim self) :
-        return self._thisptr.sa_ppsfp()
-
-    ## @brief 縮退故障モードで SPSFP シミュレーションを行う．
-    def td_spsfp(Fsim self, TestVector tv, TpgFault f) :
-        return self._thisptr.td_spsfp(tv._thisptr, f._thisptr)
-
-    ## @brief 遷移故障モードで SPSFP シミュレーションを行う．
-    def td_spsfp(Fsim self, NodeValList assign_list, TpgFault f) :
-        return self._thisptr.td_spsfp(assign_list._this, f._thisptr)
-
-    ## @brief 遷移故障モードで SPPFP シミュレーションを行う．
-    def td_sppfp(Fsim self, TestVector tv) :
-        return self._thisptr.td_sppfp(tv._thisptr)
-
-    ## @brief 遷移故障モードで SPPFP シミュレーションを行う．
-    def td_sppfp(Fsim self, NodeValList assign_list) :
-        return self._thisptr.td_sppfp(assign_list._this)
-
-    ## @brief 遷移故障モードで PPSFP シミュレーションを行う．
-    def td_ppsfp(Fsim self) :
-        return self._thisptr.td_ppsfp()
-
-    ## @brief 遷移故障モードで信号遷移回数を数える．
-    def td_calc_wsa(Fsim self, TestVector tv, bool weighted = False) :
-        return self._thisptr.td_calc_wsa(tv._thisptr, weighted)
+    ## @brief SPSFP シミュレーションを行う．
+    def spsfp(Fsim self, TestVector tv, TpgFault f) :
+        return self._thisptr.spsfp(tv._thisptr, f._thisptr)
 
     ## @brief SPSFP シミュレーションを行う．
-    def spsfp(Fsim self, TestVector tv, TpgFault f, fault_type) :
-        cdef CXX_FaultType c_fault_type = from_FaultType(fault_type)
-        return self._thisptr.spsfp(tv._thisptr, f._thisptr, c_fault_type)
-
-    ## @brief SPSFP シミュレーションを行う．
-    def spsfp(Fsim self, NodeValList assign_list, TpgFault f, fault_type) :
-        cdef CXX_FaultType c_fault_type = from_FaultType(fault_type)
-        return self._thisptr.spsfp(assign_list._this, f._thisptr, c_fault_type)
+    def spsfp(Fsim self, NodeValList assign_list, TpgFault f) :
+        return self._thisptr.spsfp(assign_list._this, f._thisptr)
 
     ## @brief SPPFP シミュレーションを行う．
-    def sppfp(Fsim self, TestVector tv, fault_type) :
-        cdef CXX_FaultType c_fault_type = from_FaultType(fault_type)
-        return self._thisptr.sppfp(tv._thisptr, c_fault_type)
+    def sppfp(Fsim self, TestVector tv) :
+        return self._thisptr.sppfp(tv._thisptr)
 
     ## @brief SPPFP シミュレーションを行う．
-    def sppfp(Fsim self, NodeValList assign_list, fault_type) :
-        cdef CXX_FaultType c_fault_type = from_FaultType(fault_type)
-        return self._thisptr.sppfp(assign_list._this, c_fault_type)
+    def sppfp(Fsim self, NodeValList assign_list) :
+        return self._thisptr.sppfp(assign_list._this)
 
     ## @brief PPSFP シミュレーションを行う．
-    def ppsfp(Fsim self, fault_type) :
-        cdef CXX_FaultType c_fault_type = from_FaultType(fault_type)
-        return self._thisptr.ppsfp(c_fault_type)
+    def ppsfp(Fsim self) :
+        return self._thisptr.ppsfp()
+
+    ## @brief 遷移故障モードで信号遷移回数を数える．
+    def calc_wsa(Fsim self, TestVector tv, bool weighted = False) :
+        return self._thisptr.calc_wsa(tv._thisptr, weighted)
 
     ## @brief パタンバッファをクリアする．
     def clear_patterns(Fsim self) :

@@ -242,7 +242,7 @@ DtpgCmd::cmd_proc(TclObjVector& objv)
 
   DopVerifyResult verify_result;
   if ( mPoptVerify->is_specified() ) {
-    dop_list.add(new_DopVerify(_fsim3(), verify_result, fault_type));
+    dop_list.add(new_DopVerify(_fsim3(), verify_result));
   }
 
   bool timer_enable = true;
