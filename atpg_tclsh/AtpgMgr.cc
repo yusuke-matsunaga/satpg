@@ -94,8 +94,8 @@ AtpgMgr::after_set_network()
   mSaTvList.clear();
   mTdTvList.clear();
 
-  mFsim2 = Fsim::new_Fsim2(_network());
-  mFsim3 = Fsim::new_Fsim3(_network());
+  mFsim2 = Fsim::new_Fsim2(_network(), kFtStuckAt);
+  mFsim3 = Fsim::new_Fsim3(_network(), kFtStuckAt);
   mSaFaultMgr = new TpgFaultMgr(_network());
   mSaTvMgr = new TvMgr(_network(), kFtStuckAt);
   mTdFaultMgr = new TpgFaultMgr(_network());

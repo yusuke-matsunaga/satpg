@@ -23,8 +23,7 @@ include_directories(
 
 ym_add_gtest ( SaFsim2SimNodeTest
   SimNodeTest.cc
-  $<TARGET_OBJECTS:satpg_common_d>
-  $<TARGET_OBJECTS:satpg_fsim2_d>
+  $<TARGET_OBJECTS:satpg_fsimsa2_d>
   $<TARGET_OBJECTS:ym_base_d>
   $<TARGET_OBJECTS:ym_logic_d>
   $<TARGET_OBJECTS:ym_cell_d>
@@ -35,5 +34,5 @@ ym_add_gtest ( SaFsim2SimNodeTest
   )
 
 target_compile_definitions ( SaFsim2SimNodeTest
-  PRIVATE "-DFSIM_VAL2"
+  PRIVATE "-DFSIM_VAL2" "-DFSIM_SA"
   )

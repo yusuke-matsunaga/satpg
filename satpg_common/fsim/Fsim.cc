@@ -12,9 +12,58 @@
 
 BEGIN_NAMESPACE_YM_SATPG
 
+namespace nsFsimSa2 {
+  Fsim* new_Fsim(const TpgNetwork& network);
+}
+
+namespace nsFsimSa3 {
+  Fsim* new_Fsim(const TpgNetwork& network);
+}
+
+namespace nsFsimTd2 {
+  Fsim* new_Fsim(const TpgNetwork& network);
+}
+
+namespace nsFsimTd3 {
+  Fsim* new_Fsim(const TpgNetwork& network);
+}
+
+
 //////////////////////////////////////////////////////////////////////
 // Fsim の実装コード
 //////////////////////////////////////////////////////////////////////
+
+Fsim*
+Fsim::new_Fsim2(const TpgNetwork& network,
+		FaultType fault_type)
+{
+  if ( fault_type == kFtStuckAt ) {
+    return nsFsimSa2::new_Fsim(network);
+  }
+  else if ( fault_type == kFtTransitionDelay ) {
+    return nsFsimTd2::new_Fsim(network);
+  }
+  else {
+    ASSERT_NOT_REACHED;
+    return nullptr;
+  }
+}
+
+Fsim*
+Fsim::new_Fsim3(const TpgNetwork& network,
+		FaultType fault_type)
+{
+  if ( fault_type == kFtStuckAt ) {
+    return nsFsimSa3::new_Fsim(network);
+  }
+  else if ( fault_type == kFtTransitionDelay ) {
+    return nsFsimTd3::new_Fsim(network);
+  }
+  else {
+    ASSERT_NOT_REACHED;
+    return nullptr;
+  }
+}
 
 // @brief 複数の故障にスキップマークをつける．
 // @param[in] fault_list 故障のリスト

@@ -108,7 +108,7 @@ RtpgImpl::run(TpgFaultMgr& fmgr,
       break;
     }
 
-    ymuint det_count = fsim.sa_ppsfp();
+    ymuint det_count = fsim.ppsfp();
 
     bool det_flags[kPvBitLen];
     for (ymuint i = 0; i < kPvBitLen; ++ i) {

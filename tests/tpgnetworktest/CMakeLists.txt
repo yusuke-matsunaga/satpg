@@ -27,8 +27,10 @@ set ( TpgNetworkTest_SOURCES
 add_executable ( TpgNetworkTest
   TpgNetworkTest.cc
   $<TARGET_OBJECTS:satpg_common_a>
-  $<TARGET_OBJECTS:satpg_fsim2_a>
-  $<TARGET_OBJECTS:satpg_fsim3_a>
+  $<TARGET_OBJECTS:satpg_fsimsa2_a>
+  $<TARGET_OBJECTS:satpg_fsimsa3_a>
+  $<TARGET_OBJECTS:satpg_fsimtd2_a>
+  $<TARGET_OBJECTS:satpg_fsimtd3_a>
   $<TARGET_OBJECTS:ym_base_a>
   $<TARGET_OBJECTS:ym_logic_a>
   $<TARGET_OBJECTS:ym_cell_a>
@@ -60,8 +62,10 @@ endif ()
 add_executable ( TpgNetworkTest_d
   TpgNetworkTest.cc
   $<TARGET_OBJECTS:satpg_common_d>
-  $<TARGET_OBJECTS:satpg_fsim2_d>
-  $<TARGET_OBJECTS:satpg_fsim3_d>
+  $<TARGET_OBJECTS:satpg_fsimsa2_d>
+  $<TARGET_OBJECTS:satpg_fsimsa3_d>
+  $<TARGET_OBJECTS:satpg_fsimtd2_d>
+  $<TARGET_OBJECTS:satpg_fsimtd3_d>
   $<TARGET_OBJECTS:ym_base_d>
   $<TARGET_OBJECTS:ym_logic_d>
   $<TARGET_OBJECTS:ym_cell_d>

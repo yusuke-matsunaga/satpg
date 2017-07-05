@@ -25,45 +25,87 @@ set (fsim_SOURCES
 # ===================================================================
 # ターゲットの設定
 # ===================================================================
-ym_add_object_library ( satpg_fsim2
+ym_add_object_library ( satpg_fsimsa2
   ${fsim_SOURCES}
   )
 
-target_compile_definitions ( satpg_fsim2
-  PRIVATE "-DFSIM_VAL2"
+target_compile_definitions ( satpg_fsimsa2
+  PRIVATE "-DFSIM_VAL2=1" "-DFSIM_SA=1"
   )
 
-target_compile_definitions ( satpg_fsim2_a
-  PRIVATE "-DFSIM_VAL2"
+target_compile_definitions ( satpg_fsimsa2_a
+  PRIVATE "-DFSIM_VAL2=1" "-DFSIM_SA=1"
   )
 
-target_compile_definitions ( satpg_fsim2_d
-  PRIVATE "-DFSIM_VAL2"
+target_compile_definitions ( satpg_fsimsa2_d
+  PRIVATE "-DFSIM_VAL2=1" "-DFSIM_SA=1"
   )
 
-target_compile_definitions ( satpg_fsim2_p
-  PRIVATE "-DFSIM_VAL2"
+target_compile_definitions ( satpg_fsimsa2_p
+  PRIVATE "-DFSIM_VAL2=1" "-DFSIM_SA=1"
   )
 
 
-ym_add_object_library ( satpg_fsim3
+ym_add_object_library ( satpg_fsimsa3
   ${fsim_SOURCES}
   )
 
-target_compile_definitions ( satpg_fsim3
-  PRIVATE "-DFSIM_VAL3"
+target_compile_definitions ( satpg_fsimsa3
+  PRIVATE "-DFSIM_VAL3=1" "-DFSIM_SA=1"
   )
 
-target_compile_definitions ( satpg_fsim3_a
-  PRIVATE "-DFSIM_VAL3"
+target_compile_definitions ( satpg_fsimsa3_a
+  PRIVATE "-DFSIM_VAL3=1" "-DFSIM_SA=1"
   )
 
-target_compile_definitions ( satpg_fsim3_d
-  PRIVATE "-DFSIM_VAL3"
+target_compile_definitions ( satpg_fsimsa3_d
+  PRIVATE "-DFSIM_VAL3=1" "-DFSIM_SA=1"
   )
 
-target_compile_definitions ( satpg_fsim3_p
-  PRIVATE "-DFSIM_VAL3"
+target_compile_definitions ( satpg_fsimsa3_p
+  PRIVATE "-DFSIM_VAL3=1" "-DFSIM_SA=1"
+  )
+
+
+ym_add_object_library ( satpg_fsimtd2
+  ${fsim_SOURCES}
+  )
+
+target_compile_definitions ( satpg_fsimtd2
+  PRIVATE "-DFSIM_VAL2=1" "-DFSIM_TD=1"
+  )
+
+target_compile_definitions ( satpg_fsimtd2_a
+  PRIVATE "-DFSIM_VAL2=1" "-DFSIM_TD=1"
+  )
+
+target_compile_definitions ( satpg_fsimtd2_d
+  PRIVATE "-DFSIM_VAL2=1" "-DFSIM_TD=1"
+  )
+
+target_compile_definitions ( satpg_fsimtd2_p
+  PRIVATE "-DFSIM_VAL2=1" "-DFSIM_TD=1"
+  )
+
+
+ym_add_object_library ( satpg_fsimtd3
+  ${fsim_SOURCES}
+  )
+
+target_compile_definitions ( satpg_fsimtd3
+  PRIVATE "-DFSIM_VAL3=1" "-DFSIM_TD=1"
+  )
+
+target_compile_definitions ( satpg_fsimtd3_a
+  PRIVATE "-DFSIM_VAL3=1" "-DFSIM_TD=1"
+  )
+
+target_compile_definitions ( satpg_fsimtd3_d
+  PRIVATE "-DFSIM_VAL3=1" "-DFSIM_TD=1"
+  )
+
+target_compile_definitions ( satpg_fsimtd3_p
+  PRIVATE "-DFSIM_VAL3=1" "-DFSIM_TD=1"
   )
 
 

@@ -20,32 +20,19 @@
 #include "SimNode.h"
 #include "SimFFR.h"
 #include "InputVals.h"
-#include "FaultProp.h"
 
 #include "ym/HashSet.h"
 #include "ym/StopWatch.h"
 
 
-BEGIN_NAMESPACE_YM_SATPG
-
-#if FSIM_VAL2
-Fsim*
-Fsim::new_Fsim2(const TpgNetwork& network)
-{
-  return new nsFsim2::Fsim2(network);
-}
-#elif FSIM_VAL3
-Fsim*
-Fsim::new_Fsim3(const TpgNetwork& network)
-{
-  return new nsFsim3::Fsim3(network);
-}
-#endif
-
-END_NAMESPACE_YM_SATPG
-
-
 BEGIN_NAMESPACE_YM_SATPG_FSIM
+
+Fsim*
+new_Fsim(const TpgNetwork& network)
+{
+  return new FSIM_CLASSNAME(network);
+}
+
 
 //////////////////////////////////////////////////////////////////////
 // FsimX
@@ -275,17 +262,16 @@ FSIM_CLASSNAME::clear_skip(const TpgFault* f)
 // @retval true 故障の検出が行えた．
 // @retval false 故障の検出が行えなかった．
 bool
-FSIM_CLASSNAME::sa_spsfp(const TestVector* tv,
-			 const TpgFault* f)
+FSIM_CLASSNAME::spsfp(const TestVector* tv,
+		      const TpgFault* f)
 {
   TvInputVals iv(tv);
 
   // 正常値の計算を行う．
-  _sa_calc_gval(iv);
+  _calc_gval(iv);
 
-  SaFaultProp fault_prop(*this);
-
-  return _spsfp(f, fault_prop);
+  // 故障伝搬を行う．
+  return _spsfp(f);
 }
 
 // @brief SPSFP故障シミュレーションを行う．
@@ -294,17 +280,16 @@ FSIM_CLASSNAME::sa_spsfp(const TestVector* tv,
 // @retval true 故障の検出が行えた．
 // @retval false 故障の検出が行えなかった．
 bool
-FSIM_CLASSNAME::sa_spsfp(const NodeValList& assign_list,
-			 const TpgFault* f)
+FSIM_CLASSNAME::spsfp(const NodeValList& assign_list,
+		      const TpgFault* f)
 {
   NvlInputVals iv(assign_list);
 
   // 正常値の計算を行う．
-  _sa_calc_gval(iv);
+  _calc_gval(iv);
 
-  SaFaultProp fault_prop(*this);
-
-  return _spsfp(f, fault_prop);
+  // 故障伝搬を行う．
+  return _spsfp(f);
 }
 
 // @brief ひとつのパタンで故障シミュレーションを行う．
@@ -313,16 +298,15 @@ FSIM_CLASSNAME::sa_spsfp(const NodeValList& assign_list,
 //
 // 検出された故障は det_fault() で取得する．
 ymuint
-FSIM_CLASSNAME::sa_sppfp(const TestVector* tv)
+FSIM_CLASSNAME::sppfp(const TestVector* tv)
 {
   TvInputVals iv(tv);
 
   // 正常値の計算を行う．
-  _sa_calc_gval(iv);
+  _calc_gval(iv);
 
-  SaFaultProp fault_prop(*this);
-
-  return _sppfp(fault_prop);
+  // 故障伝搬を行う．
+  return _sppfp();
 }
 
 // @brief ひとつのパタンで故障シミュレーションを行う．
@@ -331,16 +315,15 @@ FSIM_CLASSNAME::sa_sppfp(const TestVector* tv)
 //
 // 検出された故障は det_fault() で取得する．
 ymuint
-FSIM_CLASSNAME::sa_sppfp(const NodeValList& assign_list)
+FSIM_CLASSNAME::sppfp(const NodeValList& assign_list)
 {
   NvlInputVals iv(assign_list);
 
   // 正常値の計算を行う．
-  _sa_calc_gval(iv);
+  _calc_gval(iv);
 
-  SaFaultProp fault_prop(*this);
-
-  return _sppfp(fault_prop);
+  // 故障伝搬を行う．
+  return _sppfp();
 }
 
 // @brief 複数のパタンで故障シミュレーションを行う．
@@ -349,7 +332,7 @@ FSIM_CLASSNAME::sa_sppfp(const NodeValList& assign_list)
 // 検出された故障は det_fault() で取得する．<br>
 // 最低1つのパタンが set_pattern() で設定されている必要がある．<br>
 ymuint
-FSIM_CLASSNAME::sa_ppsfp()
+FSIM_CLASSNAME::ppsfp()
 {
   if ( mPatMap == kPvAll0 ) {
     // パタンが一つも設定されていない．
@@ -359,109 +342,11 @@ FSIM_CLASSNAME::sa_ppsfp()
 
   Tv2InputVals iv(mPatMap, mPatBuff);
 
-  _sa_calc_gval(iv);
-
-  SaFaultProp fault_prop(*this);
-
-  return _ppsfp(fault_prop);
-}
-
-// @brief SPSFP故障シミュレーションを行う．
-// @param[in] tv テストベクタ
-// @param[in] f 対象の故障
-// @retval true 故障の検出が行えた．
-// @retval false 故障の検出が行えなかった．
-bool
-FSIM_CLASSNAME::td_spsfp(const TestVector* tv,
-			 const TpgFault* f)
-{
-  TvInputVals iv(tv);
-
   // 正常値の計算を行う．
-  _td_calc_gval(iv);
+  _calc_gval(iv);
 
-  TdFaultProp fault_prop(*this);
-
-  return _spsfp(f, fault_prop);
-}
-
-// @brief SPSFP故障シミュレーションを行う．
-// @param[in] assign_list 値の割当リスト
-// @param[in] f 対象の故障
-// @retval true 故障の検出が行えた．
-// @retval false 故障の検出が行えなかった．
-bool
-FSIM_CLASSNAME::td_spsfp(const NodeValList& assign_list,
-			 const TpgFault* f)
-{
-  NvlInputVals iv(assign_list);
-
-  // 正常値の計算を行う．
-  _td_calc_gval(iv);
-
-  TdFaultProp fault_prop(*this);
-
-  return _spsfp(f, fault_prop);
-}
-
-// @brief ひとつのパタンで故障シミュレーションを行う．
-// @param[in] tv テストベクタ
-// @return 検出された故障数を返す．
-//
-// 検出された故障は det_fault() で取得する．
-ymuint
-FSIM_CLASSNAME::td_sppfp(const TestVector* tv)
-{
-  TvInputVals iv(tv);
-
-  // 正常値の計算を行う．
-  _td_calc_gval(iv);
-
-  TdFaultProp fault_prop(*this);
-
-  return _sppfp(fault_prop);
-}
-
-// @brief ひとつのパタンで故障シミュレーションを行う．
-// @param[in] assign_list 値の割当リスト
-// @return 検出された故障数を返す．
-//
-// 検出された故障は det_fault() で取得する．
-ymuint
-FSIM_CLASSNAME::td_sppfp(const NodeValList& assign_list)
-{
-  NvlInputVals iv(assign_list);
-
-  // 正常値の計算を行う．
-  _td_calc_gval(iv);
-
-  TdFaultProp fault_prop(*this);
-
-  return _sppfp(fault_prop);
-}
-
-// @brief 複数のパタンで故障シミュレーションを行う．
-// @return 検出された故障数を返す．
-//
-// 検出された故障は det_fault() で取得する．<br>
-// 最低1つのパタンが set_pattern() で設定されている必要がある．<br>
-ymuint
-FSIM_CLASSNAME::td_ppsfp()
-{
-
-  if ( mPatMap == kPvAll0 ) {
-    // パタンが一つも設定されていない．
-    mDetNum = 0;
-    return 0;
-  }
-
-  Tv2InputVals iv(mPatMap, mPatBuff);
-
-  _td_calc_gval(iv);
-
-  TdFaultProp fault_prop(*this);
-
-  return _ppsfp(fault_prop);
+  // 故障伝搬を行う．
+  return _ppsfp();
 }
 
 // @brief ppsfp 用のパタンバッファをクリアする．
@@ -533,17 +418,15 @@ FSIM_CLASSNAME::det_fault_pat(ymuint pos)
 
 // @brief SPSFP故障シミュレーションの本体
 // @param[in] f 対象の故障
-// @param[in] fault_prop 故障伝搬を行うファンクタ
 // @retval true 故障の検出が行えた．
 // @retval false 故障の検出が行えなかった．
 bool
-FSIM_CLASSNAME::_spsfp(const TpgFault* f,
-		       FaultProp& fault_prop)
+FSIM_CLASSNAME::_spsfp(const TpgFault* f)
 {
   SimFault* ff = mFaultArray[f->id()];
 
   // FFR の根までの伝搬条件を求める．
-  PackedVal obs = fault_prop(ff);
+  PackedVal obs = _fault_prop(ff);
 
   // obs が 0 ならその後のシミュレーションを行う必要はない．
   if ( obs == kPvAll0 ) {
@@ -560,10 +443,9 @@ FSIM_CLASSNAME::_spsfp(const TpgFault* f,
 }
 
 // @brief SPPFP故障シミュレーションの本体
-// @param[in] fault_prop 故障伝搬を行うファンクタ
 // @return 検出された故障数を返す．
 ymuint
-FSIM_CLASSNAME::_sppfp(FaultProp& fault_prop)
+FSIM_CLASSNAME::_sppfp()
 {
   mDetNum = 0;
   ymuint bitpos = 0;
@@ -575,7 +457,7 @@ FSIM_CLASSNAME::_sppfp(FaultProp& fault_prop)
     // FFR 内の故障伝搬を行う．
     // 結果は SimFault.mObsMask に保存される．
     // FFR 内の全ての obs マスクを ffr_req に入れる．
-    PackedVal ffr_req = _foreach_faults(ffr.fault_list(), fault_prop);
+    PackedVal ffr_req = _foreach_faults(ffr.fault_list());
 
     // ffr_req が 0 ならその後のシミュレーションを行う必要はない．
     if ( ffr_req == kPvAll0 ) {
@@ -623,7 +505,7 @@ FSIM_CLASSNAME::_sppfp(FaultProp& fault_prop)
 // 検出された故障は det_fault() で取得する．<br>
 // 最低1つのパタンが set_pattern() で設定されている必要がある．<br>
 ymuint
-FSIM_CLASSNAME::_ppsfp(FaultProp& fault_prop)
+FSIM_CLASSNAME::_ppsfp()
 {
   // FFR ごとに処理を行う．
   mDetNum = 0;
@@ -634,7 +516,7 @@ FSIM_CLASSNAME::_ppsfp(FaultProp& fault_prop)
     // FFR 内の故障伝搬を行う．
     // 結果は SimFault::mObsMask に保存される．
     // FFR 内の全ての obs マスクを ffr_req に入れる．
-    PackedVal ffr_req = _foreach_faults(fault_list, fault_prop) & mPatMap;
+    PackedVal ffr_req = _foreach_faults(fault_list) & mPatMap;
 
     // ffr_req が 0 ならその後のシミュレーションを行う必要はない．
     if ( ffr_req == kPvAll0 ) {
@@ -658,13 +540,14 @@ FSIM_CLASSNAME::_ppsfp(FaultProp& fault_prop)
 // - false: ゲートの出力の遷移回数の和
 // - true : ゲートの出力の遷移回数に(ファンアウト数＋１)を掛けたものの和
 ymuint
-FSIM_CLASSNAME::td_calc_wsa(const TestVector* tv,
-			    bool weighted)
+FSIM_CLASSNAME::calc_wsa(const TestVector* tv,
+			 bool weighted)
 {
+#if FSIM_TD
   TvInputVals iv(tv);
 
   // 正常値の計算を行う．
-  _td_calc_gval(iv);
+  _calc_gval(iv);
 
   ymuint wsa = 0;
   for (vector<SimNode*>::iterator p = mPPIArray.begin();
@@ -679,6 +562,9 @@ FSIM_CLASSNAME::td_calc_wsa(const TestVector* tv,
   }
 
   return wsa;
+#else
+  return 0;
+#endif
 }
 
 // @brief ノードの出力の(重み付き)信号遷移回数を求める．
@@ -696,22 +582,25 @@ FSIM_CLASSNAME::_calc_wsa(SimNode* node,
   return wsa;
 }
 
+#if FSIM_SA
 // @brief 正常値の計算を行う．(縮退故障用)
 // @param[in] input_vals 入力値
 void
-FSIM_CLASSNAME::_sa_calc_gval(const InputVals& input_vals)
+FSIM_CLASSNAME::_calc_gval(const InputVals& input_vals)
 {
   // 入力の設定を行う．
-  input_vals.set_val1(*this);
+  input_vals.set_val(*this);
 
   // 正常値の計算を行う．
   _calc_val();
 }
+#endif
 
+#if FSIM_TD
 // @brief 正常値の計算を行う．(遷移故障用)
 // @param[in] input_vals 入力値
 void
-FSIM_CLASSNAME::_td_calc_gval(const InputVals& input_vals)
+FSIM_CLASSNAME::_calc_gval(const InputVals& input_vals)
 {
   // 1時刻目の入力を設定する．
   input_vals.set_val1(*this);
@@ -746,6 +635,7 @@ FSIM_CLASSNAME::_td_calc_gval(const InputVals& input_vals)
   // 2時刻目の正常値の計算を行う．
   _calc_val();
 }
+#endif
 
 // @brief 値の計算を行う．
 //
@@ -762,11 +652,9 @@ FSIM_CLASSNAME::_calc_val()
 
 // @brief 個々の故障に FaultProp を適用する．
 // @param[in] fault_list 故障のリスト
-// @param[in] 故障伝搬を行うファンクタ
 // @return 全ての故障の伝搬結果のORを返す．
 PackedVal
-FSIM_CLASSNAME::_foreach_faults(const vector<SimFault*>& fault_list,
-				FaultProp& fault_prop)
+FSIM_CLASSNAME::_foreach_faults(const vector<SimFault*>& fault_list)
 {
   PackedVal ffr_req = kPvAll0;
   for (vector<SimFault*>::const_iterator p = fault_list.begin();
@@ -776,7 +664,7 @@ FSIM_CLASSNAME::_foreach_faults(const vector<SimFault*>& fault_list,
       continue;
     }
 
-    PackedVal obs = fault_prop(ff);
+    PackedVal obs = _fault_prop(ff);
 
     ff->mObsMask = obs;
     ffr_req |= obs;
@@ -869,56 +757,6 @@ FSIM_CLASSNAME::make_gate(GateType type,
   mNodeArray.push_back(node);
   mLogicArray.push_back(node);
   return node;
-}
-
-
-//////////////////////////////////////////////////////////////////////
-// SaFaultProp
-//////////////////////////////////////////////////////////////////////
-
-// @brief コンストラクタ
-// @param[in] fsim 故障シミュレータ
-SaFaultProp::SaFaultProp(FSIM_CLASSNAME& fsim) :
-  mFsim(fsim)
-{
-}
-
-// @brief デストラクタ
-SaFaultProp::~SaFaultProp()
-{
-}
-
-// @brief 故障の影響をFFRの根まで伝搬させる．
-// @param[in] fault 対象の故障
-PackedVal
-SaFaultProp::operator()(SimFault* fault)
-{
-  return mFsim._sa_fault_prop(fault);
-}
-
-
-//////////////////////////////////////////////////////////////////////
-// TdFaultProp
-//////////////////////////////////////////////////////////////////////
-
-// @brief コンストラクタ
-// @param[in] fsim 故障シミュレータ
-TdFaultProp::TdFaultProp(FSIM_CLASSNAME& fsim) :
-  mFsim(fsim)
-{
-}
-
-// @brief デストラクタ
-TdFaultProp::~TdFaultProp()
-{
-}
-
-// @brief 故障の影響をFFRの根まで伝搬させる．
-// @param[in] fault 対象の故障
-PackedVal
-TdFaultProp::operator()(SimFault* fault)
-{
-  return mFsim._td_fault_prop(fault);
 }
 
 END_NAMESPACE_YM_SATPG_FSIM

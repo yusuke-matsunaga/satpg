@@ -206,7 +206,7 @@ EqChecker::do_fsim(const vector<ymuint>& fid_list)
       cout << "\rFSIM: " << setw(6) << i;
       cout.flush();
     }
-    mFsim.sa_ppsfp();
+    mFsim.ppsfp();
     mEqSet.multi_refinement(mFsim);
     mFsim.clear_patterns();
     wpos = 0;
@@ -230,7 +230,7 @@ EqChecker::do_fsim(const vector<ymuint>& fid_list)
       cout << "\rFSIM: " << setw(6) << npat;
       cout.flush();
     }
-    mFsim.sa_ppsfp();
+    mFsim.ppsfp();
     npat += kPvBitLen;
     ymuint nchg = 0;
     if ( mEqSet.multi_refinement(mFsim) ) {

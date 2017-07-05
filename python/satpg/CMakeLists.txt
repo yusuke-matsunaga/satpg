@@ -37,8 +37,10 @@ set_source_files_properties (
 cython_add_module ( satpg
   ${CYTHON_SOURCES}
   $<TARGET_OBJECTS:satpg_common>
-  $<TARGET_OBJECTS:satpg_fsim2>
-  $<TARGET_OBJECTS:satpg_fsim3>
+  $<TARGET_OBJECTS:satpg_fsimsa2>
+  $<TARGET_OBJECTS:satpg_fsimsa3>
+  $<TARGET_OBJECTS:satpg_fsimtd2>
+  $<TARGET_OBJECTS:satpg_fsimtd3>
   $<TARGET_OBJECTS:ym_base>
   $<TARGET_OBJECTS:ym_logic>
   $<TARGET_OBJECTS:ym_cell>

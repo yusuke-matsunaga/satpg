@@ -36,8 +36,8 @@ DtpgTest::DtpgTest(const string& sat_type,
   mBackTracer(bt_mode, network.node_num()),
   mDtpg(sat_type, sat_option, sat_outp, fault_type, mBackTracer)
 {
-  mFsim = Fsim::new_Fsim3(network);
-  mDop.add(new_DopVerify(*mFsim, mVerifyResult, fault_type));
+  mFsim = Fsim::new_Fsim3(network, fault_type);
+  mDop.add(new_DopVerify(*mFsim, mVerifyResult));
 }
 
 // @brief デストラクタ

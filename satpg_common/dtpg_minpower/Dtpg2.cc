@@ -112,7 +112,7 @@ Dtpg2::dtpg(TvMgr& tvmgr,
 
   TestVector* tv = tvmgr.new_vector();
   tv->set_from_assign_list(nodeval_list);
-  ymuint wsa = fsim.td_calc_wsa(tv, false);
+  ymuint wsa = fsim.calc_wsa(tv, false);
   tvmgr.delete_vector(tv);
 
   ymuint min_wsa = wsa;
@@ -190,7 +190,7 @@ Dtpg2::dtpg(TvMgr& tvmgr,
 
     TestVector* tv = tvmgr.new_vector();
     tv->set_from_assign_list(nodeval_list1);
-    ymuint wsa = fsim.td_calc_wsa(tv, false);
+    ymuint wsa = fsim.calc_wsa(tv, false);
     tvmgr.delete_vector(tv);
 
     if ( min_wsa > wsa ) {
