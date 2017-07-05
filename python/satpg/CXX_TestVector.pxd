@@ -9,6 +9,7 @@
 from libcpp cimport bool
 from libcpp.string cimport string
 from CXX_Val3 cimport Val3
+from CXX_FaultType cimport FaultType
 
 ctypedef unsigned int ymuint
 
@@ -20,8 +21,7 @@ cdef extern from "TestVector.h" namespace "nsYm::nsSatpg" :
         ymuint input_num()
         ymuint dff_num()
         ymuint ppi_num()
-        bool is_sa_mode()
-        bool is_td_mode()
+        FaultType fault_type()
         ymuint vect_len()
         Val3 ppi_val(ymuint pos)
         Val3 input_val(ymuint pos)

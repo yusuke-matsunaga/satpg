@@ -63,7 +63,7 @@ void
 DopTvList::operator()(const TpgFault* f,
 		      const NodeValList& assign_list)
 {
-  TestVector* tv = mTdMode ? mTvMgr.new_td_vector() : mTvMgr.new_sa_vector();
+  TestVector* tv = mTvMgr.new_vector();
   tv->set_from_assign_list(assign_list);
   mTvList.push_back(tv);
 }

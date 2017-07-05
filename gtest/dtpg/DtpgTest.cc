@@ -63,7 +63,7 @@ TestData mydata[] = {
 };
 
 class DtpgTestWithParam :
-public ::testing::TestWithParam<std::tuple<TestData, string, bool, int> >
+public ::testing::TestWithParam<std::tuple<TestData, string, FaultType, int> >
 {
 public:
 
@@ -108,9 +108,9 @@ private:
   string
   test_mode();
 
-  /// @brief テストパラメータから td_mode を取り出す．
-  bool
-  td_mode();
+  /// @brief テストパラメータから FaultType を取り出す．
+  FaultType
+  fault_type();
 
   /// @brief テストパラメータから bt_mode を取り出す．
   int
@@ -150,7 +150,7 @@ DtpgTestWithParam::SetUp()
   bool stat = mNetwork.read_blif(filename());
   ASSERT_COND( stat );
 
-  mDtpgTest = new DtpgTest(mSatType, mSatOption, mSatOutp, td_mode(), bt_mode(), mNetwork);
+  mDtpgTest = new DtpgTest(mSatType, mSatOption, mSatOutp, fault_type(), bt_mode(), mNetwork);
 }
 
 // @brief 終了処理を行う．
@@ -208,11 +208,11 @@ ymuint
 DtpgTestWithParam::detect_fault_num()
 {
   const TestData& data = std::get<0>(GetParam());
-  if ( td_mode() ) {
-    return data.mTdDetectFaultNum;
+  if ( fault_type() == kFtStuckAt ) {
+    return data.mSaDetectFaultNum;
   }
   else {
-    return data.mSaDetectFaultNum;
+    return data.mTdDetectFaultNum;
   }
 }
 
@@ -221,11 +221,11 @@ ymuint
 DtpgTestWithParam::untest_fault_num()
 {
   const TestData& data = std::get<0>(GetParam());
-  if ( td_mode() ) {
-    return data.mTdUntestFaultNum;
+  if ( fault_type() == kFtStuckAt ) {
+    return data.mSaUntestFaultNum;
   }
   else {
-    return data.mSaUntestFaultNum;
+    return data.mTdUntestFaultNum;
   }
 }
 
@@ -236,9 +236,9 @@ DtpgTestWithParam::test_mode()
   return std::get<1>(GetParam());
 }
 
-// @brief テストパラメータから td_mode を取り出す．
-bool
-DtpgTestWithParam::td_mode()
+// @brief テストパラメータから FaultType を取り出す．
+FaultType
+DtpgTestWithParam::fault_type()
 {
   return std::get<2>(GetParam());
 }
@@ -258,7 +258,7 @@ TEST_P(DtpgTestWithParam, test1)
 INSTANTIATE_TEST_CASE_P(DtpgTest, DtpgTestWithParam,
 			::testing::Combine(::testing::ValuesIn(mydata),
 					   ::testing::Values("single", "ffr", "mffc"),
-					   ::testing::Values(false, true),
+					   ::testing::Values(kFtStuckAt, kFtTransitionDelay),
 					   ::testing::Range(0, 3)));
 
 END_NAMESPACE_YM_SATPG

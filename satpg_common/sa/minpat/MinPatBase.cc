@@ -213,7 +213,7 @@ MinPatBase::run(TpgNetwork& network,
   for (ymuint i = 0; i < new_ng; ++ i) {
     ymuint gid = group_list[i];
     const NodeValList& suf_list = fgmgr.sufficient_assignment(gid);
-    TestVector* tv = tvmgr.new_sa_vector();
+    TestVector* tv = tvmgr.new_vector();
     make_testvector(network, suf_list, tv);
     tv_list.push_back(tv);
   }

@@ -180,7 +180,7 @@ randgen(RandGen& rg,
   tv_list.clear();
   tv_list.resize(nv);
   for (ymuint i = 0; i < nv; ++ i) {
-    TestVector* tv = tvmgr.new_td_vector();
+    TestVector* tv = tvmgr.new_vector();
     tv->set_from_random(rg);
     tv_list[i] = tv;
   }
@@ -333,7 +333,7 @@ fsim2test(int argc,
     ASSERT_NOT_REACHED;
   }
 
-  TvMgr tvmgr(network);
+  TvMgr tvmgr(network, kFtTransitionDelay);
 
   RandGen rg;
   vector<const TestVector*> tv_list;

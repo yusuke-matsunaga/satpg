@@ -702,7 +702,7 @@ void
 FSIM_CLASSNAME::_sa_calc_gval(const InputVals& input_vals)
 {
   // 入力の設定を行う．
-  input_vals.set_val2(*this);
+  input_vals.set_val1(*this);
 
   // 正常値の計算を行う．
   _calc_val();

@@ -18,12 +18,12 @@ BEGIN_NAMESPACE_YM_SATPG
 
 // @brief コンストラクタ
 // @param[in] max_id ノード番号の最大値
-// @param[in] td_mode 遷移故障モードの時 true にするフラグ
+// @param[in] fault_type 故障の型
 // @param[in] val_map ノードの値を保持するクラス
 BtImpl::BtImpl(ymuint max_id,
-	       bool td_mode,
+	       FaultType fault_type,
 	       const ValMap& val_map) :
-  mTdMode(td_mode),
+  mFaultType(fault_type),
   mMarkArray(max_id, 0U),
   mValMap(val_map)
 {

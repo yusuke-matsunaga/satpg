@@ -79,7 +79,7 @@ PrintFaultCmd::cmd_proc(TclObjVector& objv)
     }
   }
 
-  TpgFaultMgr& fmgr = _fault_mgr();
+  TpgFaultMgr& fmgr = _sa_fault_mgr();
 
   const TpgNetwork& network = _network();
   ymuint n = network.rep_fault_num();

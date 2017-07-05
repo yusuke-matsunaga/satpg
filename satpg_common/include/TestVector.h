@@ -11,6 +11,7 @@
 #include "satpg.h"
 #include "Val3.h"
 #include "PackedVal.h"
+#include "FaultType.h"
 #include "ym/RandGen.h"
 
 
@@ -62,18 +63,14 @@ public:
   ymuint
   ppi_num() const;
 
-  /// @brief 縮退故障用のベクタの時 true を返す．
-  bool
-  is_sa_mode() const;
-
-  /// @brief 遷移故障用のベクタの時 true を返す．
-  bool
-  is_td_mode() const;
+  /// @brief 故障の種類を返す．
+  FaultType
+  fault_type() const;
 
   /// @brief ベクタ長を返す．
   ///
-  /// - is_sa_mode() == true の時は input_num() + dff_num()
-  /// - is_td_mode() == true の時は input_num() * 2 + dff_num()
+  /// - fault_type() == kFtStuckAt の時は input_num() + dff_num()
+  /// - fault_type() == kFtTransitionDelay の時は input_num() * 2 + dff_num()
   ymuint
   vect_len() const;
 
@@ -285,11 +282,11 @@ private:
   /// @brief コンストラクタ
   /// @param[in] input_num 入力数
   /// @param[in] dff_num DFF数
-  /// @param[in] td_mode 遷移故障用の時 true にするフラグ
+  /// @param[in] fault_type 故障の種類
   explicit
   TestVector(ymuint input_num,
 	     ymuint dff_num,
-	     bool td_mode);
+	     FaultType fault_type);
 
   /// @brief デストラクタ
   ~TestVector();
@@ -417,20 +414,17 @@ TestVector::ppi_num() const
   return input_num() + dff_num();
 }
 
-// @brief 縮退故障用のベクタの時 true を返す．
+// @brief 故障の種類を返す．
 inline
-bool
-TestVector::is_sa_mode() const
+FaultType
+TestVector::fault_type() const
 {
-  return !is_td_mode();
-}
-
-// @brief 遷移故障用のベクタの時 true を返す．
-inline
-bool
-TestVector::is_td_mode() const
-{
-  return static_cast<bool>(mInputNum & 1U);
+  if ( mInputNum & 1U ) {
+    return kFtTransitionDelay;
+  }
+  else {
+    return kFtStuckAt;
+  }
 }
 
 // @brief ベクタ長を返す．
@@ -438,11 +432,15 @@ inline
 ymuint
 TestVector::vect_len() const
 {
-  if ( is_sa_mode() ) {
+  if ( fault_type() == kFtStuckAt ) {
     return input_num() + dff_num();
   }
-  else {
+  else if ( fault_type() == kFtTransitionDelay ) {
     return input_num() * 2 + dff_num();
+  }
+  else {
+    ASSERT_NOT_REACHED;
+    return 0;
   }
 }
 
@@ -463,7 +461,7 @@ inline
 Val3
 TestVector::input_val(ymuint pos) const
 {
-  ASSERT_COND( is_td_mode() );
+  ASSERT_COND( fault_type() == kFtTransitionDelay );
   ASSERT_COND( pos < input_num() );
 
   return _val(pos);
@@ -475,7 +473,7 @@ inline
 Val3
 TestVector::dff_val(ymuint pos) const
 {
-  ASSERT_COND( is_td_mode() );
+  ASSERT_COND( fault_type() == kFtTransitionDelay );
   ASSERT_COND( pos < dff_num() );
 
   return _val(pos + input_num());
@@ -487,7 +485,7 @@ inline
 Val3
 TestVector::aux_input_val(ymuint pos) const
 {
-  ASSERT_COND( is_td_mode() );
+  ASSERT_COND( fault_type() == kFtTransitionDelay );
   ASSERT_COND( pos < input_num() );
 
   return _val(pos + input_num() + dff_num());
@@ -503,7 +501,7 @@ void
 TestVector::set_ppi_val(ymuint pos,
 			Val3 val)
 {
-  ASSERT_COND( is_sa_mode() );
+  ASSERT_COND( fault_type() == kFtStuckAt );
   ASSERT_COND( pos < ppi_num() );
 
   _set_val(pos, val);
@@ -517,7 +515,7 @@ void
 TestVector::set_input_val(ymuint pos,
 			  Val3 val)
 {
-  ASSERT_COND( is_td_mode() );
+  ASSERT_COND( fault_type() == kFtTransitionDelay );
   ASSERT_COND( pos < input_num() );
 
   _set_val(pos, val);
@@ -531,7 +529,7 @@ void
 TestVector::set_dff_val(ymuint pos,
 			Val3 val)
 {
-  ASSERT_COND( is_td_mode() );
+  ASSERT_COND( fault_type() == kFtTransitionDelay );
   ASSERT_COND( pos < dff_num() );
 
   _set_val(pos + input_num(), val);
@@ -545,10 +543,10 @@ void
 TestVector::set_aux_input_val(ymuint pos,
 			      Val3 val)
 {
-  ASSERT_COND( is_td_mode() );
+  ASSERT_COND( fault_type() == kFtTransitionDelay );
   ASSERT_COND( pos < input_num() );
 
-  if ( is_td_mode() ) {
+  if ( fault_type() == kFtTransitionDelay ) {
     _set_val(pos + input_num() + dff_num(), val);
   }
 }

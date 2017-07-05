@@ -19,12 +19,12 @@ BEGIN_NAMESPACE_YM_SATPG
 
 // @brief コンストラクタ
 // @param[in] max_id ノード番号の最大値
-// @param[in] td_mode 遷移故障モードの時 true にするフラグ
+// @param[in] fault_type 故障の型
 // @param[in] val_map ノードの値を保持するクラス
 BtSimple::BtSimple(ymuint max_id,
-		   bool td_mode,
+		   FaultType fault_type,
 		   const ValMap& val_map) :
-  BtImpl(max_id, td_mode, val_map)
+  BtImpl(max_id, fault_type, val_map)
 {
 }
 
@@ -85,7 +85,7 @@ BtSimple::justify(const TpgNode* node,
     record_value(node, time, assign_list);
   }
   else if ( node->is_dff_output() ) {
-    if ( time == 1 && td_mode() ) {
+    if ( time == 1 && fault_type() == kFtTransitionDelay ) {
       const TpgDff* dff = node->dff();
       const TpgNode* alt_node = dff->input();
       justify(alt_node, 0, assign_list);

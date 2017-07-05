@@ -25,7 +25,9 @@ public:
 
   /// @brief コンストラクタ
   /// @param[in] network 対象のネットワーク
-  TvMgr(const TpgNetwork& network);
+  /// @param[in] fault_type 故障の種類
+  TvMgr(const TpgNetwork& network,
+	FaultType fault_type);
 
   /// @brief デストラクタ
   ///
@@ -52,27 +54,16 @@ public:
   ymuint
   dff_num() const;
 
-  /// @brief 縮退故障用のベクタ長を返す．
+  /// @brief ベクタ長を返す．
   ymuint
-  sa_vect_len() const;
+  vect_len() const;
 
-  /// @brief 遷移故障用のベクタ長を返す．
-  ymuint
-  td_vect_len() const;
-
-  /// @brief 新しい縮退故障用のパタンを生成する．
+  /// @brief 新しいパタンを生成する．
   /// @return 生成されたパタンを返す．
   ///
   /// パタンは0で初期化される．
   TestVector*
-  new_sa_vector();
-
-  /// @brief 新しい遷移故障用パタンを生成する．
-  /// @return 生成されたパタンを返す．
-  ///
-  /// パタンは0で初期化される．
-  TestVector*
-  new_td_vector();
+  new_vector();
 
   /// @brief 縮退故障用のパタンを削除する．
   void
@@ -113,29 +104,23 @@ private:
   // データメンバ
   //////////////////////////////////////////////////////////////////////
 
+  // 故障の種類
+  FaultType mFaultType;
+
   // 対象回路の入力数
   ymuint mInputNum;
 
   // 対象回路の DFF 数
   ymuint mDffNum;
 
-  // 縮退故障用のテストベクタの長さ
-  ymuint mSaVectLen;
+  // テストベクタの長さ
+  ymuint mVectLen;
 
-  // 縮退故障用のテストベクタの実際のサイズ
-  ymuint mSaTvSize;
+  // テストベクタの実際のバイトサイズ
+  ymuint mTvSize;
 
-  // 遷移故障用のテストベクタの長さ
-  ymuint mTdVectLen;
-
-  // 遷移故障用のテストベクタの実際のサイズ
-  ymuint mTdTvSize;
-
-  // 縮退故障用のテストベクタのメモリ確保用のアロケータ
-  UnitAlloc mSaAlloc;
-
-  // 遷移故障用のテストベクタのメモリ確保用のアロケータ
-  UnitAlloc mTdAlloc;
+  // テストベクタのメモリ確保用のアロケータ
+  UnitAlloc mAlloc;
 
 };
 
@@ -160,20 +145,12 @@ TvMgr::dff_num() const
   return mDffNum;
 }
 
-// @brief 縮退故障用のベクタ長を返す．
+// @brief ベクタ長を返す．
 inline
 ymuint
-TvMgr::sa_vect_len() const
+TvMgr::vect_len() const
 {
-  return mSaVectLen;
-}
-
-// @brief 遷移故障用のベクタ長を返す．
-inline
-ymuint
-TvMgr::td_vect_len() const
-{
-  return mTdVectLen;
+  return mVectLen;
 }
 
 END_NAMESPACE_YM_SATPG

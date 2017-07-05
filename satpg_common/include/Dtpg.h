@@ -12,6 +12,7 @@
 
 #include "satpg.h"
 
+#include "FaultType.h"
 #include "DtpgStats.h"
 #include "FaultStatus.h"
 #include "ym/SatBool3.h"
@@ -33,12 +34,12 @@ public:
   /// @param[in] sat_type SATソルバの種類を表す文字列
   /// @param[in] sat_option SATソルバに渡すオプション文字列
   /// @param[in] sat_outp SATソルバ用の出力ストリーム
-  /// @param[in] td_mode 遷移故障モードの時 true にするフラグ
+  /// @param[in] fault_type 故障の種類
   /// @param[in] bt バックトレーサー
   Dtpg(const string& sat_type,
        const string& sat_option,
        ostream* sat_outp,
-       bool td_mode,
+       FaultType fault_type,
        BackTracer& bt);
 
   /// @brief デストラクタ
@@ -99,8 +100,8 @@ private:
   // SATのログ出力
   ostream* mSatOutP;
 
-  // 遷移故障モード
-  bool mTdMode;
+  // 故障の種類
+  FaultType mFaultType;
 
   // バックトレーサー
   BackTracer& mBackTracer;

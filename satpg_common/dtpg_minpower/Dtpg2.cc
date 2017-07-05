@@ -110,7 +110,7 @@ Dtpg2::dtpg(TvMgr& tvmgr,
     return ans;
   }
 
-  TestVector* tv = tvmgr.new_td_vector();
+  TestVector* tv = tvmgr.new_vector();
   tv->set_from_assign_list(nodeval_list);
   ymuint wsa = fsim.td_calc_wsa(tv, false);
   tvmgr.delete_vector(tv);
@@ -188,7 +188,7 @@ Dtpg2::dtpg(TvMgr& tvmgr,
       continue;
     }
 
-    TestVector* tv = tvmgr.new_td_vector();
+    TestVector* tv = tvmgr.new_vector();
     tv->set_from_assign_list(nodeval_list1);
     ymuint wsa = fsim.td_calc_wsa(tv, false);
     tvmgr.delete_vector(tv);

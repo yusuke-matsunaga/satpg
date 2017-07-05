@@ -105,7 +105,7 @@ MinPatCmd::cmd_proc(TclObjVector& objv)
   minpat->set_verbose(verbose);
 
   USTime time;
-  minpat->run(_network(), _fault_mgr(), _tv_mgr(),  _fsim2(), _fsim3(),
+  minpat->run(_network(), _sa_fault_mgr(), _sa_tv_mgr(),  _fsim2(), _fsim3(),
 	      exact, compaction, fast_compaction, mc_compaction, has_thval, thval,
 	      _sa_tv_list(), time);
 

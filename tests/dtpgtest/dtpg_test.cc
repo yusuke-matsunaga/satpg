@@ -197,12 +197,13 @@ dtpg_test(int argc,
     td_mode = false;
     sa_mode = true;
   }
+  FaultType fault_type = sa_mode ? kFtStuckAt : kFtTransitionDelay;
 
   if ( dump ) {
     print_network(cout, network);
   }
 
-  DtpgTest dtpgtest(sat_type, sat_option, sat_outp, td_mode, bt_mode, network);
+  DtpgTest dtpgtest(sat_type, sat_option, sat_outp, fault_type, bt_mode, network);
 
   pair<ymuint, ymuint> num_pair;
   if ( single ) {

@@ -18,26 +18,36 @@ BEGIN_NONAMESPACE
 
 inline
 ymuint
-calc_vectlen(ymuint val)
+calc_vectlen(ymuint input_num,
+	     ymuint dff_num,
+	     FaultType fault_type)
 {
-  if ( val == 0 ) {
-    val = 1;
+  ymuint ans = 0;
+  if ( fault_type == kFtStuckAt ) {
+    ans = input_num + dff_num;
   }
-  return val;
+  else if ( fault_type == kFtTransitionDelay ) {
+    ans = input_num * 2 + dff_num;
+  }
+  else {
+    ASSERT_NOT_REACHED;
+  }
+  return ans;
 }
 
 END_NONAMESPACE
 
 // @brief コンストラクタ
-TvMgr::TvMgr(const TpgNetwork& network) :
+// @param[in] network 対象のネットワーク
+// @param[in] fault_type 故障の種類
+TvMgr::TvMgr(const TpgNetwork& network,
+	     FaultType fault_type) :
+  mFaultType(fault_type),
   mInputNum(network.input_num()),
   mDffNum(network.dff_num()),
-  mSaVectLen(calc_vectlen(mInputNum + mDffNum)),
-  mSaTvSize(calc_size(mSaVectLen)),
-  mSaAlloc(mSaTvSize, 1024),
-  mTdVectLen(calc_vectlen(mInputNum * 2 + mDffNum)),
-  mTdTvSize(calc_size(mTdVectLen)),
-  mTdAlloc(mTdTvSize, 1024)
+  mVectLen(calc_vectlen(mInputNum, mDffNum, fault_type)),
+  mTvSize(calc_size(mVectLen)),
+  mAlloc(mTvSize, 1024)
 {
 }
 
@@ -51,17 +61,7 @@ TvMgr::~TvMgr()
 void
 TvMgr::clear()
 {
-  mSaAlloc.destroy();
-  mTdAlloc.destroy();
-
-  mInputNum = 0;
-  mDffNum = 0;
-
-  mSaVectLen = 0;
-  mSaTvSize = 0;
-
-  mTdVectLen = 0;
-  mTdTvSize = 0;
+  mAlloc.destroy();
 }
 
 // @brief 新しいパタンを生成する．
@@ -69,23 +69,10 @@ TvMgr::clear()
 //
 // パタンは0で初期化される．
 TestVector*
-TvMgr::new_sa_vector()
+TvMgr::new_vector()
 {
-  void* p = mSaAlloc.get_memory(mSaTvSize);
-  TestVector* tv = new (p) TestVector(mInputNum, mDffNum, false);
-
-  return tv;
-}
-
-// @brief 新しいパタンを生成する．
-// @return 生成されたパタンを返す．
-//
-// パタンは0で初期化される．
-TestVector*
-TvMgr::new_td_vector()
-{
-  void* p = mTdAlloc.get_memory(mTdTvSize);
-  TestVector* tv = new (p) TestVector(mInputNum, mDffNum, true);
+  void* p = mAlloc.get_memory(mTvSize);
+  TestVector* tv = new (p) TestVector(mInputNum, mDffNum, mFaultType);
 
   return tv;
 }
@@ -94,12 +81,7 @@ TvMgr::new_td_vector()
 void
 TvMgr::delete_vector(TestVector* tv)
 {
-  if ( tv->is_sa_mode() ) {
-    mSaAlloc.put_memory(mSaTvSize, (void*)tv);
-  }
-  else {
-    mTdAlloc.put_memory(mTdTvSize, (void*)tv);
-  }
+  mAlloc.put_memory(mTvSize, (void*)tv);
 }
 
 // @brief ベクタ長からバイトサイズを計算する．
@@ -109,6 +91,9 @@ TvMgr::delete_vector(TestVector* tv)
 ymuint
 TvMgr::calc_size(ymuint vectlen)
 {
+  if ( vectlen == 0 ) {
+    vectlen = 1;
+  }
   return sizeof(TestVector) + kPvBitLen * (TestVector::block_num(vectlen) - 1);
 }
 

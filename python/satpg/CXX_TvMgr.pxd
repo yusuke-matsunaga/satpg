@@ -8,6 +8,7 @@
 
 from CXX_TpgNetwork cimport TpgNetwork
 from CXX_TestVector cimport TestVector
+from CXX_FaultType cimport FaultType
 ctypedef unsigned int ymuint
 
 
@@ -15,12 +16,10 @@ cdef extern from "TvMgr.h" namespace "nsYm::nsSatpg" :
 
     ## @brief TvMgr の cython バージョン
     cdef cppclass TvMgr :
-        TvMgr(const TpgNetwork& network)
+        TvMgr(const TpgNetwork& network, FaultType fault_type)
         void clear()
         ymuint input_num()
         ymuint dff_num()
-        ymuint sa_vect_len()
-        ymuint td_vect_len()
-        TestVector* new_sa_vector()
-        TestVector* new_td_vector()
+        ymuint vect_len()
+        TestVector* new_vector()
         void delete_vector(TestVector* tv)

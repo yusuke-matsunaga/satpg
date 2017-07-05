@@ -209,22 +209,25 @@ DtpgCmd::cmd_proc(TclObjVector& objv)
     fault_type = kFtTransitionDelay;
   }
 
-
   string option_str = mPoptOpt->val();
 
   DopList dop_list;
   UopList uop_list;
 
+  TvMgr& tv_mgr = sa_mode ? _sa_tv_mgr() : _td_tv_mgr();
+  vector<const TestVector*>& tv_list = sa_mode ? _sa_tv_list() : _td_tv_list();
+  TpgFaultMgr& fault_mgr = sa_mode ? _sa_fault_mgr() : _td_fault_mgr();
+
   if ( !mPoptNoPat->is_specified() ) {
     if ( sa_mode ) {
-      dop_list.add(new_DopTvListSa(_tv_mgr(), _sa_tv_list()));
+      dop_list.add(new_DopTvListSa(tv_mgr, tv_list));
     }
     else {
-      dop_list.add(new_DopTvListTd(_tv_mgr(), _td_tv_list()));
+      dop_list.add(new_DopTvListTd(tv_mgr, tv_list));
     }
   }
-  dop_list.add(new_DopBase(_fault_mgr()));
-  uop_list.add(new_UopBase(_fault_mgr()));
+  dop_list.add(new_DopBase(fault_mgr));
+  uop_list.add(new_UopBase(fault_mgr));
 
   ymuint xmode = 0;
   if ( mPoptX->is_specified() ) {
@@ -234,7 +237,7 @@ DtpgCmd::cmd_proc(TclObjVector& objv)
   BackTracer bt(xmode, _network().node_num());
 
   if ( mPoptDrop->is_specified() ) {
-    dop_list.add(new_DopDrop(_fault_mgr(), _fsim3()));
+    dop_list.add(new_DopDrop(fault_mgr, _fsim3()));
   }
 
   DopVerifyResult verify_result;
@@ -248,24 +251,24 @@ DtpgCmd::cmd_proc(TclObjVector& objv)
   }
 
   _fsim3().set_skip_all();
-  for (ymuint i = 0; i < _fault_mgr().max_fault_id(); ++ i) {
-    const TpgFault* f = _fault_mgr().fault(i);
-    if ( f != nullptr && _fault_mgr().status(f) == kFsUndetected ) {
+  for (ymuint i = 0; i < fault_mgr.max_fault_id(); ++ i) {
+    const TpgFault* f = fault_mgr.fault(i);
+    if ( f != nullptr && fault_mgr.status(f) == kFsUndetected ) {
       _fsim3().clear_skip(f);
     }
   }
 
-  Dtpg dtpg(sat_type, sat_option, outp, !sa_mode, bt);
+  Dtpg dtpg(sat_type, sat_option, outp, fault_type, bt);
 
   DtpgStats stats;
   if ( engine_type == "single" ) {
-    run_single(dtpg, _network(), _fault_mgr(), dop_list, uop_list, stats);
+    run_single(dtpg, _network(), fault_mgr, dop_list, uop_list, stats);
   }
   else if ( engine_type == "mffc" ) {
-    run_mffc(dtpg, _network(), _fault_mgr(), dop_list, uop_list, stats);
+    run_mffc(dtpg, _network(), fault_mgr, dop_list, uop_list, stats);
   }
   else {
-    run_single(dtpg, _network(), _fault_mgr(), dop_list, uop_list, stats);
+    run_single(dtpg, _network(), fault_mgr, dop_list, uop_list, stats);
   }
 
   after_update_faults();

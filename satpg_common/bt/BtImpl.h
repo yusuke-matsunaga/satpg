@@ -27,10 +27,10 @@ public:
 
   /// @brief コンストラクタ
   /// @param[in] max_id ノード番号の最大値
-  /// @param[in] td_mode 遷移故障モードの時 true にするフラグ
+  /// @param[in] fault_type 故障の型
   /// @param[in] val_map ノードの値を保持するクラス
   BtImpl(ymuint max_id,
-	 bool td_mode,
+	 FaultType fault_type,
 	 const ValMap& val_map);
 
   /// @brief デストラクタ
@@ -65,9 +65,9 @@ protected:
   // 継承クラスから用いられる便利関数
   //////////////////////////////////////////////////////////////////////
 
-  /// @brief 遷移故障モードの時 true を返す．
-  bool
-  td_mode() const;
+  /// @brief 故障の型を返す．
+  FaultType
+  fault_type() const;
 
   /// @brief justified マークをつけ，mJustifiedNodeList に加える．
   /// @param[in] node 対象のノード
@@ -115,8 +115,8 @@ private:
   // データメンバ
   //////////////////////////////////////////////////////////////////////
 
-  // 遷移故障モード
-  bool mTdMode;
+  // 故障の型
+  FaultType mFaultType;
 
   // ノードの値を保持するクラス
   const ValMap& mValMap;
@@ -131,12 +131,12 @@ private:
 // インライン関数の定義
 //////////////////////////////////////////////////////////////////////
 
-// @brief 遷移故障モードの時 true を返す．
+// @brief 故障の型を返す．
 inline
-bool
-BtImpl::td_mode() const
+FaultType
+BtImpl::fault_type() const
 {
-  return mTdMode;
+  return mFaultType;
 }
 
 // @brief justified マークをつける．

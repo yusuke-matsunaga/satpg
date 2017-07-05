@@ -178,7 +178,7 @@ AtpgCmd::after_update_faults()
   ymuint n_det = 0;
   for (ymuint i = 0; i < n_rep; ++ i) {
     const TpgFault* fault = _network().rep_fault(i);
-    switch ( _fault_mgr().status(fault) ) {
+    switch ( _sa_fault_mgr().status(fault) ) {
     case kFsDetected:   ++ n_det; break;
     case kFsUntestable: ++ n_untest; break;
     case kFsUndetected: ++ n_remain; break;
@@ -240,27 +240,6 @@ AtpgCmd::_network()
   return mMgr->_network();
 }
 
-// @brief FaultMgr を取り出す．
-TpgFaultMgr&
-AtpgCmd::_fault_mgr()
-{
-  return mMgr->_fault_mgr();
-}
-
-// @brief TvMgr を取り出す．
-TvMgr&
-AtpgCmd::_tv_mgr()
-{
-  return mMgr->_tv_mgr();
-}
-
-// @brief テストベクタのリストを取り出す．
-vector<const TestVector*>&
-AtpgCmd::_sa_tv_list()
-{
-  return mMgr->_sa_tv_list();
-}
-
 // @brief 2値の故障シミュレータを取り出す．
 Fsim&
 AtpgCmd::_fsim2()
@@ -275,7 +254,42 @@ AtpgCmd::_fsim3()
   return mMgr->_fsim3();
 }
 
-// @brief テストベクタのリストを取り出す．
+// @brief 縮退故障用の FaultMgr を取り出す．
+TpgFaultMgr&
+AtpgCmd::_sa_fault_mgr()
+{
+  return mMgr->_sa_fault_mgr();
+}
+
+// @brief 縮退故障用の TvMgr を取り出す．
+TvMgr&
+AtpgCmd::_sa_tv_mgr()
+{
+  return mMgr->_sa_tv_mgr();
+}
+
+// @brief 縮退故障用のテストベクタのリストを取り出す．
+vector<const TestVector*>&
+AtpgCmd::_sa_tv_list()
+{
+  return mMgr->_sa_tv_list();
+}
+
+// @brief 遷移故障用の FaultMgr を取り出す．
+TpgFaultMgr&
+AtpgCmd::_td_fault_mgr()
+{
+  return mMgr->_td_fault_mgr();
+}
+
+// @brief 遷移故障用の TvMgr を取り出す．
+TvMgr&
+AtpgCmd::_td_tv_mgr()
+{
+  return mMgr->_td_tv_mgr();
+}
+
+// @brief 遷移故障用のテストベクタのリストを取り出す．
 vector<const TestVector*>&
 AtpgCmd::_td_tv_list()
 {

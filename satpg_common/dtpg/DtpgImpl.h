@@ -16,6 +16,7 @@
 #include "TpgNode.h"
 #include "DtpgStats.h"
 #include "NodeValList.h"
+#include "FaultType.h"
 
 #include "ym/ym_sat.h"
 #include "ym/SatBool3.h"
@@ -41,14 +42,14 @@ public:
   /// @param[in] sat_type SATソルバの種類を表す文字列
   /// @param[in] sat_option SATソルバに渡すオプション文字列
   /// @param[in] sat_outp SATソルバ用の出力ストリーム
-  /// @param[in] td_mode 遷移故障モードの時 true にするフラグ
+  /// @param[in] fault_type 故障の種類
   /// @param[in] bt バックトレーサー
   /// @param[in] network 対象のネットワーク
   /// @param[in] root 故障伝搬の起点となるノード
   DtpgImpl(const string& sat_type,
 	   const string& sat_option,
 	   ostream* sat_outp,
-	   bool td_mode,
+	   FaultType fault_type,
 	   BackTracer& bt,
 	   const TpgNetwork& network,
 	   const TpgNode* root);
@@ -261,8 +262,8 @@ private:
   // 対象のネットワーク
   const TpgNetwork& mNetwork;
 
-  // 遷移故障モード
-  bool mTdMode;
+  // 故障の種類
+  FaultType mFaultType;
 
   // 故障伝搬の起点となるノード
   const TpgNode* mRoot;
@@ -484,7 +485,7 @@ DtpgImpl::set_tfi_mark(const TpgNode* node)
   if ( (mMarkArray[id] & 3U) == 0U ) {
     mMarkArray[id] |= 2U;
     mNodeList.push_back(node);
-    if ( mTdMode && node->is_dff_output() ) {
+    if ( mFaultType == kFtTransitionDelay && node->is_dff_output() ) {
       mDffList.push_back(node->dff());
     }
   }

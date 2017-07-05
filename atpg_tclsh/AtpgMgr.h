@@ -66,10 +66,6 @@ public:
   TpgNetwork&
   _network();
 
-  /// @brief TpgFaultMgr を取り出す．
-  TpgFaultMgr&
-  _fault_mgr();
-
   /// @brief 2値の故障シミュレータを取り出す．
   Fsim&
   _fsim2();
@@ -78,15 +74,27 @@ public:
   Fsim&
   _fsim3();
 
-  /// @brief TvMgr を取り出す．
-  TvMgr&
-  _tv_mgr();
+  /// @brief 縮退故障用の故障マネージャを取り出す．
+  TpgFaultMgr&
+  _sa_fault_mgr();
 
-  /// @brief テストベクタのリストを取り出す．
+  /// @brief 縮退故障用の TvMgr を取り出す．
+  TvMgr&
+  _sa_tv_mgr();
+
+  /// @brief 縮退故障用のテストベクタのリストを取り出す．
   vector<const TestVector*>&
   _sa_tv_list();
 
-  /// @brief テストベクタのリストを取り出す．
+  /// @brief 遷移故障用の故障マネージャを取り出す．
+  TpgFaultMgr&
+  _td_fault_mgr();
+
+  /// @brief 遷移故障用の TvMgr を取り出す．
+  TvMgr&
+  _td_tv_mgr();
+
+  /// @brief 遷移故障用のテストベクタのリストを取り出す．
   vector<const TestVector*>&
   _td_tv_list();
 
@@ -151,22 +159,28 @@ private:
   // 対象のネットワーク
   TpgNetwork mNetwork;
 
-  // 故障マネージャ
-  TpgFaultMgr* mFaultMgr;
-
   // 2値の故障シミュレータ
   Fsim* mFsim2;
 
   // 3値の故障シミュレータ
   Fsim* mFsim3;
 
-  // テストベクタを管理するオブジェクト
-  TvMgr* mTvMgr;
+  // 縮退故障用の故障マネージャ
+  TpgFaultMgr* mSaFaultMgr;
 
-  // テストベクタのリスト
+  // 縮退故障用のテストベクタを管理するオブジェクト
+  TvMgr* mSaTvMgr;
+
+  // 縮退故障用のテストベクタのリスト
   vector<const TestVector*> mSaTvList;
 
-  // テストベクタのリスト
+  // 遷移故障用の故障マネージャ
+  TpgFaultMgr* mTdFaultMgr;
+
+  // 遷移故障用のテストベクタを管理するオブジェクト
+  TvMgr* mTdTvMgr;
+
+  // 遷移故障用のテストベクタのリスト
   vector<const TestVector*> mTdTvList;
 
   // ネットワークが変更された時に呼ばれるイベントハンドラ
@@ -190,14 +204,6 @@ AtpgMgr::_network()
   return mNetwork;
 }
 
-// @brief FaultMgr を取り出す．
-inline
-TpgFaultMgr&
-AtpgMgr::_fault_mgr()
-{
-  return *mFaultMgr;
-}
-
 // @brief 2値の故障シミュレータを取り出す．
 inline
 Fsim&
@@ -214,15 +220,23 @@ AtpgMgr::_fsim3()
   return *mFsim3;
 }
 
-// @brief TvMgr を取り出す．
+// @brief 縮退故障用の故障マネージャを取り出す．
 inline
-TvMgr&
-AtpgMgr::_tv_mgr()
+TpgFaultMgr&
+AtpgMgr::_sa_fault_mgr()
 {
-  return *mTvMgr;
+  return *mSaFaultMgr;
 }
 
-// @brief テストベクタのリストを取り出す．
+// @brief 縮退故障用の TvMgr を取り出す．
+inline
+TvMgr&
+AtpgMgr::_sa_tv_mgr()
+{
+  return *mSaTvMgr;
+}
+
+// @brief 縮退故障用のテストベクタのリストを取り出す．
 inline
 vector<const TestVector*>&
 AtpgMgr::_sa_tv_list()
@@ -230,7 +244,23 @@ AtpgMgr::_sa_tv_list()
   return mSaTvList;
 }
 
-// @brief テストベクタのリストを取り出す．
+// @brief 遷移故障用の故障マネージャを取り出す．
+inline
+TpgFaultMgr&
+AtpgMgr::_td_fault_mgr()
+{
+  return *mTdFaultMgr;
+}
+
+// @brief 遷移故障用の TvMgr を取り出す．
+inline
+TvMgr&
+AtpgMgr::_td_tv_mgr()
+{
+  return *mTdTvMgr;
+}
+
+// @brief 遷移故障用のテストベクタのリストを取り出す．
 inline
 vector<const TestVector*>&
 AtpgMgr::_td_tv_list()

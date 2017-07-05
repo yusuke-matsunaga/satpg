@@ -90,9 +90,9 @@ RtpgCmd::cmd_proc(TclObjVector& objv)
     max_i = 0;
   }
 
-  TpgFaultMgr& fmgr = _fault_mgr();
+  TpgFaultMgr& fmgr = _sa_fault_mgr();
   Fsim& fsim = _fsim2();
-  TvMgr& tvmgr = _tv_mgr();
+  TvMgr& tvmgr = _sa_tv_mgr();
 
   vector<const TestVector*>& tv_list = _sa_tv_list();
   nsSa::RtpgStats stats;

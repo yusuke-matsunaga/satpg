@@ -10,6 +10,7 @@
 from CXX_TvMgr cimport TvMgr as CXX_TvMgr
 from CXX_TestVector cimport TestVector as CXX_TestVector
 from CXX_TpgNetwork cimport TpgNetwork as CXX_TpgNetwork
+from CXX_FaultType cimport FaultType as CXX_FaultType
 
 
 ## @brief TvMgr の Python バージョン
@@ -17,8 +18,9 @@ cdef class TvMgr :
     cdef CXX_TvMgr* _thisptr
 
     ## @brief 初期化
-    def __init__(TvMgr self, TpgNetwork network) :
-        self._thisptr = new CXX_TvMgr(network._this)
+    def __init__(TvMgr self, TpgNetwork network, fault_type) :
+        cdef CXX_FaultType c_fault_type = from_FaultType(fault_type)
+        self._thisptr = new CXX_TvMgr(network._this, c_fault_type)
 
     ## @brief 終了処理
     def __dealloc__(TvMgr self) :
@@ -39,27 +41,14 @@ cdef class TvMgr :
     def dff_num(TvMgr self) :
         return self._thisptr.dff_num()
 
-    ## @brief 縮退故障モードのベクタ長を返す．
+    ## @brief ベクタ長を返す．
     @property
-    def sa_vect_len(TvMgr self) :
-        return self._thisptr.sa_vect_len()
+    def vect_len(TvMgr self) :
+        return self._thisptr.vect_len()
 
-    ## @brief 遷移故障モードのベクタ長を返す．
-    @property
-    def td_vect_len(TvMgr self) :
-        return self._thisptr.td_vect_len()
-
-    ## @brief 縮退故障用のテストベクタを生成する．
-    def new_sa_vector(TvMgr self) :
-        cdef CXX_TestVector* c_vect = self._thisptr.new_sa_vector()
-        ans = TestVector()
-        ans._thisptr = c_vect
-        ans._tvmgr = self
-        return ans
-
-    ## @brief 縮退故障用のテストベクタを生成する．
-    def new_td_vector(TvMgr self) :
-        cdef CXX_TestVector* c_vect = self._thisptr.new_td_vector()
+    ## @brief テストベクタを生成する．
+    def new_vector(TvMgr self) :
+        cdef CXX_TestVector* c_vect = self._thisptr.new_vector()
         ans = TestVector()
         ans._thisptr = c_vect
         ans._tvmgr = self

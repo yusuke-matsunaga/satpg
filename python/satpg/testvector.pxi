@@ -8,6 +8,7 @@
 
 from CXX_TestVector cimport TestVector as CXX_TestVector
 from CXX_TvMgr cimport TvMgr as CXX_TvMgr
+from CXX_FaultType cimport FaultType as CXX_FaultType
 
 
 ## @brief TestVector の Python バージョン
@@ -52,15 +53,12 @@ cdef class TestVector :
             return self._thisptr.ppi_num()
         return 0
 
-    ## @brief 縮退故障モードの時 True を返す．
+    ## @brief 故障の種類を返す．
     @property
-    def is_sa_mode(TestVector self) :
-        return self.is_valid and self._thisptr.is_sa_mode()
-
-    ## @brief 遷移故障モードの時 True を返す．
-    @property
-    def is_td_mode(TestVector self) :
-        return self.is_valid and self._thisptr.is_td_mode()
+    def fault_type(TestVector self) :
+        if self.is_valid :
+            return to_FaultType(self._thisptr.fault_type())
+        return None
 
     ## @brief ビット長を返す．
     @property

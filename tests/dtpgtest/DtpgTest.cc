@@ -23,21 +23,20 @@ BEGIN_NAMESPACE_YM_SATPG
 // @param[in] sat_type SATタイプ
 // @param[in] sat_option SATオプション
 // @param[in] sat_outp SATソルバ用の出力ストリーム
-// @param[in] td_mode 遷移故障モードの時 true にするフラグ
+// @param[in] fault_type 故障の種類
 DtpgTest::DtpgTest(const string& sat_type,
 		   const string& sat_option,
 		   ostream* sat_outp,
-		   bool td_mode,
+		   FaultType fault_type,
 		   int bt_mode,
 		   const TpgNetwork& network) :
-  mTdMode(td_mode),
+  mFaultType(fault_type),
   mNetwork(network),
   mFaultMgr(network),
   mBackTracer(bt_mode, network.node_num()),
-  mDtpg(sat_type, sat_option, sat_outp, td_mode, mBackTracer)
+  mDtpg(sat_type, sat_option, sat_outp, fault_type, mBackTracer)
 {
   mFsim = Fsim::new_Fsim3(network);
-  FaultType fault_type = td_mode ? kFtTransitionDelay : kFtStuckAt;
   mDop.add(new_DopVerify(*mFsim, mVerifyResult, fault_type));
 }
 

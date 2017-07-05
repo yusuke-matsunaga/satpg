@@ -28,14 +28,14 @@ public:
   /// @param[in] sat_type SATソルバの種類を表す文字列
   /// @param[in] sat_option SATソルバに渡すオプション文字列
   /// @param[in] sat_outp SATソルバ用の出力ストリーム
-  /// @param[in] td_mode 遷移故障モードの時 true にするフラグ
+  /// @param[in] fault_type 故障の型
   /// @param[in] bt バックトレーサー
   /// @param[in] network 対象のネットワーク
   /// @param[in] mffc 対象のMFFC
   DtpgImplM(const string& sat_type,
 	    const string& sat_option,
 	    ostream* sat_outp,
-	    bool td_mode,
+	    FaultType fault_type,
 	    BackTracer& bt,
 	    const TpgNetwork& network,
 	    const TpgMFFC* mffc);

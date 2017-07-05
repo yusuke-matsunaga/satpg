@@ -284,7 +284,7 @@ DomChecker::do_fsim(const vector<ymuint>& fid_list)
 
   TestVector* cur_array[kPvBitLen];
   for (ymuint i = 0; i < kPvBitLen; ++ i) {
-    TestVector* tv = mTvMgr.new_sa_vector();
+    TestVector* tv = mTvMgr.new_vector();
     cur_array[i] = tv;
   }
 

@@ -24,18 +24,18 @@ BEGIN_NAMESPACE_YM_SATPG
 // @param[in] sat_type SATソルバの種類を表す文字列
 // @param[in] sat_option SATソルバに渡すオプション文字列
 // @param[in] sat_outp SATソルバ用の出力ストリーム
-// @param[in] td_mode 遷移故障モードの時 true にするフラグ
+// @param[in] fault_type 故障の型
 // @param[in] bt バックトレーサー
 // @param[in] network 対象のネットワーク
 // @param[in] mffc 対象のMFFC
 DtpgImplM::DtpgImplM(const string& sat_type,
 		     const string& sat_option,
 		     ostream* sat_outp,
-		     bool td_mode,
+		     FaultType fault_type,
 		     BackTracer& bt,
 		     const TpgNetwork& network,
 		     const TpgMFFC* mffc) :
-  DtpgImpl(sat_type, sat_option, sat_outp, td_mode, bt, network, mffc->root()),
+  DtpgImpl(sat_type, sat_option, sat_outp, fault_type, bt, network, mffc->root()),
   mElemArray(mffc->elem_num()),
   mElemVarArray(mffc->elem_num()),
   mElemPosMap(network.max_fault_id(), -1)

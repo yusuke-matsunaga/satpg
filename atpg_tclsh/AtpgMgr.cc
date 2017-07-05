@@ -26,19 +26,23 @@ BEGIN_NAMESPACE_YM_SATPG
 AtpgMgr::AtpgMgr() :
   mTimer(TM_SIZE, TM_MISC)
 {
-  mFaultMgr = nullptr;
-  mTvMgr = nullptr;
   mFsim2 = nullptr;
   mFsim3 = nullptr;
+  mSaFaultMgr = nullptr;
+  mSaTvMgr = nullptr;
+  mTdFaultMgr = nullptr;
+  mTdTvMgr = nullptr;
 }
 
 // @brief デストラクタ
 AtpgMgr::~AtpgMgr()
 {
-  delete mFaultMgr;
-  delete mTvMgr;
   delete mFsim2;
   delete mFsim3;
+  delete mSaFaultMgr;
+  delete mSaTvMgr;
+  delete mTdFaultMgr;
+  delete mTdTvMgr;
 }
 
 // @brief ファイル読み込みに関わる時間を得る．
@@ -80,15 +84,22 @@ AtpgMgr::misc_time() const
 void
 AtpgMgr::after_set_network()
 {
-  delete mFaultMgr;
-  delete mTvMgr;
   delete mFsim2;
   delete mFsim3;
+  delete mSaFaultMgr;
+  delete mSaTvMgr;
+  delete mTdFaultMgr;
+  delete mTdTvMgr;
 
-  mFaultMgr = new TpgFaultMgr(_network());
-  mTvMgr = new TvMgr(_network());
+  mSaTvList.clear();
+  mTdTvList.clear();
+
   mFsim2 = Fsim::new_Fsim2(_network());
   mFsim3 = Fsim::new_Fsim3(_network());
+  mSaFaultMgr = new TpgFaultMgr(_network());
+  mSaTvMgr = new TvMgr(_network(), kFtStuckAt);
+  mTdFaultMgr = new TpgFaultMgr(_network());
+  mTdTvMgr = new TvMgr(_network(), kFtStuckAt);
 }
 
 END_NAMESPACE_YM_SATPG

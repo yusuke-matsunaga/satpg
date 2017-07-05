@@ -134,10 +134,10 @@ DtpgMinPowerCmd::cmd_proc(TclObjVector& objv)
   UopList uop_list;
 
   if ( !mPoptNoPat->is_specified() ) {
-    dop_list.add(new_DopTvListTd(_tv_mgr(), _td_tv_list()));
+    dop_list.add(new_DopTvListTd(_td_tv_mgr(), _td_tv_list()));
   }
-  dop_list.add(new_DopBase(_fault_mgr()));
-  uop_list.add(new_UopBase(_fault_mgr()));
+  dop_list.add(new_DopBase(_td_fault_mgr()));
+  uop_list.add(new_UopBase(_td_fault_mgr()));
 
   ymuint xmode = 0;
   if ( mPoptX->is_specified() ) {
@@ -148,7 +148,7 @@ DtpgMinPowerCmd::cmd_proc(TclObjVector& objv)
   DopVerifyResult verify_result;
 
   if ( mPoptDrop->is_specified() ) {
-    dop_list.add(new_DopDrop(_fault_mgr(), _fsim3()));
+    dop_list.add(new_DopDrop(_td_fault_mgr(), _fsim3()));
   }
   if ( mPoptVerify->is_specified() ) {
     dop_list.add(new_DopTdVerify(_fsim3(), verify_result));
@@ -160,9 +160,9 @@ DtpgMinPowerCmd::cmd_proc(TclObjVector& objv)
   }
 
   _fsim3().set_skip_all();
-  for (ymuint i = 0; i < _fault_mgr().max_fault_id(); ++ i) {
-    const TpgFault* f = _fault_mgr().fault(i);
-    if ( f != nullptr && _fault_mgr().status(f) == kFsUndetected ) {
+  for (ymuint i = 0; i < _td_fault_mgr().max_fault_id(); ++ i) {
+    const TpgFault* f = _td_fault_mgr().fault(i);
+    if ( f != nullptr && _td_fault_mgr().status(f) == kFsUndetected ) {
       _fsim3().clear_skip(f);
     }
   }
@@ -188,7 +188,7 @@ DtpgMinPowerCmd::cmd_proc(TclObjVector& objv)
   Dtpg2 dtpg(sat_type, sat_option, outp, bt);
 
   DtpgStats stats;
-  dtpg.run(_tv_mgr(), _fault_mgr(), _fsim2(), _network(), xor_sampling,
+  dtpg.run(_td_tv_mgr(), _td_fault_mgr(), _fsim2(), _network(), xor_sampling,
 	   dop_list, uop_list, stats);
 
   after_update_faults();

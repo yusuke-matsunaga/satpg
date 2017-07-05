@@ -22,17 +22,17 @@ BEGIN_NAMESPACE_YM_SATPG
 // @param[in] sat_type SATソルバの種類を表す文字列
 // @param[in] sat_option SATソルバに渡すオプション文字列
 // @param[in] sat_outp SATソルバ用の出力ストリーム
-// @param[in] td_mode 遷移故障モードの時 true にするフラグ
+// @param[in] fault_type 故障の種類
 // @param[in] bt バックトレーサー
 Dtpg::Dtpg(const string& sat_type,
 	   const string& sat_option,
 	   ostream* sat_outp,
-	   bool td_mode,
+	   FaultType fault_type,
 	   BackTracer& bt) :
   mSatType(sat_type),
   mSatOption(sat_option),
   mSatOutP(sat_outp),
-  mTdMode(td_mode),
+  mFaultType(fault_type),
   mBackTracer(bt),
   mImpl(nullptr)
 {
@@ -58,7 +58,7 @@ Dtpg::gen_ffr_cnf(const TpgNetwork& network,
     delete mImpl;
   }
 
-  mImpl = new DtpgImpl(mSatType, mSatOption, mSatOutP, mTdMode, mBackTracer, network, ffr->root());
+  mImpl = new DtpgImpl(mSatType, mSatOption, mSatOutP, mFaultType, mBackTracer, network, ffr->root());
   mImpl->gen_cnf(stats);
 }
 
@@ -80,10 +80,10 @@ Dtpg::gen_mffc_cnf(const TpgNetwork& network,
   }
 
   if ( mffc->elem_num() > 1 ) {
-    mImpl = new DtpgImplM(mSatType, mSatOption, mSatOutP, mTdMode, mBackTracer, network, mffc);
+    mImpl = new DtpgImplM(mSatType, mSatOption, mSatOutP, mFaultType, mBackTracer, network, mffc);
   }
   else {
-    mImpl = new DtpgImpl(mSatType, mSatOption, mSatOutP, mTdMode, mBackTracer, network, mffc->root());
+    mImpl = new DtpgImpl(mSatType, mSatOption, mSatOutP, mFaultType, mBackTracer, network, mffc->root());
   }
   mImpl->gen_cnf(stats);
 }

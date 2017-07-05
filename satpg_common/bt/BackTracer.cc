@@ -36,7 +36,7 @@ BackTracer::~BackTracer()
 // @brief バックトレースを行なう．
 // @param[in] assign_list 値の割り当てリスト
 // @param[in] output_list 故障に関係する出力ノードのリスト
-// @param[in] td_mode 遷移故障モードの時 true にするフラグ
+// @param[in] fault_type 故障の型
 // @param[in] val_map ノードの値を保持するクラス
 // @param[out] pi_assign_list 外部入力上の値の割当リスト
 //
@@ -47,16 +47,16 @@ BackTracer::~BackTracer()
 void
 BackTracer::operator()(const NodeValList& assign_list,
 		       const vector<const TpgNode*>& output_list,
-		       bool td_mode,
+		       FaultType fault_type,
 		       const ValMap& val_map,
 		       NodeValList& pi_assign_list)
 {
   BtImpl* impl = nullptr;
   switch ( mXmode ) {
-  case 0:  impl = new BtSimple(mMaxId, td_mode, val_map); break;
-  case 1:  impl = new BtJust1(mMaxId, td_mode, val_map); break;
-  case 2:  impl = new BtJust2(mMaxId, td_mode, val_map); break;
-  default: impl = new BtJust2(mMaxId, td_mode, val_map); break;
+  case 0:  impl = new BtSimple(mMaxId, fault_type, val_map); break;
+  case 1:  impl = new BtJust1(mMaxId, fault_type, val_map); break;
+  case 2:  impl = new BtJust2(mMaxId, fault_type, val_map); break;
+  default: impl = new BtJust2(mMaxId, fault_type, val_map); break;
   }
 
   impl->run(assign_list, output_list, pi_assign_list);

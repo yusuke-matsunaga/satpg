@@ -30,20 +30,20 @@ BEGIN_NAMESPACE_YM_SATPG
 // @param[in] sat_type SATソルバの種類を表す文字列
 // @param[in] sat_option SATソルバに渡すオプション文字列
 // @param[in] sat_outp SATソルバ用の出力ストリーム
-// @param[in] td_mode 遷移故障モード
+// @param[in] fault_type 故障の種類
 // @param[in] bt バックトレーサー
 // @param[in] network 対象のネットワーク
 // @param[in] root 故障伝搬の起点となるノード
 DtpgImpl::DtpgImpl(const string& sat_type,
 		   const string& sat_option,
 		   ostream* sat_outp,
-		   bool td_mode,
+		   FaultType fault_type,
 		   BackTracer& bt,
 		   const TpgNetwork& network,
 		   const TpgNode* root) :
   mSolver(sat_type, sat_option, sat_outp),
   mNetwork(network),
-  mTdMode(td_mode),
+  mFaultType(fault_type),
   mRoot(root),
   mMarkArray(mNetwork.node_num(), 0U),
   mHvarMap(network.node_num()),
@@ -144,7 +144,7 @@ DtpgImpl::gen_cnf_base()
   set_tfo_mark(mRoot);
   for (ymuint rpos = 0; rpos < mNodeList.size(); ++ rpos) {
     const TpgNode* node = mNodeList[rpos];
-    if ( mTdMode && node->is_dff_output() ) {
+    if ( mFaultType == kFtTransitionDelay && node->is_dff_output() ) {
       mDffList.push_back(node->dff());
     }
     ymuint nfo = node->fanout_num();
@@ -407,7 +407,7 @@ DtpgImpl::make_ffr_condition(const TpgFault* fault,
   bool val = (fault->val() == 0);
   add_assign(assign_list, inode, 1, val);
 
-  if ( mTdMode ) {
+  if ( mFaultType == kFtTransitionDelay ) {
     // 1時刻前の値が逆の値である条件を作る．
     add_assign(assign_list, inode, 0, !val);
   }
@@ -533,9 +533,9 @@ DtpgImpl::solve(const TpgFault* fault,
     timer.start();
 
     // バックトレースを行う．
-    const VidMap& hvar_map = mTdMode ? mHvarMap : mGvarMap;
+    const VidMap& hvar_map = mFaultType == kFtTransitionDelay ? mHvarMap : mGvarMap;
     ValMap val_map(hvar_map, mGvarMap, mFvarMap, model);
-    mBackTracer(assign_list, mOutputList, mTdMode, val_map, nodeval_list);
+    mBackTracer(assign_list, mOutputList, mFaultType, val_map, nodeval_list);
 
     timer.stop();
     stats.mBackTraceTime += timer.time();

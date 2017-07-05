@@ -138,8 +138,8 @@ RtpgP2::run(TpgFaultMgr& fmgr,
     }
   }
 
-  TestVector* tv1 = tvmgr.new_td_vector();
-  TestVector* tv2 = tvmgr.new_td_vector();
+  TestVector* tv1 = tvmgr.new_vector();
+  TestVector* tv2 = tvmgr.new_vector();
 
   ymuint gnum = 0;
   ymuint pat_num = 0;
@@ -190,7 +190,7 @@ RtpgP2::run(TpgFaultMgr& fmgr,
 
 	if ( det_count > 0 ) {
 	  tvlist.push_back(tv1);
-	  tv1 = tvmgr.new_td_vector();
+	  tv1 = tvmgr.new_vector();
 	  ++ epat_num;
 	  for (ymuint i = 0; i < det_count; ++ i) {
 	    const TpgFault* f = fsim.det_fault(i);

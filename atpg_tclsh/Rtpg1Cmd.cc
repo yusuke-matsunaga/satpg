@@ -103,15 +103,14 @@ Rtpg1Cmd::cmd_proc(TclObjVector& objv)
     RandGen randgen;
     ymuint n_count = 10000;
     Fsim& fsim = _fsim2();
-    TvMgr& tvmgr = _tv_mgr();
-    TestVector* tv = tvmgr.new_td_vector();
+    TvMgr& tvmgr = _td_tv_mgr();
+    TestVector* tv = tvmgr.new_vector();
     ymuint wsa_sum = 0;
     ymuint wsa_max = 0;
     ymuint wsa_min = 0;
     for (ymuint i = 0; i < n_count; ++ i) {
       tv->set_from_random(randgen);
-      //ymuint wsa1 = fsim.calc_wsa(tv);
-      ymuint wsa1 = 0;
+      ymuint wsa1 = fsim.td_calc_wsa(tv, false);
       wsa_sum += wsa1;
       if ( wsa_max < wsa1 ) {
 	wsa_max = wsa1;
@@ -139,9 +138,9 @@ Rtpg1Cmd::cmd_proc(TclObjVector& objv)
     max_i = 0;
   }
 
-  TpgFaultMgr& fmgr = _fault_mgr();
+  TpgFaultMgr& fmgr = _td_fault_mgr();
   Fsim& fsim = _fsim2();
-  TvMgr& tvmgr = _tv_mgr();
+  TvMgr& tvmgr = _td_tv_mgr();
 
   vector<const TestVector*>& tv_list = _td_tv_list();
   nsTd::RtpgStats stats;

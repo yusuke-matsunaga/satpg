@@ -34,11 +34,11 @@ public:
   /// @param[in] sat_type SATタイプ
   /// @param[in] sat_option SATオプション
   /// @param[in] sat_outp SATソルバ用の出力ストリーム
-  /// @param[in] td_mode 遷移故障モードの時 true にするフラグ
+  /// @param[in] fault_type 故障の種類
   DtpgTest(const string& sat_type,
 	   const string& sat_option,
 	   ostream* sat_outp,
-	   bool td_mode,
+	   FaultType fault_type,
 	   int bt_mode,
 	   const TpgNetwork& network);
 
@@ -87,7 +87,8 @@ private:
   // データメンバ
   //////////////////////////////////////////////////////////////////////
 
-  bool mTdMode;
+  // 故障の種類
+  FaultType mFaultType;
 
   // 対象のネットワーク
   const TpgNetwork& mNetwork;

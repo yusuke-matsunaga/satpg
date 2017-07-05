@@ -18,13 +18,17 @@ BEGIN_NAMESPACE_YM_SATPG
 // @brief コンストラクタ
 // @param[in] input_num 入力数
 // @param[in] dff_num DFF数
-// @param[in] td_mode 遷移故障用の時 true にするフラグ
+// @param[in] fault_type 故障の種類
 TestVector::TestVector(ymuint input_num,
 		       ymuint dff_num,
-		       bool td_mode) :
-  mInputNum((input_num << 1) | static_cast<ymuint>(td_mode)),
+		       FaultType fault_type) :
+  mInputNum((input_num << 1)),
   mDffNum(dff_num)
 {
+  if ( fault_type == kFtTransitionDelay ) {
+    mInputNum |= 1U;
+  }
+
   // X に初期化しておく．
   ymuint nb = block_num(vect_len());
   for (ymuint i = 0; i < nb; ++ i) {
@@ -163,7 +167,7 @@ TestVector::set_from_assign_list(const NodeValList& assign_list)
     Val3 val = nv.val() ? kVal1 : kVal0;
     const TpgNode* node = nv.node();
     ASSERT_COND( node->is_ppi() );
-    if ( is_sa_mode() ) {
+    if ( fault_type() == kFtStuckAt ) {
       ASSERT_COND( nv.time() == 1 );
 
       ymuint id = node->input_id();
