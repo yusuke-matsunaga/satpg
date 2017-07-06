@@ -56,6 +56,14 @@ struct TestData
 
 };
 
+ostream&
+operator<<(ostream& s,
+	   TestData tdata)
+{
+  s << tdata.mFileName;
+  return s;
+}
+
 TestData mydata[] = {
   TestData("s27.blif",     32,   32,   32,  0,   0),
   TestData("s1196.blif", 1242, 1242, 1241,  0,   1),
