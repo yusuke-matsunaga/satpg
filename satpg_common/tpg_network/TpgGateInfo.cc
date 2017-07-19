@@ -228,7 +228,7 @@ Expr
 SimpleGateInfo::expr() const
 {
   // ダミー
-  return Expr::make_zero();
+  return Expr::const_zero();
 }
 
 // @brief 追加ノード数を返す．
