@@ -532,10 +532,31 @@ FSIM_CLASSNAME::_ppsfp()
   return mDetNum;
 }
 
-// @brief 与えられたパタンに対する信号遷移回数を計算する．
+// @brief 状態を設定する．
 // @param[in] tv テストベクタ
-// @param[in] weighted 重み付けをするかどうかのフラグ
 //
+// - フリップフロップの入力以外は無視する．
+// - 時刻1の割り当ても無視する
+void
+FSIM_CLASSNAME::set_state(const TestVector* tv)
+{
+}
+
+// @brief 状態を設定する．
+// @param[in] assign_list 値の割り当てリスト
+//
+// - フリップフロップの入力以外は無視する．
+// - 時刻1の割り当ても無視する
+void
+FSIM_CLASSNAME::set_state(const NodeValList& assign_list)
+{
+}
+
+// @brief 1クロック分のシミュレーションを行い，遷移回数を数える．
+// @param[in] tv テストベクタ
+//
+// - 外部入力以外は無視する．
+// - 時刻1の割り当ても無視する
 // weightedの意味は以下の通り
 // - false: ゲートの出力の遷移回数の和
 // - true : ゲートの出力の遷移回数に(ファンアウト数＋１)を掛けたものの和
@@ -565,6 +586,20 @@ FSIM_CLASSNAME::calc_wsa(const TestVector* tv,
 #else
   return 0;
 #endif
+}
+
+// @brief 1クロック分のシミュレーションを行い，遷移回数を数える．
+// @param[in] assign_list 値の割り当てリスト
+//
+// - 外部入力以外は無視する．
+// - 時刻1の割り当ても無視する
+// weightedの意味は以下の通り
+// - false: ゲートの出力の遷移回数の和
+// - true : ゲートの出力の遷移回数に(ファンアウト数＋１)を掛けたものの和
+ymuint
+FSIM_CLASSNAME::calc_wsa(const NodeValList& assign_list,
+			 bool weighted)
+{
 }
 
 // @brief ノードの出力の(重み付き)信号遷移回数を求める．
