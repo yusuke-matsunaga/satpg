@@ -11,6 +11,8 @@
 #include "satpg.h"
 #include "Val3.h"
 #include "FaultType.h"
+#include "InputVector.h"
+#include "DffVector.h"
 #include "ym/RandGen.h"
 
 
@@ -55,6 +57,10 @@ public:
   /// @brief DFF数を得る．
   ymuint
   dff_num() const;
+
+  /// @brief ２時刻目の外部入力を持つ時 true を返す．
+  bool
+  has_aux_input() const;
 
   /// @brief PPI数を得る．
   ///
@@ -372,6 +378,14 @@ ymuint
 TestVector::ppi_num() const
 {
   return input_num() + dff_num();
+}
+
+// @brief ２時刻目の外部入力を持つ時 true を返す．
+inline
+bool
+TestVector::has_aux_input() const
+{
+  return mAuxInputVector != nullptr;
 }
 
 // @brief 故障の種類を返す．

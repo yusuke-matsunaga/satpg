@@ -27,6 +27,27 @@
 
 BEGIN_NAMESPACE_YM_SATPG_FSIM
 
+BEGIN_NONAMESPACE
+
+// Val3 を PackedVal/PackedVal3 に変換する．
+inline
+FSIM_VALTYPE
+val3_to_packedval(Val3 val)
+{
+#if FSIM_VAL2
+  // kValX は kVal0 とみなす．
+  return (val == kVal1) ? kPvAll1 : kPvAll0;
+#elif FSIM_VAL3
+  switch ( val ) {
+  case kValX: return PackedVal3(kPvAll0, kPvAll0);
+  case kVal0: return PackedVal3(kPvAll1, kPvAll0);
+  case kVal1: return PackedVal3(kPvAll0, kPvAll1);
+  }
+#endif
+}
+
+END_NONAMESPACE
+
 Fsim*
 new_Fsim(const TpgNetwork& network)
 {
@@ -533,23 +554,102 @@ FSIM_CLASSNAME::_ppsfp()
 }
 
 // @brief 状態を設定する．
-// @param[in] tv テストベクタ
-//
-// - フリップフロップの入力以外は無視する．
-// - 時刻1の割り当ても無視する
+// @param[in] i_vect 外部入力のビットベクタ
+// @param[in] f_vect FFの値のビットベクタ
 void
-FSIM_CLASSNAME::set_state(const TestVector* tv)
+FSIM_CLASSNAME::set_state(const InputVector& i_vect,
+			  const DffVector& f_vect)
 {
+  ymuint ni = mInputNum;
+  for (ymuint i = 0; i < ni; ++ i) {
+    SimNode* simnode = mPPIArray[i];
+    Val3 val3 = i_vect.val(i);
+    simnode->set_val(val3_to_packedval(val3));
+  }
+
+  ymuint nf = mDffNum;
+  for (ymuint i = 0; i < nf; ++ i) {
+    SimNode* simnode = mPPIArray[i + ni];
+    Val3 val3 = f_vect.val(i);
+    simnode->set_val(val3_to_packedval(val3));
+  }
+
+  // 各信号線の値を計算する．
+  _calc_val();
+
+  // 1時刻シフトする．
+
+  // mPrevValArray に値をコピーする．
+  for (vector<SimNode*>::iterator p = mPPIArray.begin();
+       p != mPPIArray.end(); ++ p) {
+    SimNode* node = *p;
+    mPrevValArray[node->id()] = node->val();
+  }
+  for (vector<SimNode*>::iterator q = mLogicArray.begin();
+       q != mLogicArray.end(); ++ q) {
+    SimNode* node = *q;
+    mPrevValArray[node->id()] = node->val();
+  }
+
+  // DFF の出力の値を入力にコピーする．
+  for (ymuint i = 0; i < mDffNum; ++ i) {
+    SimNode* onode = mPPOArray[i + mOutputNum];
+    SimNode* inode = mPPIArray[i + mInputNum];
+    inode->set_val(onode->val());
+  }
 }
 
-// @brief 状態を設定する．
-// @param[in] assign_list 値の割り当てリスト
-//
-// - フリップフロップの入力以外は無視する．
-// - 時刻1の割り当ても無視する
-void
-FSIM_CLASSNAME::set_state(const NodeValList& assign_list)
+// @brief 1クロック分のシミュレーションを行い，遷移回数を数える．
+// @param[in] i_vect 外部入力のビットベクタ
+ymuint
+FSIM_CLASSNAME::calc_wsa(const InputVector& i_vect,
+			 bool weighted)
 {
+  ymuint ni = input_num();
+  for (ymuint i = 0; i < ni; ++ i) {
+    SimNode* simnode = mPPIArray[i];
+    Val3 val3 = i_vect.val(i);
+    simnode->set_val(val3_to_packedval(val3));
+  }
+
+  // 各信号線の値を計算する．
+  _calc_val();
+
+  // 遷移回数を数える．
+  ymuint wsa = 0;
+  for (vector<SimNode*>::iterator p = mPPIArray.begin();
+       p != mPPIArray.end(); ++ p) {
+    SimNode* node = *p;
+    wsa += _calc_wsa(node, weighted);
+  }
+  for (vector<SimNode*>::iterator q = mLogicArray.begin();
+       q != mLogicArray.end(); ++ q) {
+    SimNode* node = *q;
+    wsa += _calc_wsa(node, weighted);
+  }
+
+  // 1時刻シフトする．
+
+  // mPrevValArray に値をコピーする．
+  for (vector<SimNode*>::iterator p = mPPIArray.begin();
+       p != mPPIArray.end(); ++ p) {
+    SimNode* node = *p;
+    mPrevValArray[node->id()] = node->val();
+  }
+  for (vector<SimNode*>::iterator q = mLogicArray.begin();
+       q != mLogicArray.end(); ++ q) {
+    SimNode* node = *q;
+    mPrevValArray[node->id()] = node->val();
+  }
+
+  // DFF の出力の値を入力にコピーする．
+  for (ymuint i = 0; i < mDffNum; ++ i) {
+    SimNode* onode = mPPOArray[i + mOutputNum];
+    SimNode* inode = mPPIArray[i + mInputNum];
+    inode->set_val(onode->val());
+  }
+
+  return wsa;
 }
 
 // @brief 1クロック分のシミュレーションを行い，遷移回数を数える．
@@ -586,20 +686,6 @@ FSIM_CLASSNAME::calc_wsa(const TestVector* tv,
 #else
   return 0;
 #endif
-}
-
-// @brief 1クロック分のシミュレーションを行い，遷移回数を数える．
-// @param[in] assign_list 値の割り当てリスト
-//
-// - 外部入力以外は無視する．
-// - 時刻1の割り当ても無視する
-// weightedの意味は以下の通り
-// - false: ゲートの出力の遷移回数の和
-// - true : ゲートの出力の遷移回数に(ファンアウト数＋１)を掛けたものの和
-ymuint
-FSIM_CLASSNAME::calc_wsa(const NodeValList& assign_list,
-			 bool weighted)
-{
 }
 
 // @brief ノードの出力の(重み付き)信号遷移回数を求める．

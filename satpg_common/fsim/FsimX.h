@@ -131,24 +131,6 @@ public:
   // 順序回路用のシミュレーションを行う関数
   //////////////////////////////////////////////////////////////////////
 
-  /// @brief 状態を設定する．
-  /// @param[in] tv テストベクタ
-  ///
-  /// - フリップフロップの入力以外は無視する．
-  /// - 時刻1の割り当ても無視する
-  virtual
-  void
-  set_state(const TestVector* tv);
-
-  /// @brief 状態を設定する．
-  /// @param[in] assign_list 値の割り当てリスト
-  ///
-  /// - フリップフロップの入力以外は無視する．
-  /// - 時刻1の割り当ても無視する
-  virtual
-  void
-  set_state(const NodeValList& assign_list);
-
   /// @brief 1クロック分のシミュレーションを行い，遷移回数を数える．
   /// @param[in] tv テストベクタ
   ///
@@ -162,17 +144,19 @@ public:
   calc_wsa(const TestVector* tv,
 	   bool weighted);
 
+  /// @brief 状態を設定する．
+  /// @param[in] i_vect 外部入力のビットベクタ
+  /// @param[in] f_vect FFの値のビットベクタ
+  virtual
+  void
+  set_state(const InputVector& i_vect,
+	    const DffVector& f_vect);
+
   /// @brief 1クロック分のシミュレーションを行い，遷移回数を数える．
-  /// @param[in] assign_list 値の割り当てリスト
-  ///
-  /// - 外部入力以外は無視する．
-  /// - 時刻1の割り当ても無視する
-  /// weightedの意味は以下の通り
-  /// - false: ゲートの出力の遷移回数の和
-  /// - true : ゲートの出力の遷移回数に(ファンアウト数＋１)を掛けたものの和
+  /// @param[in] i_vect 外部入力のビットベクタ
   virtual
   ymuint
-  calc_wsa(const NodeValList& assign_list,
+  calc_wsa(const InputVector& i_vect,
 	   bool weighted);
 
 

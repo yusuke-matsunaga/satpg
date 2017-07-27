@@ -41,11 +41,6 @@ cdef class TvMgr :
     def dff_num(TvMgr self) :
         return self._thisptr.dff_num()
 
-    ## @brief ベクタ長を返す．
-    @property
-    def vect_len(TvMgr self) :
-        return self._thisptr.vect_len()
-
     ## @brief テストベクタを生成する．
     def new_vector(TvMgr self) :
         cdef CXX_TestVector* c_vect = self._thisptr.new_vector()

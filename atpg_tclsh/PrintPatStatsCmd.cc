@@ -72,7 +72,7 @@ PrintPatStatsCmd::cmd_proc(TclObjVector& objv)
     vector<ymuint> hist(ni + 1, 0);
     for (ymuint i = 0; i < n; ++ i) {
       const TestVector* tv = tvlist[i];
-      ymuint nx = tv->x_num();
+      ymuint nx = tv->x_count();
       ASSERT_COND( nx <= ni );
       ++ hist[nx];
     }

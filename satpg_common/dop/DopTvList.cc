@@ -9,6 +9,7 @@
 
 #include "DopTvList.h"
 #include "TvMgr.h"
+#include "TestVector.h"
 
 
 BEGIN_NAMESPACE_YM_SATPG

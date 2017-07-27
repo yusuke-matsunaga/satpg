@@ -60,13 +60,6 @@ cdef class TestVector :
             return to_FaultType(self._thisptr.fault_type())
         return None
 
-    ## @brief ビット長を返す．
-    @property
-    def vect_len(TestVector self) :
-        if self.is_valid :
-            return self._thisptr.vect_len()
-        return 0
-
     ## @brief 疑似入力番号から対応した値を返す．
     # @param[in] pos 位置番号 ( 0 <= pos < ppi_num )
     #
@@ -105,9 +98,9 @@ cdef class TestVector :
 
     ## @brief X値の個数を返す．
     @property
-    def x_num(TestVector self) :
+    def x_count(TestVector self) :
         if self.is_valid :
-            return self._thisptr.x_num()
+            return self._thisptr.x_count()
         return 0
 
     ## @brief 2進表記の文字列を返す．

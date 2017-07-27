@@ -9,6 +9,7 @@
 /// All rights reserved.
 
 #include "satpg.h"
+#include "FaultType.h"
 #include "ym/UnitAlloc.h"
 
 
@@ -24,7 +25,9 @@ public:
 
   /// @brief コンストラクタ
   /// @param[in] network 対象のネットワーク
-  TvMgr(const TpgNetwork& network);
+  /// @param[in] fault_type 故障のタイプ
+  TvMgr(const TpgNetwork& network,
+	FaultType fault_type);
 
   /// @brief デストラクタ
   ///
@@ -51,6 +54,14 @@ public:
   ymuint
   dff_num() const;
 
+  /// @brief テストベクタを生成する．
+  TestVector*
+  new_vector();
+
+  /// @brief テストベクタを削除する．
+  void
+  delete_vector(TestVector* vect);
+
   /// @brief 新しい入力用ベクタを生成する．
   /// @return 生成されたベクタを返す．
   ///
@@ -67,27 +78,19 @@ public:
   /// @return 生成されたベクタを返す．
   ///
   /// パタンは0で初期化される．
-  FFVector*
-  new_ff_vector();
+  DffVector*
+  new_dff_vector();
 
   /// @brief FF用ベクタを削除する．
   /// @param[in] vect 削除するベクタ
   void
-  delete_vector(FFVector* vect);
+  delete_vector(DffVector* vect);
 
 
 private:
   //////////////////////////////////////////////////////////////////////
   // 内部で用いられる関数
   //////////////////////////////////////////////////////////////////////
-
-  /// @brief ベクタ長からバイトサイズを計算する．
-  /// @param[in] vectlen ベクタ長
-  ///
-  /// BitVector::block_num() にアクセスするためにクラスメソッドにしている．
-  static
-  ymuint
-  calc_size(ymuint vectlen);
 
 
 private:
@@ -112,6 +115,9 @@ private:
   // データメンバ
   //////////////////////////////////////////////////////////////////////
 
+  // 故障の種類
+  FaultType mFaultType;
+
   // 対象回路の入力数
   ymuint mInputNum;
 
@@ -121,14 +127,17 @@ private:
   // InputVector の実際のサイズ
   ymuint mIvSize;
 
-  // 入力ベクタのメモリ確保用のアロケータ
-  UnitAlloc mInputVectorAlloc;
-
   // FFVector の実際のサイズ
   ymuint mFvSize;
 
+  // TestVector のメモリ確保用のアロケータ
+  UnitAlloc mTestVectorAlloc;
+
+  // 入力ベクタのメモリ確保用のアロケータ
+  UnitAlloc mInputVectorAlloc;
+
   // FFベクタのメモリ確保用のアロケータ
-  UnitAlloc mFFVectorAlloc;
+  UnitAlloc mDffVectorAlloc;
 
 };
 

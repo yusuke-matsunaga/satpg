@@ -22,12 +22,11 @@ cdef extern from "TestVector.h" namespace "nsYm::nsSatpg" :
         ymuint dff_num()
         ymuint ppi_num()
         FaultType fault_type()
-        ymuint vect_len()
         Val3 ppi_val(ymuint pos)
         Val3 input_val(ymuint pos)
         Val3 dff_val(ymuint pos)
         Val3 aux_input_val(ymuint pos)
-        ymuint x_num()
+        ymuint x_count()
         @staticmethod
         bool is_conflict(const TestVector& tv1, const TestVector& tv2)
         bool operator==(const TestVector& right)

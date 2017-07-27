@@ -20,6 +20,5 @@ cdef extern from "TvMgr.h" namespace "nsYm::nsSatpg" :
         void clear()
         ymuint input_num()
         ymuint dff_num()
-        ymuint vect_len()
         TestVector* new_vector()
         void delete_vector(TestVector* tv)

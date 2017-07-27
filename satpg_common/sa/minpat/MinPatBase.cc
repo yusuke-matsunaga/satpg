@@ -16,6 +16,7 @@
 #include "Fsim.h"
 
 #include "TvMgr.h"
+#include "TestVector.h"
 
 #include "ValMap.h"
 #include "sa/StructSat.h"

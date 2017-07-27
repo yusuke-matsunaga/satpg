@@ -9,8 +9,9 @@
 
 #include "TvMgr.h"
 #include "TpgNetwork.h"
+#include "TestVector.h"
 #include "InputVector.h"
-#include "FFVector.h"
+#include "DffVector.h"
 
 
 BEGIN_NAMESPACE_YM_SATPG
@@ -26,20 +27,24 @@ calc_size(ymuint vectlen)
   if ( vectlen == 0 ) {
     vectlen = 1;
   }
-  return sizeof(BitfffVector) + kPvBitLen * (BitVector::block_num(vectlen) - 1);
+  return sizeof(BitVector) + kPvBitLen * (BitVector::block_num(vectlen) - 1);
 }
 
 END_NONAMESPACE
 
 // @brief コンストラクタ
 // @param[in] network 対象のネットワーク
-TvMgr::TvMgr(const TpgNetwork& network) :
+// @param[in] fault_type 故障のタイプ
+TvMgr::TvMgr(const TpgNetwork& network,
+	     FaultType fault_type) :
+  mFaultType(fault_type),
   mInputNum(network.input_num()),
   mDffNum(network.dff_num()),
   mIvSize(calc_size(mInputNum)),
   mFvSize(calc_size(mDffNum)),
+  mTestVectorAlloc(sizeof(TestVector), 1024),
   mInputVectorAlloc(mIvSize, 1024),
-  mFFVectorAlloc(mFvSize, 1024)
+  mDffVectorAlloc(mFvSize, 1024)
 {
 }
 
@@ -53,8 +58,40 @@ TvMgr::~TvMgr()
 void
 TvMgr::clear()
 {
+  mTestVectorAlloc.destroy();
   mInputVectorAlloc.destroy();
-  mFFVectorAlloc.destroy();
+  mDffVectorAlloc.destroy();
+}
+
+// @brief テストベクタを生成する．
+TestVector*
+TvMgr::new_vector()
+{
+  InputVector* iv = new_input_vector();
+  DffVector* dv = nullptr;
+  InputVector* av = nullptr;
+  if ( dff_num() > 0 ) {
+    dv = new_dff_vector();
+  }
+  if ( mFaultType == kFtTransitionDelay ) {
+    av = new_input_vector();
+  }
+  void* p = mTestVectorAlloc.get_memory(sizeof(TestVector));
+  return new (p) TestVector(iv, dv, av);
+}
+
+// @brief テストベクタを削除する．
+void
+TvMgr::delete_vector(TestVector* vect)
+{
+  delete_vector(vect->mInputVector);
+  if ( vect->mDffVector != nullptr ) {
+    delete_vector(vect->mDffVector);
+  }
+  if ( vect->mAuxInputVector != nullptr ) {
+    delete_vector(vect->mAuxInputVector);
+  }
+  mTestVectorAlloc.put_memory(sizeof(TestVector), (void*)vect);
 }
 
 // @brief 新しい入力用ベクタを生成する．
@@ -81,11 +118,11 @@ TvMgr::delete_vector(InputVector* vect)
 // @return 生成されたベクタを返す．
 //
 // パタンは0で初期化される．
-FFVector*
-TvMgr::new_ff_vector()
+DffVector*
+TvMgr::new_dff_vector()
 {
-  void* p = mFFVectorAlloc.get_memory(mFvSize);
-  FFVector* vect = new (p) FFVector(mDffNum);
+  void* p = mDffVectorAlloc.get_memory(mFvSize);
+  DffVector* vect = new (p) DffVector(mDffNum);
 
   return vect;
 }
@@ -93,9 +130,9 @@ TvMgr::new_ff_vector()
 // @brief FF用ベクタを削除する．
 // @param[in] vect 削除するベクタ
 void
-TvMgr::delete_vector(FFVector* vect)
+TvMgr::delete_vector(DffVector* vect)
 {
-  mFFVectorAlloc.put_memory(mFvSize, (void*)vect);
+  mDffVectorAlloc.put_memory(mFvSize, (void*)vect);
 }
 
 END_NAMESPACE_YM_SATPG

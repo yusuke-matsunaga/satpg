@@ -54,18 +54,18 @@ TestVector::is_conflict(const TestVector& tv1,
 {
   ASSERT_COND( tv1.input_num() == tv2.input_num() );
   ASSERT_COND( tv1.dff_num() == tv2.dff_num() );
-  ASSERT_COND( tv1.aux_input_num() == tv2.aux_input_num() );
+  ASSERT_COND( tv1.has_aux_input() == tv2.has_aux_input() );
 
-  if ( is_conflict(tv1.input_vector(), tv2.input_vector()) ) {
+  if ( BitVector::is_conflict(tv1.input_vector(), tv2.input_vector()) ) {
     return true;
   }
   if ( tv1.dff_num() > 0 ) {
-    if ( is_conflict(tv1.dff_vector(), tv2.dff_vector()) ) {
+    if ( BitVector::is_conflict(tv1.dff_vector(), tv2.dff_vector()) ) {
       return true;
     }
   }
-  if ( tv1.aux_input_num() > 0 ) {
-    if ( is_conflict(tv1.aux_input_vector(), tv2.aux_input_vector()) ) {
+  if ( tv1.has_aux_input() ) {
+    if ( BitVector::is_conflict(tv1.aux_input_vector(), tv2.aux_input_vector()) ) {
       return true;
     }
   }
@@ -78,20 +78,20 @@ TestVector::is_conflict(const TestVector& tv1,
 bool
 TestVector::operator==(const TestVector& right) const
 {
-  ASSERT_COND( tv1.input_num() == tv2.input_num() );
-  ASSERT_COND( tv1.dff_num() == tv2.dff_num() );
-  ASSERT_COND( tv1.aux_input_num() == tv2.aux_input_num() );
+  ASSERT_COND( input_num() == right.input_num() );
+  ASSERT_COND( dff_num() == right.dff_num() );
+  ASSERT_COND( has_aux_input() == right.has_aux_input() );
 
-  if ( tv1.input_vector() != tv2.input_vector() ) {
+  if ( input_vector() != right.input_vector() ) {
     return false;
   }
-  if ( tv1.dff_num() > 0 ) {
-    if ( tv1.dff_vector() != tv2.dff_vector() ) {
+  if ( dff_num() > 0 ) {
+    if ( dff_vector() != right.dff_vector() ) {
       return false;
     }
   }
-  if ( tv1.aux_input_num() > 0 ) {
-    if ( tv1.aux_input_vector() != tv2.aux_input_vector() ) {
+  if ( has_aux_input() ) {
+    if ( aux_input_vector() != right.aux_input_vector() ) {
       return false;
     }
   }
@@ -105,20 +105,20 @@ TestVector::operator==(const TestVector& right) const
 bool
 TestVector::operator<(const TestVector& right) const
 {
-  ASSERT_COND( tv1.input_num() == tv2.input_num() );
-  ASSERT_COND( tv1.dff_num() == tv2.dff_num() );
-  ASSERT_COND( tv1.aux_input_num() == tv2.aux_input_num() );
+  ASSERT_COND( input_num() == right.input_num() );
+  ASSERT_COND( dff_num() == right.dff_num() );
+  ASSERT_COND( has_aux_input() == right.has_aux_input() );
 
-  if ( !(tv1.input_vector() < tv2.input_vector()) ) {
+  if ( !(input_vector() < right.input_vector()) ) {
     return false;
   }
-  if ( tv1.dff_num() > 0 ) {
-    if ( !(tv1.dff_vector() < tv2.dff_vector()) ) {
+  if ( dff_num() > 0 ) {
+    if ( !(dff_vector() < right.dff_vector()) ) {
       return false;
     }
   }
-  if ( tv1.aux_input_num() > 0 ) {
-    if ( !(tv1.aux_input_vector() < tv2.aux_input_vector()) ) {
+  if ( has_aux_input() ) {
+    if ( !(aux_input_vector() < right.aux_input_vector()) ) {
       return false;
     }
   }
@@ -133,20 +133,20 @@ TestVector::operator<(const TestVector& right) const
 bool
 TestVector::operator<=(const TestVector& right) const
 {
-  ASSERT_COND( tv1.input_num() == tv2.input_num() );
-  ASSERT_COND( tv1.dff_num() == tv2.dff_num() );
-  ASSERT_COND( tv1.aux_input_num() == tv2.aux_input_num() );
+  ASSERT_COND( input_num() == right.input_num() );
+  ASSERT_COND( dff_num() == right.dff_num() );
+  ASSERT_COND( has_aux_input() == right.has_aux_input() );
 
-  if ( !(tv1.input_vector() <= tv2.input_vector()) ) {
+  if ( !(input_vector() <= right.input_vector()) ) {
     return false;
   }
-  if ( tv1.dff_num() > 0 ) {
-    if ( !(tv1.dff_vector() <= tv2.dff_vector()) ) {
+  if ( dff_num() > 0 ) {
+    if ( !(dff_vector() <= right.dff_vector()) ) {
       return false;
     }
   }
-  if ( tv1.aux_input_num() > 0 ) {
-    if ( !(tv1.aux_input_vector() <= tv2.aux_input_vector()) ) {
+  if ( has_aux_input() ) {
+    if ( !(aux_input_vector() <= right.aux_input_vector()) ) {
       return false;
     }
   }
@@ -213,42 +213,35 @@ TestVector::set_from_assign_list(const NodeValList& assign_list)
 bool
 TestVector::set_from_hex(const string& hex_string)
 {
-  // よく問題になるが，ここでは最下位ビット側から入力する．
-  ymuint nl = hex_length(vect_len());
-  ymuint sft = 0;
-  ymuint blk = 0;
-  PackedVal pat = kPvAll0;
-  for (ymuint i = 0; i < nl; ++ i) {
-    char c = (i < hex_string.size()) ? hex_string[i] : '0';
-    PackedVal pat1 = kPvAll0;
-    if ( '0' <= c && c <= '9' ) {
-      pat1 = static_cast<PackedVal>(c - '0');
-    }
-    else if ( 'a' <= c && c <= 'f' ) {
-      pat1 = static_cast<PackedVal>(c - 'a' + 10);
-    }
-    else if ( 'A' <= c && c <= 'F' ) {
-      pat1 = static_cast<PackedVal>(c - 'A' + 10);
-    }
-    else {
+  // C++ はこういう文字列処理がめんどくさい．
+  string tmp_string(hex_string);
+  if ( mDffVector != nullptr ) {
+    size_t pos1 = tmp_string.find(":");
+    if ( pos1 == string::npos ) {
       return false;
     }
-    pat |= (pat1 << sft);
-    sft += 4;
-    if ( sft == kPvBitLen ) {
-      mPat[blk] = ~pat;
-      mPat[blk + 1] = pat;
-      sft = 0;
-      blk += 2;
-      pat = kPvAll0;
+    if ( mAuxInputVector != nullptr ) {
+      size_t pos2 = tmp_string.find(":", pos1 + 1);
+      if ( pos2 == string::npos ) {
+	return false;
+      }
+      string aux_input_str = tmp_string.substr(pos2 + 1, string::npos);
+      bool stat1 = mAuxInputVector->set_from_hex(aux_input_str);
+      if ( !stat1 ) {
+	return false;
+      }
+      tmp_string = tmp_string.substr(0, pos2);
     }
+    string dff_str = tmp_string.substr(pos1 + 1, string::npos);
+    bool stat2 = mDffVector->set_from_hex(dff_str);
+    if ( !stat2 ) {
+      return false;
+    }
+    tmp_string = tmp_string.substr(0, pos1);
   }
-  if ( sft != 0 ) {
-    mPat[blk] = ~pat;
-    mPat[blk + 1] = pat;
-  }
+  bool stat3 = mInputVector->set_from_hex(tmp_string);
 
-  return true;
+  return stat3;
 }
 
 // @brief 乱数パタンを設定する．
@@ -256,19 +249,12 @@ TestVector::set_from_hex(const string& hex_string)
 void
 TestVector::set_from_random(RandGen& randgen)
 {
-  ymuint nb = block_num(vect_len());
-  for (ymuint i = 0; i < nb; i += 2) {
-    PackedVal v = randgen.uint64();
-    ymuint i0 = i;
-    ymuint i1 = i + 1;
-    if ( i == nb - 2 ) {
-      mPat[i0] = ~v & mMask;
-      mPat[i1] =  v & mMask;
-    }
-    else {
-      mPat[i0] = ~v;
-      mPat[i1] =  v;
-    }
+  mInputVector->set_from_random(randgen);
+  if ( mDffVector != nullptr ) {
+    mDffVector->set_from_random(randgen);
+  }
+  if ( mAuxInputVector != nullptr ) {
+    mAuxInputVector->set_from_random(randgen);
   }
 }
 
@@ -277,20 +263,12 @@ TestVector::set_from_random(RandGen& randgen)
 void
 TestVector::fix_x_from_random(RandGen& randgen)
 {
-  ymuint nb = block_num(vect_len());
-  for (ymuint i = 0; i < nb; i += 2) {
-    ymuint i0 = i;
-    ymuint i1 = i + 1;
-    PackedVal mask = ~(mPat[i0] | mPat[i1]);
-    if ( i == nb - 2 ) {
-      mask &= mMask;
-    }
-    if ( mask == kPvAll0 ) {
-      continue;
-    }
-    PackedVal v = randgen.uint64();
-    mPat[i0] |= ~v & mask;
-    mPat[i1] |=  v & mask;
+  mInputVector->fix_x_from_random(randgen);
+  if ( mDffVector != nullptr ) {
+    mDffVector->fix_x_from_random(randgen);
+  }
+  if ( mAuxInputVector != nullptr ) {
+    mAuxInputVector->fix_x_from_random(randgen);
   }
 }
 
@@ -300,15 +278,16 @@ TestVector::fix_x_from_random(RandGen& randgen)
 void
 TestVector::copy(const TestVector& src)
 {
-  ymuint nb = block_num(vect_len());
-  for (ymuint i = 0; i < nb; i += 2) {
-    ymuint i0 = i;
-    ymuint i1 = i + 1;
-    PackedVal mask = src.mPat[i0] | src.mPat[i1];
-    mPat[i0] &= ~mask;
-    mPat[i0] |= src.mPat[i0];
-    mPat[i1] &= ~mask;
-    mPat[i1] |= src.mPat[i1];
+  ASSERT_COND( input_num() == src.input_num() );
+  ASSERT_COND( dff_num() == src.dff_num() );
+  ASSERT_COND( has_aux_input() == src.has_aux_input() );
+
+  mInputVector->copy(src.input_vector());
+  if ( mDffVector != nullptr ) {
+    mDffVector->copy(src.dff_vector());
+  }
+  if ( mAuxInputVector != nullptr ) {
+    mAuxInputVector->copy(src.aux_input_vector());
   }
 }
 
@@ -317,26 +296,28 @@ TestVector::copy(const TestVector& src)
 bool
 TestVector::merge(const TestVector& src)
 {
-  ymuint nb = block_num(vect_len());
+  ASSERT_COND( input_num() == src.input_num() );
+  ASSERT_COND( dff_num() == src.dff_num() );
+  ASSERT_COND( has_aux_input() == src.has_aux_input() );
 
-  // コンフリクトチェック
-  for (ymuint i = 0; i < nb; i += 2) {
-    ymuint i0 = i;
-    ymuint i1 = i + 1;
-    PackedVal diff0 = (mPat[i0] ^ src.mPat[i0]);
-    PackedVal diff1 = (mPat[i1] ^ src.mPat[i1]);
-    if ( (diff0 & diff1) != kPvAll0 ) {
+  bool stat1 = mInputVector->merge(src.input_vector());
+  if ( !stat1 ) {
+    return false;
+  }
+
+  if ( mDffVector != nullptr ) {
+    bool stat2 = mDffVector->merge(src.dff_vector());
+    if ( !stat2 ) {
+      return false;
+    }
+  }
+  if ( mAuxInputVector != nullptr ) {
+    bool stat3 = mAuxInputVector->merge(src.aux_input_vector());
+    if ( !stat3 ) {
       return false;
     }
   }
 
-  // 実際のマージ
-  for (ymuint i = 0; i < nb; i += 2) {
-    ymuint i0 = i;
-    ymuint i1 = i + 1;
-    mPat[i0] |= src.mPat[i0];
-    mPat[i1] |= src.mPat[i1];
-  }
   return true;
 }
 
@@ -344,14 +325,11 @@ TestVector::merge(const TestVector& src)
 string
 TestVector::bin_str() const
 {
-  // よく問題になるが，ここでは最下位ビット側から出力する．
-  string ans;
-  for (ymuint i = 0; i < vect_len(); ++ i) {
-    switch ( _val(i) ) {
-    case kVal0: ans += '0'; break;
-    case kVal1: ans += '1'; break;
-    case kValX: ans += 'X'; break;
-    default:    ans += '-'; break; // ありえないけどバグで起こりうる．
+  string ans = mInputVector->bin_str();
+  if ( mDffVector != nullptr ) {
+    ans += ":" + mDffVector->bin_str();
+    if ( mAuxInputVector != nullptr ) {
+      ans += ":" + mAuxInputVector->bin_str();
     }
   }
   return ans;
@@ -361,33 +339,12 @@ TestVector::bin_str() const
 string
 TestVector::hex_str() const
 {
-  // よく問題になるが，ここでは最下位ビット側から出力する．
-  ymuint tmp = 0U;
-  ymuint bit = 1U;
-  string ans;
-  for (ymuint i = 0; ; ++ i) {
-    if ( i < vect_len() ) {
-      if ( _val(i) == kVal1 ) {
-	// 面倒くさいので kValX は kVal0 と同じとみなす．
-	tmp += bit;
-      }
-      bit <<= 1;
-      if ( bit != 16U ) {
-	continue;
-      }
+  string ans = mInputVector->hex_str();
+  if ( mDffVector != nullptr ) {
+    ans += ":" + mDffVector->hex_str();
+    if ( mAuxInputVector != nullptr ) {
+      ans += ":" + mAuxInputVector->hex_str();
     }
-    else if ( bit == 1U ) {
-      break;
-    }
-
-    if ( tmp <= 9 ) {
-      ans += static_cast<char>('0' + tmp);
-    }
-    else {
-      ans += static_cast<char>('A' + tmp - 10);
-    }
-    bit = 1U;
-    tmp = 0U;
   }
   return ans;
 }
