@@ -16,6 +16,7 @@
 #include "Rtpg1Cmd.h"
 #include "DtpgCmd.h"
 #include "DtpgMinPowerCmd.h"
+#include "RandWsaCmd.h"
 #include "MinPatCmd.h"
 #include "PrintFaultCmd.h"
 #include "PrintPatCmd.h"
@@ -54,6 +55,7 @@ atpg_init(Tcl_Interp* interp)
   TclCmdBinder1<Rtpg1Cmd, AtpgMgr*>::reg(interp, mgr, "::atpg::rtpg1");
   TclCmdBinder1<DtpgCmd, AtpgMgr*>::reg(interp, mgr, "::atpg::dtpg");
   TclCmdBinder1<DtpgMinPowerCmd, AtpgMgr*>::reg(interp, mgr, "::atpg::dtpg_minpower");
+  TclCmdBinder1<RandWsaCmd, AtpgMgr*>::reg(interp, mgr, "::atpg::random_wsa");
   TclCmdBinder1<MinPatCmd, AtpgMgr*>::reg(interp, mgr, "::atpg::minpat");
   TclCmdBinder<StopwatchCls>::reg(interp, "atpg::stopwatch");
   TclCmdBinder<TimeCmd>::reg(interp,     "atpg::time");
@@ -76,6 +78,7 @@ atpg_init(Tcl_Interp* interp)
       << "proc complete(rtpg1) { t s e l p m } { return \"\" }" << endl
       << "proc complete(dtpg) { t s e l p m } { return \"\" }" << endl
       << "proc complete(dtpg_minpower) { t s e l p m } { return \"\" }" << endl
+      << "proc complete(random_wsa) { t s e l p m } { return \"\" }" << endl
       << "proc complete(minpat) { t s e l p m } { return \"\" }" << endl
       << "proc complete(stopwatch) { t s e l p m } { return \"\" }" << endl
       << "proc complete(time) { t s e l p m } { return \"\" }" << endl
