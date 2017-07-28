@@ -99,7 +99,7 @@ AtpgMgr::after_set_network()
   mSaFaultMgr = new TpgFaultMgr(_network());
   mSaTvMgr = new TvMgr(_network(), kFtStuckAt);
   mTdFaultMgr = new TpgFaultMgr(_network());
-  mTdTvMgr = new TvMgr(_network(), kFtStuckAt);
+  mTdTvMgr = new TvMgr(_network(), kFtTransitionDelay);
 }
 
 END_NAMESPACE_YM_SATPG

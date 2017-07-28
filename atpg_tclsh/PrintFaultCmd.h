@@ -46,6 +46,12 @@ private:
   // type オプションの解析用オブジェクト
   TclPoptStr* mPoptType;
 
+  // stuck-at モード
+  TclPopt* mPoptSa;
+
+  // transition-delay モード
+  TclPopt* mPoptTd;
+
 };
 
 END_NAMESPACE_YM_SATPG

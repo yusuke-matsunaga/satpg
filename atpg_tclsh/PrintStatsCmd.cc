@@ -10,6 +10,7 @@
 #include "PrintStatsCmd.h"
 #include "TpgNetwork.h"
 #include "TpgFaultMgr.h"
+#include "ym/TclPopt.h"
 
 
 BEGIN_NAMESPACE_YM_SATPG
@@ -22,6 +23,14 @@ BEGIN_NAMESPACE_YM_SATPG
 PrintStatsCmd::PrintStatsCmd(AtpgMgr* mgr) :
   AtpgCmd(mgr)
 {
+  mPoptSa = new TclPopt(this, "stuck-at",
+			"for Stuck-At faults");
+
+  mPoptTd = new TclPopt(this, "transition-delay",
+			"for Transition Delay faults");
+
+  new_popt_group(mPoptSa, mPoptTd);
+
   set_usage_string("?filename?");
   mStopWatch.start();
 }
@@ -68,7 +77,7 @@ PrintStatsCmd::cmd_proc(TclObjVector& objv)
   USTime s_time = sat_time();
   USTime m_time = misc_time();
 
-  TpgFaultMgr& fmgr = _sa_fault_mgr();
+  TpgFaultMgr& fmgr = mPoptTd->is_specified() ? _td_fault_mgr() : _sa_fault_mgr();
 
   ymuint n_all = _network().max_fault_id();
   ymuint n_rep = _network().rep_fault_num();

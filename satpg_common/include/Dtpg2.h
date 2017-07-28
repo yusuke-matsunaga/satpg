@@ -83,6 +83,7 @@ public:
        const TpgNetwork& network,
        const TpgFault* fault,
        bool use_xorsampling,
+       ymuint wsa_limit,
        NodeValList& nodeval_list,
        DtpgStats& stats);
 

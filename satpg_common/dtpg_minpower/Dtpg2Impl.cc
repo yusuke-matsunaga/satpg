@@ -128,26 +128,25 @@ Dtpg2Impl::add_xor_constraint(ymuint num,
     return;
   }
 
-  ymuint k = mXorNum2 / 2;
-  RandCombiGen rcg(mXorNum2, k);
+  double p = 0.5;
   for (ymuint i = 0; i < num; ++ i) {
-    // n / 2 個の変数を選び，そのXORを作る．
-    rcg.generate(rg);
-    vector<SatVarId> var_list(k);
-    for (ymuint j = 0; j < k; ++ j) {
-      ymuint idx = rcg.elem(j);
-      const TpgNode* node = mXorNodeList[idx];
-      if ( idx < mXorNum1 ) {
-	SatVarId var = mGvarMap(node);
-	var_list[j] = var;
-      }
-      else {
-	SatVarId var = mHvarMap(node);
-	var_list[j] = var;
+    // p の確率で変数を選び，そのXORを作る．
+    vector<SatVarId> var_list;
+    for (ymuint j = 0; j < mXorNum2; ++ j) {
+      if ( rg.real1() < p ) {
+	const TpgNode* node = mXorNodeList[j];
+	if ( j < mXorNum1 ) {
+	  SatVarId var = mGvarMap(node);
+	  var_list.push_back(var);
+	}
+	else {
+	  SatVarId var = mHvarMap(node);
+	  var_list.push_back(var);
+	}
       }
     }
     // 1/2 の確率でパリティを決める．
-    SatLiteral xor_lit = make_xor(var_list, 0, k);
+    SatLiteral xor_lit = make_xor(var_list, 0, var_list.size());
     if ( !mSolver.sane() ) {
       break;
     }

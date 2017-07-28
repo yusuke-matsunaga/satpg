@@ -664,28 +664,8 @@ ymuint
 FSIM_CLASSNAME::calc_wsa(const TestVector* tv,
 			 bool weighted)
 {
-#if FSIM_TD
-  TvInputVals iv(tv);
-
-  // 正常値の計算を行う．
-  _calc_gval(iv);
-
-  ymuint wsa = 0;
-  for (vector<SimNode*>::iterator p = mPPIArray.begin();
-       p != mPPIArray.end(); ++ p) {
-    SimNode* node = *p;
-    wsa += _calc_wsa(node, weighted);
-  }
-  for (vector<SimNode*>::iterator q = mLogicArray.begin();
-       q != mLogicArray.end(); ++ q) {
-    SimNode* node = *q;
-    wsa += _calc_wsa(node, weighted);
-  }
-
-  return wsa;
-#else
-  return 0;
-#endif
+  set_state(tv->input_vector(), tv->dff_vector());
+  return calc_wsa(tv->aux_input_vector(), weighted);
 }
 
 // @brief ノードの出力の(重み付き)信号遷移回数を求める．

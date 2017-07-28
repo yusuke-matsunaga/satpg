@@ -211,7 +211,6 @@ DtpgMinPowerCmd::cmd_proc(TclObjVector& objv)
     wsa_list.reserve(np);
     for (ymuint i = 0; i < np; ++ i) {
       const TestVector* tv = _td_tv_list()[i];
-      //cout << tv->hex_str() << endl;
       ymuint wsa = _fsim2().calc_wsa(tv, false);
       wsa_sum += wsa;
       wsa_list.push_back(wsa);

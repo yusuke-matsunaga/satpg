@@ -66,12 +66,49 @@ Dtpg2::run(TvMgr& tvmgr,
 	   UntestOp& uop,
 	   DtpgStats& stats)
 {
+  ymuint wsa_limit = 0;
+  { // 順序回路としてランダムに動かした時の
+    // 平均の信号遷移回数を得る．
+    ymuint count = 10000;
+    ymuint warmup = 100;
+    bool weighted = false;
+    double wsa_ratio = 1.2;
+
+    InputVector* i_vect = tvmgr.new_input_vector();
+    DffVector* f_vect = tvmgr.new_dff_vector();
+    double total_wsa = 0.0;
+    RandGen rg;
+
+    // 初期状態
+    i_vect->set_from_random(rg);
+    f_vect->set_from_random(rg);
+    fsim.set_state(*i_vect, *f_vect);
+
+    for (ymuint i = 0; i < warmup; ++ i) {
+      // このシミュレーション結果は捨てる．
+      // 状態を遷移させることが目的
+      i_vect->set_from_random(rg);
+      fsim.calc_wsa(*i_vect, weighted);
+    }
+    for (ymuint i = 0; i < count; ++ i) {
+      i_vect->set_from_random(rg);
+      ymuint wsa1 = fsim.calc_wsa(*i_vect, weighted);
+      total_wsa += wsa1;
+    }
+    double ave_wsa = total_wsa / count;
+
+    tvmgr.delete_vector(i_vect);
+    tvmgr.delete_vector(f_vect);
+
+    wsa_limit = static_cast<ymuint>(ave_wsa * wsa_ratio);
+  }
+
   ymuint nf = network.rep_fault_num();
   for (ymuint i = 0; i < nf; ++ i) {
     const TpgFault* fault = network.rep_fault(i);
     if ( fmgr.status(fault) == kFsUndetected ) {
       NodeValList nodeval_list;
-      SatBool3 ans = dtpg(tvmgr, fsim, network, fault, use_xorsampling,
+      SatBool3 ans = dtpg(tvmgr, fsim, network, fault, use_xorsampling, wsa_limit,
 			  nodeval_list, stats);
       if ( ans == kB3True ) {
 	dop(fault, nodeval_list);
@@ -99,6 +136,7 @@ Dtpg2::dtpg(TvMgr& tvmgr,
 	    const TpgNetwork& network,
 	    const TpgFault* fault,
 	    bool use_xorsampling,
+	    ymuint wsa_limit,
 	    NodeValList& nodeval_list,
 	    DtpgStats& stats)
 {
@@ -111,55 +149,12 @@ Dtpg2::dtpg(TvMgr& tvmgr,
   }
 
   TestVector* tv = tvmgr.new_vector();
+
   tv->set_from_assign_list(nodeval_list);
   ymuint wsa = fsim.calc_wsa(tv, false);
-  tvmgr.delete_vector(tv);
-
-  ymuint min_wsa = wsa;
-
-#if 0
-  double dens = 0.0;
-  { // 解の個数の予想のためランダムシミュレーションを行う．
-    RandGen randgen;
-    ymuint max_pat = 1000;
-    TestVector* tv_array[kPvBitLen];
-    for (ymuint i = 0; i < kPvBitLen; ++ i) {
-      tv_array[i] = tvmgr.new_td_vector();
-    }
-
-    fsim.set_skip_all();
-    fsim.clear_skip(fault);
-
-    ymuint det_count = 0;
-    ymuint wpos = 0;
-    for (ymuint pat_num = 0; ; ) {
-      if ( pat_num < max_pat ) {
-	TestVector* tv = tv_array[wpos];
-	tv->set_from_random(randgen);
-	fsim.set_pattern(wpos, tv);
-	++ pat_num;
-	++ wpos;
-	if ( wpos < kPvBitLen ) {
-	  continue;
-	}
-      }
-      else if ( wpos == 0 ) {
-	break;
-      }
-
-      ymuint det_count1 = fsim.td_ppsfp();
-      det_count += det_count1;
-
-      fsim.clear_patterns();
-      wpos = 0;
-    }
-    dens = static_cast<double>(det_count) / static_cast<double>(max_pat);
-
-    for (ymuint i = 0; i < kPvBitLen; ++ i) {
-      tvmgr.delete_vector(tv_array[i]);
-    }
+  if ( wsa <= wsa_limit ) {
+    return kB3True;
   }
-#endif
 
   // 今の故障に関係のある PPI の数を数える．
   ymuint xor_num = impl.make_xor_list();
@@ -188,20 +183,23 @@ Dtpg2::dtpg(TvMgr& tvmgr,
       continue;
     }
 
-    TestVector* tv = tvmgr.new_vector();
     tv->set_from_assign_list(nodeval_list1);
     ymuint wsa = fsim.calc_wsa(tv, false);
-    tvmgr.delete_vector(tv);
-
-    if ( min_wsa > wsa ) {
-      min_wsa = wsa;
+    if ( wsa <= wsa_limit ) {
       nodeval_list = nodeval_list1;
+      break;
     }
     ++ fcount;
     if ( fcount > 20 ) {
       break;
     }
   }
+  {
+    cout << fault->str() << ": wsa = " << wsa
+	 << ", count = " << count << ", fcount = " << fcount << endl;
+  }
+
+  tvmgr.delete_vector(tv);
 
   return kB3True;
 }

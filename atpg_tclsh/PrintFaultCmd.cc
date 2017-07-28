@@ -27,6 +27,14 @@ PrintFaultCmd::PrintFaultCmd(AtpgMgr* mgr) :
   mPoptType = new TclPoptStr(this, "type",
 			     "spefify fault type "
 			     "(detected, untestable, remain)");
+  mPoptSa = new TclPopt(this, "stuck-at",
+			"for Stuck-At faults");
+
+  mPoptTd = new TclPopt(this, "transition-delay",
+			"for Transition Delay faults");
+
+  new_popt_group(mPoptSa, mPoptTd);
+
   set_usage_string("?filename?");
 }
 
@@ -79,7 +87,7 @@ PrintFaultCmd::cmd_proc(TclObjVector& objv)
     }
   }
 
-  TpgFaultMgr& fmgr = _sa_fault_mgr();
+  TpgFaultMgr& fmgr = mPoptTd->is_specified() ? _td_fault_mgr() : _sa_fault_mgr();
 
   const TpgNetwork& network = _network();
   ymuint n = network.rep_fault_num();
