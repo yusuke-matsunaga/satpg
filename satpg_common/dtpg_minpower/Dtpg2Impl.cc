@@ -124,6 +124,7 @@ Dtpg2Impl::add_xor_constraint(ymuint num,
   }
 
   double p = 0.5;
+  //double p = 0.1;
   for (ymuint i = 0; i < num; ++ i) {
     // p の確率で変数を選び，そのXORを作る．
     vector<SatVarId> var_list;

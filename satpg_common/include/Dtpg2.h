@@ -112,6 +112,27 @@ private:
   // 乱数発生器
   RandGen mRandGen;
 
+  // 総パタン数
+  ymuint mPatNum;
+
+  // 初期パタンがしきい値を超えたパタン数
+  ymuint mExceedNum;
+
+  // 総繰り返し数
+  ymuint mTotalCount;
+
+  // 解の見つかった総数
+  ymuint mTotalFound;
+
+  // XORサンプリング数
+  ymuint mTotalSampling;
+
+  // 値が制限を超えていた層数
+  ymuint mTotalOver;
+
+  // 結果としてしきい値を超えたパタン数
+  ymuint mFinalExceedNum;
+
 };
 
 END_NAMESPACE_YM_SATPG

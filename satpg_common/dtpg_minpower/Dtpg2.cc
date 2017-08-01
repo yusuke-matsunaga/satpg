@@ -101,6 +101,14 @@ Dtpg2::run(TvMgr& tvmgr,
     wsa_limit = static_cast<ymuint>(ave_wsa * wsa_ratio);
   }
 
+  mPatNum = 0;
+  mExceedNum = 0;
+  mTotalCount = 0;
+  mTotalFound = 0;
+  mTotalSampling = 0;
+  mTotalOver = 0;
+  mFinalExceedNum = 0;
+
   ymuint nf = network.rep_fault_num();
   for (ymuint i = 0; i < nf; ++ i) {
     const TpgFault* fault = network.rep_fault(i);
@@ -109,12 +117,25 @@ Dtpg2::run(TvMgr& tvmgr,
       SatBool3 ans = dtpg(tvmgr, fsim, network, fault, use_xorsampling, wsa_limit,
 			  nodeval_list, stats);
       if ( ans == kB3True ) {
+	++ mPatNum;
 	dop(fault, nodeval_list);
       }
       else if ( ans == kB3False ) {
 	uop(fault);
       }
     }
+  }
+  {
+    double ave_loop = static_cast<double>(mTotalCount) / static_cast<double>(mExceedNum);
+    double ave_hit = static_cast<double>(mTotalFound) / static_cast<double>(mTotalSampling);
+    double ave_sample = static_cast<double>(mTotalOver) / static_cast<double>(mExceedNum);
+    cout << "Total Detected Faults: " << mPatNum << endl
+	 << "WSA limit:             " << wsa_limit << endl
+	 << "Initial Exceed Pats:   " << mExceedNum << endl
+	 << "Final Exceed Pats:     " << mFinalExceedNum << endl
+	 << "Ave. loop counts:      " << ave_loop << endl
+	 << "Ave. hit counts:       " << ave_hit << endl
+	 << "Ave. samples:          " << ave_sample << endl;
   }
 }
 
@@ -154,6 +175,8 @@ Dtpg2::dtpg(TvMgr& tvmgr,
     return kB3True;
   }
 
+  ++ mExceedNum;
+
   // 今の故障に関係のある PPI の数を数える．
   ymuint xor_num = impl.make_xor_list();
   if ( xor_num > 30 ) {
@@ -167,12 +190,13 @@ Dtpg2::dtpg(TvMgr& tvmgr,
   }
   // とりあえず xor_num ぐらいの制約をつける．
 
-  ymuint count_limit = 200;
-  ymuint fcount_limit = 200;
+  ymuint count_limit = 50;
+  ymuint fcount_limit = 20;
   ymuint count = 0;
   ymuint fcount = 0;
   bool exit = false;
   for ( ; count < count_limit; ++ count) {
+    ++ mTotalCount;
     Dtpg2Impl impl2(mSatType, mSatOption, mSatOutP, mBackTracer, network, fault->ffr()->root());
     impl2.gen_cnf(stats);
     impl2.make_xor_list();
@@ -180,11 +204,14 @@ Dtpg2::dtpg(TvMgr& tvmgr,
 
     ymuint xn_exp = 1U << xor_num;
     for (ymuint p = 0U; p < xn_exp; ++ p) {
+      ++ mTotalSampling;
       NodeValList nodeval_list1;
       SatBool3 ans = impl2.dtpg(fault, p, nodeval_list1, stats);
       if ( ans != kB3True ) {
 	continue;
       }
+
+      ++ mTotalFound;
 
       tv->set_from_assign_list(nodeval_list1);
       wsa = fsim.calc_wsa(tv, false);
@@ -193,6 +220,9 @@ Dtpg2::dtpg(TvMgr& tvmgr,
 	exit = true;
 	break;
       }
+
+      ++ mTotalOver;
+
       ++ fcount;
       if ( fcount > fcount_limit ) {
 	exit = true;
@@ -203,11 +233,15 @@ Dtpg2::dtpg(TvMgr& tvmgr,
       break;
     }
   }
-  {
+  if ( 0 ) {
     cout << fault->str() << ": wsa_liit = " << wsa_limit << ": wsa = " << wsa
 	 << ", count = " << count
 	 << ", fcount = " << fcount
 	 << endl;
+  }
+
+  if ( wsa > wsa_limit ) {
+    ++ mFinalExceedNum;
   }
 
   tvmgr.delete_vector(tv);
