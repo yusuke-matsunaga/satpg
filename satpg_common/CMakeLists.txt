@@ -117,22 +117,16 @@ set (sa_SOURCES
   sa/minpat/EqSet.cc
   sa/minpat/McCompactor.cc
 
-  sa/rtpg/RtpgImpl.cc
+  sa/minpat/StructSat.cc
+  sa/minpat/FoCone.cc
+  sa/minpat/Extractor.cc
 
-  sa/struct_sat/StructSat.cc
-  sa/struct_sat/FoCone.cc
-  sa/struct_sat/Extractor.cc
+  sa/rtpg/RtpgImpl.cc
   )
 
 set (td_SOURCES
   td/rtpg/RtpgP1.cc
   td/rtpg/RtpgP2.cc
-
-  td/struct_sat/StructSat.cc
-  td/struct_sat/ConeBase.cc
-  td/struct_sat/FoCone.cc
-  td/struct_sat/MffcCone.cc
-  td/struct_sat/Extractor.cc
   )
 
 

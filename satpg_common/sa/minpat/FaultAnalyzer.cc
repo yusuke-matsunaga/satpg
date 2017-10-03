@@ -17,9 +17,9 @@
 #include "TestVector.h"
 #include "NodeValList.h"
 
-#include "sa/StructSat.h"
-#include "sa/FoCone.h"
-#include "ValMap.h"
+#include "StructSat.h"
+#include "FoCone.h"
+#include "../../dtpg/ValMap.h"
 
 #include "BackTracer.h"
 

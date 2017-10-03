@@ -9,8 +9,8 @@
 
 #include "FgMgrBase.h"
 
-#include "sa/StructSat.h"
-#include "sa/FoCone.h"
+#include "StructSat.h"
+#include "FoCone.h"
 
 #include "TpgFault.h"
 

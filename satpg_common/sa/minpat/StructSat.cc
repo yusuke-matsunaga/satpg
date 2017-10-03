@@ -7,13 +7,13 @@
 /// All rights reserved.
 
 
-#include "sa/StructSat.h"
-#include "sa/FoCone.h"
+#include "StructSat.h"
+#include "FoCone.h"
 #include "NodeValList.h"
 
 #include "TpgFault.h"
 #include "TpgNode.h"
-#include "GateLitMap_vid.h"
+#include "../../dtpg/GateLitMap_vid.h"
 
 
 BEGIN_NAMESPACE_YM_SATPG_SA
@@ -94,7 +94,7 @@ StructSat::add_focone(const TpgFault* fault,
     int fval = fault->val();
     if ( fault->is_branch_fault() ) {
       ymuint pos = fault->tpg_pos();
-      fnode->make_faulty_cnf(solver(), pos, fval, GateLitMap_vid(fnode, focone->fvar_map()));
+      //fnode->make_faulty_cnf(solver(), pos, fval, GateLitMap_vid(fnode, focone->fvar_map()));
     }
     else {
       SatLiteral flit(focone->fvar(fnode));
@@ -131,7 +131,7 @@ StructSat::add_focone(const TpgFault* fault,
     int fval = fault->val();
     if ( fault->is_branch_fault() ) {
       ymuint pos = fault->tpg_pos();
-      fnode->make_faulty_cnf(solver(), pos, fval, GateLitMap_vid(fnode, focone->fvar_map()));
+      //fnode->make_faulty_cnf(solver(), pos, fval, GateLitMap_vid(fnode, focone->fvar_map()));
     }
     else {
       SatLiteral flit(focone->fvar(fnode));
@@ -308,7 +308,7 @@ StructSat::make_tfi_cnf(const TpgNode* node)
   set_var(node, gvar);
 
   // node の入出力の関係を表す節を作る．
-  node->make_cnf(mSolver, GateLitMap_vid(node, var_map()));
+  //node->make_cnf(mSolver, GateLitMap_vid(node, var_map()));
 }
 
 // @brief チェックを行う．

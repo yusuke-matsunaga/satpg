@@ -19,7 +19,7 @@
 #include "TestVector.h"
 
 #include "../../dtpg/ValMap.h"
-#include "sa/StructSat.h"
+#include "StructSat.h"
 
 #include "FgMgrBase.h"
 #include "Compactor.h"

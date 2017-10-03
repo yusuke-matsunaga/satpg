@@ -15,7 +15,7 @@
 #include "TvMgr.h"
 #include "TestVector.h"
 #include "Fsim.h"
-#include "sa/StructSat.h"
+#include "StructSat.h"
 
 
 BEGIN_NAMESPACE_YM_SATPG_SA

@@ -7,7 +7,7 @@
 /// All rights reserved.
 
 
-#include "sa/Extractor.h"
+#include "Extractor.h"
 #include "TpgFault.h"
 #include "TpgNode.h"
 #include "NodeValList.h"

@@ -11,7 +11,7 @@
 
 
 #include "sa/sa_nsdef.h"
-#include "sa/StructSat.h"
+#include "StructSat.h"
 #include "TpgNode.h"
 
 

@@ -7,12 +7,12 @@
 /// All rights reserved.
 
 
-#include "sa/FoCone.h"
-#include "sa/StructSat.h"
+#include "FoCone.h"
+#include "StructSat.h"
 #include "TpgNode.h"
-#include "GateLitMap_vid.h"
-#include "ValMap.h"
-#include "sa/Extractor.h"
+#include "../../dtpg/GateLitMap_vid.h"
+#include "../../dtpg/ValMap.h"
+#include "Extractor.h"
 #include "NodeValList.h"
 
 
@@ -63,7 +63,7 @@ FoCone::FoCone(StructSat& struct_sat,
     const TpgNode* node = tfo_node(i);
     if ( node != fnode ) {
       // 故障回路のゲートの入出力関係を表すCNFを作る．
-      node->make_cnf(solver(), GateLitMap_vid(node, fvar_map()));
+      //node->make_cnf(solver(), GateLitMap_vid(node, fvar_map()));
     }
 
     if ( detect == kVal1 ) {

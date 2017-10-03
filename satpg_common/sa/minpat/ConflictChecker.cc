@@ -16,8 +16,8 @@
 #include "TestVector.h"
 #include "Fsim.h"
 
-#include "sa/StructSat.h"
-#include "sa/FoCone.h"
+#include "StructSat.h"
+#include "FoCone.h"
 
 #include "ym/RandGen.h"
 #include "ym/StopWatch.h"

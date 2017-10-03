@@ -13,7 +13,7 @@
 #include "EqChecker.h"
 #include "DomChecker.h"
 #include "FgMgr.h"
-#include "sa/StructSat.h"
+#include "StructSat.h"
 
 
 #include "ym/RandGen.h"
