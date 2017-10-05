@@ -51,4 +51,18 @@ DopList::operator()(const TpgFault* f,
   }
 }
 
+// @brief テストパタンが見つかった時の処理
+// @param[in] f 故障
+// @param[in] tv テストベクタ
+void
+DopList::operator()(const TpgFault* f,
+		    const TestVector* tv)
+{
+  for (vector<DetectOp*>::iterator p = mDopList.begin();
+       p != mDopList.end(); ++ p) {
+    DetectOp& dop = **p;
+    dop(f, tv);
+  }
+}
+
 END_NAMESPACE_YM_SATPG

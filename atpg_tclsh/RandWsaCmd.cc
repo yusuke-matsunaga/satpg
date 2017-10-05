@@ -71,7 +71,7 @@ RandWsaCmd::cmd_proc(TclObjVector& objv)
   InputVector* i_vect = tv_mgr.new_input_vector();
   InputVector* a_vect = tv_mgr.new_input_vector();
   DffVector* f_vect = tv_mgr.new_dff_vector();
-  Fsim& fsim = _fsim2();
+  Fsim& fsim = _td_fsim2();
 
   double total_wsa = 0.0;
   RandGen rg;

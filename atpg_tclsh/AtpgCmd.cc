@@ -240,18 +240,18 @@ AtpgCmd::_network()
   return mMgr->_network();
 }
 
-// @brief 2値の故障シミュレータを取り出す．
+// @brief 縮退故障用の2値の故障シミュレータを取り出す．
 Fsim&
-AtpgCmd::_fsim2()
+AtpgCmd::_sa_fsim2()
 {
-  return mMgr->_fsim2();
+  return mMgr->_sa_fsim2();
 }
 
-// @brief 3値の故障シミュレータを返す．
+// @brief 縮退故障用の3値の故障シミュレータを返す．
 Fsim&
-AtpgCmd::_fsim3()
+AtpgCmd::_sa_fsim3()
 {
-  return mMgr->_fsim3();
+  return mMgr->_sa_fsim3();
 }
 
 // @brief 縮退故障用の FaultMgr を取り出す．
@@ -273,6 +273,20 @@ vector<const TestVector*>&
 AtpgCmd::_sa_tv_list()
 {
   return mMgr->_sa_tv_list();
+}
+
+// @brief 遷移故障用の2値の故障シミュレータを取り出す．
+Fsim&
+AtpgCmd::_td_fsim2()
+{
+  return mMgr->_td_fsim2();
+}
+
+// @brief 遷移故障用の3値の故障シミュレータを返す．
+Fsim&
+AtpgCmd::_td_fsim3()
+{
+  return mMgr->_td_fsim3();
 }
 
 // @brief 遷移故障用の FaultMgr を取り出す．

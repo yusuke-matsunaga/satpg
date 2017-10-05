@@ -52,6 +52,14 @@ public:
   operator()(const TpgFault* f,
 	     const NodeValList& assign_list);
 
+  /// @brief テストパタンが見つかった時の処理
+  /// @param[in] f 故障
+  /// @param[in] tv テストベクタ
+  virtual
+  void
+  operator()(const TpgFault* f,
+	     const TestVector* tv);
+
 
 private:
   //////////////////////////////////////////////////////////////////////

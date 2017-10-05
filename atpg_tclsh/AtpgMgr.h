@@ -66,13 +66,13 @@ public:
   TpgNetwork&
   _network();
 
-  /// @brief 2値の故障シミュレータを取り出す．
+  /// @brief 縮退故障用の2値の故障シミュレータを取り出す．
   Fsim&
-  _fsim2();
+  _sa_fsim2();
 
-  /// @brief 3値の故障シミュレータを返す．
+  /// @brief 縮退故障用の3値の故障シミュレータを返す．
   Fsim&
-  _fsim3();
+  _sa_fsim3();
 
   /// @brief 縮退故障用の故障マネージャを取り出す．
   TpgFaultMgr&
@@ -85,6 +85,14 @@ public:
   /// @brief 縮退故障用のテストベクタのリストを取り出す．
   vector<const TestVector*>&
   _sa_tv_list();
+
+  /// @brief 遷移故障用の2値の故障シミュレータを取り出す．
+  Fsim&
+  _td_fsim2();
+
+  /// @brief 遷移故障用の3値の故障シミュレータを返す．
+  Fsim&
+  _td_fsim3();
 
   /// @brief 遷移故障用の故障マネージャを取り出す．
   TpgFaultMgr&
@@ -159,11 +167,11 @@ private:
   // 対象のネットワーク
   TpgNetwork mNetwork;
 
-  // 2値の故障シミュレータ
-  Fsim* mFsim2;
+  // 縮退故障用の2値の故障シミュレータ
+  Fsim* mSaFsim2;
 
-  // 3値の故障シミュレータ
-  Fsim* mFsim3;
+  // 縮退故障用の3値の故障シミュレータ
+  Fsim* mSaFsim3;
 
   // 縮退故障用の故障マネージャ
   TpgFaultMgr* mSaFaultMgr;
@@ -173,6 +181,12 @@ private:
 
   // 縮退故障用のテストベクタのリスト
   vector<const TestVector*> mSaTvList;
+
+  // 遷移故障用の2値の故障シミュレータ
+  Fsim* mTdFsim2;
+
+  // 遷移故障用の3値の故障シミュレータ
+  Fsim* mTdFsim3;
 
   // 遷移故障用の故障マネージャ
   TpgFaultMgr* mTdFaultMgr;
@@ -204,20 +218,20 @@ AtpgMgr::_network()
   return mNetwork;
 }
 
-// @brief 2値の故障シミュレータを取り出す．
+// @brief 縮退故障用の2値の故障シミュレータを取り出す．
 inline
 Fsim&
-AtpgMgr::_fsim2()
+AtpgMgr::_sa_fsim2()
 {
-  return *mFsim2;
+  return *mSaFsim2;
 }
 
-// @brief 3値の故障シミュレータを返す．
+// @brief 縮退故障用の3値の故障シミュレータを返す．
 inline
 Fsim&
-AtpgMgr::_fsim3()
+AtpgMgr::_sa_fsim3()
 {
-  return *mFsim3;
+  return *mSaFsim3;
 }
 
 // @brief 縮退故障用の故障マネージャを取り出す．
@@ -242,6 +256,22 @@ vector<const TestVector*>&
 AtpgMgr::_sa_tv_list()
 {
   return mSaTvList;
+}
+
+// @brief 遷移故障用の2値の故障シミュレータを取り出す．
+inline
+Fsim&
+AtpgMgr::_td_fsim2()
+{
+  return *mTdFsim2;
+}
+
+// @brief 遷移故障用の3値の故障シミュレータを返す．
+inline
+Fsim&
+AtpgMgr::_td_fsim3()
+{
+  return *mTdFsim3;
 }
 
 // @brief 遷移故障用の故障マネージャを取り出す．

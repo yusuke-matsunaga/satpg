@@ -176,6 +176,15 @@ public:
   void
   init();
 
+  /// @brief InputVector とDffVector から値を設定する．
+  /// @param[in] input_vector入力のベクタ
+  /// @param[in] dff_vector DFFのベクタ
+  /// @param[in] aux_input_vector ２時刻目の入力のベクタ
+  void
+  set(const InputVector& input_vector,
+      const DffVector& dff_vector,
+      const InputVector& aux_input_vector);
+
   /// @brief PPIの値を設定する．
   /// @param[in] pos PPIの位置番号 ( 0 <= pos < ppi_num() )
   /// @param[in] val 値

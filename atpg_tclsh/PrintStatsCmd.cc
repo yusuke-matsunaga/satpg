@@ -10,6 +10,7 @@
 #include "PrintStatsCmd.h"
 #include "TpgNetwork.h"
 #include "TpgFaultMgr.h"
+#include "Fsim.h"
 #include "ym/TclPopt.h"
 
 
@@ -115,6 +116,24 @@ PrintStatsCmd::cmd_proc(TclObjVector& objv)
 	  s_time.usr_time());
   fprintf(stdout, "#M:    (misc time           = %7.2f)\n",
 	  m_time.usr_time());
+
+  if ( mPoptTd->is_specified() ) {
+    Fsim& fsim = _td_fsim2();
+    double wsa_total = 0.0;
+    double wsa_max = 0.0;
+    for (vector<const TestVector*>::const_iterator p = tv_list.begin();
+	 p != tv_list.end(); ++ p) {
+      const TestVector* tv = *p;
+      int wsa = fsim.calc_wsa(tv, false);
+      wsa_total += wsa;
+      if ( wsa_max < wsa ) {
+	wsa_max = wsa;
+      }
+    }
+    double wsa_ave = wsa_total / tv_list.size();
+    fprintf(stdout, "#N: average WSA             = %7.2f\n", wsa_ave);
+    fprintf(stdout, "#O: maximum WSA             = %7.2f\n", wsa_max);
+  }
 
   return TCL_OK;
 }

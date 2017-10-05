@@ -56,4 +56,16 @@ DopTvList::operator()(const TpgFault* f,
   mTvList.push_back(tv);
 }
 
+// @brief テストパタンが見つかった時の処理
+// @param[in] f 故障
+// @param[in] tv テストベクタ
+void
+DopTvList::operator()(const TpgFault* f,
+		      const TestVector* tv)
+{
+  TestVector* tv1 = mTvMgr.new_vector();
+  tv1->copy(*tv);
+  mTvList.push_back(tv1);
+}
+
 END_NAMESPACE_YM_SATPG

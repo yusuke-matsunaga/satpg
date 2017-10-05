@@ -49,4 +49,14 @@ DopBase::operator()(const TpgFault* f,
   mMgr.set_status(f, kFsDetected);
 }
 
+// @brief テストパタンが見つかった時の処理
+// @param[in] f 故障
+// @param[in] tv テストベクタ
+void
+DopBase::operator()(const TpgFault* f,
+		    const TestVector* tv)
+{
+  mMgr.set_status(f, kFsDetected);
+}
+
 END_NAMESPACE_YM_SATPG

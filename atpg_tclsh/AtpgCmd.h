@@ -58,13 +58,13 @@ protected:
   TpgNetwork&
   _network();
 
-  /// @brief 2値の故障シミュレータを取り出す．
+  /// @brief 縮退故障用の2値の故障シミュレータを取り出す．
   Fsim&
-  _fsim2();
+  _sa_fsim2();
 
-  /// @brief 3値の故障シミュレータを返す．
+  /// @brief 縮退故障用の3値の故障シミュレータを返す．
   Fsim&
-  _fsim3();
+  _sa_fsim3();
 
   /// @brief 縮退故障用の FaultMgr を取り出す．
   TpgFaultMgr&
@@ -77,6 +77,14 @@ protected:
   /// @brief 縮退故障用のテストベクタのリストを取り出す．
   vector<const TestVector*>&
   _sa_tv_list();
+
+  /// @brief 遷移故障用の2値の故障シミュレータを取り出す．
+  Fsim&
+  _td_fsim2();
+
+  /// @brief 遷移故障用の3値の故障シミュレータを返す．
+  Fsim&
+  _td_fsim3();
 
   /// @brief 遷移故障用の FaultMgr を取り出す．
   TpgFaultMgr&

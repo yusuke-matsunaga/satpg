@@ -26,10 +26,12 @@ BEGIN_NAMESPACE_YM_SATPG
 AtpgMgr::AtpgMgr() :
   mTimer(TM_SIZE, TM_MISC)
 {
-  mFsim2 = nullptr;
-  mFsim3 = nullptr;
+  mSaFsim2 = nullptr;
+  mSaFsim3 = nullptr;
   mSaFaultMgr = nullptr;
   mSaTvMgr = nullptr;
+  mTdFsim2 = nullptr;
+  mTdFsim3 = nullptr;
   mTdFaultMgr = nullptr;
   mTdTvMgr = nullptr;
 }
@@ -37,10 +39,12 @@ AtpgMgr::AtpgMgr() :
 // @brief デストラクタ
 AtpgMgr::~AtpgMgr()
 {
-  delete mFsim2;
-  delete mFsim3;
+  delete mSaFsim2;
+  delete mSaFsim3;
   delete mSaFaultMgr;
   delete mSaTvMgr;
+  delete mTdFsim2;
+  delete mTdFsim3;
   delete mTdFaultMgr;
   delete mTdTvMgr;
 }
@@ -84,20 +88,24 @@ AtpgMgr::misc_time() const
 void
 AtpgMgr::after_set_network()
 {
-  delete mFsim2;
-  delete mFsim3;
+  delete mSaFsim2;
+  delete mSaFsim3;
   delete mSaFaultMgr;
   delete mSaTvMgr;
+  delete mTdFsim2;
+  delete mTdFsim3;
   delete mTdFaultMgr;
   delete mTdTvMgr;
 
   mSaTvList.clear();
   mTdTvList.clear();
 
-  mFsim2 = Fsim::new_Fsim2(_network(), kFtStuckAt);
-  mFsim3 = Fsim::new_Fsim3(_network(), kFtStuckAt);
+  mSaFsim2 = Fsim::new_Fsim2(_network(), kFtStuckAt);
+  mSaFsim3 = Fsim::new_Fsim3(_network(), kFtStuckAt);
   mSaFaultMgr = new TpgFaultMgr(_network());
   mSaTvMgr = new TvMgr(_network(), kFtStuckAt);
+  mTdFsim2 = Fsim::new_Fsim2(_network(), kFtTransitionDelay);
+  mTdFsim3 = Fsim::new_Fsim3(_network(), kFtTransitionDelay);
   mTdFaultMgr = new TpgFaultMgr(_network());
   mTdTvMgr = new TvMgr(_network(), kFtTransitionDelay);
 }

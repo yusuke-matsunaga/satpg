@@ -59,6 +59,10 @@ DtpgMinPowerCmd::DtpgMinPowerCmd(AtpgMgr* mgr) :
 			  "X-extract mode [0-2]");
   mPoptR = new TclPopt(this, "xor_sampling",
 		       "use XOR-smpling");
+  mPoptRtpg = new TclPopt(this, "rtpg",
+		       "use RTPG");
+  mPoptW = new TclPoptDouble(this, "wsa_ratio",
+			     "specify WSA ratio");
   mPoptDrop = new TclPopt(this, "drop",
 			  "with fault drop");
   mPoptKDet = new TclPoptInt(this, "k_det",
@@ -129,6 +133,11 @@ DtpgMinPowerCmd::cmd_proc(TclObjVector& objv)
   string option_str = mPoptOpt->val();
 
   bool xor_sampling = mPoptR->is_specified();
+  bool use_rtpg = mPoptRtpg->is_specified();
+  double wsa_ratio = 1.5;
+  if ( mPoptW->is_specified() ) {
+    wsa_ratio = mPoptW->val();
+  }
 
   DopList dop_list;
   UopList uop_list;
@@ -148,10 +157,10 @@ DtpgMinPowerCmd::cmd_proc(TclObjVector& objv)
   DopVerifyResult verify_result;
 
   if ( mPoptDrop->is_specified() ) {
-    dop_list.add(new_DopDrop(_td_fault_mgr(), _fsim3()));
+    dop_list.add(new_DopDrop(_td_fault_mgr(), _td_fsim3()));
   }
   if ( mPoptVerify->is_specified() ) {
-    dop_list.add(new_DopVerify(_fsim3(), verify_result));
+    dop_list.add(new_DopVerify(_td_fsim3(), verify_result));
   }
 
   bool timer_enable = true;
@@ -159,36 +168,19 @@ DtpgMinPowerCmd::cmd_proc(TclObjVector& objv)
     timer_enable = false;
   }
 
-  _fsim3().set_skip_all();
+  _td_fsim3().set_skip_all();
   for (ymuint i = 0; i < _td_fault_mgr().max_fault_id(); ++ i) {
     const TpgFault* f = _td_fault_mgr().fault(i);
     if ( f != nullptr && _td_fault_mgr().status(f) == kFsUndetected ) {
-      _fsim3().clear_skip(f);
+      _td_fsim3().clear_skip(f);
     }
   }
-
-#if 0
-  { // ランダムパタンシミュレーションを行い，平均の遷移回数を求める．
-    RandGen randgen;
-    ymuint max_pat = 2000;
-    ymuint wsa_sum = 0;
-    TestVector* tv = _tv_mgr().new_td_vector();
-    for (ymuint i = 0; i < max_pat; ++ i) {
-      tv->set_from_random(randgen);
-
-      ymuint wsa = _fsim2().calc_wsa(tv, false);
-      wsa_sum += wsa;
-    }
-    double wsa_ave = static_cast<double>(wsa_sum) / static_cast<double>(max_pat);
-    _tv_mgr().delete_vector(tv);
-    cout << "Ave. wsa = " << wsa_ave << endl;
-  }
-#endif
 
   Dtpg2 dtpg(sat_type, sat_option, outp, bt);
 
   DtpgStats stats;
-  dtpg.run(_td_tv_mgr(), _td_fault_mgr(), _fsim2(), _network(), xor_sampling,
+  dtpg.run(_td_tv_mgr(), _td_fault_mgr(), _td_fsim2(), _network(),
+	   xor_sampling, use_rtpg, wsa_ratio,
 	   dop_list, uop_list, stats);
 
   after_update_faults();
@@ -211,7 +203,7 @@ DtpgMinPowerCmd::cmd_proc(TclObjVector& objv)
     wsa_list.reserve(np);
     for (ymuint i = 0; i < np; ++ i) {
       const TestVector* tv = _td_tv_list()[i];
-      ymuint wsa = _fsim2().calc_wsa(tv, false);
+      ymuint wsa = _td_fsim2().calc_wsa(tv, false);
       wsa_sum += wsa;
       wsa_list.push_back(wsa);
     }

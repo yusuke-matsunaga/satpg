@@ -82,6 +82,12 @@ private:
   // ランダムサンプリングオプションの解析用オブジェクト
   TclPopt* mPoptR;
 
+  // RTPG オプションの解析用オブジェクト
+  TclPopt* mPoptRtpg;
+
+  // WSA のしきい値を決めるオプションの解析用オブジェクト
+  TclPoptDouble* mPoptW;
+
   // drop オプションの解析用オブジェクト
   TclPopt* mPoptDrop;
 

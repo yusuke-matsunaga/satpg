@@ -62,4 +62,20 @@ DopVerify::operator()(const TpgFault* f,
   }
 }
 
+// @brief テストパタンが見つかった時の処理
+// @param[in] f 故障
+// @param[in] tv テストベクタ
+void
+DopVerify::operator()(const TpgFault* f,
+		      const TestVector* tv)
+{
+  bool detect = mFsim.spsfp(tv, f);
+  if ( detect ) {
+    mResult.add_good(f);
+  }
+  else {
+    //mResult.add_error(f, assign_list);
+  }
+}
+
 END_NAMESPACE_YM_SATPG

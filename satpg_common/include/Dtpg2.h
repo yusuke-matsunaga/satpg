@@ -20,8 +20,6 @@
 
 BEGIN_NAMESPACE_YM_SATPG
 
-class Dtpg2Impl;
-
 //////////////////////////////////////////////////////////////////////
 /// @class Dtpg2 Dtpg2.h "Dtpg2.h"
 /// @brief 遷移回数を考慮した DTPG の基本エンジン
@@ -63,6 +61,8 @@ public:
       Fsim& fsim,
       const TpgNetwork& network,
       bool use_xorsampling,
+      bool use_rtpg,
+      double wsa_ratio,
       DetectOp& dop,
       UntestOp& uop,
       DtpgStats& stats);
@@ -85,8 +85,33 @@ public:
        const TpgFault* fault,
        bool use_xorsampling,
        ymuint wsa_limit,
-       NodeValList& nodeval_list,
+       TestVector* tv,
        DtpgStats& stats);
+
+
+private:
+  //////////////////////////////////////////////////////////////////////
+  // 内部で用いられる関数
+  //////////////////////////////////////////////////////////////////////
+
+  void
+  make_input_constraint(TvMgr& tvmgr,
+			Fsim& fsim,
+			ymuint wsa_limit);
+
+  void
+  rtpg(TvMgr& tvmgr,
+       TpgFaultMgr& fmgr,
+       Fsim& fsim,
+       ymuint wsa_limit,
+       DetectOp& dop);
+
+  ymuint
+  optimize(TvMgr& tvmgr,
+	   Fsim& fsim,
+	   ymuint wsa_limit,
+	   const NodeValList& nodeval_list,
+	   TestVector* tv);
 
 
 private:
@@ -105,9 +130,6 @@ private:
 
   // バックトレーサー
   BackTracer& mBackTracer;
-
-  // 実装クラス
-  Dtpg2Impl* mImpl;
 
   // 乱数発生器
   RandGen mRandGen;
@@ -132,6 +154,9 @@ private:
 
   // 結果としてしきい値を超えたパタン数
   ymuint mFinalExceedNum;
+
+  // optimize 用の乱数発生器
+  RandGen mRandGen2;
 
 };
 

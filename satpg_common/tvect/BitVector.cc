@@ -237,8 +237,8 @@ BitVector::fix_x_from_random(RandGen& randgen)
       continue;
     }
     PackedVal v = randgen.uint64();
-    mPat[i0] |= ~v & xmask;
-    mPat[i1] |=  v & xmask;
+    mPat[i0] &= ~(~v & xmask);
+    mPat[i1] &= ~( v & xmask);
   }
 }
 
@@ -255,8 +255,8 @@ BitVector::copy(const BitVector& src)
     ymuint i1 = i + 1;
     // X のビットマスク
     PackedVal xmask = src.mPat[i0] & src.mPat[i1];
-    mPat[i0] |= (src.mPat[i0] & ~xmask);
-    mPat[i1] |= (src.mPat[i1] & ~xmask);
+    mPat[i0] = (src.mPat[i0] | xmask);
+    mPat[i1] = (src.mPat[i1] | xmask);
   }
 }
 

@@ -216,6 +216,7 @@ DtpgCmd::cmd_proc(TclObjVector& objv)
 
   TvMgr& tv_mgr = sa_mode ? _sa_tv_mgr() : _td_tv_mgr();
   vector<const TestVector*>& tv_list = sa_mode ? _sa_tv_list() : _td_tv_list();
+  Fsim& fsim3 = sa_mode ? _sa_fsim3() : _td_fsim3();
   TpgFaultMgr& fault_mgr = sa_mode ? _sa_fault_mgr() : _td_fault_mgr();
 
   if ( !mPoptNoPat->is_specified() ) {
@@ -232,12 +233,12 @@ DtpgCmd::cmd_proc(TclObjVector& objv)
   BackTracer bt(xmode, fault_type, _network().node_num());
 
   if ( mPoptDrop->is_specified() ) {
-    dop_list.add(new_DopDrop(fault_mgr, _fsim3()));
+    dop_list.add(new_DopDrop(fault_mgr, fsim3));
   }
 
   DopVerifyResult verify_result;
   if ( mPoptVerify->is_specified() ) {
-    dop_list.add(new_DopVerify(_fsim3(), verify_result));
+    dop_list.add(new_DopVerify(fsim3, verify_result));
   }
 
   bool timer_enable = true;
@@ -245,11 +246,11 @@ DtpgCmd::cmd_proc(TclObjVector& objv)
     timer_enable = false;
   }
 
-  _fsim3().set_skip_all();
+  fsim3.set_skip_all();
   for (ymuint i = 0; i < fault_mgr.max_fault_id(); ++ i) {
     const TpgFault* f = fault_mgr.fault(i);
     if ( f != nullptr && fault_mgr.status(f) == kFsUndetected ) {
-      _fsim3().clear_skip(f);
+      fsim3.clear_skip(f);
     }
   }
 

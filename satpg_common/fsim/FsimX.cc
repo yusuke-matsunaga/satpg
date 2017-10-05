@@ -46,6 +46,27 @@ val3_to_packedval(Val3 val)
 #endif
 }
 
+// PackedVal/PackedVal3 を Val3 に変換する．
+// 最下位ビットだけで判断する．
+inline
+Val3
+packedval_to_val3(FSIM_VALTYPE pval)
+{
+#if FSIM_VAL2
+  return (pval & 1UL) ? kVal1 : kVal0;
+#elif FSIM_VAL3
+  if ( pval.val0() & 1UL) {
+    return kVal0;
+  }
+  else if ( pval.val1() & 1UL ) {
+    return kVal1;
+  }
+  else {
+    return kValX;
+  }
+#endif
+}
+
 END_NONAMESPACE
 
 Fsim*
@@ -596,6 +617,28 @@ FSIM_CLASSNAME::set_state(const InputVector& i_vect,
     SimNode* onode = mPPOArray[i + mOutputNum];
     SimNode* inode = mPPIArray[i + mInputNum];
     inode->set_val(onode->val());
+  }
+}
+
+// @brief 状態を取得する．
+// @param[in] i_vect 外部入力のビットベクタ
+// @param[in] f_vect FFの値のビットベクタ
+void
+FSIM_CLASSNAME::get_state(InputVector& i_vect,
+			  DffVector& f_vect)
+{
+  ymuint ni = mInputNum;
+  for (ymuint i = 0; i < ni; ++ i) {
+    SimNode* simnode = mPPIArray[i];
+    Val3 val = packedval_to_val3(simnode->val());
+    i_vect.set_val(i, val);
+  }
+
+  ymuint nf = mDffNum;
+  for (ymuint i = 0; i < nf; ++ i) {
+    SimNode* simnode = mPPIArray[i + ni];
+    Val3 val = packedval_to_val3(simnode->val());
+    f_vect.set_val(i, val);
   }
 }
 

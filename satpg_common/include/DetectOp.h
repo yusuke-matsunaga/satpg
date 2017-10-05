@@ -41,6 +41,14 @@ public:
   operator()(const TpgFault* f,
 	     const NodeValList& assign_list) = 0;
 
+  /// @brief テストパタンが見つかった時の処理
+  /// @param[in] f 故障
+  /// @param[in] tv テストベクタ
+  virtual
+  void
+  operator()(const TpgFault* f,
+	     const TestVector* tv) = 0;
+
 };
 
 /// @brief 'base' タイプを生成する．

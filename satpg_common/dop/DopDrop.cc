@@ -59,4 +59,19 @@ DopDrop::operator()(const TpgFault* f,
   }
 }
 
+// @brief テストパタンが見つかった時の処理
+// @param[in] f 故障
+// @param[in] tv テストベクタ
+void
+DopDrop::operator()(const TpgFault* f,
+		    const TestVector* tv)
+{
+  ymuint n = mFsim.sppfp(tv);
+  for (ymuint i = 0; i < n; ++ i) {
+    const TpgFault* f = mFsim.det_fault(i);
+    mMgr.set_status(f, kFsDetected);
+    mFsim.set_skip(f);
+  }
+}
+
 END_NAMESPACE_YM_SATPG

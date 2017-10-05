@@ -166,6 +166,21 @@ TestVector::init()
   }
 }
 
+// @brief InputVector とDffVector から値を設定する．
+// @param[in] input_vector入力のベクタ
+// @param[in] dff_vector DFFのベクタ
+// @param[in] aux_input_vector ２時刻目の入力のベクタ
+void
+TestVector::set(const InputVector& input_vector,
+		const DffVector& dff_vector,
+		const InputVector& aux_input_vector)
+{
+
+  mInputVector->copy(input_vector);
+  mDffVector->copy(dff_vector);
+  mAuxInputVector->copy(aux_input_vector);
+}
+
 // @brief 割当リストから内容を設定する．
 // @param[in] assign_list 割当リスト
 //

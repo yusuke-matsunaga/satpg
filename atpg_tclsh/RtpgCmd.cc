@@ -91,7 +91,7 @@ RtpgCmd::cmd_proc(TclObjVector& objv)
   }
 
   TpgFaultMgr& fmgr = _sa_fault_mgr();
-  Fsim& fsim = _fsim2();
+  Fsim& fsim = _sa_fsim2();
   TvMgr& tvmgr = _sa_tv_mgr();
 
   vector<const TestVector*>& tv_list = _sa_tv_list();

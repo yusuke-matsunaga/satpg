@@ -152,6 +152,14 @@ public:
   set_state(const InputVector& i_vect,
 	    const DffVector& f_vect);
 
+  /// @brief 状態を取得する．
+  /// @param[in] i_vect 外部入力のビットベクタ
+  /// @param[in] f_vect FFの値のビットベクタ
+  virtual
+  void
+  get_state(InputVector& i_vect,
+	    DffVector& f_vect);
+
   /// @brief 1クロック分のシミュレーションを行い，遷移回数を数える．
   /// @param[in] i_vect 外部入力のビットベクタ
   virtual
