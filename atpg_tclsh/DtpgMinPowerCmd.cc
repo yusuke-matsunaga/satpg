@@ -63,6 +63,8 @@ DtpgMinPowerCmd::DtpgMinPowerCmd(AtpgMgr* mgr) :
 		       "use RTPG");
   mPoptW = new TclPoptDouble(this, "wsa_ratio",
 			     "specify WSA ratio");
+  mPoptS = new TclPoptUint(this, "scount_limit",
+			     "specify scount limit");
   mPoptDrop = new TclPopt(this, "drop",
 			  "with fault drop");
   mPoptKDet = new TclPoptInt(this, "k_det",
@@ -139,14 +141,10 @@ DtpgMinPowerCmd::cmd_proc(TclObjVector& objv)
     wsa_ratio = mPoptW->val();
   }
 
-  DopList dop_list;
-  UopList uop_list;
-
-  if ( !mPoptNoPat->is_specified() ) {
-    dop_list.add(new_DopTvList(_td_tv_mgr(), _td_tv_list()));
+  ymuint scount_limit = 3;
+  if ( mPoptS->is_specified() ) {
+    scount_limit = mPoptS->val();
   }
-  dop_list.add(new_DopBase(_td_fault_mgr()));
-  uop_list.add(new_UopBase(_td_fault_mgr()));
 
   ymuint xmode = 0;
   if ( mPoptX->is_specified() ) {
@@ -155,13 +153,6 @@ DtpgMinPowerCmd::cmd_proc(TclObjVector& objv)
 
   BackTracer bt(xmode, kFtTransitionDelay, _network().node_num());
   DopVerifyResult verify_result;
-
-  if ( mPoptDrop->is_specified() ) {
-    dop_list.add(new_DopDrop(_td_fault_mgr(), _td_fsim3()));
-  }
-  if ( mPoptVerify->is_specified() ) {
-    dop_list.add(new_DopVerify(_td_fsim3(), verify_result));
-  }
 
   bool timer_enable = true;
   if ( mPoptNoTimer->is_specified() ) {
@@ -180,21 +171,9 @@ DtpgMinPowerCmd::cmd_proc(TclObjVector& objv)
 
   DtpgStats stats;
   dtpg.run(_td_tv_mgr(), _td_fault_mgr(), _td_fsim2(), _network(),
-	   xor_sampling, use_rtpg, wsa_ratio,
-	   dop_list, uop_list, stats);
+	   xor_sampling, wsa_ratio, scount_limit, _td_tv_list(), stats);
 
   after_update_faults();
-
-  // -verify オプションの処理
-  if ( mPoptVerify->is_specified() ) {
-    ymuint n = verify_result.error_count();
-    for (ymuint i = 0; i < n; ++ i) {
-      const TpgFault* f = verify_result.error_fault(i);
-      const NodeValList& assign_list = verify_result.error_assign_list(i);
-      cout << "Error: " << f->str() << " is not detected with "
-	   << assign_list << endl;
-    }
-  }
 
   { // 求まったパタンの平均の遷移回数を求める．
     ymuint wsa_sum = 0;

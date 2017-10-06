@@ -88,6 +88,9 @@ private:
   // WSA のしきい値を決めるオプションの解析用オブジェクト
   TclPoptDouble* mPoptW;
 
+  // scount_limit オプションの解析用オブジェクト
+  TclPoptUint* mPoptS;
+
   // drop オプションの解析用オブジェクト
   TclPopt* mPoptDrop;
 

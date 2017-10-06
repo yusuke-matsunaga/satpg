@@ -52,8 +52,7 @@ public:
   /// @param[in] fmgr 故障マネージャ
   /// @param[in] fsim 故障シミュレーター
   /// @param[in] network 対象のネットワーク
-  /// @param[in] dop 故障検出時に実行されるファンクター
-  /// @param[in] uop 故障が冗長故障の時に実行されるファンクター
+  /// @param[out] tv_list 生成されたテストパタンのリスト
   /// @param[inout] stats DTPGの統計情報
   void
   run(TvMgr& tvmgr,
@@ -61,10 +60,9 @@ public:
       Fsim& fsim,
       const TpgNetwork& network,
       bool use_xorsampling,
-      bool use_rtpg,
       double wsa_ratio,
-      DetectOp& dop,
-      UntestOp& uop,
+      ymuint scount_limit,
+      vector<const TestVector*>& tv_list,
       DtpgStats& stats);
 
   /// @brief テスト生成を行なう．
@@ -85,7 +83,8 @@ public:
        const TpgFault* fault,
        bool use_xorsampling,
        ymuint wsa_limit,
-       TestVector* tv,
+       ymuint scount_limit,
+       vector<TestVector*>& tv_list,
        DtpgStats& stats);
 
 
