@@ -14,9 +14,9 @@
 #include "TpgDff.h"
 #include "TpgNode.h"
 
-#include "ym/ym_bnet.h"
-#include "ym/ym_cell.h"
-#include "ym/ym_logic.h"
+#include "ym/bnet.h"
+#include "ym/clib.h"
+#include "ym/logic.h"
 #include "ym/SimpleAlloc.h"
 
 
@@ -211,7 +211,7 @@ public:
   /// @return 読み込みが成功したら true を返す．
   bool
   read_blif(const string& filename,
-	    const CellLibrary* cell_library = nullptr);
+	    const ClibCellLibrary* cell_library = nullptr);
 
   /// @brief iscas89 形式のファイルを読み込む．
   /// @param[in] filename ファイル名

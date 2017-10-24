@@ -188,7 +188,7 @@ TpgNetwork::~TpgNetwork()
 // @return 読み込みが成功したら true を返す．
 bool
 TpgNetwork::read_blif(const string& filename,
-		      const CellLibrary* cell_library)
+		      const ClibCellLibrary* cell_library)
 {
   BnNetwork network;
   bool stat = BnBlifReader::read(network, filename, cell_library);

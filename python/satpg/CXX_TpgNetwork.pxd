@@ -7,7 +7,7 @@
 
 from libcpp cimport bool
 from libcpp.string cimport string
-from CXX_CellLibrary cimport CellLibrary
+from CXX_ClibCellLibrary cimport ClibCellLibrary
 from CXX_TpgNode cimport TpgNode
 from CXX_TpgDff cimport TpgDff
 from CXX_TpgFault cimport TpgFault
@@ -21,7 +21,7 @@ cdef extern from "TpgNetwork.h" namespace "nsYm::nsSatpg" :
     cdef cppclass TpgNetwork :
         TpgNetwork()
         bool read_blif(const string& filename)
-        bool read_blif(const string& filename, const CellLibrary* cell_library)
+        bool read_blif(const string& filename, const ClibCellLibrary* cell_library)
         bool read_iscas89(const string& filename)
         ymuint node_num()
         const TpgNode* node(ymuint)

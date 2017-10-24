@@ -15,7 +15,6 @@
 #include "td/td_nsdef.h"
 
 #include "TpgNetwork.h"
-#include "ym/ym_cell.h"
 #include "ym/Binder.h"
 #include "ym/StopWatch.h"
 #include "ym/MStopWatch.h"

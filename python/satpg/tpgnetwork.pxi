@@ -6,7 +6,7 @@
 # Copyright (C) 2016 Yusuke Matsunaga
 # All rights reserved.
 
-
+from libcpp cimport bool
 from libcpp.string cimport string
 from CXX_TpgNetwork cimport TpgNetwork as CXX_TpgNetwork
 from CXX_TpgNode cimport TpgNode as CXX_TpgNode
@@ -25,11 +25,12 @@ cdef class TpgNetwork :
     @staticmethod
     def read_blif(str filename, CellLibrary cell_library = None) :
         cdef string c_filename = filename.encode('UTF-8')
+        cdef bool stat
         network = TpgNetwork()
         if cell_library == None :
             stat = network._this.read_blif(c_filename)
         else :
-            stat = network._this.read_blif(c_filename, cell_library._thisptr)
+            stat = network._this.read_blif(c_filename, cell_library._this_ptr)
         if stat :
             return network
         else :
@@ -43,6 +44,7 @@ cdef class TpgNetwork :
     @staticmethod
     def read_iscas89(str filename) :
         cdef string c_filename = filename.encode('UTF-8')
+        cdef bool stat
         network = TpgNetwork()
         stat = network._this.read_iscas89(c_filename)
         if stat :
