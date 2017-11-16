@@ -152,7 +152,12 @@ Val3
 JustBase::gval(const TpgNode* node,
 	       int time) const
 {
-  return mValMap.gval(node, time);
+  if ( time == 0 ) {
+    return mValMap.hval(node);
+  }
+  else {
+    return mValMap.gval(node);
+  }
 }
 
 // @brief 入力ノードの値を記録する．

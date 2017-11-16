@@ -53,12 +53,10 @@ ValMap_model::~ValMap_model()
 
 // @brief ノードの正常値を返す．
 // @param[in] node 対象のノード
-// @param[in] time 時刻 (0 or 1)
 Val3
-ValMap_model::gval(const TpgNode* node,
-		   int time) const
+ValMap_model::gval(const TpgNode* node) const
 {
-  SatVarId vid = (time == 0) ? mHvarMap(node) : mGvarMap(node);
+  SatVarId vid = mGvarMap(node);
   ASSERT_COND( vid != kSatVarIdIllegal );
   return val(vid);
 }
@@ -69,6 +67,16 @@ Val3
 ValMap_model::fval(const TpgNode* node) const
 {
   SatVarId vid = mFvarMap(node);
+  ASSERT_COND( vid != kSatVarIdIllegal );
+  return val(vid);
+}
+
+// @brief ノードの1時刻前の値を返す．
+// @param[in] node 対象のノード
+Val3
+ValMap_model::hval(const TpgNode* node) const
+{
+  SatVarId vid = mHvarMap(node);
   ASSERT_COND( vid != kSatVarIdIllegal );
   return val(vid);
 }

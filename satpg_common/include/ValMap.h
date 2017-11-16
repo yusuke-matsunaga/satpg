@@ -36,17 +36,21 @@ public:
 
   /// @brief ノードの正常値を返す．
   /// @param[in] node 対象のノード
-  /// @param[in] time 時刻 (0 or 1)
   virtual
   Val3
-  gval(const TpgNode* node,
-       int time = 1) const = 0;
+  gval(const TpgNode* node) const = 0;
 
   /// @brief ノードの故障値を返す．
   /// @param[in] node 対象のノード
   virtual
   Val3
   fval(const TpgNode* node) const = 0;
+
+  /// @brief ノードの1時刻前の値を返す．
+  /// @param[in] node 対象のノード
+  virtual
+  Val3
+  hval(const TpgNode* node) const = 0;
 
 };
 

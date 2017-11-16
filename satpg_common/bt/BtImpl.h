@@ -210,7 +210,12 @@ Val3
 BtImpl::gval(const TpgNode* node,
 	     int time) const
 {
-  return mValMap->gval(node, time);
+  if ( time == 0 ) {
+    return mValMap->hval(node);
+  }
+  else {
+    return mValMap->gval(node);
+  }
 }
 
 // @brief ノードの故障地を返す．
@@ -222,7 +227,7 @@ BtImpl::fval(const TpgNode* node,
 	     int time) const
 {
   if ( time == 0 ) {
-    return mValMap->gval(node, 0);
+    return mValMap->hval(node);
   }
   else {
     return mValMap->fval(node);
