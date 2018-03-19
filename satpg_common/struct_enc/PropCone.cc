@@ -16,7 +16,7 @@
 #include "NodeValList.h"
 
 
-BEGIN_NAMESPACE_YM_SATPG
+BEGIN_NAMESPACE_YM_SATPG_STRUCTENC
 
 BEGIN_NONAMESPACE
 
@@ -84,10 +84,7 @@ PropCone::mark_tfo(const TpgNode* node)
     ymuint nfo = node->fanout_num();
     for (ymuint i = 0; i < nfo; ++ i) {
       const TpgNode* fonode = node->fanout(i);
-      if ( !tfo_mark(fonode) ) {
-	// マークをつけて mNodeList に追加する．
-	set_tfo_mark(fonode);
-      }
+      set_tfo_mark(fonode);
     }
   }
 
@@ -244,4 +241,4 @@ PropCone::make_dchain_cnf(const TpgNode* node)
   }
 }
 
-END_NAMESPACE_YM_SATPG
+END_NAMESPACE_YM_SATPG_STRUCTENC

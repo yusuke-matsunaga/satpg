@@ -18,7 +18,7 @@
 #include "NodeValList.h"
 
 
-BEGIN_NAMESPACE_YM_SATPG
+BEGIN_NAMESPACE_YM_SATPG_STRUCTENC
 
 BEGIN_NONAMESPACE
 
@@ -240,4 +240,4 @@ MffcPropCone::make_prop_condition(const TpgNode* root,
   }
 }
 
-END_NAMESPACE_YM_SATPG
+END_NAMESPACE_YM_SATPG_STRUCTENC

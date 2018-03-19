@@ -24,12 +24,12 @@ set (atpg_tclsh_SOURCES
   PrintPatStatsCmd.cc
   PrintStatsCmd.cc
   TimeCmd.cc
-  RtpgCmd.cc
-  Rtpg1Cmd.cc
+  #RtpgCmd.cc
+  #Rtpg1Cmd.cc
   DtpgCmd.cc
   #DtpgMinPowerCmd.cc
   RandWsaCmd.cc
-  MinPatCmd.cc
+  #MinPatCmd.cc
   )
 
 

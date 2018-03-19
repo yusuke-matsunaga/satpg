@@ -14,7 +14,7 @@
 #include "ValMap_model.h"
 
 
-BEGIN_NAMESPACE_YM_SATPG
+BEGIN_NAMESPACE_YM_SATPG_STRUCTENC
 
 BEGIN_NONAMESPACE
 
@@ -219,4 +219,4 @@ Extractor::record_side_input(const TpgNode* node,
   assign_list.add(node, 1, val);
 }
 
-END_NAMESPACE_YM_SATPG
+END_NAMESPACE_YM_SATPG_STRUCTENC

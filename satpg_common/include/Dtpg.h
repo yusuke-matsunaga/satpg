@@ -20,7 +20,9 @@
 
 BEGIN_NAMESPACE_YM_SATPG
 
-class DtpgImpl;
+namespace nsDtpg {
+  class DtpgImpl;
+}
 
 //////////////////////////////////////////////////////////////////////
 /// @class Dtpg Dtpg.h "sa/Dtpg.h"
@@ -107,7 +109,7 @@ private:
   Justifier& mJustifier;
 
   // 実装クラス
-  DtpgImpl* mImpl;
+  nsDtpg::DtpgImpl* mImpl;
 
 };
 

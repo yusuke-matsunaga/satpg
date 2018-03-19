@@ -9,13 +9,13 @@
 /// All rights reserved.
 
 
-#include "satpg.h"
+#include "structenc_nsdef.h"
 #include "ValMap.h"
 #include "ym/HashSet.h"
 #include "ym/HashMap.h"
 
 
-BEGIN_NAMESPACE_YM_SATPG
+BEGIN_NAMESPACE_YM_SATPG_STRUCTENC
 
 //////////////////////////////////////////////////////////////////////
 /// @class Extractor Extractor.h "Extractor.h"
@@ -143,6 +143,6 @@ Extractor::fval(const TpgNode* node)
   return mValMapPtr->fval(node);
 }
 
-END_NAMESPACE_YM_SATPG
+END_NAMESPACE_YM_SATPG_STRUCTENC
 
 #endif // EXTRACTOR_H

@@ -9,11 +9,11 @@
 /// All rights reserved.
 
 
-#include "satpg.h"
+#include "structenc_nsdef.h"
 #include "ym/SatLiteral.h"
 
 
-BEGIN_NAMESPACE_YM_SATPG
+BEGIN_NAMESPACE_YM_SATPG_STRUCTENC
 
 //////////////////////////////////////////////////////////////////////
 /// @class GateLitMap GateLitMap.h "GateLitMap.h"
@@ -48,6 +48,6 @@ public:
 
 };
 
-END_NAMESPACE_YM_SATPG
+END_NAMESPACE_YM_SATPG_STRUCTENC
 
 #endif // GATELITMAP_H

@@ -13,7 +13,7 @@
 #include "VidMap.h"
 
 
-BEGIN_NAMESPACE_YM_SATPG
+BEGIN_NAMESPACE_YM_SATPG_STRUCTENC
 
 //////////////////////////////////////////////////////////////////////
 /// @class ValMap_model ValMap_model.h "ValMap_model.h"
@@ -113,6 +113,6 @@ ValMap_model::val(SatVarId varid) const
   return bool3_to_val3(mModel[varid.val()]);
 }
 
-END_NAMESPACE_YM_SATPG
+END_NAMESPACE_YM_SATPG_STRUCTENC
 
 #endif // VALMAP_H

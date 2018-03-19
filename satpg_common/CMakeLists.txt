@@ -71,12 +71,20 @@ set (struct_enc_SOURCES
 set (dtpg_SOURCES
   dtpg/Dtpg.cc
   #dtpg/DtpgImpl.cc
-  #dtpg/DtpgImplM.cc
 
   dtpg/DtpgImpl_new.cc
 
   #dtpg/Dtpg2.cc
   #dtpg/Dtpg2Impl.cc
+  )
+
+set (dtpg_old_SOURCES
+  dtpg_old/Dtpg_old.cc
+  dtpg_old/DtpgImpl.cc
+  dtpg_old/DtpgImplM.cc
+
+  dtpg_old/GateLitMap_vect.cc
+  dtpg_old/GateLitMap_vid.cc
   )
 
 set (dop_SOURCES
@@ -153,8 +161,8 @@ ym_add_object_library ( satpg_common
   ${uop_SOURCES}
   ${bt_SOURCES}
   ${jt_SOURCES}
-  ${sa_SOURCES}
-  ${td_SOURCES}
+#  ${sa_SOURCES}
+#  ${td_SOURCES}
   )
 
 

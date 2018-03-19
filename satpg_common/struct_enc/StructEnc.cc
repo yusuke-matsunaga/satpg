@@ -24,7 +24,7 @@
 #include "GateLitMap_vid2.h"
 
 
-BEGIN_NAMESPACE_YM_SATPG
+BEGIN_NAMESPACE_YM_SATPG_STRUCTENC
 
 BEGIN_NONAMESPACE
 
@@ -308,7 +308,9 @@ StructEnc::make_tfi_list(const vector<const TpgNode*>& node_list)
   // node_list を mCurNodeList に入れる．
   for (ymuint i = 0; i < node_list.size(); ++ i) {
     const TpgNode* node = node_list[i];
-    add_cur_node(node);
+    if ( !cur_mark(node) ) {
+      add_cur_node(node);
+    }
   }
   for (ymuint rpos = 0; rpos < mCurNodeList.size(); ++ rpos) {
     const TpgNode* node = mCurNodeList[rpos];
@@ -871,4 +873,4 @@ StructEnc::_make_node_cnf(const TpgNode* node,
   }
 }
 
-END_NAMESPACE_YM_SATPG
+END_NAMESPACE_YM_SATPG_STRUCTENC

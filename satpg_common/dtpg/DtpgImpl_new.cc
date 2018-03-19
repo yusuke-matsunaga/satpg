@@ -29,7 +29,7 @@ const int debug_dtpg = 0;
 END_NONAMESPACE
 
 
-BEGIN_NAMESPACE_YM_SATPG
+BEGIN_NAMESPACE_YM_SATPG_DTPG
 
 // @brief コンストラクタ
 // @param[in] sat_type SATソルバの種類を表す文字列
@@ -112,14 +112,6 @@ DtpgImpl::dtpg(const TpgFault* fault,
 	       NodeValList& nodeval_list,
 	       DtpgStats& stats)
 {
-#if 0
-  if ( fault->tpg_onode()->ffr_root() != root_node() ) {
-    cerr << "Error[DtpgImpl::dtpg()]: " << fault << " is not within mFfrRoot's FFR" << endl;
-    cerr << " fautl->ffr_root() = " << fault->tpg_onode()->ffr_root()->name() << endl;
-    return kB3X;
-  }
-#endif
-
   StopWatch timer;
   timer.start();
 
@@ -150,14 +142,7 @@ DtpgImpl::dtpg(const TpgFault* fault,
     mStructEnc.extract(model, fault, 0, assign_list);
 
     mStructEnc.justify(model, assign_list, mJustifier, nodeval_list);
-#if 0
-    //mFoCone->extract(model, assign_list);
 
-    ValMap* val_map = mFoCone->val_map(model);
-    mBackTracer(assign_list, mFoCone->output_list(), *val_map, nodeval_list);
-    // ここで val_map を削除しなければならない仕様はちょっと醜い．
-    delete val_map;
-#endif
     timer.stop();
     stats.mBackTraceTime += timer.time();
 
@@ -213,4 +198,4 @@ DtpgImpl::timer_stop()
   return time;
 }
 
-END_NAMESPACE_YM_SATPG
+END_NAMESPACE_YM_SATPG_DTPG

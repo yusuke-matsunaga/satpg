@@ -58,7 +58,8 @@ Dtpg::gen_ffr_cnf(const TpgNetwork& network,
     delete mImpl;
   }
 
-  mImpl = new DtpgImpl(mSatType, mSatOption, mSatOutP, mFaultType, mJustifier, network.node_num());
+  mImpl = new nsDtpg::DtpgImpl(mSatType, mSatOption, mSatOutP, mFaultType,
+			       mJustifier, network.node_num());
   mImpl->gen_cnf(ffr->root(), stats);
 }
 
@@ -79,7 +80,8 @@ Dtpg::gen_mffc_cnf(const TpgNetwork& network,
     delete mImpl;
   }
 
-  mImpl = new DtpgImpl(mSatType, mSatOption, mSatOutP, mFaultType, mJustifier, network.node_num());
+  mImpl = new nsDtpg::DtpgImpl(mSatType, mSatOption, mSatOutP, mFaultType,
+			       mJustifier, network.node_num());
   mImpl->gen_cnf(mffc, stats);
 }
 

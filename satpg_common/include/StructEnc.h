@@ -9,7 +9,7 @@
 /// All rights reserved.
 
 
-#include "satpg.h"
+#include "structenc_nsdef.h"
 #include "FaultType.h"
 #include "VidMap.h"
 #include "TpgNode.h"
@@ -17,9 +17,7 @@
 #include "ym/SatSolver.h"
 
 
-BEGIN_NAMESPACE_YM_SATPG
-
-class PropCone;
+BEGIN_NAMESPACE_YM_SATPG_STRUCTENC
 
 //////////////////////////////////////////////////////////////////////
 /// @class StructEnc StructEnc.h "StructEnc.h"
@@ -709,6 +707,6 @@ StructEnc::debug() const
   return mDebugFlag;
 }
 
-END_NAMESPACE_YM_SATPG
+END_NAMESPACE_YM_SATPG_STRUCTENC
 
 #endif // STRUCTENC_H

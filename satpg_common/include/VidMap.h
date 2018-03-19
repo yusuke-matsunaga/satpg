@@ -9,16 +9,19 @@
 /// All rights reserved.
 
 
-#include "satpg.h"
+#include "structenc_nsdef.h"
 #include "TpgNode.h"
 #include "ym/SatVarId.h"
 
 
-BEGIN_NAMESPACE_YM_SATPG
+BEGIN_NAMESPACE_YM_SATPG_STRUCTENC
 
 //////////////////////////////////////////////////////////////////////
 /// @class VidMap VidMap.h "VidMap.h"
 /// @brief ノードに関連した変数番号を返すクラス
+///
+/// 機能的にはノード番号をキーにした連想配列だが
+/// ノード番号は連続しているのでただの配列で実装する．
 //////////////////////////////////////////////////////////////////////
 class VidMap
 {
@@ -122,6 +125,6 @@ VidMap::set_vid(const TpgNode* node,
   mVidArray[node->id()] = vid;
 }
 
-END_NAMESPACE_YM_SATPG
+END_NAMESPACE_YM_SATPG_STRUCTENC
 
 #endif // VIDMAP_H

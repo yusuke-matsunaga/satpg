@@ -10,12 +10,12 @@
 /// All rights reserved.
 
 
-#include "satpg.h"
+#include "structenc_nsdef.h"
 #include "StructEnc.h"
 #include "TpgNode.h"
 
 
-BEGIN_NAMESPACE_YM_SATPG
+BEGIN_NAMESPACE_YM_SATPG_STRUCTENC
 
 //////////////////////////////////////////////////////////////////////
 /// @class PropCone PropCone.h "PropCone.h"
@@ -393,14 +393,17 @@ inline
 void
 PropCone::set_tfo_mark(const TpgNode* node)
 {
-  mMarkArray[node->id()] |= 1U;
-  mNodeList.push_back(node);
-  if ( node->is_ppo() ) {
-    set_end_mark(node);
-    mOutputList.push_back(node);
-  }
-  else if ( end_mark(node) ) {
-    mOutputList.push_back(node);
+  ymuint id = node->id();
+  if ( ((mMarkArray[id] >> 0) & 1U) == 0U ) {
+    mMarkArray[id] |= 1U;
+    mNodeList.push_back(node);
+    if ( node->is_ppo() ) {
+      set_end_mark(node);
+      mOutputList.push_back(node);
+    }
+    else if ( end_mark(node) ) {
+      mOutputList.push_back(node);
+    }
   }
 }
 
@@ -438,6 +441,6 @@ PropCone::solver()
   return mStructEnc.solver();
 }
 
-END_NAMESPACE_YM_SATPG
+END_NAMESPACE_YM_SATPG_STRUCTENC
 
 #endif // PROPCONE_H

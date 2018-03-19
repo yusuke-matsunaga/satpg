@@ -16,7 +16,7 @@
 #include "NodeValList.h"
 
 
-BEGIN_NAMESPACE_YM_SATPG
+BEGIN_NAMESPACE_YM_SATPG_STRUCTENC
 
 BEGIN_NONAMESPACE
 
@@ -84,4 +84,4 @@ SimplePropCone::extract(const vector<SatBool3>& model,
   extractor(root, val_map, assign_list);
 }
 
-END_NAMESPACE_YM_SATPG
+END_NAMESPACE_YM_SATPG_STRUCTENC

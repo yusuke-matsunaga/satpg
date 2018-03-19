@@ -10,7 +10,7 @@
 /// All rights reserved.
 
 
-#include "satpg.h"
+#include "dtpg_nsdef.h"
 
 #include "TpgNetwork.h"
 #include "TpgNode.h"
@@ -27,7 +27,7 @@
 #include "ym/StopWatch.h"
 
 
-BEGIN_NAMESPACE_YM_SATPG
+BEGIN_NAMESPACE_YM_SATPG_DTPG
 
 //////////////////////////////////////////////////////////////////////
 /// @class DtpgImpl DtpgImpl.h "DtpgImpl.h"
@@ -217,6 +217,6 @@ DtpgImpl::root_node() const
 }
 #endif
 
-END_NAMESPACE_YM_SATPG
+END_NAMESPACE_YM_SATPG_DTPG
 
 #endif // DTPGIMPL_H

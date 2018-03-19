@@ -47,7 +47,10 @@ private:
   TclPoptInt* mPoptVerbose;
 
   // sat モードオプションの解析用オブジェクト
-  TclPopt* mPoptSat;
+  TclPoptStr* mPoptSat;
+
+  // sat-option オプションの解析用オブジェクト
+  TclPoptStr* mPoptSatOption;
 
   // satrec モードオプションの解析用オブジェクト
   TclPopt* mPoptSatRec;
@@ -55,8 +58,17 @@ private:
   // minisat モードオプションの解析用オブジェクト
   TclPopt* mPoptMiniSat;
 
-  // fsim モードオプションの解析用オブジェクト
-  TclPoptStr* mPoptFsim;
+  // minisat2 モードオプションの解析用オブジェクト
+  TclPopt* mPoptMiniSat2;
+
+  // ymsat1 モードオプションの解析用オブジェクト
+  TclPopt* mPoptYmSat1;
+
+  // stuck_at オプションの解析用オブジェクト
+  TclPopt* mPoptStuckAt;
+
+  // transition_delay オプションの解析用オブジェクト
+  TclPopt* mPoptTransitionDelay;
 
   // print_stats オプションの解析用オブジェクト
   TclPopt* mPoptPrintStats;
@@ -64,35 +76,26 @@ private:
   // single オプションの解析用オブジェクト
   TclPopt* mPoptSingle;
 
-  // dual オプションの解析用オブジェクト
-  TclPopt* mPoptDual;
-
   // ffr オプションの解析用オブジェクト
   TclPopt* mPoptFFR;
 
   // mffc オプションの解析用オブジェクト
   TclPopt* mPoptMFFC;
 
-  // all オプションの解析用オブジェクト
-  TclPopt* mPoptAll;
-
-  // po オプションの解析用オブジェクト
-  TclPopt* mPoptPo;
-
-  // rpo オプションの解析用オブジェクト
-  TclPopt* mPoptRpo;
-
-  // skip オプションの解析用オブジェクト
-  TclPopt* mPoptSkip;
-
   // X抽出オプションの解析用オブジェクト
   TclPoptInt* mPoptX;
 
-  // dry runオプションの解析用オブジェクト
-  TclPopt* mPoptDryRun;
-
   // drop オプションの解析用オブジェクト
   TclPopt* mPoptDrop;
+
+  // k_det オプションの解析用オブジェクト
+  TclPoptInt* mPoptKDet;
+
+  // no_pat オプションの解析用オブジェクト
+  TclPopt* mPoptNoPat;
+
+  // オプション文字列オプションの解析用オブジェクト
+  TclPoptStr* mPoptOpt;
 
   // verify オプションの解析用オブジェクト
   TclPopt* mPoptVerify;
@@ -100,8 +103,11 @@ private:
   // timer オプションの解析用オブジェクト
   TclPopt* mPoptTimer;
 
+  // no-timer オプションの解析用オブジェクト
+  TclPopt* mPoptNoTimer;
+
 };
 
 END_NAMESPACE_YM_SATPG
 
-#endif // DTPGOLDCMD_H
+#endif // DTPGCMD_H
