@@ -113,10 +113,10 @@ private:
   const ValMap* mValMapPtr;
 
   // 故障の fanout cone のマーク
-  HashSet<ymuint> mFconeMark;
+  HashSet<int> mFconeMark;
 
   // 記録済みノードを保持するハッシュ表
-  HashSet<ymuint> mRecorded;
+  HashSet<int> mRecorded;
 
   // 故障差の伝搬している外部出力のリスト
   vector<const TpgNode*> mSpoList;

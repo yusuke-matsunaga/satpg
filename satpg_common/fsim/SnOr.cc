@@ -3,11 +3,12 @@
 /// @brief SnOr の実装ファイル
 /// @author Yusuke Matsunaga (松永 裕介)
 ///
-/// Copyright (C) 2016, 2017 Yusuke Matsunaga
+/// Copyright (C) 2016, 2017, 2018 Yusuke Matsunaga
 /// All rights reserved.
 
 
 #include "SnOr.h"
+#include "GateType.h"
 
 
 BEGIN_NAMESPACE_YM_SATPG_FSIM
@@ -48,7 +49,7 @@ SnOr::~SnOr()
 GateType
 SnOr::gate_type() const
 {
-  return kGateOR;
+  return GateType::OR;
 }
 
 // @brief 出力値の計算を行う．
@@ -98,7 +99,7 @@ SnOr2::~SnOr2()
 GateType
 SnOr2::gate_type() const
 {
-  return kGateOR;
+  return GateType::OR;
 }
 
 // @brief 出力値の計算を行う．
@@ -142,7 +143,7 @@ SnOr3::~SnOr3()
 GateType
 SnOr3::gate_type() const
 {
-  return kGateOR;
+  return GateType::OR;
 }
 
 // @brief 出力値の計算を行う．
@@ -195,7 +196,7 @@ SnOr4::~SnOr4()
 GateType
 SnOr4::gate_type() const
 {
-  return kGateOR;
+  return GateType::OR;
 }
 
 // @brief 出力値の計算を行う．
@@ -252,7 +253,7 @@ SnNor::~SnNor()
 GateType
 SnNor::gate_type() const
 {
-  return kGateNOR;
+  return GateType::NOR;
 }
 
 // @brief 出力値の計算を行う．
@@ -288,7 +289,7 @@ SnNor2::~SnNor2()
 GateType
 SnNor2::gate_type() const
 {
-  return kGateNOR;
+  return GateType::NOR;
 }
 
 // @brief 出力値の計算を行う．
@@ -324,7 +325,7 @@ SnNor3::~SnNor3()
 GateType
 SnNor3::gate_type() const
 {
-  return kGateNOR;
+  return GateType::NOR;
 }
 
 // @brief 出力値の計算を行う．(3値版)
@@ -362,7 +363,7 @@ SnNor4::~SnNor4()
 GateType
 SnNor4::gate_type() const
 {
-  return kGateNOR;
+  return GateType::NOR;
 }
 
 // @brief 出力値の計算を行う．

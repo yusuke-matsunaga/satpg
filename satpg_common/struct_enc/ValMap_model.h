@@ -11,6 +11,8 @@
 
 #include "ValMap.h"
 #include "VidMap.h"
+#include "ym/SatBool3.h"
+#include "Val3.h"
 
 
 BEGIN_NAMESPACE_YM_SATPG_STRUCTENC

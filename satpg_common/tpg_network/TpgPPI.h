@@ -5,7 +5,7 @@
 /// @brief TpgPPI のヘッダファイル
 /// @author Yusuke Matsunaga (松永 裕介)
 ///
-/// Copyright (C) 2016 Yusuke Matsunaga
+/// Copyright (C) 2016, 2018 Yusuke Matsunaga
 /// All rights reserved.
 
 
@@ -21,13 +21,13 @@ BEGIN_NAMESPACE_YM_SATPG
 class TpgPPI :
   public TpgNode
 {
-public:
+protected:
 
   /// @brief コンストラクタ
   /// @param[in] id ID番号
   /// @param[in] input_id 入力番号
-  TpgPPI(ymuint id,
-	 ymuint input_id);
+  TpgPPI(int id,
+	 int input_id);
 
   /// @brief デストラクタ
   virtual
@@ -44,7 +44,7 @@ public:
   /// 具体的には is_primary_input() || is_dff_output()
   virtual
   bool
-  is_ppi() const;
+  is_ppi() const override;
 
   /// @brief 外部入力タイプの時に入力番号を返す．
   ///
@@ -52,8 +52,8 @@ public:
   /// の関係を満たす．
   /// is_input() が false の場合の返り値は不定
   virtual
-  ymuint
-  input_id() const;
+  int
+  input_id() const override;
 
   /// @brief ゲートタイプを得る．
   ///
@@ -63,18 +63,18 @@ public:
   /// - それ以外の返り値は不定
   virtual
   GateType
-  gate_type() const;
+  gate_type() const override;
 
   /// @brief ファンイン数を得る．
   virtual
-  ymuint
-  fanin_num() const;
+  int
+  fanin_num() const override;
 
   /// @brief ファンインを得る．
   /// @param[in] pos 位置番号 ( 0 <= pos < fanin_num() )
   virtual
   TpgNode*
-  fanin(ymuint pos) const;
+  fanin(int pos) const override;
 
 
 private:
@@ -89,7 +89,7 @@ private:
   //////////////////////////////////////////////////////////////////////
 
   // 入力番号
-  ymuint mInputId;
+  int mInputId;
 
 };
 

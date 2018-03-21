@@ -8,20 +8,32 @@
 
 from enum import Enum
 from CXX_Val3 cimport Val3 as CXX_Val3
-from CXX_Val3 cimport kValX, kVal0, kVal1
+from CXX_Val3 cimport __val3_to_int, __int_to_val3
 
-## @brief Val3 の Python バージョン
+### @brief Val3 の Python バージョン
 class Val3(Enum) :
-    ValX = 0
-    Val0 = 1
-    Val1 = 2
+    _X = 0
+    _0 = 1
+    _1 = 2
 
 
-## C++ の Val3 を Python の Val3 に変換する
-def to_Val3(CXX_Val3 c_val) :
-    if c_val == kValX :
-        return Val3.ValX
-    elif c_val == kVal0 :
-        return Val3.Val0
-    elif c_val == kVal1 :
-        return Val3.Val1
+### @brief C++ の Val3 を Python の Val3 に変換する
+cdef to_Val3(CXX_Val3 c_val) :
+    cdef int c_int = __val3_to_int(c_val)
+    if c_int == 0 :
+        return Val3._X
+    elif c_int == 1 :
+        return Val3._0
+    elif c_int == 2 :
+        return Val3._1
+
+### @brief Python の Val3 を C++ の Val3 に変換する．
+cdef CXX_Val3 from_Val3(val) :
+    cdef int c_int
+    if val == Val3._X :
+        c_int = 0
+    elif val == Val3._0 :
+        c_int = 1
+    elif val == Val3._1 :
+        c_int = 2
+    return __int_to_val3(c_int)

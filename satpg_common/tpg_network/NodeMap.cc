@@ -30,7 +30,7 @@ NodeMap::~NodeMap()
 // @param[in] bnnode_id BnNodeのID番号
 // @param[in] tpgnode TpgNode
 void
-NodeMap::reg(ymuint bnnode_id,
+NodeMap::reg(int bnnode_id,
 	     TpgNode* tpgnode)
 {
   ASSERT_COND( !mNodeMap.check(bnnode_id) );
@@ -39,7 +39,7 @@ NodeMap::reg(ymuint bnnode_id,
 
 // @brief 対応するノードを得る．
 TpgNode*
-NodeMap::get(ymuint bnnode_id) const
+NodeMap::get(int bnnode_id) const
 {
   TpgNode* node;
   if ( mNodeMap.find(bnnode_id, node) ) {

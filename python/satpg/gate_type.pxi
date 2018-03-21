@@ -8,18 +8,7 @@
 
 from enum import Enum
 from CXX_GateType cimport GateType as CXX_GateType
-from CXX_GateType cimport kGateCONST0
-from CXX_GateType cimport kGateCONST1
-from CXX_GateType cimport kGateINPUT
-from CXX_GateType cimport kGateBUFF
-from CXX_GateType cimport kGateNOT
-from CXX_GateType cimport kGateAND
-from CXX_GateType cimport kGateNAND
-from CXX_GateType cimport kGateOR
-from CXX_GateType cimport kGateNOR
-from CXX_GateType cimport kGateXOR
-from CXX_GateType cimport kGateXNOR
-from CXX_GateType cimport kGateCPLX
+from CXX_GateType cimport __gate_type_to_int, __int_to_gate_type
 
 
 ## @brief GateType の Python バージョン
@@ -35,60 +24,58 @@ class GateType(Enum) :
     NOR    = 8
     XOR    = 9
     XNOR   = 10
-    CPLX   = 11
 
 
 ## @brief C++ の GateType を Python の GateType に変換する．
-def to_GateType(CXX_GateType c_val) :
-    if c_val == kGateCONST0 :
+cdef to_GateType(CXX_GateType c_gate_type) :
+    cdef c_val = __gate_type_to_int(c_gate_type)
+    if c_val == 0 :
         return GateType.CONST0
-    elif c_val == kGateCONST1 :
+    elif c_val == 1:
         return GateType.CONST1
-    elif c_val == kGateINPUT :
+    elif c_val == 2:
         return GateType.INPUT
-    elif c_val == kGateBUFF :
+    elif c_val == 3:
         return GateType.BUFF
-    elif c_val == kGateNOT :
+    elif c_val == 4:
         return GateType.NOT
-    elif c_val == kGateAND :
+    elif c_val == 5:
         return GateType.AND
-    elif c_val == kGateNAND :
+    elif c_val == 6:
         return GateType.NAND
-    elif c_val == kGateOR :
+    elif c_val == 7:
         return GateType.OR
-    elif c_val == kGateNOR :
+    elif c_val == 8:
         return GateType.NOR
-    elif c_val == kGateXOR :
+    elif c_val == 9:
         return GateType.XOR
-    elif c_val == kGateXNOR :
+    elif c_val == 10:
         return GateType.XNOR
-    elif c_val == kGateCPLX :
-        return GateType.CPLX
 
 
 ## @brief Python の GateType を C++ の GateType に変換する．
 cdef CXX_GateType from_GateType(val) :
+    cdef int c_val = 0
     if val == GateType.CONST0 :
-        return kGateCONST0
+        c_val = 0
     elif val == GateType.CONST1 :
-        return kGateCONST1
+        c_val = 1
     elif val == GateType.INPUT :
-        return kGateINPUT
+        c_val = 2
     elif val == GateType.BUFF :
-        return kGateBUFF
+        c_val = 3
     elif val == GateType.NOT :
-        return kGateNOT
+        c_val = 4
     elif val == GateType.AND :
-        return kGateAND
+        c_val = 5
     elif val == GateType.NAND :
-        return kGateNAND
+        c_val = 6
     elif val == GateType.OR :
-        return kGateOR
+        c_val = 7
     elif val == GateType.NOR :
-        return kGateNOR
+        c_val = 8
     elif val == GateType.XOR :
-        return kGateXOR
+        c_val = 9
     elif val == GateType.XNOR :
-        return kGateXNOR
-    elif val == GateType.CPLX :
-        return kGateCPLX
+        c_val = 10
+    return __int_to_gate_type(c_val)

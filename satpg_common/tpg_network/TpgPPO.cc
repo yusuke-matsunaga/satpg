@@ -3,12 +3,12 @@
 /// @brief TpgPPO の実装ファイル
 /// @author Yusuke Matsunaga (松永 裕介)
 ///
-/// Copyright (C) 2016 Yusuke Matsunaga
+/// Copyright (C) 2016, 2018 Yusuke Matsunaga
 /// All rights reserved.
 
 
 #include "TpgPPO.h"
-#include "ym/SatSolver.h"
+#include "GateType.h"
 
 
 BEGIN_NAMESPACE_YM_SATPG
@@ -21,8 +21,8 @@ BEGIN_NAMESPACE_YM_SATPG
 // @param[in] id ID番号
 // @param[in] output_id 出力番号
 // @param[in] fanin ファンインのノード
-TpgPPO::TpgPPO(ymuint id,
-	       ymuint output_id,
+TpgPPO::TpgPPO(int id,
+	       int output_id,
 	       TpgNode* fanin) :
   TpgNode(id),
   mOutputId(output_id),
@@ -50,14 +50,14 @@ TpgPPO::is_ppo() const
 // node = TpgNetwork::output(node->output_id())
 // の関係を満たす．
 // is_output() が false の場合の返り値は不定
-ymuint
+int
 TpgPPO::output_id() const
 {
   return mOutputId;
 }
 
 // @brief TFIサイズの昇順に並べた時の出力番号を返す．
-ymuint
+int
 TpgPPO::output_id2() const
 {
   return mOutputId2;
@@ -69,11 +69,11 @@ TpgPPO::output_id2() const
 GateType
 TpgPPO::gate_type() const
 {
-  return kGateBUFF;
+  return GateType::BUFF;
 }
 
 // @brief ファンイン数を得る．
-ymuint
+int
 TpgPPO::fanin_num() const
 {
   return 1;
@@ -82,7 +82,7 @@ TpgPPO::fanin_num() const
 // @brief ファンインを得る．
 // @param[in] pos 位置番号 ( 0 <= pos < fanin_num() )
 TpgNode*
-TpgPPO::fanin(ymuint pos) const
+TpgPPO::fanin(int pos) const
 {
   ASSERT_COND( pos == 0 );
 
@@ -94,7 +94,7 @@ TpgPPO::fanin(ymuint pos) const
 //
 // 出力ノード以外では無効
 void
-TpgPPO::set_output_id2(ymuint id)
+TpgPPO::set_output_id2(int id)
 {
   mOutputId2 = id;
 }

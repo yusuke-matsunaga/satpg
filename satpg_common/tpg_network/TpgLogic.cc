@@ -18,7 +18,7 @@ BEGIN_NAMESPACE_YM_SATPG
 
 // @brief コンストラクタ
 // @param[in] id ID番号
-TpgLogic::TpgLogic(ymuint id) :
+TpgLogic::TpgLogic(int id) :
   TpgNode(id)
 {
 }
@@ -42,7 +42,7 @@ TpgLogic::is_logic() const
 
 // @brief コンストラクタ
 // @param[in] id ID番号
-TpgLogic0::TpgLogic0(ymuint id) :
+TpgLogic0::TpgLogic0(int id) :
   TpgLogic(id)
 {
 }
@@ -53,7 +53,7 @@ TpgLogic0::~TpgLogic0()
 }
 
 // @brief ファンイン数を得る．
-ymuint
+int
 TpgLogic0::fanin_num() const
 {
   return 0;
@@ -62,7 +62,7 @@ TpgLogic0::fanin_num() const
 // @brief ファンインを得る．
 // @param[in] pos 位置番号 ( 0 <= pos < fanin_num() )
 TpgNode*
-TpgLogic0::fanin(ymuint pos) const
+TpgLogic0::fanin(int pos) const
 {
   ASSERT_NOT_REACHED;
 
@@ -77,7 +77,7 @@ TpgLogic0::fanin(ymuint pos) const
 // @brief コンストラクタ
 // @param[in] id ID番号
 // @param[in] fanin ファンイン
-TpgLogic1::TpgLogic1(ymuint id,
+TpgLogic1::TpgLogic1(int id,
 		     TpgNode* fanin) :
   TpgLogic(id),
   mFanin(fanin)
@@ -90,7 +90,7 @@ TpgLogic1::~TpgLogic1()
 }
 
 // @brief ファンイン数を得る．
-ymuint
+int
 TpgLogic1::fanin_num() const
 {
   return 1;
@@ -99,7 +99,7 @@ TpgLogic1::fanin_num() const
 // @brief ファンインを得る．
 // @param[in] pos 位置番号 ( 0 <= pos < fanin_num() )
 TpgNode*
-TpgLogic1::fanin(ymuint pos) const
+TpgLogic1::fanin(int pos) const
 {
   ASSERT_COND( pos == 0 );
 
@@ -116,7 +116,7 @@ TpgLogic1::fanin(ymuint pos) const
 // @param[in] fanin_list ファンインのリスト
 //
 // fanin_list.size() == 2 であることを仮定している．
-TpgLogic2::TpgLogic2(ymuint id,
+TpgLogic2::TpgLogic2(int id,
 		     const vector<TpgNode*>& fanin_list) :
   TpgLogic(id)
 {
@@ -132,7 +132,7 @@ TpgLogic2::~TpgLogic2()
 }
 
 // @brief ファンイン数を得る．
-ymuint
+int
 TpgLogic2::fanin_num() const
 {
   return 2;
@@ -141,7 +141,7 @@ TpgLogic2::fanin_num() const
 // @brief ファンインを得る．
 // @param[in] pos 位置番号 ( 0 <= pos < fanin_num() )
 TpgNode*
-TpgLogic2::fanin(ymuint pos) const
+TpgLogic2::fanin(int pos) const
 {
   ASSERT_COND( pos < 2 );
 
@@ -158,7 +158,7 @@ TpgLogic2::fanin(ymuint pos) const
 // @param[in] fanin_list ファンインのリスト
 //
 // fanin_list.size() == 3 であることを仮定している．
-TpgLogic3::TpgLogic3(ymuint id,
+TpgLogic3::TpgLogic3(int id,
 		     const vector<TpgNode*>& fanin_list) :
   TpgLogic(id)
 {
@@ -175,7 +175,7 @@ TpgLogic3::~TpgLogic3()
 }
 
 // @brief ファンイン数を得る．
-ymuint
+int
 TpgLogic3::fanin_num() const
 {
   return 3;
@@ -184,7 +184,7 @@ TpgLogic3::fanin_num() const
 // @brief ファンインを得る．
 // @param[in] pos 位置番号 ( 0 <= pos < fanin_num() )
 TpgNode*
-TpgLogic3::fanin(ymuint pos) const
+TpgLogic3::fanin(int pos) const
 {
   ASSERT_COND( pos < 3 );
 
@@ -201,7 +201,7 @@ TpgLogic3::fanin(ymuint pos) const
 // @param[in] fanin_list ファンインのリスト
 //
 // fanin_list.size() == 4 であることを仮定している．
-TpgLogic4::TpgLogic4(ymuint id,
+TpgLogic4::TpgLogic4(int id,
 		     const vector<TpgNode*>& fanin_list) :
   TpgLogic(id)
 {
@@ -219,7 +219,7 @@ TpgLogic4::~TpgLogic4()
 }
 
 // @brief ファンイン数を得る．
-ymuint
+int
 TpgLogic4::fanin_num() const
 {
   return 4;
@@ -228,7 +228,7 @@ TpgLogic4::fanin_num() const
 // @brief ファンインを得る．
 // @param[in] pos 位置番号 ( 0 <= pos < fanin_num() )
 TpgNode*
-TpgLogic4::fanin(ymuint pos) const
+TpgLogic4::fanin(int pos) const
 {
   ASSERT_COND( pos < 4 );
 
@@ -242,7 +242,7 @@ TpgLogic4::fanin(ymuint pos) const
 
 // @brief コンストラクタ
 // @param[in] id ID番号
-TpgLogicN::TpgLogicN(ymuint id) :
+TpgLogicN::TpgLogicN(int id) :
   TpgLogic(id),
   mFaninNum(0),
   mFanins(nullptr)
@@ -256,7 +256,7 @@ TpgLogicN::~TpgLogicN()
 }
 
 // @brief ファンイン数を得る．
-ymuint
+int
 TpgLogicN::fanin_num() const
 {
   return mFaninNum;
@@ -265,7 +265,7 @@ TpgLogicN::fanin_num() const
 // @brief ファンインを得る．
 // @param[in] pos 位置番号 ( 0 <= pos < fanin_num() )
 TpgNode*
-TpgLogicN::fanin(ymuint pos) const
+TpgLogicN::fanin(int pos) const
 {
   ASSERT_COND( pos < fanin_num() );
 
@@ -282,9 +282,8 @@ TpgLogicN::set_fanin(const vector<TpgNode*>& inode_list,
 		     Alloc& alloc)
 {
   mFaninNum = inode_list.size();
-  void* p = alloc.get_memory(sizeof(TpgNode*) * mFaninNum);
-  mFanins = new (p) TpgNode*[mFaninNum];
-  for (ymuint i = 0; i < mFaninNum; ++ i) {
+  mFanins = alloc.get_array<TpgNode*>(mFaninNum);
+  for ( int i = 0; i < mFaninNum; ++ i ) {
     mFanins[i] = inode_list[i];
   }
 }

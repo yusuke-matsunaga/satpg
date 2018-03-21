@@ -20,8 +20,8 @@ BEGIN_NAMESPACE_YM_SATPG
 // @param[in] id ID番号
 // @param[in] input_id 入力番号
 // @param[in] dff 接続しているDFF
-TpgDffOutput::TpgDffOutput(ymuint id,
-			   ymuint input_id,
+TpgDffOutput::TpgDffOutput(int id,
+			   int input_id,
 			   TpgDff* dff) :
   TpgPPI(id, input_id),
   mDff(dff)

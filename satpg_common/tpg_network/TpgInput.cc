@@ -19,8 +19,8 @@ BEGIN_NAMESPACE_YM_SATPG
 // @brief コンストラクタ
 // @param[in] id ID番号
 // @param[in] input_id 入力番号
-TpgInput::TpgInput(ymuint id,
-		   ymuint input_id) :
+TpgInput::TpgInput(int id,
+		   int input_id) :
   TpgPPI(id, input_id)
 {
 }

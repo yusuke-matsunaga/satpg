@@ -3,11 +3,12 @@
 /// @brief SnAnd の実装ファイル
 /// @author Yusuke Matsunaga (松永 裕介)
 ///
-/// Copyright (C) 2016, 2017 Yusuke Matsunaga
+/// Copyright (C) 2016, 2017, 2018 Yusuke Matsunaga
 /// All rights reserved.
 
 
 #include "SnAnd.h"
+#include "GateType.h"
 
 
 BEGIN_NAMESPACE_YM_SATPG_FSIM
@@ -47,7 +48,7 @@ SnAnd::~SnAnd()
 GateType
 SnAnd::gate_type() const
 {
-  return kGateAND;
+  return GateType::AND;
 }
 
 // @brief 故障値の計算を行う．
@@ -97,7 +98,7 @@ SnAnd2::~SnAnd2()
 GateType
 SnAnd2::gate_type() const
 {
-  return kGateAND;
+  return GateType::AND;
 }
 
 // @brief 出力値の計算を行う．
@@ -141,7 +142,7 @@ SnAnd3::~SnAnd3()
 GateType
 SnAnd3::gate_type() const
 {
-  return kGateAND;
+  return GateType::AND;
 }
 
 // @brief 出力値の計算を行う．
@@ -194,7 +195,7 @@ SnAnd4::~SnAnd4()
 GateType
 SnAnd4::gate_type() const
 {
-  return kGateAND;
+  return GateType::AND;
 }
 
 // @brief 出力値の計算を行う．
@@ -251,7 +252,7 @@ SnNand::~SnNand()
 GateType
 SnNand::gate_type() const
 {
-  return kGateNAND;
+  return GateType::NAND;
 }
 
 // @brief 出力値の計算を行う．
@@ -287,7 +288,7 @@ SnNand2::~SnNand2()
 GateType
 SnNand2::gate_type() const
 {
-  return kGateNAND;
+  return GateType::NAND;
 }
 
 // @brief 出力値の計算を行う．
@@ -323,7 +324,7 @@ SnNand3::~SnNand3()
 GateType
 SnNand3::gate_type() const
 {
-  return kGateNAND;
+  return GateType::NAND;
 }
 
 // @brief 出力値の計算を行う．
@@ -361,7 +362,7 @@ SnNand4::~SnNand4()
 GateType
 SnNand4::gate_type() const
 {
-  return kGateNAND;
+  return GateType::NAND;
 }
 
 // @brief 出力値の計算を行う．

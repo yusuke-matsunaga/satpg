@@ -28,12 +28,9 @@ TpgFFR::set(TpgNode* root,
 {
   mRoot = root;
 
-  ymuint nf = fault_list.size();
-  mFaultNum = nf;
-  void* q = alloc.get_memory(sizeof(const TpgFault*) * nf);
-  mFaultList = new (q) const TpgFault*[nf];
-
-  for (ymuint i = 0; i < nf; ++ i) {
+  mFaultNum = fault_list.size();
+  mFaultList = alloc.get_array<const TpgFault*>(mFaultNum);
+  for ( int i = 0; i < mFaultNum; ++ i ) {
     TpgFault* fault = fault_list[i];
     mFaultList[i] = fault;
     fault->set_ffr(this);

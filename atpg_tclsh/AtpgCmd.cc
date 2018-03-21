@@ -13,7 +13,7 @@
 #include "TpgNetwork.h"
 #include "TpgNode.h"
 #include "TpgFault.h"
-#include "ym/BnNode.h"
+#include "GateType.h"
 
 
 BEGIN_NAMESPACE_YM_SATPG
@@ -71,15 +71,15 @@ AtpgCmd::after_set_network()
       continue;
     }
     switch ( node->gate_type() ) {
-    case kGateBUFF:
+    case GateType::BUFF:
       ++ n_buff;
       break;
 
-    case kGateNOT:
+    case GateType::NOT:
       ++ n_not;
       break;
 
-    case kGateAND:
+    case GateType::AND:
       ++ n_and;
       switch ( node->fanin_num() ) {
       case 2: ++ n_and2; break;
@@ -88,7 +88,7 @@ AtpgCmd::after_set_network()
       }
       break;
 
-    case kGateNAND:
+    case GateType::NAND:
       ++ n_nand;
       switch ( node->fanin_num() ) {
       case 2: ++ n_nand2; break;
@@ -97,7 +97,7 @@ AtpgCmd::after_set_network()
       }
       break;
 
-    case kGateOR:
+    case GateType::OR:
       ++ n_or;
       switch ( node->fanin_num() ) {
       case 2: ++ n_or2; break;
@@ -106,7 +106,7 @@ AtpgCmd::after_set_network()
       }
       break;
 
-    case kGateNOR:
+    case GateType::NOR:
       ++ n_nor;
       switch ( node->fanin_num() ) {
       case 2: ++ n_nor2; break;
@@ -115,14 +115,14 @@ AtpgCmd::after_set_network()
       }
       break;
 
-    case kGateXOR:
+    case GateType::XOR:
       ++ n_xor;
       switch ( node->fanin_num() ) {
       case 2: ++ n_xor2; break;
       }
       break;
 
-    case kGateXNOR:
+    case GateType::XNOR:
       ++ n_xnor;
       switch ( node->fanin_num() ) {
       case 2: ++ n_xnor2; break;
@@ -179,9 +179,9 @@ AtpgCmd::after_update_faults()
   for (ymuint i = 0; i < n_rep; ++ i) {
     const TpgFault* fault = _network().rep_fault(i);
     switch ( _sa_fault_mgr().status(fault) ) {
-    case kFsDetected:   ++ n_det; break;
-    case kFsUntestable: ++ n_untest; break;
-    case kFsUndetected: ++ n_remain; break;
+    case FaultStatus::Detected:   ++ n_det; break;
+    case FaultStatus::Untestable: ++ n_untest; break;
+    case FaultStatus::Undetected: ++ n_remain; break;
     default: break;
     }
   }

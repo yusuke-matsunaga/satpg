@@ -20,10 +20,10 @@ BEGIN_NAMESPACE_YM_SATPG
 TpgFaultMgr::TpgFaultMgr(const TpgNetwork& network) :
   mMaxFaultId(network.max_fault_id()),
   mFaultArray(mMaxFaultId, nullptr),
-  mStatusArray(mMaxFaultId, kFsUndetected)
+  mStatusArray(mMaxFaultId, FaultStatus::Undetected)
 {
-  ymuint n = network.rep_fault_num();
-  for (ymuint i = 0; i < n; ++ i) {
+  int n = network.rep_fault_num();
+  for (int i = 0; i < n; ++ i) {
     const TpgFault* f = network.rep_fault(i);
     mFaultArray[f->id()] = f;
   }
@@ -38,13 +38,13 @@ TpgFaultMgr::~TpgFaultMgr()
 void
 TpgFaultMgr::clear_status()
 {
-  for (ymuint i = 0; i < mStatusArray.size(); ++ i) {
-    mStatusArray[i] = kFsUndetected;
+  for (int i = 0; i < mStatusArray.size(); ++ i) {
+    mStatusArray[i] = FaultStatus::Undetected;
   }
 }
 
 // @brief 故障IDの最大値+1を返す．
-ymuint
+int
 TpgFaultMgr::max_fault_id() const
 {
   return mMaxFaultId;
@@ -53,7 +53,7 @@ TpgFaultMgr::max_fault_id() const
 // @brief 故障IDから故障を返す．
 // @param[in] id 故障ID
 const TpgFault*
-TpgFaultMgr::fault(ymuint id) const
+TpgFaultMgr::fault(int id) const
 {
   ASSERT_COND( id < mMaxFaultId );
   return mFaultArray[id];

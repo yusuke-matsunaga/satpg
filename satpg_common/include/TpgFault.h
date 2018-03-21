@@ -5,12 +5,10 @@
 /// @brief TpgFault のヘッダファイル
 /// @author Yusuke Matsunaga (松永 裕介)
 ///
-/// Copyright (C) 2005-2007, 2012-2014 Yusuke Matsunaga
+/// Copyright (C) 2005-2007, 2012-2014, 2018 Yusuke Matsunaga
 /// All rights reserved.
 
 #include "satpg.h"
-#include "Val3.h"
-
 #include "ym/HashFunc.h"
 
 
@@ -28,7 +26,7 @@ public:
   /// @param[in] id ID番号
   /// @param[in] val 故障値
   /// @param[in] rep_fault 代表故障
-  TpgFault(ymuint id,
+  TpgFault(int id,
 	   int val,
 	   TpgFault* rep_fault);
 
@@ -43,7 +41,7 @@ public:
   //////////////////////////////////////////////////////////////////////
 
   /// @brief ID番号を返す．
-  ymuint
+  int
   id() const;
 
   /// @brief 故障の入力側の TpgNode を返す．
@@ -71,7 +69,7 @@ public:
   ///
   /// is_branch_fault() == true の時のみ意味を持つ．
   virtual
-  ymuint
+  int
   fault_pos() const = 0;
 
   /// @brief tpg_onode 上の故障位置を返す．
@@ -79,7 +77,7 @@ public:
   /// is_branch_fault() == true の時のみ意味を持つ．
   /// tpg_onode(tpg_pos()) == tpg_inode() が成り立つ．
   virtual
-  ymuint
+  int
   tpg_pos() const = 0;
 
   /// @brief 故障値を返す．
@@ -172,10 +170,10 @@ operator<<(ostream& s,
 
 // @brief ID番号を返す．
 inline
-ymuint
+int
 TpgFault::id() const
 {
-  return (mIdVal >> 1);
+  return static_cast<int>(mIdVal >> 1);
 }
 
 // @brief ブランチの故障の時 true を返す．
@@ -193,19 +191,6 @@ int
 TpgFault::val() const
 {
   return static_cast<int>(mIdVal & 1UL);
-}
-
-// @brief 故障値を3値型で返す．
-inline
-Val3
-TpgFault::val3() const
-{
-  if ( val() ) {
-    return kVal1;
-  }
-  else {
-    return kVal0;
-  }
 }
 
 // @brief 代表故障の時 true を返す．
@@ -256,7 +241,7 @@ BEGIN_NAMESPACE_YM
 template <>
 struct HashFunc<nsSatpg::TpgFault*>
 {
-  ymuint
+  SizeType
   operator()(nsSatpg::TpgFault* fault) const
   {
     return reinterpret_cast<ympuint>(fault)/sizeof(void*);

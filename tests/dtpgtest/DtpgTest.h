@@ -53,17 +53,17 @@ public:
 
   /// @brief シングルモードのテストを行う．
   /// @return 検出故障数と冗長故障数を返す．
-  pair<ymuint, ymuint>
+  pair<int, int>
   single_test();
 
   /// @brief FFRモードのテストを行う．
   /// @return 検出故障数と冗長故障数を返す．
-  pair<ymuint, ymuint>
+  pair<int, int>
   ffr_test();
 
   /// @brief MFFCモードのテストを行う．
   /// @return 検出故障数と冗長故障数を返す．
-  pair<ymuint, ymuint>
+  pair<int, int>
   mffc_test();
 
   /// @brief 検証結果を得る．
@@ -72,8 +72,8 @@ public:
 
   /// @brief 統計情報を出力する．
   void
-  print_stats(ymuint detect_num,
-	      ymuint untest_num);
+  print_stats(int detect_num,
+	      int untest_num);
 
 
 private:

@@ -8,19 +8,17 @@
 
 from libcpp cimport bool
 from libcpp.string cimport string
-from CXX_GateType cimport GateType
 from CXX_TpgDff cimport TpgDff
 from CXX_TpgFault cimport TpgFault
+from CXX_GateType cimport GateType
 from CXX_Val3 cimport Val3
-
-ctypedef unsigned int ymuint
 
 
 cdef extern from "TpgNode.h" namespace "nsYm::nsSatpg" :
 
     ## @brief TpgNode の cython バージョン
     cdef cppclass TpgNode :
-        ymuint id()
+        int id()
         const char* name()
         bool is_primary_input()
         bool is_primary_output()
@@ -32,23 +30,23 @@ cdef extern from "TpgNode.h" namespace "nsYm::nsSatpg" :
         bool is_ppi()
         bool is_ppo()
         bool is_logic()
-        ymuint input_id()
-        ymuint output_id()
-        ymuint output_id2()
+        int input_id()
+        int output_id()
+        int output_id2()
         TpgDff* dff()
         GateType gate_type()
         Val3 cval()
         Val3 nval()
         Val3 coval()
         Val3 noval()
-        ymuint fanin_num()
-        TpgNode* fanin(ymuint)
-        ymuint fanout_num()
-        TpgNode* fanout(ymuint)
+        int fanin_num()
+        TpgNode* fanin(int)
+        int fanout_num()
+        TpgNode* fanout(int)
         const TpgNode* ffr_root()
 #        const TpgFFR* ffr()
         const TpgNode* mffc_root()
 #        const TpgMFFC* mffc()
         const TpgNode* imm_dom()
-        ymuint fault_num()
-        const TpgFault* fault(ymuint)
+        int fault_num()
+        const TpgFault* fault(int)

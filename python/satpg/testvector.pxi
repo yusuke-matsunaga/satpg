@@ -8,7 +8,6 @@
 
 from CXX_TestVector cimport TestVector as CXX_TestVector
 from CXX_TvMgr cimport TvMgr as CXX_TvMgr
-from CXX_FaultType cimport FaultType as CXX_FaultType
 
 
 ## @brief TestVector の Python バージョン

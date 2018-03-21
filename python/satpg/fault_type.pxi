@@ -8,8 +8,7 @@
 
 from enum import Enum
 from CXX_FaultType cimport FaultType as CXX_FaultType
-from CXX_FaultType cimport kFtStuckAt, kFtTransitionDelay, kFtNone
-
+from CXX_FaultType cimport __fault_type_to_int, __int_to_fault_type
 
 ## @brief FaultType の Python バージョン
 class FaultType(Enum) :
@@ -18,19 +17,22 @@ class FaultType(Enum) :
 
 
 ## @brief C++ の FaultType を Python の FaultType に変換する．
-def to_FaultType(CXX_FaultType c_val) :
-    if c_val == kFtStuckAt :
+cdef to_FaultType(CXX_FaultType c_val) :
+    cdef int c_int = __fault_type_to_int(c_val)
+    if c_int == 0:
         return FaultType.StuckAt
-    elif c_val == kFtTransitionDelay :
+    elif c_int == 1:
         return FaultType.TransitionDelay
     else :
         return None
 
-## @brief Python の FaultType を C++ の FaultType に変換する．
+## @brief Python の FaultType を int に変換する．
 cdef CXX_FaultType from_FaultType(val) :
+    cdef int c_int
     if val == FaultType.StuckAt :
-        return kFtStuckAt
+        c_int = 0
     elif val == FaultType.TransitionDelay :
-        return kFtTransitionDelay
+        c_int = 1
     else :
-        return kFtNone
+        c_int = 2
+    return __int_to_fault_type(c_int)

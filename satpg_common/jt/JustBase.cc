@@ -20,7 +20,7 @@ BEGIN_NAMESPACE_YM_SATPG
 // @param[in] td_mode 遷移故障モードの時 true にするフラグ
 // @param[in] max_id ID番号の最大値
 JustBase::JustBase(bool td_mode,
-		   ymuint max_id) :
+		   int max_id) :
   mTdMode(td_mode),
   mMaxId(max_id),
   mMarkArray(max_id, 0U)
@@ -37,7 +37,7 @@ JustBase::~JustBase()
 void
 JustBase::clear_justified_mark()
 {
-  for (ymuint i = 0; i < mMaxId; ++ i) {
+  for (int i = 0; i < mMaxId; ++ i) {
     mMarkArray[i] = 0U;
   }
 }

@@ -131,7 +131,7 @@ DtpgImpl::dtpg(const TpgFault* fault,
   mStructEnc.solver().get_stats(sat_stats);
   //sat_stats -= prev_stats;
 
-  if ( ans == kB3True ) {
+  if ( ans == SatBool3::True ) {
     // パタンが求まった．
 
     timer.reset();
@@ -148,12 +148,12 @@ DtpgImpl::dtpg(const TpgFault* fault,
 
     stats.update_det(sat_stats, time);
   }
-  else if ( ans == kB3False ) {
+  else if ( ans == SatBool3::False ) {
     // 検出不能と判定された．
     stats.update_red(sat_stats, time);
   }
   else {
-    // ans == kB3X つまりアボート
+    // ans == SatBool3::X つまりアボート
     stats.update_abort(sat_stats, time);
   }
 

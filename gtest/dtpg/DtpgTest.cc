@@ -22,11 +22,11 @@ struct TestData
 
   // コンストラクタ
   TestData(const string& filename,
-	   ymuint total_num,
-	   ymuint sa_detect_num,
-	   ymuint td_detect_num,
-	   ymuint sa_untest_num,
-	   ymuint td_untest_num) :
+	   int total_num,
+	   int sa_detect_num,
+	   int td_detect_num,
+	   int sa_untest_num,
+	   int td_untest_num) :
     mFileName(filename),
     mTotalFaultNum(total_num),
     mSaDetectFaultNum(sa_detect_num),
@@ -40,19 +40,19 @@ struct TestData
   string mFileName;
 
   // 総故障数
-  ymuint mTotalFaultNum;
+  int mTotalFaultNum;
 
   // 検出可能故障数(縮退故障)
-  ymuint mSaDetectFaultNum;
+  int mSaDetectFaultNum;
 
   // 検出可能故障数(遷移故障)
-  ymuint mTdDetectFaultNum;
+  int mTdDetectFaultNum;
 
   // 検出不能故障数(縮退故障)
-  ymuint mSaUntestFaultNum;
+  int mSaUntestFaultNum;
 
   // 検出不能故障数(遷移故障)
-  ymuint mTdUntestFaultNum;
+  int mTdUntestFaultNum;
 
 };
 
@@ -101,15 +101,15 @@ private:
   filename();
 
   /// @brief テストパラメータから総故障数を取り出す．
-  ymuint
+  int
   total_fault_num();
 
   /// @brief テストパラメータから検出可能故障数を取り出す．
-  ymuint
+  int
   detect_fault_num();
 
   /// @brief テストパラメータから検出不能故障数を取り出す．
-  ymuint
+  int
   untest_fault_num();
 
   /// @brief テストパラメータからテストモードを取り出す．
@@ -173,7 +173,7 @@ void
 DtpgTestWithParam::do_test()
 {
   string mode = test_mode();
-  pair<ymuint, ymuint> num_pair;
+  pair<int, int> num_pair;
   if ( mode == "single" ) {
     num_pair = mDtpgTest->single_test();
   }
@@ -204,7 +204,7 @@ DtpgTestWithParam::filename()
 }
 
 // @brief テストパラメータから総故障数を取り出す．
-ymuint
+int
 DtpgTestWithParam::total_fault_num()
 {
   const TestData& data = std::get<0>(GetParam());
@@ -212,11 +212,11 @@ DtpgTestWithParam::total_fault_num()
 }
 
 // @brief テストパラメータから検出可能故障数を取り出す．
-ymuint
+int
 DtpgTestWithParam::detect_fault_num()
 {
   const TestData& data = std::get<0>(GetParam());
-  if ( fault_type() == kFtStuckAt ) {
+  if ( fault_type() == FaultType::StuckAt ) {
     return data.mSaDetectFaultNum;
   }
   else {
@@ -225,11 +225,11 @@ DtpgTestWithParam::detect_fault_num()
 }
 
 // @brief テストパラメータから検出不能故障数を取り出す．
-ymuint
+int
 DtpgTestWithParam::untest_fault_num()
 {
   const TestData& data = std::get<0>(GetParam());
-  if ( fault_type() == kFtStuckAt ) {
+  if ( fault_type() == FaultType::StuckAt ) {
     return data.mSaUntestFaultNum;
   }
   else {
@@ -266,7 +266,7 @@ TEST_P(DtpgTestWithParam, test1)
 INSTANTIATE_TEST_CASE_P(DtpgTest, DtpgTestWithParam,
 			::testing::Combine(::testing::ValuesIn(mydata),
 					   ::testing::Values("single", "ffr", "mffc"),
-					   ::testing::Values(kFtStuckAt, kFtTransitionDelay),
+					   ::testing::Values(FaultType::StuckAt, FaultType::TransitionDelay),
 					   ::testing::Range(0, 3)));
 
 END_NAMESPACE_YM_SATPG

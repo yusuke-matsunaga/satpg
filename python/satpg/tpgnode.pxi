@@ -9,7 +9,6 @@
 from libcpp.string cimport string
 from CXX_TpgNode cimport TpgNode as CXX_TpgNode
 from CXX_TpgDff cimport TpgDff as CXX_TpgDff
-from CXX_GateType cimport GateType as CXX_GateType
 from CXX_TpgFault cimport TpgFault as CXX_TpgFault
 
 
@@ -78,11 +77,37 @@ cdef class TpgNode :
     # 論理ゲート型でない場合は不定
     @property
     def gate_type(self) :
-        cdef CXX_GateType c_gt
-        if not self._is_valid :
-            return None
-        c_gt = self._thisptr.gate_type()
-        return to_GateType(c_gt)
+        if self._is_valid :
+            return to_GateType(self._thisptr.gate_type())
+        return None
+
+    ### @brief controling value を得る．
+    @property
+    def cval(self) :
+        if self._is_valid :
+            return to_Val3(self._thisptr.cval())
+        return None
+
+    ### @brief noncontroling value を得る．
+    @property
+    def nval(self) :
+        if self._is_valid :
+            return to_Val3(self._thisptr.nval())
+        return None
+
+    ### @brief controling output value を得る．
+    @property
+    def coval(self) :
+        if self._is_valid :
+            return to_Val3(self._thisptr.coval())
+        return None
+
+    ### @brief noncontroling output value を得る．
+    @property
+    def noval(self) :
+        if self._is_valid :
+            return to_Val3(self._thisptr.noval())
+        return None
 
     ## @brief ファンイン数を返す．
     #

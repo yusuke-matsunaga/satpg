@@ -20,8 +20,8 @@ BEGIN_NAMESPACE_YM_SATPG
 // @param[in] id ID番号
 // @param[in] output_id 出力番号
 // @param[in] fanin ファンインのノード
-TpgOutput::TpgOutput(ymuint id,
-		     ymuint output_id,
+TpgOutput::TpgOutput(int id,
+		     int output_id,
 		     TpgNode* fanin) :
   TpgPPO(id, output_id, fanin)
 {

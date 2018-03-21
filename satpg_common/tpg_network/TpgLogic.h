@@ -5,7 +5,7 @@
 /// @brief TpgLogic のヘッダファイル
 /// @author Yusuke Matsunaga (松永 裕介)
 ///
-/// Copyright (C) 2016 Yusuke Matsunaga
+/// Copyright (C) 2016, 2018 Yusuke Matsunaga
 /// All rights reserved.
 
 
@@ -21,14 +21,14 @@ BEGIN_NAMESPACE_YM_SATPG
 class TpgLogic :
   public TpgNode
 {
-public:
+protected:
   //////////////////////////////////////////////////////////////////////
   // コンストラクタ/デストラクタ
   //////////////////////////////////////////////////////////////////////
 
   /// @brief コンストラクタ
   /// @param[in] id ID番号
-  TpgLogic(ymuint id);
+  TpgLogic(int id);
 
   /// @brief デストラクタ
   virtual
@@ -43,7 +43,7 @@ public:
   /// @brief logic タイプの時 true を返す．
   virtual
   bool
-  is_logic() const;
+  is_logic() const override;
 
 
 private:
@@ -61,14 +61,14 @@ private:
 class TpgLogic0 :
   public TpgLogic
 {
-public:
+protected:
   //////////////////////////////////////////////////////////////////////
   // コンストラクタ/デストラクタ
   //////////////////////////////////////////////////////////////////////
 
   /// @brief コンストラクタ
   /// @param[in] id ID番号
-  TpgLogic0(ymuint id);
+  TpgLogic0(int id);
 
   /// @brief デストラクタ
   virtual
@@ -82,14 +82,14 @@ public:
 
   /// @brief ファンイン数を得る．
   virtual
-  ymuint
-  fanin_num() const;
+  int
+  fanin_num() const override;
 
   /// @brief ファンインを得る．
   /// @param[in] pos 位置番号 ( 0 <= pos < fanin_num() )
   virtual
   TpgNode*
-  fanin(ymuint pos) const;
+  fanin(int pos) const override;
 
 
 private:
@@ -107,7 +107,7 @@ private:
 class TpgLogic1 :
   public TpgLogic
 {
-public:
+protected:
   //////////////////////////////////////////////////////////////////////
   // コンストラクタ/デストラクタ
   //////////////////////////////////////////////////////////////////////
@@ -115,7 +115,7 @@ public:
   /// @brief コンストラクタ
   /// @param[in] id ID番号
   /// @param[in] fanin ファンイン
-  TpgLogic1(ymuint id,
+  TpgLogic1(int id,
 	    TpgNode* fanin);
 
   /// @brief デストラクタ
@@ -130,14 +130,14 @@ public:
 
   /// @brief ファンイン数を得る．
   virtual
-  ymuint
-  fanin_num() const;
+  int
+  fanin_num() const override;
 
   /// @brief ファンインを得る．
   /// @param[in] pos 位置番号 ( 0 <= pos < fanin_num() )
   virtual
   TpgNode*
-  fanin(ymuint pos) const;
+  fanin(int pos) const override;
 
 
 private:
@@ -158,7 +158,7 @@ private:
 class TpgLogic2 :
   public TpgLogic
 {
-public:
+protected:
   //////////////////////////////////////////////////////////////////////
   // コンストラクタ/デストラクタ
   //////////////////////////////////////////////////////////////////////
@@ -168,7 +168,7 @@ public:
   /// @param[in] fanin_list ファンインのリスト
   ///
   /// fanin_list.size() == 2 であることを仮定している．
-  TpgLogic2(ymuint id,
+  TpgLogic2(int id,
 	    const vector<TpgNode*>& fanin_list);
 
   /// @brief デストラクタ
@@ -183,14 +183,14 @@ public:
 
   /// @brief ファンイン数を得る．
   virtual
-  ymuint
-  fanin_num() const;
+  int
+  fanin_num() const override;
 
   /// @brief ファンインを得る．
   /// @param[in] pos 位置番号 ( 0 <= pos < fanin_num() )
   virtual
   TpgNode*
-  fanin(ymuint pos) const;
+  fanin(int pos) const override;
 
 
 private:
@@ -211,7 +211,7 @@ private:
 class TpgLogic3 :
   public TpgLogic
 {
-public:
+protected:
   //////////////////////////////////////////////////////////////////////
   // コンストラクタ/デストラクタ
   //////////////////////////////////////////////////////////////////////
@@ -221,7 +221,7 @@ public:
   /// @param[in] fanin_list ファンインのリスト
   ///
   /// fanin_list.size() == 3 であることを仮定している．
-  TpgLogic3(ymuint id,
+  TpgLogic3(int id,
 	    const vector<TpgNode*>& fanin_list);
 
   /// @brief デストラクタ
@@ -236,14 +236,14 @@ public:
 
   /// @brief ファンイン数を得る．
   virtual
-  ymuint
-  fanin_num() const;
+  int
+  fanin_num() const override;
 
   /// @brief ファンインを得る．
   /// @param[in] pos 位置番号 ( 0 <= pos < fanin_num() )
   virtual
   TpgNode*
-  fanin(ymuint pos) const;
+  fanin(int pos) const override;
 
 
 private:
@@ -264,7 +264,7 @@ private:
 class TpgLogic4 :
   public TpgLogic
 {
-public:
+protected:
   //////////////////////////////////////////////////////////////////////
   // コンストラクタ/デストラクタ
   //////////////////////////////////////////////////////////////////////
@@ -274,7 +274,7 @@ public:
   /// @param[in] fanin_list ファンインのリスト
   ///
   /// fanin_list.size() == 4 であることを仮定している．
-  TpgLogic4(ymuint id,
+  TpgLogic4(int id,
 	    const vector<TpgNode*>& fanin_list);
 
   /// @brief デストラクタ
@@ -289,14 +289,14 @@ public:
 
   /// @brief ファンイン数を得る．
   virtual
-  ymuint
-  fanin_num() const;
+  int
+  fanin_num() const override;
 
   /// @brief ファンインを得る．
   /// @param[in] pos 位置番号 ( 0 <= pos < fanin_num() )
   virtual
   TpgNode*
-  fanin(ymuint pos) const;
+  fanin(int pos) const override;
 
 
 private:
@@ -317,14 +317,14 @@ private:
 class TpgLogicN :
   public TpgLogic
 {
-public:
+protected:
   //////////////////////////////////////////////////////////////////////
   // コンストラクタ/デストラクタ
   //////////////////////////////////////////////////////////////////////
 
   /// @brief コンストラクタ
   /// @param[in] id ID番号
-  TpgLogicN(ymuint id);
+  TpgLogicN(int id);
 
   /// @brief デストラクタ
   virtual
@@ -338,14 +338,14 @@ public:
 
   /// @brief ファンイン数を得る．
   virtual
-  ymuint
-  fanin_num() const;
+  int
+  fanin_num() const override;
 
   /// @brief ファンインを得る．
   /// @param[in] pos 位置番号 ( 0 <= pos < fanin_num() )
   virtual
   TpgNode*
-  fanin(ymuint pos) const;
+  fanin(int pos) const override;
 
 
 public:
@@ -361,7 +361,7 @@ public:
   virtual
   void
   set_fanin(const vector<TpgNode*>& inode_list,
-	    Alloc& alloc);
+	    Alloc& alloc) override;
 
 
 private:
@@ -370,7 +370,7 @@ private:
   //////////////////////////////////////////////////////////////////////
 
   // ファンイン数
-  ymuint mFaninNum;
+  int mFaninNum;
 
   // ファンインの配列
   TpgNode** mFanins;

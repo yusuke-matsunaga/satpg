@@ -31,7 +31,7 @@ TpgDff::~TpgDff()
 }
 
 // @brief ID番号を返す．
-ymuint
+int
 TpgDff::id() const
 {
   return mId;

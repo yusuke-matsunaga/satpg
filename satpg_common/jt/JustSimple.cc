@@ -18,7 +18,7 @@ BEGIN_NAMESPACE_YM_SATPG
 // @param[in] max_id ID番号の最大値
 Justifier*
 new_JustSimple(bool td_mode,
-	       ymuint max_id)
+	       int max_id)
 {
   return new JustSimple(td_mode, max_id);
 }
@@ -32,7 +32,7 @@ new_JustSimple(bool td_mode,
 // @param[in] td_mode 遷移故障モードの時 true にするフラグ
 // @param[in] max_id ID番号の最大値
 JustSimple::JustSimple(bool td_mode,
-		       ymuint max_id) :
+		       int max_id) :
   JustBase(td_mode, max_id)
 {
 }
@@ -56,7 +56,7 @@ JustSimple::operator()(const NodeValList& assign_list,
 
   set_val_map(val_map);
 
-  for (ymuint i = 0; i < assign_list.size(); ++ i) {
+  for (int i = 0; i < assign_list.size(); ++ i) {
     NodeVal nv = assign_list[i];
     const TpgNode* node = nv.node();
     int time = nv.time();
@@ -98,8 +98,8 @@ JustSimple::justify(const TpgNode* node,
   }
   else {
     // すべてのファンインに再帰する．
-    ymuint ni = node->fanin_num();
-    for (ymuint i = 0; i < ni; ++ i) {
+    int ni = node->fanin_num();
+    for (int i = 0; i < ni; ++ i) {
       const TpgNode* inode = node->fanin(i);
       justify(inode, time, pi_assign_list);
     }

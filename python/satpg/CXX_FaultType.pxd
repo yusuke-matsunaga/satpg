@@ -10,6 +10,9 @@
 cdef extern from "FaultType.h" namespace "nsYm::nsSatpg" :
 
     cdef enum FaultType :
-        kFtStuckAt,
-        kFtTransitionDelay,
-        kFtNone
+        None,
+        StuckAt,
+        TransitionDelay
+
+    cdef int __fault_type_to_int(FaultType)
+    cdef FaultType __int_to_fault_type(int)

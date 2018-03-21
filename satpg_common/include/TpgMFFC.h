@@ -49,22 +49,22 @@ public:
   root() const;
 
   /// @brief このMFFCに含まれるFFR数を返す．
-  ymuint
+  int
   elem_num() const;
 
   /// @brief このMFFCに含まれるFFRを返す．
   /// @param[in] pos 位置番号 ( 0 <= pos < elem_num() )
   const TpgFFR*
-  elem(ymuint pos) const;
+  elem(int pos) const;
 
   /// @brief このMFFCに含まれる代表故障の数を返す．
-  ymuint
+  int
   fault_num() const;
 
   /// @brief このMFFCに含まれる代表故障を返す．
   /// @param[in] pos 位置番号 ( 0 <= pos < fault_num() )
   const TpgFault*
-  fault(ymuint pos) const;
+  fault(int pos) const;
 
 
 public:
@@ -99,16 +99,16 @@ private:
   const TpgNode* mRoot;
 
   // FFR数
-  ymuint mElemNum;
+  int mElemNum;
 
   // FFRの配列
   const TpgFFR** mElemList;
 
   // 故障数
-  ymuint mFaultNum;
+  int mFaultNum;
 
   // 故障の配列
-  TpgFault** mFaultList;
+  const TpgFault** mFaultList;
 
 };
 
@@ -144,7 +144,7 @@ TpgMFFC::root() const
 
 // @brief このMFFCに含まれるFFR数を返す．
 inline
-ymuint
+int
 TpgMFFC::elem_num() const
 {
   return mElemNum;
@@ -154,7 +154,7 @@ TpgMFFC::elem_num() const
 // @param[in] pos 位置番号 ( 0 <= pos < elem_num() )
 inline
 const TpgFFR*
-TpgMFFC::elem(ymuint pos) const
+TpgMFFC::elem(int pos) const
 {
   ASSERT_COND( pos < elem_num() );
 
@@ -163,7 +163,7 @@ TpgMFFC::elem(ymuint pos) const
 
 // @brief このFFRに含まれる代表故障の数を返す．
 inline
-ymuint
+int
 TpgMFFC::fault_num() const
 {
   return mFaultNum;
@@ -173,7 +173,7 @@ TpgMFFC::fault_num() const
 // @param[in] pos 位置番号 ( 0 <= pos < fault_num() )
 inline
 const TpgFault*
-TpgMFFC::fault(ymuint pos) const
+TpgMFFC::fault(int pos) const
 {
   ASSERT_COND( pos < fault_num() );
 

@@ -100,14 +100,14 @@ AtpgMgr::after_set_network()
   mSaTvList.clear();
   mTdTvList.clear();
 
-  mSaFsim2 = Fsim::new_Fsim2(_network(), kFtStuckAt);
-  mSaFsim3 = Fsim::new_Fsim3(_network(), kFtStuckAt);
+  mSaFsim2 = Fsim::new_Fsim2(_network(), FaultType::StuckAt);
+  mSaFsim3 = Fsim::new_Fsim3(_network(), FaultType::StuckAt);
   mSaFaultMgr = new TpgFaultMgr(_network());
-  mSaTvMgr = new TvMgr(_network(), kFtStuckAt);
-  mTdFsim2 = Fsim::new_Fsim2(_network(), kFtTransitionDelay);
-  mTdFsim3 = Fsim::new_Fsim3(_network(), kFtTransitionDelay);
+  mSaTvMgr = new TvMgr(_network(), FaultType::StuckAt);
+  mTdFsim2 = Fsim::new_Fsim2(_network(), FaultType::TransitionDelay);
+  mTdFsim3 = Fsim::new_Fsim3(_network(), FaultType::TransitionDelay);
   mTdFaultMgr = new TpgFaultMgr(_network());
-  mTdTvMgr = new TvMgr(_network(), kFtTransitionDelay);
+  mTdTvMgr = new TvMgr(_network(), FaultType::TransitionDelay);
 }
 
 END_NAMESPACE_YM_SATPG

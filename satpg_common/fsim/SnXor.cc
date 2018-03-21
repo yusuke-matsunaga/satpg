@@ -3,11 +3,12 @@
 /// @brief SnXor の実装ファイル
 /// @author Yusuke Matsunaga (松永 裕介)
 ///
-/// Copyright (C) 2016, 2017 Yusuke Matsunaga
+/// Copyright (C) 2016, 2017, 2018 Yusuke Matsunaga
 /// All rights reserved.
 
 
 #include "SnXor.h"
+#include "GateType.h"
 
 
 BEGIN_NAMESPACE_YM_SATPG_FSIM
@@ -32,7 +33,7 @@ SnXor::~SnXor()
 GateType
 SnXor::gate_type() const
 {
-  return kGateXOR;
+  return GateType::XOR;
 }
 
 // @brief 出力値の計算を行う．(3値版)
@@ -94,7 +95,7 @@ SnXor2::~SnXor2()
 GateType
 SnXor2::gate_type() const
 {
-  return kGateXOR;
+  return GateType::XOR;
 }
 
 // @brief 出力値の計算を行う．
@@ -146,7 +147,7 @@ SnXnor::~SnXnor()
 GateType
 SnXnor::gate_type() const
 {
-  return kGateXNOR;
+  return GateType::XNOR;
 }
 
 // @brief 出力値の計算を行う．
@@ -182,7 +183,7 @@ SnXnor2::~SnXnor2()
 GateType
 SnXnor2::gate_type() const
 {
-  return kGateXNOR;
+  return GateType::XNOR;
 }
 
 // @brief 出力値の計算を行う．

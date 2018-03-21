@@ -19,7 +19,7 @@ BEGIN_NAMESPACE_YM_SATPG
 // @brief コンストラクタ
 // @param[in] id ID番号
 // @param[in] dff 接続しているDFF
-TpgDffControl::TpgDffControl(ymuint id,
+TpgDffControl::TpgDffControl(int id,
 			     TpgDff* dff,
 			     TpgNode* fanin) :
   TpgNode(id),
@@ -34,7 +34,7 @@ TpgDffControl::~TpgDffControl()
 }
 
 // @brief ファンイン数を得る．
-ymuint
+int
 TpgDffControl::fanin_num() const
 {
   return 1;
@@ -43,7 +43,7 @@ TpgDffControl::fanin_num() const
 // @brief ファンインを得る．
 // @param[in] pos 位置番号 ( 0 <= pos < fanin_num() )
 TpgNode*
-TpgDffControl::fanin(ymuint pos) const
+TpgDffControl::fanin(int pos) const
 {
   ASSERT_COND( pos == 0 );
 

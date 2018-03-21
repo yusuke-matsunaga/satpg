@@ -3,11 +3,13 @@
 /// @brief SnInput の実装ファイル
 /// @author Yusuke Matsunaga (松永 裕介)
 ///
-/// Copyright (C) 2016, 2017 Yusuke Matsunaga
+/// Copyright (C) 2016, 2017, 2018 Yusuke Matsunaga
 /// All rights reserved.
 
 
 #include "SnInput.h"
+
+#include "GateType.h"
 
 
 BEGIN_NAMESPACE_YM_SATPG_FSIM
@@ -30,11 +32,11 @@ SnInput::~SnInput()
 
 // @brief ゲートタイプを返す．
 //
-// ここでは kGateBUFF を返す．
+// ここでは GateType::BUFF を返す．
 GateType
 SnInput::gate_type() const
 {
-  return kGateINPUT;
+  return GateType::INPUT;
 }
 
 // @brief ファンイン数を得る．

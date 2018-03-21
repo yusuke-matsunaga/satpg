@@ -83,7 +83,7 @@ BtSimple::justify(const TpgNode* node,
     record_value(node, time, assign_list);
   }
   else if ( node->is_dff_output() ) {
-    if ( time == 1 && fault_type() == kFtTransitionDelay ) {
+    if ( time == 1 && fault_type() == FaultType::TransitionDelay ) {
       const TpgDff* dff = node->dff();
       const TpgNode* alt_node = dff->input();
       justify(alt_node, 0, assign_list);

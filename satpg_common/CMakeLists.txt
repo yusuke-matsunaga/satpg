@@ -15,6 +15,7 @@ set (tpg_network_SOURCES
   tpg_network/TpgDff.cc
   tpg_network/TpgGateInfo.cc
   tpg_network/TpgNode.cc
+  tpg_network/TpgNodeFactory.cc
   tpg_network/NodeMap.cc
   tpg_network/TpgPPI.cc
   tpg_network/TpgPPO.cc

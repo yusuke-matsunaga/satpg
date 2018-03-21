@@ -92,7 +92,7 @@ Dtpg::gen_mffc_cnf(const TpgNetwork& network,
 // @return 結果を返す．
 //
 // 直前にどちらのモードでCNFを作っていたかで動作は異なる．<br>
-// どちらの関数も呼んでいなければなにもしないで kB3X を返す．
+// どちらの関数も呼んでいなければなにもしないで SatBool3::X を返す．
 SatBool3
 Dtpg::dtpg(const TpgFault* fault,
 	   NodeValList& nodeval_list,
@@ -101,7 +101,7 @@ Dtpg::dtpg(const TpgFault* fault,
   if ( mImpl == nullptr ) {
     cerr << "Error[Dtpg::dtpg()]: Neither gen_ffr_cnf() nor gen_mffc_cnf() have not been called."
 	 << endl;
-    return kB3X;
+    return SatBool3::X;
   }
 
   SatBool3 ans = mImpl->dtpg(fault, nodeval_list, stats);

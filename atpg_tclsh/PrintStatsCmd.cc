@@ -88,9 +88,9 @@ PrintStatsCmd::cmd_proc(TclObjVector& objv)
   for (ymuint i = 0; i < n_rep; ++ i) {
     const TpgFault* fault = _network().rep_fault(i);
     switch ( fmgr.status(fault) ) {
-    case kFsDetected:   ++ n_det; break;
-    case kFsUntestable: ++ n_untest; break;
-    case kFsUndetected: ++ n_remain; break;
+    case FaultStatus::Detected:   ++ n_det; break;
+    case FaultStatus::Untestable: ++ n_untest; break;
+    case FaultStatus::Undetected: ++ n_remain; break;
     default: break;
     }
   }

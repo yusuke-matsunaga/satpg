@@ -5,13 +5,11 @@
 /// @brief TpgGateInfo のヘッダファイル
 /// @author Yusuke Matsunaga (松永 裕介)
 ///
-/// Copyright (C) 2016 Yusuke Matsunaga
+/// Copyright (C) 2016, 2018 Yusuke Matsunaga
 /// All rights reserved.
 
 
 #include "satpg.h"
-#include "GateType.h"
-#include "Val3.h"
 #include "ym/logic.h"
 #include "ym/HashMap.h"
 #include "ym/TvFunc.h"
@@ -41,19 +39,37 @@ public:
   // 外部インターフェイス
   //////////////////////////////////////////////////////////////////////
 
+  /// @brief 組み込みタイプのときに true を返す．
+  virtual
+  bool
+  is_simple() const = 0;
+
+  /// @brief 論理式タイプのときに true を返す．
+  ///
+  /// = !is_simple();
+  bool
+  is_complex() const
+  {
+    return !is_simple();
+  }
+
   /// @brief ゲートタイプを返す．
+  ///
+  /// 組み込みタイプ(is_simple() = true)のときのみ意味を持つ．
   virtual
   GateType
   gate_type() const = 0;
 
   /// @brief 論理式を返す．
+  ///
+  /// 論理式タイプ(is_complex() = true)のときのみ意味を持つ．
   virtual
   Expr
   expr() const = 0;
 
   /// @brief 追加ノード数を返す．
   virtual
-  ymuint
+  int
   extra_node_num() const = 0;
 
   /// @brief 制御値を返す．
@@ -61,7 +77,7 @@ public:
   /// @param[in] val 値
   virtual
   Val3
-  cval(ymuint pos,
+  cval(int pos,
        Val3 val) const = 0;
 
 };
@@ -96,7 +112,7 @@ public:
   /// @param[in] ni 入力数
   /// @param[in] expr 論理式
   const TpgGateInfo*
-  complex_type(ymuint ni,
+  complex_type(int ni,
 	       const Expr& expr);
 
 

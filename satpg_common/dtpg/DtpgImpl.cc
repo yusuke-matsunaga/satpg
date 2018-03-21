@@ -150,7 +150,7 @@ DtpgImpl::gen_cnf_base()
   set_tfo_mark(mRoot);
   for (ymuint rpos = 0; rpos < mNodeList.size(); ++ rpos) {
     const TpgNode* node = mNodeList[rpos];
-    if ( mFaultType == kFtTransitionDelay && node->is_dff_output() ) {
+    if ( mFaultType == FaultType::TransitionDelay && node->is_dff_output() ) {
       mDffList.push_back(node->dff());
     }
     ymuint nfo = node->fanout_num();
@@ -332,33 +332,33 @@ DtpgImpl::make_node_cnf(const TpgNode* node,
   SatLiteral olit = litmap.output();
   ymuint ni = litmap.input_size();
   switch ( node->gate_type() ) {
-  case kGateCONST0:
+  case GateType::CONST0:
     mSolver.add_clause(~olit);
     break;
 
-  case kGateCONST1:
+  case GateType::CONST1:
     mSolver.add_clause( olit);
     break;
 
-  case kGateINPUT:
+  case GateType::INPUT:
     // なにもしない．
     break;
 
-  case kGateBUFF:
+  case GateType::BUFF:
     {
       SatLiteral ilit = litmap.input(0);
       mSolver.add_eq_rel( ilit,  olit);
     }
     break;
 
-  case kGateNOT:
+  case GateType::NOT:
     {
       SatLiteral ilit = litmap.input(0);
       mSolver.add_eq_rel( ilit, ~olit);
     }
     break;
 
-  case kGateAND:
+  case GateType::AND:
     switch ( ni ) {
     case 2:
       {
@@ -400,7 +400,7 @@ DtpgImpl::make_node_cnf(const TpgNode* node,
     }
     break;
 
-  case kGateNAND:
+  case GateType::NAND:
     switch ( ni ) {
     case 2:
       {
@@ -442,7 +442,7 @@ DtpgImpl::make_node_cnf(const TpgNode* node,
     }
     break;
 
-  case kGateOR:
+  case GateType::OR:
     switch ( ni ) {
     case 2:
       {
@@ -484,7 +484,7 @@ DtpgImpl::make_node_cnf(const TpgNode* node,
     }
     break;
 
-  case kGateNOR:
+  case GateType::NOR:
     switch ( ni ) {
     case 2:
       {
@@ -526,7 +526,7 @@ DtpgImpl::make_node_cnf(const TpgNode* node,
     }
     break;
 
-  case kGateXOR:
+  case GateType::XOR:
     ASSERT_COND( ni == 2 );
     {
       SatLiteral ilit0 = litmap.input(0);
@@ -535,7 +535,7 @@ DtpgImpl::make_node_cnf(const TpgNode* node,
     }
     break;
 
-  case kGateXNOR:
+  case GateType::XNOR:
     ASSERT_COND( ni == 2 );
     {
       SatLiteral ilit0 = litmap.input(0);
@@ -641,7 +641,7 @@ DtpgImpl::make_ffr_condition(const TpgFault* fault,
   bool val = (fault->val() == 0);
   add_assign(assign_list, inode, 1, val);
 
-  if ( mFaultType == kFtTransitionDelay ) {
+  if ( mFaultType == FaultType::TransitionDelay ) {
     // 1時刻前の値が逆の値である条件を作る．
     add_assign(assign_list, inode, 0, !val);
   }
@@ -767,7 +767,7 @@ DtpgImpl::solve(const TpgFault* fault,
     timer.start();
 
     // バックトレースを行う．
-    const VidMap& hvar_map = mFaultType == kFtTransitionDelay ? mHvarMap : mGvarMap;
+    const VidMap& hvar_map = mFaultType == FaultType::TransitionDelay ? mHvarMap : mGvarMap;
     ValMap_model val_map(hvar_map, mGvarMap, mFvarMap, model);
     mBackTracer(assign_list, mOutputList, val_map, nodeval_list);
 

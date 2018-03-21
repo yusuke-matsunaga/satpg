@@ -18,6 +18,8 @@
 #include "TpgDff.h"
 #include "TpgMFFC.h"
 
+#include "GateType.h"
+
 #include "ValMap_model.h"
 
 #include "GateLitMap_vid.h"
@@ -28,10 +30,10 @@ BEGIN_NAMESPACE_YM_SATPG_STRUCTENC
 
 BEGIN_NONAMESPACE
 
-const ymuint debug_make_vars = 1U;
-const ymuint debug_make_node_cnf = 2U;
-const ymuint debug_extract = 32U;
-const ymuint debug_justify = 64U;
+const int debug_make_vars = 1U;
+const int debug_make_node_cnf = 2U;
+const int debug_extract = 32U;
+const int debug_justify = 64U;
 
 END_NONAMESPACE
 
@@ -45,7 +47,7 @@ END_NONAMESPACE
 // @param[in] sat_type SATソルバの種類を表す文字列
 // @param[in] sat_option SATソルバに渡すオプション文字列
 // @param[in] sat_outp SATソルバ用の出力ストリーム
-StructEnc::StructEnc(ymuint max_node_id,
+StructEnc::StructEnc(int max_node_id,
 		     FaultType fault_type,
 		     const string& sat_type,
 		     const string& sat_option,
@@ -55,7 +57,7 @@ StructEnc::StructEnc(ymuint max_node_id,
   mMaxId(max_node_id),
   mMark(max_node_id, false)
 {
-  for (ymuint i = 0; i < 2; ++ i) {
+  for (int i = 0; i < 2; ++ i) {
     mVarMap[i].init(max_node_id);
   }
   mDebugFlag = 0;
@@ -69,7 +71,7 @@ StructEnc::StructEnc(ymuint max_node_id,
 // @brief デストラクタ
 StructEnc::~StructEnc()
 {
-  for (ymuint i = 0; i < mConeList.size(); ++ i) {
+  for (int i = 0; i < mConeList.size(); ++ i) {
     PropCone* cone = mConeList[i];
     delete cone;
   }
@@ -81,7 +83,7 @@ StructEnc::~StructEnc()
 // @return 作成されたコーン番号を返す．
 //
 // fnode から到達可能な外部出力までの故障伝搬条件を考える．
-ymuint
+int
 StructEnc::add_simple_cone(const TpgNode* fnode,
 			   bool detect)
 {
@@ -95,16 +97,16 @@ StructEnc::add_simple_cone(const TpgNode* fnode,
 // @return 作成されたコーン番号を返す．
 //
 // bnode までの故障伝搬条件を考える．
-ymuint
+int
 StructEnc::add_simple_cone(const TpgNode* fnode,
 			   const TpgNode* bnode,
 			   bool detect)
 {
   PropCone* focone = new SimplePropCone(*this, fnode, bnode, detect);
-  ymuint cone_id = mConeList.size();
+  int cone_id = mConeList.size();
   mConeList.push_back(focone);
 
-  if ( fault_type() == kFtTransitionDelay ) {
+  if ( fault_type() == FaultType::TransitionDelay ) {
     add_prev_node(fnode);
   }
   make_tfi_list(focone->tfo_node_list());
@@ -118,7 +120,7 @@ StructEnc::add_simple_cone(const TpgNode* fnode,
 // @return 作成されたコーン番号を返す．
 //
 // fnode から到達可能な外部出力までの故障伝搬条件を考える．
-ymuint
+int
 StructEnc::add_mffc_cone(const TpgMFFC* mffc,
 			 bool detect)
 {
@@ -132,16 +134,16 @@ StructEnc::add_mffc_cone(const TpgMFFC* mffc,
 // @return 作成されたコーン番号を返す．
 //
 // bnode までの故障伝搬条件を考える．
-ymuint
+int
 StructEnc::add_mffc_cone(const TpgMFFC* mffc,
 			 const TpgNode* bnode,
 			 bool detect)
 {
   PropCone* mffccone = new MffcPropCone(*this, mffc, bnode, detect);
-  ymuint cone_id = mConeList.size();
+  int cone_id = mConeList.size();
   mConeList.push_back(mffccone);
 
-  if ( fault_type() == kFtTransitionDelay ) {
+  if ( fault_type() == FaultType::TransitionDelay ) {
     add_prev_node(mffc->root());
   }
   make_tfi_list(mffccone->tfo_node_list());
@@ -155,7 +157,7 @@ StructEnc::add_mffc_cone(const TpgMFFC* mffc,
 // @param[out] assumptions 結果の仮定を表すリテラルのリスト
 void
 StructEnc::make_fault_condition(const TpgFault* fault,
-				ymuint cone_id,
+				int cone_id,
 				vector<SatLiteral>& assumptions)
 {
   // FFR 内の故障伝搬条件を assign_list に入れる．
@@ -169,7 +171,7 @@ StructEnc::make_fault_condition(const TpgFault* fault,
 
   // assign_list を変換して assumptions に追加する．
   assumptions.reserve(assumptions.size() + assign_list.size());
-  for (ymuint i = 0; i < assign_list.size(); ++ i) {
+  for (int i = 0; i < assign_list.size(); ++ i) {
     NodeVal nv = assign_list[i];
     SatLiteral lit = nv_to_lit(nv);
     assumptions.push_back(lit);
@@ -189,7 +191,7 @@ StructEnc::add_fault_condition(const TpgFault* fault,
   bool val = (fault->val() == 0);
   assign_list.add(inode, 1, val);
 
-  if ( fault_type() == kFtTransitionDelay ) {
+  if ( fault_type() == FaultType::TransitionDelay ) {
     // 1時刻前の値が逆の値である条件を作る．
     assign_list.add(inode, 0, !val);
   }
@@ -199,11 +201,11 @@ StructEnc::add_fault_condition(const TpgFault* fault,
     // 故障の伝搬条件
     const TpgNode* onode = fault->tpg_onode();
     Val3 nval = onode->nval();
-    if ( nval != kValX ) {
-      ymuint ni = onode->fanin_num();
-      bool val = (nval == kVal1);
+    if ( nval != Val3::_X ) {
+      int ni = onode->fanin_num();
+      bool val = (nval == Val3::_1);
       // inode -> onode の伝搬条件
-      for (ymuint i = 0; i < ni; ++ i) {
+      for (int i = 0; i < ni; ++ i) {
 	const TpgNode* inode1 = onode->fanin(i);
 	if ( inode1 == inode ) {
 	  continue;
@@ -231,21 +233,21 @@ StructEnc::add_ffr_condition(const TpgNode* root_node,
        node = node->fanout(0)) {
     ASSERT_COND( node->fanout_num() == 1 );
     const TpgNode* onode = node->fanout(0);
-    ymuint ni = onode->fanin_num();
+    int ni = onode->fanin_num();
     if ( ni == 1 ) {
       // サイドインプットがなければスキップ
       continue;
     }
     Val3 nval = onode->nval();
-    if ( nval == kValX ) {
+    if ( nval == Val3::_X ) {
       // 非制御値がなければスキップ
       // 実際には制御値がない時にスキップ
       // 例えば XOR ゲートの場合がそれにあたる．
       continue;
     }
     // サイドインプットの値を非制御値にする．
-    bool val = (nval == kVal1);
-    for (ymuint i = 0; i < ni; ++ i) {
+    bool val = (nval == Val3::_1);
+    for (int i = 0; i < ni; ++ i) {
       const TpgNode* inode = onode->fanin(i);
       if ( inode == node ) {
 	continue;
@@ -260,8 +262,8 @@ StructEnc::add_ffr_condition(const TpgNode* root_node,
 void
 StructEnc::add_assignments(const NodeValList& assignment)
 {
-  ymuint n = assignment.size();
-  for (ymuint i = 0; i < n; ++ i) {
+  int n = assignment.size();
+  for (int i = 0; i < n; ++ i) {
     NodeVal nv = assignment[i];
     SatLiteral alit = nv_to_lit(nv);
     mSolver.add_clause(alit);
@@ -273,9 +275,9 @@ StructEnc::add_assignments(const NodeValList& assignment)
 void
 StructEnc::add_negation(const NodeValList& assignment)
 {
-  ymuint n = assignment.size();
+  int n = assignment.size();
   vector<SatLiteral> tmp_lits(n);
-  for (ymuint i = 0; i < n; ++ i) {
+  for (int i = 0; i < n; ++ i) {
     NodeVal nv = assignment[i];
     SatLiteral alit = nv_to_lit(nv);
     tmp_lits[i] = ~alit;
@@ -292,8 +294,8 @@ void
 StructEnc::conv_to_assumption(const NodeValList& assign_list,
 			      vector<SatLiteral>& assumptions)
 {
-  ymuint n = assign_list.size();
-  for (ymuint i = 0; i < n; ++ i) {
+  int n = assign_list.size();
+  for (int i = 0; i < n; ++ i) {
     NodeVal nv = assign_list[i];
     SatLiteral alit = nv_to_lit(nv);
     assumptions.push_back(alit);
@@ -306,18 +308,18 @@ void
 StructEnc::make_tfi_list(const vector<const TpgNode*>& node_list)
 {
   // node_list を mCurNodeList に入れる．
-  for (ymuint i = 0; i < node_list.size(); ++ i) {
+  for (int i = 0; i < node_list.size(); ++ i) {
     const TpgNode* node = node_list[i];
     if ( !cur_mark(node) ) {
       add_cur_node(node);
     }
   }
-  for (ymuint rpos = 0; rpos < mCurNodeList.size(); ++ rpos) {
+  for (int rpos = 0; rpos < mCurNodeList.size(); ++ rpos) {
     const TpgNode* node = mCurNodeList[rpos];
 
     // node のファンインを mCurNodeList に追加する．
-    ymuint ni = node->fanin_num();
-    for (ymuint i = 0; i < ni; ++ i) {
+    int ni = node->fanin_num();
+    for (int i = 0; i < ni; ++ i) {
       const TpgNode* inode = node->fanin(i);
       if ( !cur_mark(inode) ) {
 	add_cur_node(inode);
@@ -325,18 +327,18 @@ StructEnc::make_tfi_list(const vector<const TpgNode*>& node_list)
     }
 
     // 遷移故障モードの場合には１時刻前の回路も作る．
-    if ( fault_type() == kFtTransitionDelay && node->is_dff_output() ) {
+    if ( fault_type() == FaultType::TransitionDelay && node->is_dff_output() ) {
       const TpgNode* inode = node->dff()->input();
       add_prev_node(inode);
     }
   }
 
-  for (ymuint rpos = 0; rpos < mPrevNodeList.size(); ++ rpos) {
+  for (int rpos = 0; rpos < mPrevNodeList.size(); ++ rpos) {
     const TpgNode* node = mPrevNodeList[rpos];
 
     // node のファンインを mCurNodeList に追加する．
-    ymuint ni = node->fanin_num();
-    for (ymuint i = 0; i < ni; ++ i) {
+    int ni = node->fanin_num();
+    for (int i = 0; i < ni; ++ i) {
       const TpgNode* inode = node->fanin(i);
       if ( !prev_mark(inode) ) {
 	add_prev_node(inode);
@@ -349,7 +351,7 @@ StructEnc::make_tfi_list(const vector<const TpgNode*>& node_list)
 void
 StructEnc::make_vars()
 {
-  for (ymuint i = 0; i < mCurNodeList.size(); ++ i) {
+  for (int i = 0; i < mCurNodeList.size(); ++ i) {
     const TpgNode* node = mCurNodeList[i];
     if ( !var_mark(node, 1) ) {
       set_new_var(node, 1);
@@ -358,7 +360,7 @@ StructEnc::make_vars()
       }
     }
   }
-  for (ymuint i = 0; i < mPrevNodeList.size(); ++ i) {
+  for (int i = 0; i < mPrevNodeList.size(); ++ i) {
     const TpgNode* node = mPrevNodeList[i];
     if ( !var_mark(node, 0) ) {
       // FF の入力の場合は1時刻後の出力の変数を用いる．
@@ -381,7 +383,7 @@ StructEnc::make_vars()
     }
   }
 
-  for (ymuint i = 0; i < mConeList.size(); ++ i) {
+  for (int i = 0; i < mConeList.size(); ++ i) {
     PropCone* focone = mConeList[i];
     focone->make_vars();
   }
@@ -391,14 +393,14 @@ StructEnc::make_vars()
 void
 StructEnc::make_cnf()
 {
-  for (ymuint i = 0; i < mCurNodeList.size(); ++ i) {
+  for (int i = 0; i < mCurNodeList.size(); ++ i) {
     const TpgNode* node = mCurNodeList[i];
     if ( !cnf_mark(node, 1) ) {
       set_cnf_mark(node, 1);
       make_node_cnf(node, var_map(1));
     }
   }
-  for (ymuint i = 0; i < mPrevNodeList.size(); ++ i) {
+  for (int i = 0; i < mPrevNodeList.size(); ++ i) {
     const TpgNode* node = mPrevNodeList[i];
     if ( !cnf_mark(node, 0) ) {
       set_cnf_mark(node, 0);
@@ -406,7 +408,7 @@ StructEnc::make_cnf()
     }
   }
 
-  for (ymuint i = 0; i < mConeList.size(); ++ i) {
+  for (int i = 0; i < mConeList.size(); ++ i) {
     PropCone* focone = mConeList[i];
     focone->make_cnf();
   }
@@ -427,14 +429,14 @@ StructEnc::make_tfi_var(const TpgNode* node,
   set_new_var(node, time);
 
   // 先に TFI のノードの変数を作る．
-  ymuint ni = node->fanin_num();
-  for (ymuint i = 0; i < ni; ++ i) {
+  int ni = node->fanin_num();
+  for (int i = 0; i < ni; ++ i) {
     const TpgNode* inode = node->fanin(i);
     make_tfi_var(inode, time);
   }
 
   // 遷移故障モードの時は前の時刻の回路も作る．
-  if ( fault_type() == kFtTransitionDelay &&
+  if ( fault_type() == FaultType::TransitionDelay &&
        node->is_dff_output() && time == 1 ) {
     const TpgNode* inode = node->dff()->input();
     make_tfi_var(inode, 0);
@@ -461,14 +463,14 @@ StructEnc::make_tfi_cnf(const TpgNode* node,
   make_node_cnf(node, var_map(time));
 
   // TFI のノードの節を作る．
-  ymuint ni = node->fanin_num();
-  for (ymuint i = 0; i < ni; ++ i) {
+  int ni = node->fanin_num();
+  for (int i = 0; i < ni; ++ i) {
     const TpgNode* inode = node->fanin(i);
     make_tfi_cnf(inode, time);
   }
 
   // 遷移故障モードの時は前の時刻の回路も作る．
-  if ( fault_type() == kFtTransitionDelay &&
+  if ( fault_type() == FaultType::TransitionDelay &&
        node->is_dff_output() && time == 1 ) {
     const TpgNode* inode = node->dff()->input();
     make_tfi_cnf(inode, 0);
@@ -520,7 +522,7 @@ StructEnc::check_sat(const NodeValList& assign_list1,
 void
 StructEnc::extract(const vector<SatBool3>& model,
 		   const TpgFault* fault,
-		   ymuint cone_id,
+		   int cone_id,
 		   NodeValList& assign_list)
 {
   if ( debug() & debug_extract ) {
@@ -599,27 +601,27 @@ StructEnc::_make_node_cnf(const TpgNode* node,
 			  const GateLitMap& litmap)
 {
   SatLiteral olit = litmap.output();
-  ymuint ni = litmap.input_size();
+  int ni = litmap.input_size();
   switch ( node->gate_type() ) {
-  case kGateCONST0:
+  case GateType::CONST0:
     if ( debug() & debug_make_node_cnf ) {
       cout << "_make_node_cnf(CONST0): " << "| " << olit << endl;
     }
     mSolver.add_clause(~olit);
     break;
 
-  case kGateCONST1:
+  case GateType::CONST1:
     if ( debug() & debug_make_node_cnf ) {
       cout << "_make_node_cnf(CONST1): " << "| " << olit << endl;
     }
     mSolver.add_clause( olit);
     break;
 
-  case kGateINPUT:
+  case GateType::INPUT:
     // なにもしない．
     break;
 
-  case kGateBUFF:
+  case GateType::BUFF:
     if ( debug() & debug_make_node_cnf ) {
       cout << "_make_node_cnf(BUFF): " << litmap.input(0) << "| " << olit << endl;
     }
@@ -629,7 +631,7 @@ StructEnc::_make_node_cnf(const TpgNode* node,
     }
     break;
 
-  case kGateNOT:
+  case GateType::NOT:
     if ( debug() & debug_make_node_cnf ) {
       cout << "_make_node_cnf(NOT):  " << litmap.input(0) << "| " << olit << endl;
     }
@@ -639,10 +641,10 @@ StructEnc::_make_node_cnf(const TpgNode* node,
     }
     break;
 
-  case kGateAND:
+  case GateType::AND:
     if ( debug() & debug_make_node_cnf ) {
       cout << "_make_node_cnf(AND):  ";
-      for (ymuint i = 0; i < ni; ++ i) {
+      for (int i = 0; i < ni; ++ i) {
 	cout << " " << litmap.input(i);
       }
       cout << "| " << olit << endl;
@@ -679,7 +681,7 @@ StructEnc::_make_node_cnf(const TpgNode* node,
       ASSERT_COND( ni > 4 );
       {
 	vector<SatLiteral> ilits(ni);
-	for (ymuint i = 0; i < ni; ++ i) {
+	for (int i = 0; i < ni; ++ i) {
 	  ilits[i] = litmap.input(i);
 	}
 	mSolver.add_andgate_rel( olit, ilits);
@@ -688,10 +690,10 @@ StructEnc::_make_node_cnf(const TpgNode* node,
     }
     break;
 
-  case kGateNAND:
+  case GateType::NAND:
     if ( debug() & debug_make_node_cnf ) {
       cout << "_make_node_cnf(NAND):  ";
-      for (ymuint i = 0; i < ni; ++ i) {
+      for (int i = 0; i < ni; ++ i) {
 	cout << " " << litmap.input(i);
       }
       cout << "| " << olit << endl;
@@ -728,7 +730,7 @@ StructEnc::_make_node_cnf(const TpgNode* node,
       ASSERT_COND( ni > 4 );
       {
 	vector<SatLiteral> ilits(ni);
-	for (ymuint i = 0; i < ni; ++ i) {
+	for (int i = 0; i < ni; ++ i) {
 	  ilits[i] = litmap.input(i);
 	}
 	mSolver.add_nandgate_rel( olit, ilits);
@@ -737,10 +739,10 @@ StructEnc::_make_node_cnf(const TpgNode* node,
     }
     break;
 
-  case kGateOR:
+  case GateType::OR:
     if ( debug() & debug_make_node_cnf ) {
       cout << "_make_node_cnf(OR):  ";
-      for (ymuint i = 0; i < ni; ++ i) {
+      for (int i = 0; i < ni; ++ i) {
 	cout << " " << litmap.input(i);
       }
       cout << "| " << olit << endl;
@@ -777,7 +779,7 @@ StructEnc::_make_node_cnf(const TpgNode* node,
       ASSERT_COND( ni > 4 );
       {
 	vector<SatLiteral> ilits(ni);
-	for (ymuint i = 0; i < ni; ++ i) {
+	for (int i = 0; i < ni; ++ i) {
 	  ilits[i] = litmap.input(i);
 	}
 	mSolver.add_orgate_rel( olit, ilits);
@@ -786,10 +788,10 @@ StructEnc::_make_node_cnf(const TpgNode* node,
     }
     break;
 
-  case kGateNOR:
+  case GateType::NOR:
     if ( debug() & debug_make_node_cnf ) {
       cout << "_make_node_cnf(NOR):  ";
-      for (ymuint i = 0; i < ni; ++ i) {
+      for (int i = 0; i < ni; ++ i) {
 	cout << " " << litmap.input(i);
       }
       cout << "| " << olit << endl;
@@ -826,7 +828,7 @@ StructEnc::_make_node_cnf(const TpgNode* node,
       ASSERT_COND( ni > 4 );
       {
 	vector<SatLiteral> ilits(ni);
-	for (ymuint i = 0; i < ni; ++ i) {
+	for (int i = 0; i < ni; ++ i) {
 	  ilits[i] = litmap.input(i);
 	}
 	mSolver.add_norgate_rel( olit, ilits);
@@ -835,10 +837,10 @@ StructEnc::_make_node_cnf(const TpgNode* node,
     }
     break;
 
-  case kGateXOR:
+  case GateType::XOR:
     if ( debug() & debug_make_node_cnf ) {
       cout << "_make_node_cnf(XOR):  ";
-      for (ymuint i = 0; i < ni; ++ i) {
+      for (int i = 0; i < ni; ++ i) {
 	cout << " " << litmap.input(i);
       }
       cout << "| " << olit << endl;
@@ -851,10 +853,10 @@ StructEnc::_make_node_cnf(const TpgNode* node,
     }
     break;
 
-  case kGateXNOR:
+  case GateType::XNOR:
     if ( debug() & debug_make_node_cnf ) {
       cout << "_make_node_cnf(XNOR):  ";
-      for (ymuint i = 0; i < ni; ++ i) {
+      for (int i = 0; i < ni; ++ i) {
 	cout << " " << litmap.input(i);
       }
       cout << "| " << olit << endl;

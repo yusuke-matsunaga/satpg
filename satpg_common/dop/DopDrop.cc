@@ -54,7 +54,7 @@ DopDrop::operator()(const TpgFault* f,
   ymuint n = mFsim.sppfp(assign_list);
   for (ymuint i = 0; i < n; ++ i) {
     const TpgFault* f = mFsim.det_fault(i);
-    mMgr.set_status(f, kFsDetected);
+    mMgr.set_status(f, FaultStatus::Detected);
     mFsim.set_skip(f);
   }
 }
@@ -69,7 +69,7 @@ DopDrop::operator()(const TpgFault* f,
   ymuint n = mFsim.sppfp(tv);
   for (ymuint i = 0; i < n; ++ i) {
     const TpgFault* f = mFsim.det_fault(i);
-    mMgr.set_status(f, kFsDetected);
+    mMgr.set_status(f, FaultStatus::Detected);
     mFsim.set_skip(f);
   }
 }

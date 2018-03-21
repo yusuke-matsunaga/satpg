@@ -70,17 +70,17 @@ PrintFaultCmd::cmd_proc(TclObjVector& objv)
   // 参照を使いたいのでめんどくさいことをやっている．
   ostream& out = *osp;
 
-  FaultStatus type = kFsUndetected;
+  FaultStatus type = FaultStatus::Undetected;
   if ( mPoptType->is_specified() ) {
     string tmp = mPoptType->val();
     if ( tmp == "detected" ) {
-      type = kFsDetected;
+      type = FaultStatus::Detected;
     }
     else if ( tmp == "untestable" ) {
-      type = kFsUntestable;
+      type = FaultStatus::Untestable;
     }
     else if ( tmp == "remain" ) {
-      type = kFsUndetected;
+      type = FaultStatus::Undetected;
     }
     else {
       print_usage();

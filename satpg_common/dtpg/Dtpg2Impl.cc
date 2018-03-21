@@ -47,7 +47,7 @@ Dtpg2Impl::Dtpg2Impl(const string& sat_type,
 		     BackTracer& bt,
 		     const TpgNetwork& network,
 		     const TpgNode* root) :
-  DtpgImpl(sat_type, sat_option, sat_outp, kFtTransitionDelay,
+  DtpgImpl(sat_type, sat_option, sat_outp, FaultType::TransitionDelay,
 	   bt, network, root)
 {
 }

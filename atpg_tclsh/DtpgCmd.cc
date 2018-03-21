@@ -37,18 +37,18 @@ run_single(Dtpg& dtpg,
 	   UntestOp& uop,
 	   DtpgStats& stats)
 {
-  ymuint nf = network.rep_fault_num();
-  for (ymuint i = 0; i < nf; ++ i) {
+  int nf = network.rep_fault_num();
+  for (int i = 0; i < nf; ++ i) {
     const TpgFault* fault = network.rep_fault(i);
-    if ( fmgr.status(fault) == kFsUndetected ) {
+    if ( fmgr.status(fault) == FaultStatus::Undetected ) {
       const TpgFFR* ffr = fault->ffr();
       dtpg.gen_ffr_cnf(network, ffr, stats);
       NodeValList nodeval_list;
       SatBool3 ans = dtpg.dtpg(fault, nodeval_list, stats);
-      if ( ans == kB3True ) {
+      if ( ans == SatBool3::True ) {
 	dop(fault, nodeval_list);
       }
-      else if ( ans == kB3False ) {
+      else if ( ans == SatBool3::False ) {
 	uop(fault);
       }
     }
@@ -63,20 +63,20 @@ run_ffr(Dtpg& dtpg,
 	UntestOp& uop,
 	DtpgStats& stats)
 {
-  ymuint nffr = network.ffr_num();
-  for (ymuint i = 0; i < nffr; ++ i) {
+  int nffr = network.ffr_num();
+  for (int i = 0; i < nffr; ++ i) {
     const TpgFFR* ffr = network.ffr(i);
     dtpg.gen_ffr_cnf(network, ffr, stats);
-    ymuint nf = ffr->fault_num();
-    for (ymuint j = 0; j < nf; ++ j) {
+    int nf = ffr->fault_num();
+    for (int j = 0; j < nf; ++ j) {
       const TpgFault* fault = ffr->fault(j);
-      if ( fmgr.status(fault) == kFsUndetected ) {
+      if ( fmgr.status(fault) == FaultStatus::Undetected ) {
 	NodeValList nodeval_list;
 	SatBool3 ans = dtpg.dtpg(fault, nodeval_list, stats);
-	if ( ans == kB3True ) {
+	if ( ans == SatBool3::True ) {
 	  dop(fault, nodeval_list);
 	}
-	else if ( ans == kB3False ) {
+	else if ( ans == SatBool3::False ) {
 	  uop(fault);
 	}
       }
@@ -92,23 +92,23 @@ run_mffc(Dtpg& dtpg,
 	 UntestOp& uop,
 	 DtpgStats& stats)
 {
-  ymuint n = network.mffc_num();
-  for (ymuint i = 0; i < n; ++ i) {
+  int n = network.mffc_num();
+  for (int i = 0; i < n; ++ i) {
     const TpgMFFC* mffc = network.mffc(i);
 
     dtpg.gen_mffc_cnf(network, mffc, stats);
 
-    ymuint nf = mffc->fault_num();
-    for (ymuint j = 0; j < nf; ++ j) {
+    int nf = mffc->fault_num();
+    for (int j = 0; j < nf; ++ j) {
       const TpgFault* fault = mffc->fault(j);
-      if ( fmgr.status(fault) == kFsUndetected ) {
+      if ( fmgr.status(fault) == FaultStatus::Undetected ) {
 	// 故障に対するテスト生成を行なう．
 	NodeValList nodeval_list;
 	SatBool3 ans = dtpg.dtpg(fault, nodeval_list, stats);
-	if ( ans == kB3True ) {
+	if ( ans == SatBool3::True ) {
 	  dop(fault, nodeval_list);
 	}
-	else if ( ans == kB3False ) {
+	else if ( ans == SatBool3::False ) {
 	  uop(fault);
 	}
       }
@@ -177,7 +177,7 @@ DtpgCmd::~DtpgCmd()
 int
 DtpgCmd::cmd_proc(TclObjVector& objv)
 {
-  ymuint objc = objv.size();
+  int objc = objv.size();
   if ( objc != 1 ) {
     print_usage();
     return TCL_ERROR;
@@ -211,8 +211,8 @@ DtpgCmd::cmd_proc(TclObjVector& objv)
   bool print_stats = mPoptPrintStats->is_specified();
 
   string engine_type;
-  ymuint mode_val = 0;
-  ymuint kdet_val = 0;
+  int mode_val = 0;
+  int kdet_val = 0;
   if ( mPoptSingle->is_specified() ) {
     if ( mPoptKDet->is_specified() ) {
       engine_type = "single_kdet";
@@ -230,10 +230,10 @@ DtpgCmd::cmd_proc(TclObjVector& objv)
   }
 
   bool sa_mode = true;
-  FaultType fault_type = kFtStuckAt;
+  FaultType fault_type = FaultType::StuckAt;
   if ( mPoptTransitionDelay->is_specified() ) {
     sa_mode = false;
-    fault_type = kFtTransitionDelay;
+    fault_type = FaultType::TransitionDelay;
   }
 
   string option_str = mPoptOpt->val();
@@ -252,12 +252,12 @@ DtpgCmd::cmd_proc(TclObjVector& objv)
   dop_list.add(new_DopBase(fault_mgr));
   uop_list.add(new_UopBase(fault_mgr));
 
-  ymuint xmode = 0;
+  int xmode = 0;
   if ( mPoptX->is_specified() ) {
     xmode = mPoptX->val();
   }
 
-  bool td_mode = (fault_type == kFtTransitionDelay);
+  bool td_mode = (fault_type == FaultType::TransitionDelay);
   Justifier* jt = nullptr;
   switch ( xmode ) {
   case 0: jt = new_JustSimple(td_mode, _network().node_num()); break;
@@ -281,9 +281,9 @@ DtpgCmd::cmd_proc(TclObjVector& objv)
   }
 
   fsim3.set_skip_all();
-  for (ymuint i = 0; i < fault_mgr.max_fault_id(); ++ i) {
+  for (int i = 0; i < fault_mgr.max_fault_id(); ++ i) {
     const TpgFault* f = fault_mgr.fault(i);
-    if ( f != nullptr && fault_mgr.status(f) == kFsUndetected ) {
+    if ( f != nullptr && fault_mgr.status(f) == FaultStatus::Undetected ) {
       fsim3.clear_skip(f);
     }
   }
@@ -308,8 +308,8 @@ DtpgCmd::cmd_proc(TclObjVector& objv)
 
   // -verify オプションの処理
   if ( mPoptVerify->is_specified() ) {
-    ymuint n = verify_result.error_count();
-    for (ymuint i = 0; i < n; ++ i) {
+    int n = verify_result.error_count();
+    for (int i = 0; i < n; ++ i) {
       const TpgFault* f = verify_result.error_fault(i);
       const NodeValList& assign_list = verify_result.error_assign_list(i);
       cout << "Error: " << f->str() << " is not detected with "

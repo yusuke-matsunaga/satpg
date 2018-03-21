@@ -34,7 +34,7 @@ DtpgTest::DtpgTest(const string& sat_type,
   mNetwork(network),
   mFaultMgr(network)
 {
-  bool td_mode = (fault_type == kFtTransitionDelay);
+  bool td_mode = (fault_type == FaultType::TransitionDelay);
   mJustifier = nullptr;
   switch ( bt_mode ) {
   case 0: mJustifier = new_JustSimple(td_mode, network.node_num()); break;
@@ -56,27 +56,27 @@ DtpgTest::~DtpgTest()
 
 // @brief シングルモードのテストを行う．
 // @return 検出故障数と冗長故障数を返す．
-pair<ymuint, ymuint>
+pair<int, int>
 DtpgTest::single_test()
 {
   mTimer.reset();
   mTimer.start();
 
-  ymuint detect_num = 0;
-  ymuint untest_num = 0;
-  ymuint nf = mNetwork.rep_fault_num();
-  for (ymuint i = 0; i < nf; ++ i) {
+  int detect_num = 0;
+  int untest_num = 0;
+  int nf = mNetwork.rep_fault_num();
+  for (int i = 0; i < nf; ++ i) {
     const TpgFault* fault = mNetwork.rep_fault(i);
-    if ( mFaultMgr.status(fault) == kFsUndetected ) {
+    if ( mFaultMgr.status(fault) == FaultStatus::Undetected ) {
       const TpgFFR* ffr = fault->ffr();
       mDtpg->gen_ffr_cnf(mNetwork, ffr, mStats);
       NodeValList nodeval_list;
       SatBool3 ans = mDtpg->dtpg(fault, nodeval_list, mStats);
-      if ( ans == kB3True ) {
+      if ( ans == SatBool3::True ) {
 	++ detect_num;
 	mDop(fault, nodeval_list);
       }
-      else if ( ans == kB3False ) {
+      else if ( ans == SatBool3::False ) {
 	++ untest_num;
       }
     }
@@ -89,28 +89,28 @@ DtpgTest::single_test()
 
 // @brief FFRモードのテストを行う．
 // @return 検出故障数と冗長故障数を返す．
-pair<ymuint, ymuint>
+pair<int, int>
 DtpgTest::ffr_test()
 {
   mTimer.reset();
   mTimer.start();
 
-  ymuint detect_num = 0;
-  ymuint untest_num = 0;
-  for (ymuint i = 0; i < mNetwork.ffr_num(); ++ i) {
+  int detect_num = 0;
+  int untest_num = 0;
+  for (int i = 0; i < mNetwork.ffr_num(); ++ i) {
     const TpgFFR* ffr = mNetwork.ffr(i);
     mDtpg->gen_ffr_cnf(mNetwork, ffr, mStats);
-    ymuint nf = ffr->fault_num();
-    for (ymuint j = 0; j < nf; ++ j) {
+    int nf = ffr->fault_num();
+    for (int j = 0; j < nf; ++ j) {
       const TpgFault* fault = ffr->fault(j);
-      if ( mFaultMgr.status(fault) == kFsUndetected ) {
+      if ( mFaultMgr.status(fault) == FaultStatus::Undetected ) {
 	NodeValList nodeval_list;
 	SatBool3 ans = mDtpg->dtpg(fault, nodeval_list, mStats);
-	if ( ans == kB3True ) {
+	if ( ans == SatBool3::True ) {
 	  ++ detect_num;
 	  mDop(fault, nodeval_list);
 	}
-	else if ( ans == kB3False ) {
+	else if ( ans == SatBool3::False ) {
 	  ++ untest_num;
 	}
       }
@@ -124,29 +124,29 @@ DtpgTest::ffr_test()
 
 // @brief MFFCモードのテストを行う．
 // @return 検出故障数と冗長故障数を返す．
-pair<ymuint, ymuint>
+pair<int, int>
 DtpgTest::mffc_test()
 {
   mTimer.reset();
   mTimer.start();
 
-  ymuint detect_num = 0;
-  ymuint untest_num = 0;
-  for (ymuint i = 0; i < mNetwork.mffc_num(); ++ i) {
+  int detect_num = 0;
+  int untest_num = 0;
+  for (int i = 0; i < mNetwork.mffc_num(); ++ i) {
     const TpgMFFC* mffc = mNetwork.mffc(i);
     mDtpg->gen_mffc_cnf(mNetwork, mffc, mStats);
-        ymuint nf = mffc->fault_num();
-    for (ymuint j = 0; j < nf; ++ j) {
+        int nf = mffc->fault_num();
+    for (int j = 0; j < nf; ++ j) {
       const TpgFault* fault = mffc->fault(j);
-      if ( mFaultMgr.status(fault) == kFsUndetected ) {
+      if ( mFaultMgr.status(fault) == FaultStatus::Undetected ) {
 	// 故障に対するテスト生成を行なう．
 	NodeValList nodeval_list;
 	SatBool3 ans = mDtpg->dtpg(fault, nodeval_list, mStats);
-	if ( ans == kB3True ) {
+	if ( ans == SatBool3::True ) {
 	  ++ detect_num;
 	  mDop(fault, nodeval_list);
 	}
-	else if ( ans == kB3False ) {
+	else if ( ans == SatBool3::False ) {
 	  ++ untest_num;
 	}
       }
@@ -167,8 +167,8 @@ DtpgTest::verify_result() const
 
 // @brief 統計情報を出力する．
 void
-DtpgTest::print_stats(ymuint detect_num,
-		      ymuint untest_num)
+DtpgTest::print_stats(int detect_num,
+		      int untest_num)
 {
   USTime time = mTimer.time();
 

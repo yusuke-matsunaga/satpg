@@ -31,7 +31,7 @@ public:
   /// @param[in] td_mode 遷移故障モードの時 true にするフラグ
   /// @param[in] max_id ID番号の最大値
   JustBase(bool td_mode,
-	   ymuint max_id);
+	   int max_id);
 
   /// @brief デストラクタ
   virtual
@@ -101,7 +101,7 @@ private:
   bool mTdMode;
 
   // ノード番号の最大値
-  ymuint mMaxId;
+  int mMaxId;
 
   // ノードの値を保持するクラス
   const ValMap* mValMapPtr;
@@ -189,8 +189,8 @@ JustBase::record_value(const TpgNode* node,
 		       NodeValList& assign_list) const
 {
   Val3 v = gval(node, time);
-  if ( v != kValX ) {
-    bool bval = (v == kVal1);
+  if ( v != Val3::_X ) {
+    bool bval = (v == Val3::_1);
     assign_list.add(node, time, bval);
   }
 }

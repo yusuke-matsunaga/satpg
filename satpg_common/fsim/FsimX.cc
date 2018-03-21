@@ -3,7 +3,7 @@
 /// @brief FsimX の実装ファイル
 /// @author Yusuke Matsunaga (松永 裕介)
 ///
-/// Copyright (C) 2016, 2017 Yusuke Matsunaga
+/// Copyright (C) 2016, 2017, 2018 Yusuke Matsunaga
 /// All rights reserved.
 
 
@@ -13,6 +13,8 @@
 #include "TpgDff.h"
 #include "TpgNode.h"
 #include "TpgFault.h"
+
+#include "GateType.h"
 
 #include "TestVector.h"
 #include "NodeValList.h"
@@ -36,12 +38,12 @@ val3_to_packedval(Val3 val)
 {
 #if FSIM_VAL2
   // kValX は kVal0 とみなす．
-  return (val == kVal1) ? kPvAll1 : kPvAll0;
+  return (val == Val3::_1) ? kPvAll1 : kPvAll0;
 #elif FSIM_VAL3
   switch ( val ) {
-  case kValX: return PackedVal3(kPvAll0, kPvAll0);
-  case kVal0: return PackedVal3(kPvAll1, kPvAll0);
-  case kVal1: return PackedVal3(kPvAll0, kPvAll1);
+  case Val3::_X: return PackedVal3(kPvAll0, kPvAll0);
+  case Val3::_0: return PackedVal3(kPvAll1, kPvAll0);
+  case Val3::_1: return PackedVal3(kPvAll0, kPvAll1);
   }
 #endif
 }
@@ -53,16 +55,16 @@ Val3
 packedval_to_val3(FSIM_VALTYPE pval)
 {
 #if FSIM_VAL2
-  return (pval & 1UL) ? kVal1 : kVal0;
+  return (pval & 1UL) ? Val3::_1 : Val3::_0;
 #elif FSIM_VAL3
   if ( pval.val0() & 1UL) {
-    return kVal0;
+    return Val3::_0;
   }
   else if ( pval.val1() & 1UL ) {
-    return kVal1;
+    return Val3::_1;
   }
   else {
-    return kValX;
+    return Val3::_X;
   }
 #endif
 }
@@ -133,7 +135,7 @@ FSIM_CLASSNAME::set_network(const TpgNetwork& network)
       // 外部出力に対応する SimNode の生成
       SimNode* inode = simmap[tpgnode->fanin(0)->id()];
       // 実際にはバッファタイプのノードに出力の印をつけるだけ．
-      node = make_gate(kGateBUFF, vector<SimNode*>(1, inode));
+      node = make_gate(GateType::BUFF, vector<SimNode*>(1, inode));
       node->set_output();
       mPPOArray[tpgnode->output_id()] = node;
     }
@@ -143,7 +145,7 @@ FSIM_CLASSNAME::set_network(const TpgNetwork& network)
       // DFFの制御端子に対応する SimNode の生成
       SimNode* inode = simmap[tpgnode->fanin(0)->id()];
       // 実際にはバッファタイプのノードに出力の印をつけるだけ．
-      node = make_gate(kGateBUFF, vector<SimNode*>(1, inode));
+      node = make_gate(GateType::BUFF, vector<SimNode*>(1, inode));
       node->set_output();
     }
     else if ( tpgnode->is_logic() ) {

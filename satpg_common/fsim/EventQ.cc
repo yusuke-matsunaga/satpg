@@ -3,12 +3,13 @@
 /// @brief EventQ の実装ファイル
 /// @author Yusuke Matsunaga (松永 裕介)
 ///
-/// Copyright (C) 2016 Yusuke Matsunaga
+/// Copyright (C) 2016, 2018 Yusuke Matsunaga
 /// All rights reserved.
 
 
 #include "EventQ.h"
 #include "SimNode.h"
+#include "GateType.h"
 
 
 BEGIN_NAMESPACE_YM_SATPG_FSIM
@@ -73,7 +74,7 @@ EventQ::put_trigger(SimNode* node,
 		    PackedVal valmask,
 		    bool immediate)
 {
-  if ( immediate || node->gate_type() == kGateINPUT ) {
+  if ( immediate || node->gate_type() == GateType::INPUT ) {
     // 入力の場合，他のイベントの干渉は受けないので
     // 今計算してしまう．
     // もしくは ppsfp のようにイベントが単独であると

@@ -50,13 +50,13 @@ FSIM_VALTYPE
 val3_to_packedval(Val3 val)
 {
 #if FSIM_VAL2
-  // kValX は kVal0 とみなす．
-  return (val == kVal1) ? kPvAll1 : kPvAll0;
+  // Val3::_X は Val3::_0 とみなす．
+  return (val == Val3::_1) ? kPvAll1 : kPvAll0;
 #elif FSIM_VAL3
   switch ( val ) {
-  case kValX: return PackedVal3(kPvAll0, kPvAll0);
-  case kVal0: return PackedVal3(kPvAll1, kPvAll0);
-  case kVal1: return PackedVal3(kPvAll0, kPvAll1);
+  case Val3::_X: return PackedVal3(kPvAll0, kPvAll0);
+  case Val3::_0: return PackedVal3(kPvAll1, kPvAll0);
+  case Val3::_1: return PackedVal3(kPvAll0, kPvAll1);
   }
 #endif
 }
@@ -69,7 +69,7 @@ bit_set(FSIM_VALTYPE& val,
 	PackedVal bit)
 {
 #if FSIM_VAL2
-  if ( ival == kVal1 ) {
+  if ( ival == Val3::_1 ) {
     val |= bit;
   }
 #elif FSIM_VAL3

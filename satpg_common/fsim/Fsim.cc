@@ -37,10 +37,10 @@ Fsim*
 Fsim::new_Fsim2(const TpgNetwork& network,
 		FaultType fault_type)
 {
-  if ( fault_type == kFtStuckAt ) {
+  if ( fault_type == FaultType::StuckAt ) {
     return nsFsimSa2::new_Fsim(network);
   }
-  else if ( fault_type == kFtTransitionDelay ) {
+  else if ( fault_type == FaultType::TransitionDelay ) {
     return nsFsimTd2::new_Fsim(network);
   }
   else {
@@ -53,10 +53,10 @@ Fsim*
 Fsim::new_Fsim3(const TpgNetwork& network,
 		FaultType fault_type)
 {
-  if ( fault_type == kFtStuckAt ) {
+  if ( fault_type == FaultType::StuckAt ) {
     return nsFsimSa3::new_Fsim(network);
   }
-  else if ( fault_type == kFtTransitionDelay ) {
+  else if ( fault_type == FaultType::TransitionDelay ) {
     return nsFsimTd3::new_Fsim(network);
   }
   else {

@@ -5,7 +5,7 @@
 /// @brief TpgDffClear のヘッダファイル
 /// @author Yusuke Matsunaga (松永 裕介)
 ///
-/// Copyright (C) 2016 Yusuke Matsunaga
+/// Copyright (C) 2016, 2018 Yusuke Matsunaga
 /// All rights reserved.
 
 
@@ -21,17 +21,20 @@ BEGIN_NAMESPACE_YM_SATPG
 class TpgDffClear :
   public TpgDffControl
 {
-public:
+  friend class TpgNodeFactory;
+
+private:
 
   /// @brief コンストラクタ
   /// @param[in] id ID番号
   /// @param[in] dff 接続しているDFF
   /// @param[in] fanin ファンインのノード
-  TpgDffClear(ymuint id,
+  TpgDffClear(int id,
 	      TpgDff* dff,
 	      TpgNode* fanin);
 
   /// @brief デストラクタ
+  virtual
   ~TpgDffClear();
 
 
@@ -43,7 +46,7 @@ public:
   /// @brief DFF のクリア端子に接続している力タイプの時 true を返す．
   virtual
   bool
-  is_dff_clear() const;
+  is_dff_clear() const override;
 
 
 public:

@@ -5,7 +5,7 @@
 /// @brief TpgDffControl のヘッダファイル
 /// @author Yusuke Matsunaga (松永 裕介)
 ///
-/// Copyright (C) 2016 Yusuke Matsunaga
+/// Copyright (C) 2016, 2018 Yusuke Matsunaga
 /// All rights reserved.
 
 
@@ -21,16 +21,17 @@ BEGIN_NAMESPACE_YM_SATPG
 class TpgDffControl :
   public TpgNode
 {
-public:
+protected:
 
   /// @brief コンストラクタ
   /// @param[in] id ID番号
   /// @param[in] dff 接続しているDFF
-  TpgDffControl(ymuint id,
+  TpgDffControl(int id,
 		TpgDff* dff,
 		TpgNode* fanin);
 
   /// @brief デストラクタ
+  virtual
   ~TpgDffControl();
 
 
@@ -41,14 +42,14 @@ public:
 
   /// @brief ファンイン数を得る．
   virtual
-  ymuint
-  fanin_num() const;
+  int
+  fanin_num() const override;
 
   /// @brief ファンインを得る．
   /// @param[in] pos 位置番号 ( 0 <= pos < fanin_num() )
   virtual
   TpgNode*
-  fanin(ymuint pos) const;
+  fanin(int pos) const override;
 
   /// @brief 接続している DFF を返す．
   ///
@@ -56,7 +57,7 @@ public:
   /// の時に意味を持つ．
   virtual
   TpgDff*
-  dff() const;
+  dff() const override;
 
 
 public:

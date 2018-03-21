@@ -516,7 +516,7 @@ DtpgImpl::set_tfi_mark(const TpgNode* node)
   if ( (mMarkArray[id] & 3U) == 0U ) {
     mMarkArray[id] |= 2U;
     mNodeList.push_back(node);
-    if ( mFaultType == kFtTransitionDelay && node->is_dff_output() ) {
+    if ( mFaultType == FaultType::TransitionDelay && node->is_dff_output() ) {
       mDffList.push_back(node->dff());
     }
   }

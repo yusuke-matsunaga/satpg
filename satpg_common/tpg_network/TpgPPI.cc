@@ -3,11 +3,13 @@
 /// @brief TpgPPI の実装ファイル
 /// @author Yusuke Matsunaga (松永 裕介)
 ///
-/// Copyright (C) 2016 Yusuke Matsunaga
+/// Copyright (C) 2016, 2018 Yusuke Matsunaga
 /// All rights reserved.
 
 
 #include "TpgPPI.h"
+#include "GateType.h"
+
 
 
 BEGIN_NAMESPACE_YM_SATPG
@@ -19,8 +21,8 @@ BEGIN_NAMESPACE_YM_SATPG
 // @brief コンストラクタ
 // @param[in] id ID番号
 // @param[in] input_id 入力番号
-TpgPPI::TpgPPI(ymuint id,
-	       ymuint input_id) :
+TpgPPI::TpgPPI(int id,
+	       int input_id) :
   TpgNode(id),
   mInputId(input_id)
 {
@@ -45,7 +47,7 @@ TpgPPI::is_ppi() const
 // node = TpgNetwork::input(node->input_id()
 // の関係を満たす．
 // is_input() が false の場合の返り値は不定
-ymuint
+int
 TpgPPI::input_id() const
 {
   return mInputId;
@@ -54,17 +56,17 @@ TpgPPI::input_id() const
 // @brief ゲートタイプを得る．
 //
 // - is_logic() が true の時はゲートタイプを返す．
-// - is_ppi() が true の時は kGateINPUT を返す．
-// - is_ppo() が true の時は kGateBUFF を返す．
+// - is_ppi() が true の時は GateType::INPUT を返す．
+// - is_ppo() が true の時は GateType::BUFF を返す．
 // - それ以外の返り値は不定
 GateType
 TpgPPI::gate_type() const
 {
-  return kGateINPUT;
+  return GateType::INPUT;
 }
 
 // @brief ファンイン数を得る．
-ymuint
+int
 TpgPPI::fanin_num() const
 {
   return 0;
@@ -73,7 +75,7 @@ TpgPPI::fanin_num() const
 // @brief ファンインを得る．
 // @param[in] pos 位置番号 ( 0 <= pos < fanin_num() )
 TpgNode*
-TpgPPI::fanin(ymuint pos) const
+TpgPPI::fanin(int pos) const
 {
   ASSERT_NOT_REACHED;
   return nullptr;

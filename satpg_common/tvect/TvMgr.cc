@@ -73,7 +73,7 @@ TvMgr::new_vector()
   if ( dff_num() > 0 ) {
     dv = new_dff_vector();
   }
-  if ( mFaultType == kFtTransitionDelay ) {
+  if ( mFaultType == FaultType::TransitionDelay ) {
     av = new_input_vector();
   }
   void* p = mTestVectorAlloc.get_memory(sizeof(TestVector));

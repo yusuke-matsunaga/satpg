@@ -10,15 +10,17 @@
 cdef extern from "GateType.h" namespace "nsYm::nsSatpg" :
 
     cdef enum GateType :
-        kGateCONST0,
-        kGateCONST1,
-        kGateINPUT,
-        kGateBUFF,
-        kGateNOT,
-        kGateAND,
-        kGateNAND,
-        kGateOR,
-        kGateNOR,
-        kGateXOR,
-        kGateXNOR,
-        kGateCPLX
+        CONST0,
+        CONST1,
+        INPUT,
+        BUFF,
+        NOT,
+        AND,
+        NAND,
+        OR,
+        NOR,
+        XOR,
+        XNOR
+
+    cdef int __gate_type_to_int(GateType)
+    cdef GateType __int_to_gate_type(int)

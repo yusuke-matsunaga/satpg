@@ -33,7 +33,7 @@ public:
   /// @param[in] sat_type SATソルバの種類を表す文字列
   /// @param[in] sat_option SATソルバに渡すオプション文字列
   /// @param[in] sat_outp SATソルバ用の出力ストリーム
-  StructEnc(ymuint max_node_id,
+  StructEnc(int max_node_id,
 	    FaultType fault_type,
 	    const string& sat_type = string(),
 	    const string& sat_option = string(),
@@ -57,7 +57,7 @@ public:
   fault_type() const;
 
   /// @brief ノード番号の最大値を返す．
-  ymuint
+  int
   max_node_id() const;
 
   /// @brief 変数マップを得る．
@@ -88,7 +88,7 @@ public:
   /// @return 作成されたコーン番号を返す．
   ///
   /// fnode から到達可能な外部出力までの故障伝搬条件を考える．
-  ymuint
+  int
   add_simple_cone(const TpgNode* fnode,
 		  bool detect);
 
@@ -99,7 +99,7 @@ public:
   /// @return 作成されたコーン番号を返す．
   ///
   /// bnode までの故障伝搬条件を考える．
-  ymuint
+  int
   add_simple_cone(const TpgNode* fnode,
 		  const TpgNode* bnode,
 		  bool detect);
@@ -110,7 +110,7 @@ public:
   /// @return 作成されたコーン番号を返す．
   ///
   /// fnode から到達可能な外部出力までの故障伝搬条件を考える．
-  ymuint
+  int
   add_mffc_cone(const TpgMFFC* mffc,
 		bool detect);
 
@@ -121,7 +121,7 @@ public:
   /// @return 作成されたコーン番号を返す．
   ///
   /// bnode までの故障伝搬条件を考える．
-  ymuint
+  int
   add_mffc_cone(const TpgMFFC* mffc,
 		const TpgNode* bnode,
 		bool detect);
@@ -132,7 +132,7 @@ public:
   /// @param[out] assign_list 条件を表す割当リスト
   void
   make_fault_condition(const TpgFault* fault,
-		       ymuint cone_id,
+		       int cone_id,
 		       vector<SatLiteral>& assumptions);
 
   /// @brief 割当リストの内容を節に加える．
@@ -265,7 +265,7 @@ public:
   void
   extract(const vector<SatBool3>& model,
 	  const TpgFault* fault,
-	  ymuint cone_id,
+	  int cone_id,
 	  NodeValList& assign_list);
 
   /// @brief 外部入力の値割り当てを求める．
@@ -284,10 +284,10 @@ public:
 
   /// @brief デバッグ用のフラグをセットする．
   void
-  set_debug(ymuint bits);
+  set_debug(int bits);
 
   /// @brief デバッグ用のフラグを得る．
-  ymuint
+  int
   debug() const;
 
 
@@ -422,7 +422,7 @@ private:
   SatSolver mSolver;
 
   // ノード番号の最大値
-  ymuint mMaxId;
+  int mMaxId;
 
   // 処理済みのノードの印
   // 0: gvar 割り当て済み
@@ -446,7 +446,7 @@ private:
   vector<PropCone*> mConeList;
 
   // デバッグ用のフラグ
-  ymuint mDebugFlag;
+  int mDebugFlag;
 
 };
 
@@ -473,7 +473,7 @@ StructEnc::fault_type() const
 
 // @brief ノード番号の最大値を返す．
 inline
-ymuint
+int
 StructEnc::max_node_id() const
 {
   return mMaxId;
@@ -694,14 +694,14 @@ StructEnc::check_sat(const NodeValList& assign_list1,
 // @brief デバッグ用のフラグをセットする．
 inline
 void
-StructEnc::set_debug(ymuint bits)
+StructEnc::set_debug(int bits)
 {
   mDebugFlag = bits;
 }
 
 // @brief デバッグ用のフラグを得る．
 inline
-ymuint
+int
 StructEnc::debug() const
 {
   return mDebugFlag;

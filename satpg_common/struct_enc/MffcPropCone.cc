@@ -16,6 +16,7 @@
 #include "ValMap_model.h"
 #include "Extractor.h"
 #include "NodeValList.h"
+#include "GateType.h"
 
 
 BEGIN_NAMESPACE_YM_SATPG_STRUCTENC

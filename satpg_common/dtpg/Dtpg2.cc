@@ -160,7 +160,7 @@ Dtpg2::run(TvMgr& tvmgr,
     MinCov mc;
     mc.set_size(nf, np);
 
-    Fsim* fsim = Fsim::new_Fsim2(network, kFtTransitionDelay);
+    Fsim* fsim = Fsim::new_Fsim2(network, FaultType::TransitionDelay);
     for (ymuint i = 0; i < np; ++ i) {
       const TestVector* tv = initial_tv_list[i];
       fsim->clear_skip_all();

@@ -13,6 +13,7 @@
 #include "NodeValList.h"
 #include "ValMap.h"
 #include "TpgNode.h"
+#include "Val3.h"
 
 
 BEGIN_NAMESPACE_YM_SATPG
@@ -28,7 +29,7 @@ public:
   /// @brief コンストラクタ
   /// @param[in] max_id ノード番号の最大値
   /// @param[in] fault_type 故障の型
-  BtImpl(ymuint max_id,
+  BtImpl(int max_id,
 	 FaultType fault_type);
 
   /// @brief デストラクタ
@@ -85,7 +86,7 @@ private:
   /// デフォルトの実装では何もしない．
   virtual
   void
-  _clear_hook(ymuint id);
+  _clear_hook(int id);
 
 
 protected:
@@ -154,7 +155,7 @@ private:
 
   // mMarkArray に印を付けたノードの番号のリスト
   // クリアするために使う．
-  vector<ymuint> mNodeIdList;
+  vector<int> mNodeIdList;
 
 };
 
@@ -181,7 +182,7 @@ BtImpl::set_justified(const TpgNode* node,
 {
   // 念のため time の値を制限する．
   time &= 1;
-  ymuint id = node->id();
+  int id = node->id();
   if ( mMarkArray[id] == 0U ) {
     // クリアのために値の変わったノード番号を記憶しておく．
     mNodeIdList.push_back(id);
@@ -245,8 +246,8 @@ BtImpl::record_value(const TpgNode* node,
 		     NodeValList& assign_list)
 {
   Val3 v = gval(node, time);
-  if ( v != kValX ) {
-    bool bval = (v == kVal1);
+  if ( v != Val3::_X ) {
+    bool bval = (v == Val3::_1);
     assign_list.add(node, time, bval);
   }
 }
