@@ -29,7 +29,7 @@ public:
   /// @param[in] gate_type ゲートの種類
   /// @param[in] vals 真理値表ベクタ
   void
-  test_gate(ymuint ni,
+  test_gate(int ni,
 	    GateType gate_type,
 	    int vals[]);
 
@@ -76,13 +76,13 @@ SimNodeTest::test_input()
 // @param[in] gate_type ゲートの種類
 // @param[in] vals 真理値表ベクタ
 void
-SimNodeTest::test_gate(ymuint ni,
+SimNodeTest::test_gate(int ni,
 		       GateType gate_type,
 		       int vals[])
 {
-  ymuint np = 1 << ni;
+  int np = 1 << ni;
   vector<SimNode*> inputs(ni);
-  for (ymuint i = 0; i < ni; ++ i) {
+  for (int i = 0; i < ni; ++ i) {
     inputs[i] = SimNode::new_input(i);
   }
   SimNode* node = SimNode::new_gate(ni, gate_type, inputs);
@@ -97,12 +97,12 @@ SimNodeTest::test_gate(ymuint ni,
 
   // _calc_val() のテスト
   init_val(node, kPvAll0);
-  for (ymuint i = 0; i < ni; ++ i) {
+  for (int i = 0; i < ni; ++ i) {
     init_val(inputs[i], kPvAll0);
   }
 
-  for (ymuint p = 0; p < np; ++ p) {
-    for (ymuint i = 0; i < ni; ++ i) {
+  for (int p = 0; p < np; ++ p) {
+    for (int i = 0; i < ni; ++ i) {
       if ( p & (1 << i) ) {
 	inputs[i]->set_val(kPvAll1);
       }
@@ -120,15 +120,15 @@ SimNodeTest::test_gate(ymuint ni,
   }
 
   // calc_gobs() のテスト
-  for (ymuint ipos = 0; ipos < ni; ++ ipos) {
+  for (int ipos = 0; ipos < ni; ++ ipos) {
     // ここで書き込む値に対して意味はない．
     init_val(node, kPvAll0);
-    for (ymuint i = 0; i < ni; ++ i) {
+    for (int i = 0; i < ni; ++ i) {
       init_val(inputs[i], kPvAll0);
     }
 
-    for (ymuint p = 0; p < np; ++ p) {
-      for (ymuint i = 0; i < ni; ++ i) {
+    for (int p = 0; p < np; ++ p) {
+      for (int i = 0; i < ni; ++ i) {
 	if ( p & (1 << i) ) {
 	  inputs[i]->set_val(kPvAll1);
 	}
@@ -137,7 +137,7 @@ SimNodeTest::test_gate(ymuint ni,
 	}
       }
       PackedVal val = node->_calc_gobs(ipos);
-      ymuint q = p ^ (1 << ipos);
+      int q = p ^ (1 << ipos);
       if ( vals[p] != vals[q] ) {
 	EXPECT_EQ( kPvAll1, val );
       }
@@ -147,7 +147,7 @@ SimNodeTest::test_gate(ymuint ni,
     }
   }
 
-  for (ymuint i = 0; i < ni; ++ i) {
+  for (int i = 0; i < ni; ++ i) {
     delete inputs[i];
   }
   delete node;

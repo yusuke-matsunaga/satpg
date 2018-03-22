@@ -29,7 +29,7 @@ public:
   /// @param[in] gate_type ゲートの種類
   /// @param[in] vals 真理値表ベクタ
   void
-  test_gate(ymuint ni,
+  test_gate(int ni,
 	    GateType gate_type,
 	    int vals[]);
 
@@ -88,12 +88,12 @@ SimNodeTest::test_input()
 // @param[in] gate_type ゲートの種類
 // @param[in] vals 真理値表ベクタ
 void
-SimNodeTest::test_gate(ymuint ni,
+SimNodeTest::test_gate(int ni,
 		       GateType gate_type,
 		       int vals[])
 {
   vector<SimNode*> inputs(ni);
-  for (ymuint i = 0; i < ni; ++ i) {
+  for (int i = 0; i < ni; ++ i) {
     inputs[i] = SimNode::new_input(i);
   }
   SimNode* node = SimNode::new_gate(ni, gate_type, inputs);
@@ -106,21 +106,21 @@ SimNodeTest::test_gate(ymuint ni,
   test_val(node, 0xaaaaaaaaaaaaaaaaUL, 0xaaaaaaaaaaaaaaaaUL);
   test_val(node, kPvAll0, kPvAll1);
 
-  ymuint np = 1;
-  for (ymuint i = 0; i < ni; ++ i) {
+  int np = 1;
+  for (int i = 0; i < ni; ++ i) {
     np *= 3;
   }
   // _calc_val() のテスト
   // ここで書き込む値に対して意味はない．
   init_val(node, kPvAll1, kPvAll1);
-  for (ymuint i = 0; i < ni; ++ i) {
+  for (int i = 0; i < ni; ++ i) {
     init_val(inputs[i], kPvAll1, kPvAll1);
   }
 
-  for (ymuint p = 0; p < np; ++ p) {
-    ymuint x = p;
-    for (ymuint i = 0; i < ni; ++ i) {
-      ymuint y = x % 3;
+  for (int p = 0; p < np; ++ p) {
+    int x = p;
+    for (int i = 0; i < ni; ++ i) {
+      int y = x % 3;
       x /= 3;
       PackedVal val0;
       PackedVal val1;
@@ -138,19 +138,19 @@ SimNodeTest::test_gate(ymuint ni,
   }
 
   // calc_gobs() のテスト
-  for (ymuint ipos = 0; ipos < ni; ++ ipos) {
+  for (int ipos = 0; ipos < ni; ++ ipos) {
     // ここで書き込む値に対して意味はない．
     init_val(node, kPvAll0, kPvAll1);
-    for (ymuint i = 0; i < ni; ++ i) {
+    for (int i = 0; i < ni; ++ i) {
       init_val(inputs[i], kPvAll0, kPvAll1);
     }
 
     vector<int> ivals(ni, 0);
     for ( ; ; ) {
-      ymuint p = 0;
-      ymuint q = 0;
-      ymuint w = 1;
-      for (ymuint i = 0; i < ni; ++ i) {
+      int p = 0;
+      int q = 0;
+      int w = 1;
+      for (int i = 0; i < ni; ++ i) {
 	PackedVal val0;
 	PackedVal val1;
 	switch ( ivals[i] ) {
@@ -181,7 +181,7 @@ SimNodeTest::test_gate(ymuint ni,
       }
 
       // ivals を次の値へシフトする．
-      for (ymuint i = 0; i < ni; ++ i) {
+      for (int i = 0; i < ni; ++ i) {
 	++ ivals[i];
 	if ( ivals[i] == 3 ) {
 	  ivals[i] = 0;
@@ -191,7 +191,7 @@ SimNodeTest::test_gate(ymuint ni,
 	}
       }
       bool end = true;
-      for (ymuint i = 0; i < ni; ++ i) {
+      for (int i = 0; i < ni; ++ i) {
 	if ( ivals[i] != 0 ) {
 	  end = false;
 	  break;
@@ -203,7 +203,7 @@ SimNodeTest::test_gate(ymuint ni,
     }
   }
 
-  for (ymuint i = 0; i < ni; ++ i) {
+  for (int i = 0; i < ni; ++ i) {
     delete inputs[i];
   }
   delete node;
@@ -286,8 +286,8 @@ TEST_F(SimNodeTest, NOT)
 TEST_F(SimNodeTest, AND2)
 {
   int vals[3 * 3];
-  for (ymuint x = 0; x < 3; ++ x) {
-    for (ymuint y = 0; y < 3; ++ y) {
+  for (int x = 0; x < 3; ++ x) {
+    for (int y = 0; y < 3; ++ y) {
       int val = 2;
       if ( x == 0 || y == 0 ) {
 	val = 0;
@@ -305,9 +305,9 @@ TEST_F(SimNodeTest, AND2)
 TEST_F(SimNodeTest, AND3)
 {
   int vals[3 * 3 * 3];
-  for (ymuint x = 0; x < 3; ++ x) {
-    for (ymuint y = 0; y < 3; ++ y) {
-      for (ymuint z = 0; z < 3; ++ z) {
+  for (int x = 0; x < 3; ++ x) {
+    for (int y = 0; y < 3; ++ y) {
+      for (int z = 0; z < 3; ++ z) {
 	int val = 2;
 	if ( x == 0 || y == 0 || z == 0 ) {
 	  val = 0;
@@ -326,10 +326,10 @@ TEST_F(SimNodeTest, AND3)
 TEST_F(SimNodeTest, AND4)
 {
   int vals[3 * 3 * 3 * 3];
-  for (ymuint x = 0; x < 3; ++ x) {
-    for (ymuint y = 0; y < 3; ++ y) {
-      for (ymuint z = 0; z < 3; ++ z) {
-	for (ymuint w = 0; w  < 3; ++ w) {
+  for (int x = 0; x < 3; ++ x) {
+    for (int y = 0; y < 3; ++ y) {
+      for (int z = 0; z < 3; ++ z) {
+	for (int w = 0; w  < 3; ++ w) {
 	  int val = 2;
 	  if ( x == 0 || y == 0 || z == 0 || w == 0 ) {
 	    val = 0;
@@ -349,11 +349,11 @@ TEST_F(SimNodeTest, AND4)
 TEST_F(SimNodeTest, AND5)
 {
   int vals[3 * 3 * 3 * 3 * 3];
-  for (ymuint x = 0; x < 3; ++ x) {
-    for (ymuint y = 0; y < 3; ++ y) {
-      for (ymuint z = 0; z < 3; ++ z) {
-	for (ymuint w = 0; w  < 3; ++ w) {
-	  for (ymuint u = 0; u < 3; ++ u) {
+  for (int x = 0; x < 3; ++ x) {
+    for (int y = 0; y < 3; ++ y) {
+      for (int z = 0; z < 3; ++ z) {
+	for (int w = 0; w  < 3; ++ w) {
+	  for (int u = 0; u < 3; ++ u) {
 	    int val = 2;
 	    if ( x == 0 || y == 0 || z == 0 || w == 0 || u == 0 ) {
 	      val = 0;
@@ -374,8 +374,8 @@ TEST_F(SimNodeTest, AND5)
 TEST_F(SimNodeTest, NAND2)
 {
   int vals[3 * 3];
-  for (ymuint x = 0; x < 3; ++ x) {
-    for (ymuint y = 0; y < 3; ++ y) {
+  for (int x = 0; x < 3; ++ x) {
+    for (int y = 0; y < 3; ++ y) {
       int val = 2;
       if ( x == 0 || y == 0 ) {
 	val = 1;
@@ -393,9 +393,9 @@ TEST_F(SimNodeTest, NAND2)
 TEST_F(SimNodeTest, NAND3)
 {
   int vals[3 * 3 * 3];
-  for (ymuint x = 0; x < 3; ++ x) {
-    for (ymuint y = 0; y < 3; ++ y) {
-      for (ymuint z = 0; z < 3; ++ z) {
+  for (int x = 0; x < 3; ++ x) {
+    for (int y = 0; y < 3; ++ y) {
+      for (int z = 0; z < 3; ++ z) {
 	int val = 2;
 	if ( x == 0 || y == 0 || z == 0 ) {
 	  val = 1;
@@ -414,10 +414,10 @@ TEST_F(SimNodeTest, NAND3)
 TEST_F(SimNodeTest, NAND4)
 {
   int vals[3 * 3 * 3 * 3];
-  for (ymuint x = 0; x < 3; ++ x) {
-    for (ymuint y = 0; y < 3; ++ y) {
-      for (ymuint z = 0; z < 3; ++ z) {
-	for (ymuint w = 0; w  < 3; ++ w) {
+  for (int x = 0; x < 3; ++ x) {
+    for (int y = 0; y < 3; ++ y) {
+      for (int z = 0; z < 3; ++ z) {
+	for (int w = 0; w  < 3; ++ w) {
 	  int val = 2;
 	  if ( x == 0 || y == 0 || z == 0 || w == 0 ) {
 	    val = 1;
@@ -437,11 +437,11 @@ TEST_F(SimNodeTest, NAND4)
 TEST_F(SimNodeTest, NAND5)
 {
   int vals[3 * 3 * 3 * 3 * 3];
-  for (ymuint x = 0; x < 3; ++ x) {
-    for (ymuint y = 0; y < 3; ++ y) {
-      for (ymuint z = 0; z < 3; ++ z) {
-	for (ymuint w = 0; w  < 3; ++ w) {
-	  for (ymuint u = 0; u < 3; ++ u) {
+  for (int x = 0; x < 3; ++ x) {
+    for (int y = 0; y < 3; ++ y) {
+      for (int z = 0; z < 3; ++ z) {
+	for (int w = 0; w  < 3; ++ w) {
+	  for (int u = 0; u < 3; ++ u) {
 	    int val = 2;
 	    if ( x == 0 || y == 0 || z == 0 || w == 0 || u == 0 ) {
 	      val = 1;
@@ -462,8 +462,8 @@ TEST_F(SimNodeTest, NAND5)
 TEST_F(SimNodeTest, OR2)
 {
   int vals[3 * 3];
-  for (ymuint x = 0; x < 3; ++ x) {
-    for (ymuint y = 0; y < 3; ++ y) {
+  for (int x = 0; x < 3; ++ x) {
+    for (int y = 0; y < 3; ++ y) {
       int val = 2;
       if ( x == 0 && y == 0 ) {
 	val = 0;
@@ -481,9 +481,9 @@ TEST_F(SimNodeTest, OR2)
 TEST_F(SimNodeTest, OR3)
 {
   int vals[3 * 3 * 3];
-  for (ymuint x = 0; x < 3; ++ x) {
-    for (ymuint y = 0; y < 3; ++ y) {
-      for (ymuint z = 0; z < 3; ++ z) {
+  for (int x = 0; x < 3; ++ x) {
+    for (int y = 0; y < 3; ++ y) {
+      for (int z = 0; z < 3; ++ z) {
 	int val = 2;
 	if ( x == 0 && y == 0 && z == 0 ) {
 	  val = 0;
@@ -502,10 +502,10 @@ TEST_F(SimNodeTest, OR3)
 TEST_F(SimNodeTest, OR4)
 {
   int vals[3 * 3 * 3 * 3];
-  for (ymuint x = 0; x < 3; ++ x) {
-    for (ymuint y = 0; y < 3; ++ y) {
-      for (ymuint z = 0; z < 3; ++ z) {
-	for (ymuint w = 0; w  < 3; ++ w) {
+  for (int x = 0; x < 3; ++ x) {
+    for (int y = 0; y < 3; ++ y) {
+      for (int z = 0; z < 3; ++ z) {
+	for (int w = 0; w  < 3; ++ w) {
 	  int val = 2;
 	  if ( x == 0 && y == 0 && z == 0 && w == 0 ) {
 	    val = 0;
@@ -525,11 +525,11 @@ TEST_F(SimNodeTest, OR4)
 TEST_F(SimNodeTest, OR5)
 {
   int vals[3 * 3 * 3 * 3 * 3];
-  for (ymuint x = 0; x < 3; ++ x) {
-    for (ymuint y = 0; y < 3; ++ y) {
-      for (ymuint z = 0; z < 3; ++ z) {
-	for (ymuint w = 0; w  < 3; ++ w) {
-	  for (ymuint u = 0; u < 3; ++ u) {
+  for (int x = 0; x < 3; ++ x) {
+    for (int y = 0; y < 3; ++ y) {
+      for (int z = 0; z < 3; ++ z) {
+	for (int w = 0; w  < 3; ++ w) {
+	  for (int u = 0; u < 3; ++ u) {
 	    int val = 2;
 	    if ( x == 0 && y == 0 && z == 0 && w == 0 && u == 0 ) {
 	      val = 0;
@@ -550,8 +550,8 @@ TEST_F(SimNodeTest, OR5)
 TEST_F(SimNodeTest, NOR2)
 {
   int vals[3 * 3];
-  for (ymuint x = 0; x < 3; ++ x) {
-    for (ymuint y = 0; y < 3; ++ y) {
+  for (int x = 0; x < 3; ++ x) {
+    for (int y = 0; y < 3; ++ y) {
       int val = 2;
       if ( x == 0 && y == 0 ) {
 	val = 1;
@@ -569,9 +569,9 @@ TEST_F(SimNodeTest, NOR2)
 TEST_F(SimNodeTest, NOR3)
 {
   int vals[3 * 3 * 3];
-  for (ymuint x = 0; x < 3; ++ x) {
-    for (ymuint y = 0; y < 3; ++ y) {
-      for (ymuint z = 0; z < 3; ++ z) {
+  for (int x = 0; x < 3; ++ x) {
+    for (int y = 0; y < 3; ++ y) {
+      for (int z = 0; z < 3; ++ z) {
 	int val = 2;
 	if ( x == 0 && y == 0 && z == 0 ) {
 	  val = 1;
@@ -590,10 +590,10 @@ TEST_F(SimNodeTest, NOR3)
 TEST_F(SimNodeTest, NOR4)
 {
   int vals[3 * 3 * 3 * 3];
-  for (ymuint x = 0; x < 3; ++ x) {
-    for (ymuint y = 0; y < 3; ++ y) {
-      for (ymuint z = 0; z < 3; ++ z) {
-	for (ymuint w = 0; w  < 3; ++ w) {
+  for (int x = 0; x < 3; ++ x) {
+    for (int y = 0; y < 3; ++ y) {
+      for (int z = 0; z < 3; ++ z) {
+	for (int w = 0; w  < 3; ++ w) {
 	  int val = 2;
 	  if ( x == 0 && y == 0 && z == 0 && w == 0 ) {
 	    val = 1;
@@ -613,11 +613,11 @@ TEST_F(SimNodeTest, NOR4)
 TEST_F(SimNodeTest, NOR5)
 {
   int vals[3 * 3 * 3 * 3 * 3];
-  for (ymuint x = 0; x < 3; ++ x) {
-    for (ymuint y = 0; y < 3; ++ y) {
-      for (ymuint z = 0; z < 3; ++ z) {
-	for (ymuint w = 0; w  < 3; ++ w) {
-	  for (ymuint u = 0; u < 3; ++ u) {
+  for (int x = 0; x < 3; ++ x) {
+    for (int y = 0; y < 3; ++ y) {
+      for (int z = 0; z < 3; ++ z) {
+	for (int w = 0; w  < 3; ++ w) {
+	  for (int u = 0; u < 3; ++ u) {
 	    int val = 2;
 	    if ( x == 0 && y == 0 && z == 0 && w == 0 && u == 0 ) {
 	      val = 1;
@@ -638,8 +638,8 @@ TEST_F(SimNodeTest, NOR5)
 TEST_F(SimNodeTest, XOR2)
 {
   int vals[3 * 3];
-  for (ymuint x = 0; x < 3; ++ x) {
-    for (ymuint y = 0; y < 3; ++ y) {
+  for (int x = 0; x < 3; ++ x) {
+    for (int y = 0; y < 3; ++ y) {
       int val = 2;
       if ( (x == 0 && y == 1) ||
 	   (x == 1 && y == 0) ) {
@@ -659,9 +659,9 @@ TEST_F(SimNodeTest, XOR2)
 TEST_F(SimNodeTest, XOR3)
 {
   int vals[3 * 3 * 3];
-  for (ymuint x = 0; x < 3; ++ x) {
-    for (ymuint y = 0; y < 3; ++ y) {
-      for (ymuint z = 0; z < 3; ++ z) {
+  for (int x = 0; x < 3; ++ x) {
+    for (int y = 0; y < 3; ++ y) {
+      for (int z = 0; z < 3; ++ z) {
 	int val = 0;
 	if ( x == 1 ) {
 	  val ^= 1;
@@ -695,8 +695,8 @@ TEST_F(SimNodeTest, XOR3)
 TEST_F(SimNodeTest, XNOR2)
 {
   int vals[3 * 3];
-  for (ymuint x = 0; x < 3; ++ x) {
-    for (ymuint y = 0; y < 3; ++ y) {
+  for (int x = 0; x < 3; ++ x) {
+    for (int y = 0; y < 3; ++ y) {
       int val = 2;
       if ( (x == 0 && y == 1) ||
 	   (x == 1 && y == 0) ) {
@@ -716,9 +716,9 @@ TEST_F(SimNodeTest, XNOR2)
 TEST_F(SimNodeTest, XNOR3)
 {
   int vals[3 * 3 * 3];
-  for (ymuint x = 0; x < 3; ++ x) {
-    for (ymuint y = 0; y < 3; ++ y) {
-      for (ymuint z = 0; z < 3; ++ z) {
+  for (int x = 0; x < 3; ++ x) {
+    for (int y = 0; y < 3; ++ y) {
+      for (int z = 0; z < 3; ++ z) {
 	int val = 1;
 	if ( x == 1 ) {
 	  val ^= 1;

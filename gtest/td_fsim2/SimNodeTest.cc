@@ -29,7 +29,7 @@ public:
   /// @param[in] gate_type ゲートの種類
   /// @param[in] vals 真理値表ベクタ
   void
-  test_gate(ymuint ni,
+  test_gate(int ni,
 	    GateType gate_type,
 	    int vals[]);
 
@@ -108,17 +108,17 @@ SimNodeTest::test_input()
 // @param[in] gate_type ゲートの種類
 // @param[in] vals 真理値表ベクタ
 void
-SimNodeTest::test_gate(ymuint ni,
+SimNodeTest::test_gate(int ni,
 		       GateType gate_type,
 		       int vals[])
 {
   vector<SimNode*> inputs(ni);
-  for (ymuint i = 0; i < ni; ++ i) {
+  for (int i = 0; i < ni; ++ i) {
     inputs[i] = SimNode::new_input(i);
   }
   SimNode* node = SimNode::new_node(ni, gate_type, inputs);
 
-  ymuint np = 1 << ni;
+  int np = 1 << ni;
 
   // hval の書き込み読み出しテスト
   init_val(node, kPvAll0);
@@ -147,12 +147,12 @@ SimNodeTest::test_gate(ymuint ni,
   // _calc_hval() のテスト
   // ここで書き込む値に対して意味はない．
   init_val(node, kPvAll0);
-  for (ymuint i = 0; i < ni; ++ i) {
+  for (int i = 0; i < ni; ++ i) {
     init_val(inputs[i], kPvAll0);
   }
 
-  for (ymuint p = 0; p < np; ++ p) {
-    for (ymuint i = 0; i < ni; ++ i) {
+  for (int p = 0; p < np; ++ p) {
+    for (int i = 0; i < ni; ++ i) {
       if ( p & (1 << i) ) {
 	inputs[i]->set_hval(kPvAll1);
       }
@@ -172,12 +172,12 @@ SimNodeTest::test_gate(ymuint ni,
   // _calc_gval() のテスト
   // ここで書き込む値に対して意味はない．
   init_val(node, kPvAll0);
-  for (ymuint i = 0; i < ni; ++ i) {
+  for (int i = 0; i < ni; ++ i) {
     init_val(inputs[i], kPvAll0);
   }
 
-  for (ymuint p = 0; p < np; ++ p) {
-    for (ymuint i = 0; i < ni; ++ i) {
+  for (int p = 0; p < np; ++ p) {
+    for (int i = 0; i < ni; ++ i) {
       if ( p & (1 << i) ) {
 	inputs[i]->set_gval(kPvAll1);
       }
@@ -197,12 +197,12 @@ SimNodeTest::test_gate(ymuint ni,
   // _calc_fval() のテスト
   // ここで書き込む値に対して意味はない．
   init_val(node, kPvAll1);
-  for (ymuint i = 0; i < ni; ++ i) {
+  for (int i = 0; i < ni; ++ i) {
     init_val(inputs[i], kPvAll1);
   }
 
-  for (ymuint p = 0; p < np; ++ p) {
-    for (ymuint i = 0; i < ni; ++ i) {
+  for (int p = 0; p < np; ++ p) {
+    for (int i = 0; i < ni; ++ i) {
       if ( p & (1 << i) ) {
 	inputs[i]->set_fval(kPvAll1);
       }
@@ -220,15 +220,15 @@ SimNodeTest::test_gate(ymuint ni,
   }
 
   // calc_gobs() のテスト
-  for (ymuint ipos = 0; ipos < ni; ++ ipos) {
+  for (int ipos = 0; ipos < ni; ++ ipos) {
     // ここで書き込む値に対して意味はない．
     init_val(node, kPvAll0);
-    for (ymuint i = 0; i < ni; ++ i) {
+    for (int i = 0; i < ni; ++ i) {
       init_val(inputs[i], kPvAll0);
     }
 
-    for (ymuint p = 0; p < np; ++ p) {
-      for (ymuint i = 0; i < ni; ++ i) {
+    for (int p = 0; p < np; ++ p) {
+      for (int i = 0; i < ni; ++ i) {
 	if ( p & (1 << i) ) {
 	  inputs[i]->set_gval(kPvAll1);
 	}
@@ -237,7 +237,7 @@ SimNodeTest::test_gate(ymuint ni,
 	}
       }
       PackedVal val = node->calc_gobs(ipos);
-      ymuint q = p ^ (1 << ipos);
+      int q = p ^ (1 << ipos);
       if ( vals[p] != vals[q] ) {
 	EXPECT_EQ( val, kPvAll1 );
       }
@@ -247,7 +247,7 @@ SimNodeTest::test_gate(ymuint ni,
     }
   }
 
-  for (ymuint i = 0; i < ni; ++ i) {
+  for (int i = 0; i < ni; ++ i) {
     delete inputs[i];
   }
   delete node;
