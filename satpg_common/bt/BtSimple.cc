@@ -20,7 +20,7 @@ BEGIN_NAMESPACE_YM_SATPG
 // @brief コンストラクタ
 // @param[in] max_id ノード番号の最大値
 // @param[in] fault_type 故障の型
-BtSimple::BtSimple(ymuint max_id,
+BtSimple::BtSimple(int max_id,
 		   FaultType fault_type) :
   BtImpl(max_id, fault_type)
 {
@@ -58,7 +58,7 @@ BtSimple::_run(const NodeValList& assign_list,
 
   // 念のため assign_list に含まれるノードの正当化を行っておく．
   // たぶんすでに処理済みのマークがついているので実質オーバーヘッドはない．
-  for (ymuint i = 0; i < assign_list.size(); ++ i) {
+  for (int i = 0; i < assign_list.size(); ++ i) {
     NodeVal nv = assign_list[i];
     const TpgNode* node = nv.node();
     justify(node, nv.time(), pi_assign_list);
@@ -93,8 +93,8 @@ BtSimple::justify(const TpgNode* node,
     }
   }
   else {
-    ymuint ni = node->fanin_num();
-    for (ymuint i = 0; i < ni; ++ i) {
+    int ni = node->fanin_num();
+    for (int i = 0; i < ni; ++ i) {
       const TpgNode* inode = node->fanin(i);
       justify(inode, time, assign_list);
     }

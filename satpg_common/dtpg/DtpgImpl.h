@@ -95,7 +95,7 @@ protected:
   network() const;
 
   /// @brief ノード番号の最大値を返す．
-  ymuint
+  int
   max_node_id() const;
 
   /// @brief CNF 作成を開始する．
@@ -288,7 +288,7 @@ private:
   vector<const TpgNode*> mElemArray;
 
   // 故障番号をキーにしてFFR番号を入れる配列
-  vector<ymuint> mElemPosMap;
+  vector<int> mElemPosMap;
 
   // 各FFRの根に反転イベントを挿入するための変数
   // サイズは mElemNum
@@ -356,7 +356,7 @@ DtpgImpl::network() const
 
 // @brief ノード番号の最大値を返す．
 inline
-ymuint
+int
 DtpgImpl::max_node_id() const
 {
   return network().node_num();
@@ -497,7 +497,7 @@ inline
 void
 DtpgImpl::set_tfo_mark(const TpgNode* node)
 {
-  ymuint id = node->id();
+  int id = node->id();
   if ( ((mMarkArray[id] >> 0) & 1U) == 0U ) {
     mMarkArray[id] |= 1U;
     mNodeList.push_back(node);
@@ -512,7 +512,7 @@ inline
 void
 DtpgImpl::set_tfi_mark(const TpgNode* node)
 {
-  ymuint id = node->id();
+  int id = node->id();
   if ( (mMarkArray[id] & 3U) == 0U ) {
     mMarkArray[id] |= 2U;
     mNodeList.push_back(node);
@@ -527,7 +527,7 @@ inline
 void
 DtpgImpl::set_tfi2_mark(const TpgNode* node)
 {
-  ymuint id = node->id();
+  int id = node->id();
   if ( ((mMarkArray[id] >> 2) & 1U) == 0U ) {
     mMarkArray[id] |= 4U;
     mNodeList2.push_back(node);

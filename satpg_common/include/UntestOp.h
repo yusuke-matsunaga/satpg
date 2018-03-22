@@ -49,8 +49,8 @@ new_UopBase(TpgFaultMgr& fmgr);
 /// @param[in] threshold しきい値
 /// @param[in] max_fault_id 故障番号の最大値
 UntestOp*
-new_UopSkip(ymuint threshold,
-	    ymuint max_fault_id);
+new_UopSkip(int threshold,
+	    int max_fault_id);
 
 /// @brief 'dummy' タイプを生成する．
 UntestOp*

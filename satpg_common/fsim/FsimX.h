@@ -104,7 +104,7 @@ public:
   ///
   /// 検出された故障は det_fault() で取得する．
   virtual
-  ymuint
+  int
   sppfp(const TestVector* tv);
 
   /// @brief ひとつのパタンで故障シミュレーションを行う．
@@ -113,7 +113,7 @@ public:
   ///
   /// 検出された故障は det_fault() で取得する．
   virtual
-  ymuint
+  int
   sppfp(const NodeValList& assign_list);
 
   /// @brief 複数のパタンで故障シミュレーションを行う．
@@ -122,7 +122,7 @@ public:
   /// 検出された故障は det_fault() で取得する．<br>
   /// 最低1つのパタンが set_pattern() で設定されている必要がある．<br>
   virtual
-  ymuint
+  int
   ppsfp();
 
 
@@ -140,7 +140,7 @@ public:
   /// - false: ゲートの出力の遷移回数の和
   /// - true : ゲートの出力の遷移回数に(ファンアウト数＋１)を掛けたものの和
   virtual
-  ymuint
+  int
   calc_wsa(const TestVector* tv,
 	   bool weighted);
 
@@ -163,7 +163,7 @@ public:
   /// @brief 1クロック分のシミュレーションを行い，遷移回数を数える．
   /// @param[in] i_vect 外部入力のビットベクタ
   virtual
-  ymuint
+  int
   calc_wsa(const InputVector& i_vect,
 	   bool weighted);
 
@@ -183,14 +183,14 @@ public:
   /// @param[in] tv テストベクタ
   virtual
   void
-  set_pattern(ymuint pos,
+  set_pattern(int pos,
 	      const TestVector* tv);
 
   /// @brief 設定した ppsfp 用のパタンを読み出す．
   /// @param[in] pos 位置番号 ( 0 <= pos < kPvBitLen )
   virtual
   const TestVector*
-  get_pattern(ymuint pos);
+  get_pattern(int pos);
 
 
 public:
@@ -200,20 +200,20 @@ public:
 
   /// @brief 直前の sppfp/ppsfp で検出された故障数を返す．
   virtual
-  ymuint
+  int
   det_fault_num();
 
   /// @brief 直前の sppfp/ppsfp で検出された故障を返す．
   /// @param[in] pos 位置番号 ( 0 <= pos < det_fault_num() )
   virtual
   const TpgFault*
-  det_fault(ymuint pos);
+  det_fault(int pos);
 
   /// @brief 直前の ppsfp で検出された故障の検出ビットパタンを返す．
   /// @param[in] pos 位置番号 ( 0 <= pos < det_fault_num() )
   virtual
   PackedVal
-  det_fault_pat(ymuint pos);
+  det_fault_pat(int pos);
 
 
 public:
@@ -223,17 +223,17 @@ public:
   //////////////////////////////////////////////////////////////////////
 
   /// @brief 外部入力数を返す．
-  ymuint
+  int
   input_num() const;
 
   /// @brief PPI数を返す．
-  ymuint
+  int
   ppi_num() const;
 
   /// @brief PPI のノードを返す．
   /// @param[in] id PPI番号 ( 0 <= id < ppi_num() )
   SimNode*
-  ppi(ymuint id) const;
+  ppi(int id) const;
 
 
 private:
@@ -257,7 +257,7 @@ private:
 
   /// @brief SPPFP故障シミュレーションの本体
   /// @return 検出された故障数を返す．
-  ymuint
+  int
   _sppfp();
 
   /// @brief PPSFP故障シミュレーションの本体
@@ -265,7 +265,7 @@ private:
   ///
   /// 検出された故障は det_fault() で取得する．<br>
   /// 最低1つのパタンが set_pattern() で設定されている必要がある．<br>
-  ymuint
+  int
   _ppsfp();
 
   /// @brief 正常値の計算を行う．
@@ -280,7 +280,7 @@ private:
   _calc_val();
 
   /// @brief ノードの出力の(重み付き)信号遷移回数を求める．
-  ymuint
+  int
   _calc_wsa(SimNode* node,
 	    bool weighted);
 
@@ -374,13 +374,13 @@ private:
   //////////////////////////////////////////////////////////////////////
 
   // 外部入力数
-  ymuint mInputNum;
+  int mInputNum;
 
   // 外部出力数
-  ymuint mOutputNum;
+  int mOutputNum;
 
   // DFF数
-  ymuint mDffNum;
+  int mDffNum;
 
   // 全ての SimNode を納めた配列
   vector<SimNode*> mNodeArray;
@@ -411,7 +411,7 @@ private:
 
   // mPatMap の最初の1のビット位置
   // 全て０の場合には kPvBitLen が入る．
-  ymuint mPatFirstBit;
+  int mPatFirstBit;
 
   // パタンバッファ
   const TestVector* mPatBuff[kPvBitLen];
@@ -430,7 +430,7 @@ private:
   vector<FaultPat> mDetFaultArray;
 
   // 検出された故障数
-  ymuint mDetNum;
+  int mDetNum;
 
 };
 
@@ -441,7 +441,7 @@ private:
 
 // @brief 外部入力数を返す．
 inline
-ymuint
+int
 FSIM_CLASSNAME::input_num() const
 {
   return mInputNum;
@@ -449,7 +449,7 @@ FSIM_CLASSNAME::input_num() const
 
 // @brief PPI数を返す．
 inline
-ymuint
+int
 FSIM_CLASSNAME::ppi_num() const
 {
   return mPPIArray.size();
@@ -459,7 +459,7 @@ FSIM_CLASSNAME::ppi_num() const
 // @param[in] id PPI番号 ( 0 <= id < ppi_num() )
 inline
 SimNode*
-FSIM_CLASSNAME::ppi(ymuint id) const
+FSIM_CLASSNAME::ppi(int id) const
 {
   ASSERT_COND( id < ppi_num() );
 
@@ -531,7 +531,7 @@ FSIM_CLASSNAME::_ffr_prop(SimFault* fault)
   SimNode* f_node = fault->mNode;
   for (SimNode* node = f_node; !node->is_ffr_root(); ) {
     SimNode* onode = node->fanout_top();
-    ymuint pos = node->fanout_ipos();
+    int pos = node->fanout_ipos();
     lobs &= onode->_calc_gobs(pos);
     node = onode;
   }
@@ -539,7 +539,7 @@ FSIM_CLASSNAME::_ffr_prop(SimFault* fault)
   const TpgFault* f = fault->mOrigF;
   if ( f->is_branch_fault() ) {
     // 入力の故障
-    ymuint ipos = fault->mIpos;
+    int ipos = fault->mIpos;
     lobs &= f_node->_calc_gobs(ipos);
   }
 

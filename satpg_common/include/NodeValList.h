@@ -129,20 +129,20 @@ public:
   diff(const NodeValList& src_list);
 
   /// @brief 要素数を返す．
-  ymuint
+  int
   size() const;
 
   /// @brief 要素を返す．
   /// @param[in] pos 位置 ( 0 <= pos < size() )
   NodeVal
-  operator[](ymuint pos) const;
+  operator[](int pos) const;
 
   /// @brief 要素を返す．
   /// @param[in] pos 位置 ( 0 <= pos < size() )
   ///
   /// operator[] の別名
   NodeVal
-  elem(ymuint pos) const;
+  elem(int pos) const;
 
   /// @brief 矛盾した内容になっていないかチェックする．
   /// @return 正しければ true を返す．
@@ -303,7 +303,7 @@ NodeValList::clear()
 
 // @brief 要素数を返す．
 inline
-ymuint
+int
 NodeValList::size() const
 {
   return mAsList.size();
@@ -334,7 +334,7 @@ NodeValList::add(const TpgNode* node,
 // @param[in] pos 位置 ( 0 <= pos < size() )
 inline
 NodeVal
-NodeValList::operator[](ymuint pos) const
+NodeValList::operator[](int pos) const
 {
   return elem(pos);
 }
@@ -345,9 +345,10 @@ NodeValList::operator[](ymuint pos) const
 // operator[] の別名
 inline
 NodeVal
-NodeValList::elem(ymuint pos) const
+NodeValList::elem(int pos) const
 {
-  ASSERT_COND( pos < size() );
+  ASSERT_COND( pos >= 0 && pos < size() );
+
   return mAsList[pos];
 }
 

@@ -47,11 +47,11 @@ public:
   clear();
 
   /// @brief 入力数を返す．
-  ymuint
+  int
   input_num() const;
 
   /// @brief DFF数を返す．
-  ymuint
+  int
   dff_num() const;
 
   /// @brief テストベクタを生成する．
@@ -119,16 +119,16 @@ private:
   FaultType mFaultType;
 
   // 対象回路の入力数
-  ymuint mInputNum;
+  int mInputNum;
 
   // 対象回路の DFF 数
-  ymuint mDffNum;
+  int mDffNum;
 
   // InputVector の実際のサイズ
-  ymuint mIvSize;
+  int mIvSize;
 
   // FFVector の実際のサイズ
-  ymuint mFvSize;
+  int mFvSize;
 
   // TestVector のメモリ確保用のアロケータ
   UnitAlloc mTestVectorAlloc;
@@ -148,7 +148,7 @@ private:
 
 // @brief 入力数を返す．
 inline
-ymuint
+int
 TvMgr::input_num() const
 {
   return mInputNum;
@@ -156,7 +156,7 @@ TvMgr::input_num() const
 
 // @brief DFF数を返す．
 inline
-ymuint
+int
 TvMgr::dff_num() const
 {
   return mDffNum;

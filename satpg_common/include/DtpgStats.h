@@ -55,13 +55,13 @@ struct DtpgStats
 	       const USTime& time);
 
   /// @brief CNF 式を生成した回数
-  ymuint32 mCnfGenCount;
+  int mCnfGenCount;
 
   /// @brief CNF 式の生成に費やした時間
   USTime mCnfGenTime;
 
   /// @brief テスト生成に成功した回数．
-  ymuint32 mDetCount;
+  int mDetCount;
 
   /// @brief テスト生成に成功した時の SAT に要した時間
   USTime mDetTime;
@@ -75,7 +75,7 @@ struct DtpgStats
   SatStats mDetStatsMax;
 
   /// @brief 冗長故障と判定した回数
-  ymuint32 mRedCount;
+  int mRedCount;
 
   /// @brief 冗長故障と判定した時の SAT に要した時間
   USTime mRedTime;
@@ -89,7 +89,7 @@ struct DtpgStats
   SatStats mRedStatsMax;
 
   /// @brief 部分的な冗長故障と判定した回数
-  ymuint32 mPartRedCount;
+  int mPartRedCount;
 
   /// @brief 部分的な冗長故障と判定した時の SAT に要した時間
   USTime mPartRedTime;
@@ -103,7 +103,7 @@ struct DtpgStats
   SatStats mPartRedStatsMax;
 
   /// @brief アボートした回数
-  ymuint32 mAbortCount;
+  int mAbortCount;
 
   /// @brief アボートした時の SAT に要した時間
   USTime mAbortTime;

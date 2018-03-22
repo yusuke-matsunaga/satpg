@@ -21,8 +21,8 @@ BEGIN_NONAMESPACE
 // @brief ベクタ長からバイトサイズを計算する．
 // @param[in] vectlen ベクタ長
 inline
-ymuint
-calc_size(ymuint vectlen)
+int
+calc_size(int vectlen)
 {
   if ( vectlen == 0 ) {
     vectlen = 1;

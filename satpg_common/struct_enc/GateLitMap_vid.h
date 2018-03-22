@@ -41,14 +41,14 @@ public:
 
   /// @brief 入力数を返す．
   virtual
-  ymuint
+  int
   input_size() const;
 
   /// @brief 入力のリテラルを返す．
   /// @param[in] pos 入力位置 ( 0 <= pos < input_size() )
   virtual
   SatLiteral
-  input(ymuint pos) const;
+  input(int pos) const;
 
   /// @brief 出力のリテラルを返す．
   virtual

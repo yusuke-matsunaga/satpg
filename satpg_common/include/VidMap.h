@@ -29,7 +29,7 @@ public:
 
   /// @brief コンストラクタ
   /// @param[in] max_id ノード番号の最大値
-  VidMap(ymuint max_id = 0);
+  VidMap(int max_id = 0);
 
   /// @brief デストラクタ
   ~VidMap();
@@ -48,7 +48,7 @@ public:
   /// @brief 初期化する．
   /// @param[in] max_id ノード番号の最大値
   void
-  init(ymuint max_id);
+  init(int max_id);
 
   /// @brief ノードに関連した変数番号を設定する．
   /// @param[in] node 対象のノード
@@ -82,7 +82,7 @@ private:
 // @brief コンストラクタ
 // @param[in] max_id ノード番号の最大値
 inline
-VidMap::VidMap(ymuint max_id) :
+VidMap::VidMap(int max_id) :
   mVidArray(max_id, kSatVarIdIllegal)
 {
 }
@@ -107,7 +107,7 @@ VidMap::operator()(const TpgNode* node) const
 // @param[in] max_id ノード番号の最大値
 inline
 void
-VidMap::init(ymuint max_id)
+VidMap::init(int max_id)
 {
   mVidArray.clear();
   mVidArray.resize(max_id);

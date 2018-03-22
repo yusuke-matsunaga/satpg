@@ -24,9 +24,8 @@ DopList::DopList()
 // @brief デストラクタ
 DopList::~DopList()
 {
-  for (vector<DetectOp*>::iterator p = mDopList.begin();
-       p != mDopList.end(); ++ p) {
-    delete *p;
+  for ( auto dop: mDopList ) {
+    delete dop;
   }
 }
 
@@ -44,9 +43,8 @@ void
 DopList::operator()(const TpgFault* f,
 		    const NodeValList& assign_list)
 {
-  for (vector<DetectOp*>::iterator p = mDopList.begin();
-       p != mDopList.end(); ++ p) {
-    DetectOp& dop = **p;
+  for ( auto dop_p: mDopList ) {
+    DetectOp& dop = *dop_p;
     dop(f, assign_list);
   }
 }
@@ -58,9 +56,8 @@ void
 DopList::operator()(const TpgFault* f,
 		    const TestVector* tv)
 {
-  for (vector<DetectOp*>::iterator p = mDopList.begin();
-       p != mDopList.end(); ++ p) {
-    DetectOp& dop = **p;
+  for ( auto dop_p: mDopList ) {
+    DetectOp& dop = *dop_p;
     dop(f, tv);
   }
 }

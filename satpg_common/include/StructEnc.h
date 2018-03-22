@@ -5,7 +5,7 @@
 /// @brief StructEnc のヘッダファイル
 /// @author Yusuke Matsunaga (松永 裕介)
 ///
-/// Copyright (C) 2015, 2016, 2017 Yusuke Matsunaga
+/// Copyright (C) 2015, 2016, 2017, 2018 Yusuke Matsunaga
 /// All rights reserved.
 
 
@@ -250,7 +250,6 @@ public:
 
   /// @brief 割当リストのもとでチェックを行う．
   /// @param[in] assign_list1, assign_list2 割当リスト
-  /// @param[in] assign_list1, assign_list2 割当リスト
   ///
   /// こちらは結果のみを返す．
   SatBool3
@@ -310,7 +309,8 @@ private:
   /// @param[in] fault 故障
   /// @param[out] assign_list 条件を表す割当リスト
   ///
-  /// fault の影響が root_node の出力に伝搬する条件を assumptions に加える．
+  /// * fault の影響が root_node の出力に伝搬する条件を assumptions に加える．
+  /// * 内部で add_fault_condition() を呼ぶ．
   void
   add_ffr_condition(const TpgNode* root_node,
 		    const TpgFault* fault,

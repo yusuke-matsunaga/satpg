@@ -30,7 +30,7 @@ private:
   /// @brief コンストラクタ
   /// @param[in] vect_len ベクタ長
   explicit
-  InputVector(ymuint vect_len);
+  InputVector(int vect_len);
 
   /// @brief デストラクタ
   ~InputVector();
@@ -76,7 +76,7 @@ private:
 // @brief コンストラクタ
 // @param[in] vect_len ベクタ長
 inline
-InputVector::InputVector(ymuint vect_len) :
+InputVector::InputVector(int vect_len) :
   BitVector(vect_len)
 {
 }

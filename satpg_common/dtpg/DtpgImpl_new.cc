@@ -43,7 +43,7 @@ DtpgImpl::DtpgImpl(const string& sat_type,
 		   ostream* sat_outp,
 		   FaultType fault_type,
 		   Justifier& jt,
-		   ymuint max_node_id) :
+		   int max_node_id) :
   mStructEnc(max_node_id, fault_type, sat_type, sat_option, sat_outp),
   mFaultType(fault_type),
   mJustifier(jt),

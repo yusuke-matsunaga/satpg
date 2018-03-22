@@ -57,9 +57,9 @@ public:
   run(TpgFaultMgr& fmgr,
       TvMgr& tvmgr,
       Fsim& fsim,
-      ymuint min_f,
-      ymuint max_i,
-      ymuint max_pat,
+      int min_f,
+      int max_i,
+      int max_pat,
       vector<const TestVector*>& tvlist,
       RtpgStats& stats);
 

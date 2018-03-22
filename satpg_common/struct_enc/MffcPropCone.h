@@ -92,7 +92,7 @@ private:
   /// @param[in] elem_pos 要素番号
   /// @param[in] ovar ゲートの出力の変数
   void
-  inject_fault(ymuint elem_pos,
+  inject_fault(int elem_pos,
 	       SatVarId ovar);
 
 
@@ -110,7 +110,7 @@ private:
   vector<SatVarId> mElemVarArray;
 
   // ノード番号をキーにしてFFR番号を入れる連想配列
-  HashMap<ymuint, ymuint> mElemPosMap;
+  HashMap<int, int> mElemPosMap;
 
 };
 

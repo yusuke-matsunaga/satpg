@@ -5,7 +5,7 @@
 /// @brief DopDrop のヘッダファイル
 /// @author Yusuke Matsunaga (松永 裕介)
 ///
-/// Copyright (C) 2017 Yusuke Matsunaga
+/// Copyright (C) 2017, 2018 Yusuke Matsunaga
 /// All rights reserved.
 
 
@@ -54,6 +54,17 @@ public:
   void
   operator()(const TpgFault* f,
 	     const TestVector* tv);
+
+
+private:
+  //////////////////////////////////////////////////////////////////////
+  // 内部で用いられる関数
+  //////////////////////////////////////////////////////////////////////
+
+  /// @brief 検出された故障に印をつける．
+  /// @param[in] n 検出された故障数
+  void
+  common(int n);
 
 
 private:

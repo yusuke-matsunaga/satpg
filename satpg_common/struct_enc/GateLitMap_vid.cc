@@ -32,7 +32,7 @@ GateLitMap_vid::~GateLitMap_vid()
 }
 
 // @brief 入力数を返す．
-ymuint
+int
 GateLitMap_vid::input_size() const
 {
   return mNode->fanin_num();
@@ -40,7 +40,7 @@ GateLitMap_vid::input_size() const
 
 // @brief 入力のリテラルを返す．
 SatLiteral
-GateLitMap_vid::input(ymuint pos) const
+GateLitMap_vid::input(int pos) const
 {
   const TpgNode* inode = mNode->fanin(pos);
   return SatLiteral(mVidMap(inode), false);

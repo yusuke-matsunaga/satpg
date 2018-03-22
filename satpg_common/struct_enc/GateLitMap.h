@@ -32,14 +32,14 @@ public:
 
   /// @brief 入力数を返す．
   virtual
-  ymuint
+  int
   input_size() const = 0;
 
   /// @brief 入力のリテラルを返す．
   /// @param[in] pos 入力位置 ( 0 <= pos < input_size() )
   virtual
   SatLiteral
-  input(ymuint pos) const = 0;
+  input(int pos) const = 0;
 
   /// @brief 出力のリテラルを返す．
   virtual

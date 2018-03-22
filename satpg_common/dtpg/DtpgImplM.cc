@@ -72,7 +72,7 @@ DtpgImplM::dtpg(const TpgFault* fault,
 		NodeValList& nodeval_list,
 		DtpgStats& stats)
 {
-  ymuint ffr_id;
+  int ffr_id;
   bool stat = mMffcCone->get_ffr_id(fault, ffr_id);
   if ( !stat ) {
     cerr << "Error[DtpgImplM::dtpg()]: " << fault << " is not within the MFFC" << endl;
@@ -80,11 +80,11 @@ DtpgImplM::dtpg(const TpgFault* fault,
   }
 
   vector<SatLiteral> assumptions;
-  ymuint ffr_num = mMffcCone->ffr_num();
+  int ffr_num = mMffcCone->ffr_num();
   if ( ffr_num > 1 ) {
     // FFR の根の出力に故障を挿入する．
     assumptions.reserve(ffr_num);
-    for (ymuint i = 0; i < ffr_num; ++ i) {
+    for (int i = 0; i < ffr_num; ++ i) {
       SatVarId evar = mMffcCone->ffr_var(i);
       bool inv = (i != ffr_id);
       assumptions.push_back(SatLiteral(evar, inv));
