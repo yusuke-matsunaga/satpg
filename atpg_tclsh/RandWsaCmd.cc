@@ -49,15 +49,15 @@ RandWsaCmd::~RandWsaCmd()
 int
 RandWsaCmd::cmd_proc(TclObjVector& objv)
 {
-  ymuint objc = objv.size();
+  int objc = objv.size();
   if ( objc != 1 ) {
     print_usage();
     return TCL_ERROR;
   }
 
   bool fsm = mPoptFsm->is_specified();
-  ymuint count = 10000;
-  ymuint warmup = 0;
+  int count = 10000;
+  int warmup = 0;
   bool weighted = mPoptWeighted->is_specified();
 
   if ( mPoptCount->is_specified() ) {
@@ -81,26 +81,26 @@ RandWsaCmd::cmd_proc(TclObjVector& objv)
     f_vect->set_from_random(rg);
     fsim.set_state(*i_vect, *f_vect);
 
-    for (ymuint i = 0; i < warmup; ++ i) {
+    for (int i = 0; i < warmup; ++ i) {
       // このシミュレーション結果は捨てる．
       // 状態を遷移させることが目的
       i_vect->set_from_random(rg);
       fsim.calc_wsa(*i_vect, weighted);
     }
-    for (ymuint i = 0; i < count; ++ i) {
+    for (int i = 0; i < count; ++ i) {
       i_vect->set_from_random(rg);
-      ymuint wsa1 = fsim.calc_wsa(*i_vect, weighted);
+      int wsa1 = fsim.calc_wsa(*i_vect, weighted);
       total_wsa += wsa1;
     }
   }
   else {
     // BS モード
-    for (ymuint i = 0; i < count; ++ i) {
+    for (int i = 0; i < count; ++ i) {
       i_vect->set_from_random(rg);
       f_vect->set_from_random(rg);
       a_vect->set_from_random(rg);
       fsim.set_state(*i_vect, *f_vect);
-      ymuint wsa1 = fsim.calc_wsa(*a_vect, weighted);
+      int wsa1 = fsim.calc_wsa(*a_vect, weighted);
       total_wsa += wsa1;
     }
   }

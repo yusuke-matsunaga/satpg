@@ -55,7 +55,7 @@ Rtpg1Cmd::~Rtpg1Cmd()
 int
 Rtpg1Cmd::cmd_proc(TclObjVector& objv)
 {
-  ymuint objc = objv.size();
+  int objc = objv.size();
   if ( objc != 1 ) {
     print_usage();
     return TCL_ERROR;
@@ -63,7 +63,7 @@ Rtpg1Cmd::cmd_proc(TclObjVector& objv)
 
   nsTd::Rtpg* rtpg = nullptr;
   if ( mPoptMcmc->is_specified() ) {
-    ymuint nbits = mPoptMcmc->val();
+    int nbits = mPoptMcmc->val();
     rtpg = nsTd::new_RtpgP2(nbits);
   }
   else {
@@ -71,10 +71,10 @@ Rtpg1Cmd::cmd_proc(TclObjVector& objv)
   }
 
   bool n_flag = false;
-  ymuint max_pat = 100000;
-  ymuint max_i = 4;
-  ymuint min_f = 0;
-  ymuint wsa_limit = 0;
+  int max_pat = 100000;
+  int max_i = 4;
+  int min_f = 0;
+  int wsa_limit = 0;
 
   if ( mPoptNpat->is_specified() ) {
     max_pat = mPoptNpat->val();
@@ -101,16 +101,16 @@ Rtpg1Cmd::cmd_proc(TclObjVector& objv)
     }
     // 平均の WSA を求める．
     RandGen randgen;
-    ymuint n_count = 10000;
+    int n_count = 10000;
     Fsim& fsim = _td_fsim2();
     TvMgr& tvmgr = _td_tv_mgr();
     TestVector* tv = tvmgr.new_vector();
-    ymuint wsa_sum = 0;
-    ymuint wsa_max = 0;
-    ymuint wsa_min = 0;
-    for (ymuint i = 0; i < n_count; ++ i) {
+    int wsa_sum = 0;
+    int wsa_max = 0;
+    int wsa_min = 0;
+    for (int i = 0; i < n_count; ++ i) {
       tv->set_from_random(randgen);
-      ymuint wsa1 = fsim.calc_wsa(tv, false);
+      int wsa1 = fsim.calc_wsa(tv, false);
       wsa_sum += wsa1;
       if ( wsa_max < wsa1 ) {
 	wsa_max = wsa1;
@@ -120,7 +120,7 @@ Rtpg1Cmd::cmd_proc(TclObjVector& objv)
       }
     }
     double wsa_ave = static_cast<double>(wsa_sum) / static_cast<double>(n_count);
-    wsa_limit = static_cast<ymuint>(wsa_ave * wsa_ratio);
+    wsa_limit = static_cast<int>(wsa_ave * wsa_ratio);
     cout << "WSA ave.  = " << wsa_ave << endl
 	 << "WSA min   = " << wsa_min << endl
 	 << "WSA max   = " << wsa_max << endl

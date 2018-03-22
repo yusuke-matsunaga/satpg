@@ -49,7 +49,7 @@ RtpgCmd::~RtpgCmd()
 int
 RtpgCmd::cmd_proc(TclObjVector& objv)
 {
-  ymuint objc = objv.size();
+  int objc = objv.size();
   if ( objc != 1 ) {
     print_usage();
     return TCL_ERROR;
@@ -58,9 +58,9 @@ RtpgCmd::cmd_proc(TclObjVector& objv)
   nsSa::Rtpg* rtpg = nsSa::new_Rtpg();
 
   bool n_flag = false;
-  ymuint max_pat = 100000;
-  ymuint max_i = 4;
-  ymuint min_f = 0;
+  int max_pat = 100000;
+  int max_i = 4;
+  int min_f = 0;
 
   if ( mPoptNpat->is_specified() ) {
     max_pat = mPoptNpat->val();

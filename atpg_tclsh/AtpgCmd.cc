@@ -41,31 +41,31 @@ AtpgCmd::after_set_network()
 
   // 諸元を TCL 変数にセットしておく
   const TpgNetwork& network = _network();
-  ymuint nn = network.node_num();
-  ymuint n_buff = 0;
-  ymuint n_not = 0;
-  ymuint n_and = 0;
-  ymuint n_and2 = 0;
-  ymuint n_and3 = 0;
-  ymuint n_and4 = 0;
-  ymuint n_nand = 0;
-  ymuint n_nand2 = 0;
-  ymuint n_nand3 = 0;
-  ymuint n_nand4 = 0;
-  ymuint n_or = 0;
-  ymuint n_or2 = 0;
-  ymuint n_or3 = 0;
-  ymuint n_or4 = 0;
-  ymuint n_nor = 0;
-  ymuint n_nor2 = 0;
-  ymuint n_nor3 = 0;
-  ymuint n_nor4 = 0;
-  ymuint n_xor = 0;
-  ymuint n_xor2 = 0;
-  ymuint n_xnor = 0;
-  ymuint n_xnor2 = 0;
-  ymuint n_cplx = 0;
-  for (ymuint i = 0; i < nn; ++ i) {
+  int nn = network.node_num();
+  int n_buff = 0;
+  int n_not = 0;
+  int n_and = 0;
+  int n_and2 = 0;
+  int n_and3 = 0;
+  int n_and4 = 0;
+  int n_nand = 0;
+  int n_nand2 = 0;
+  int n_nand3 = 0;
+  int n_nand4 = 0;
+  int n_or = 0;
+  int n_or2 = 0;
+  int n_or3 = 0;
+  int n_or4 = 0;
+  int n_nor = 0;
+  int n_nor2 = 0;
+  int n_nor3 = 0;
+  int n_nor4 = 0;
+  int n_xor = 0;
+  int n_xor2 = 0;
+  int n_xnor = 0;
+  int n_xnor2 = 0;
+  int n_cplx = 0;
+  for (int i = 0; i < nn; ++ i) {
     const TpgNode* node = network.node(i);
     if ( !node->is_logic() ) {
       continue;
@@ -171,12 +171,12 @@ void
 AtpgCmd::after_update_faults()
 {
   // 諸元を TCL 変数にセットしておく
-  ymuint n_all = _network().max_fault_id();
-  ymuint n_rep = _network().rep_fault_num();
-  ymuint n_remain = 0;
-  ymuint n_untest = 0;
-  ymuint n_det = 0;
-  for (ymuint i = 0; i < n_rep; ++ i) {
+  int n_all = _network().max_fault_id();
+  int n_rep = _network().rep_fault_num();
+  int n_remain = 0;
+  int n_untest = 0;
+  int n_det = 0;
+  for (int i = 0; i < n_rep; ++ i) {
     const TpgFault* fault = _network().rep_fault(i);
     switch ( _sa_fault_mgr().status(fault) ) {
     case FaultStatus::Detected:   ++ n_det; break;

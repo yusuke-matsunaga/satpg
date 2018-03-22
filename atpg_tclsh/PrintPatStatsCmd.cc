@@ -39,7 +39,7 @@ PrintPatStatsCmd::cmd_proc(TclObjVector& objv)
 {
   // このコマンドはファイル名のみを引数に取る．
   // 引数がなければ標準出力に出す．
-  ymuint objc = objv.size();
+  int objc = objv.size();
   if ( objc > 2 ) {
     print_usage();
     return TCL_ERROR;
@@ -63,23 +63,22 @@ PrintPatStatsCmd::cmd_proc(TclObjVector& objv)
   bool hist_mode = mPoptHist->is_specified();
 
   vector<const TestVector*>& tvlist = _sa_tv_list();
-  ymuint n = tvlist.size();
-  if ( n == 0 ) {
+  int n = tvlist.size();
+  if ( tvlist.empty() ) {
     out << "No patterns" << endl;
   }
   else {
-    ymuint ni = tvlist[0]->input_num();
-    vector<ymuint> hist(ni + 1, 0);
-    for (ymuint i = 0; i < n; ++ i) {
-      const TestVector* tv = tvlist[i];
-      ymuint nx = tv->x_count();
+    int ni = tvlist[0]->input_num();
+    vector<int> hist(ni + 1, 0);
+    for ( auto tv: tvlist ) {
+      int nx = tv->x_count();
       ASSERT_COND( nx <= ni );
       ++ hist[nx];
     }
     out << endl
-	 << "X-num" << endl;
-    ymuint total_num = 0;
-    for (ymuint i = 0; i <= ni; ++ i) {
+	<< "X-num" << endl;
+    int total_num = 0;
+    for ( int i = 0; i <= ni; ++ i ) {
       if ( hist[i] > 0 ) {
 	total_num += hist[i] * i;
 	if ( hist_mode ) {
