@@ -5,7 +5,7 @@
 /// @brief TpgDffClock のヘッダファイル
 /// @author Yusuke Matsunaga (松永 裕介)
 ///
-/// Copyright (C) 2016 Yusuke Matsunaga
+/// Copyright (C) 2016, 2018 Yusuke Matsunaga
 /// All rights reserved.
 
 
@@ -21,13 +21,15 @@ BEGIN_NAMESPACE_YM_SATPG
 class TpgDffClock :
   public TpgDffControl
 {
-public:
+  friend class TpgNodeFactory;
+
+private:
 
   /// @brief コンストラクタ
   /// @param[in] id ID番号
   /// @param[in] dff 接続しているDFF
   /// @param[in] fanin ファンインのノード
-  TpgDffClock(ymuint id,
+  TpgDffClock(int id,
 	      TpgDff* dff,
 	      TpgNode* fanin);
 
@@ -43,7 +45,7 @@ public:
   /// @brief DFF のクロック端子に接続している出力タイプの時 true を返す．
   virtual
   bool
-  is_dff_clock() const;
+  is_dff_clock() const override;
 
 
 public:

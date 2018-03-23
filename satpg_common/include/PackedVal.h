@@ -25,7 +25,7 @@ const PackedVal kPvAll0 = 0UL;
 const PackedVal kPvAll1 = ~0UL;
 
 /// @brief PackedVal のビット長
-const ymuint kPvBitLen = 64;
+const int kPvBitLen = 64;
 
 
 /// @brief 2つのビットベクタの差分を求める．
@@ -45,15 +45,15 @@ diff(PackedVal left,
 /// @param[in] word 対象のワード
 /// @return word 中の1のビット数
 inline
-ymuint
+int
 count_ones(PackedVal word)
 {
-  const ymuint64 mask1  = 0x5555555555555555UL;
-  const ymuint64 mask2  = 0x3333333333333333UL;
-  const ymuint64 mask4  = 0x0f0f0f0f0f0f0f0fUL;
-  const ymuint64 mask8  = 0x00ff00ff00ff00ffUL;
-  const ymuint64 mask16 = 0x0000ffff0000ffffUL;
-  const ymuint64 mask32 = 0x00000000ffffffffUL;
+  const PackedVal mask1  = 0x5555555555555555UL;
+  const PackedVal mask2  = 0x3333333333333333UL;
+  const PackedVal mask4  = 0x0f0f0f0f0f0f0f0fUL;
+  const PackedVal mask8  = 0x00ff00ff00ff00ffUL;
+  const PackedVal mask16 = 0x0000ffff0000ffffUL;
+  const PackedVal mask32 = 0x00000000ffffffffUL;
 
   word = (word & mask1)  + ((word >>  1) & mask1);
   word = (word & mask2)  + ((word >>  2) & mask2);

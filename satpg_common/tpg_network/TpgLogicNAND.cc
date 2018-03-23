@@ -3,12 +3,13 @@
 /// @brief TpgLogicNAND[x] の実装ファイル
 /// @author Yusuke Matsunaga (松永 裕介)
 ///
-/// Copyright (C) 2016 Yusuke Matsunaga
+/// Copyright (C) 2016, 2018 Yusuke Matsunaga
 /// All rights reserved.
 
 
 #include "TpgLogicNAND.h"
-#include "ym/SatSolver.h"
+#include "GateType.h"
+#include "Val3.h"
 
 
 BEGIN_NAMESPACE_YM_SATPG
@@ -20,7 +21,7 @@ BEGIN_NAMESPACE_YM_SATPG
 // @brief コンストラクタ
 // @param[in] id ID番号
 // @param[in] fanin_list ファンインのリスト
-TpgLogicNAND2::TpgLogicNAND2(ymuint id,
+TpgLogicNAND2::TpgLogicNAND2(int id,
 			     const vector<TpgNode*>& fanin_list) :
   TpgLogic2(id, fanin_list)
 {
@@ -37,47 +38,47 @@ TpgLogicNAND2::~TpgLogicNAND2()
 GateType
 TpgLogicNAND2::gate_type() const
 {
-  return kGateNAND;
+  return GateType::NAND;
 }
 
 // @brief controling value を得る．
 //
 // is_logic() が false の場合の返り値は不定
-// ない場合は kValX を返す．
+// ない場合は Val3::_X を返す．
 Val3
 TpgLogicNAND2::cval() const
 {
-  return kVal0;
+  return Val3::_0;
 }
 
 // @brief noncontroling valueを得る．
 //
 // is_logic() が false の場合の返り値は不定
-// ない場合は kValX を返す．
+// ない場合は Val3::_X を返す．
 Val3
 TpgLogicNAND2::nval() const
 {
-  return kVal1;
+  return Val3::_1;
 }
 
 // @brief controling output value を得る．
 //
 // is_logic() が false の場合の返り値は不定
-// ない場合は kValX を返す．
+// ない場合は Val3::_X を返す．
 Val3
 TpgLogicNAND2::coval() const
 {
-  return kVal1;
+  return Val3::_1;
 }
 
 // @brief noncontroling output value を得る．
 //
 // is_logic() が false の場合の返り値は不定
-// ない場合は kValX を返す．
+// ない場合は Val3::_X を返す．
 Val3
 TpgLogicNAND2::noval() const
 {
-  return kVal0;
+  return Val3::_0;
 }
 
 //////////////////////////////////////////////////////////////////////
@@ -87,7 +88,7 @@ TpgLogicNAND2::noval() const
 // @brief コンストラクタ
 // @param[in] id ID番号
 // @param[in] fanin_list ファンインのリスト
-TpgLogicNAND3::TpgLogicNAND3(ymuint id,
+TpgLogicNAND3::TpgLogicNAND3(int id,
 			     const vector<TpgNode*>& fanin_list) :
   TpgLogic3(id, fanin_list)
 {
@@ -104,47 +105,47 @@ TpgLogicNAND3::~TpgLogicNAND3()
 GateType
 TpgLogicNAND3::gate_type() const
 {
-  return kGateNAND;
+  return GateType::NAND;
 }
 
 // @brief controling value を得る．
 //
 // is_logic() が false の場合の返り値は不定
-// ない場合は kValX を返す．
+// ない場合は Val3::_X を返す．
 Val3
 TpgLogicNAND3::cval() const
 {
-  return kVal0;
+  return Val3::_0;
 }
 
 // @brief noncontroling valueを得る．
 //
 // is_logic() が false の場合の返り値は不定
-// ない場合は kValX を返す．
+// ない場合は Val3::_X を返す．
 Val3
 TpgLogicNAND3::nval() const
 {
-  return kVal1;
+  return Val3::_1;
 }
 
 // @brief controling output value を得る．
 //
 // is_logic() が false の場合の返り値は不定
-// ない場合は kValX を返す．
+// ない場合は Val3::_X を返す．
 Val3
 TpgLogicNAND3::coval() const
 {
-  return kVal1;
+  return Val3::_1;
 }
 
 // @brief noncontroling output value を得る．
 //
 // is_logic() が false の場合の返り値は不定
-// ない場合は kValX を返す．
+// ない場合は Val3::_X を返す．
 Val3
 TpgLogicNAND3::noval() const
 {
-  return kVal0;
+  return Val3::_0;
 }
 
 //////////////////////////////////////////////////////////////////////
@@ -154,7 +155,7 @@ TpgLogicNAND3::noval() const
 // @brief コンストラクタ
 // @param[in] id ID番号
 // @param[in] fanin_list ファンインのリスト
-TpgLogicNAND4::TpgLogicNAND4(ymuint id,
+TpgLogicNAND4::TpgLogicNAND4(int id,
 			     const vector<TpgNode*>& fanin_list) :
   TpgLogic4(id, fanin_list)
 {
@@ -171,47 +172,47 @@ TpgLogicNAND4::~TpgLogicNAND4()
 GateType
 TpgLogicNAND4::gate_type() const
 {
-  return kGateNAND;
+  return GateType::NAND;
 }
 
 // @brief controling value を得る．
 //
 // is_logic() が false の場合の返り値は不定
-// ない場合は kValX を返す．
+// ない場合は Val3::_X を返す．
 Val3
 TpgLogicNAND4::cval() const
 {
-  return kVal0;
+  return Val3::_0;
 }
 
 // @brief noncontroling valueを得る．
 //
 // is_logic() が false の場合の返り値は不定
-// ない場合は kValX を返す．
+// ない場合は Val3::_X を返す．
 Val3
 TpgLogicNAND4::nval() const
 {
-  return kVal1;
+  return Val3::_1;
 }
 
 // @brief controling output value を得る．
 //
 // is_logic() が false の場合の返り値は不定
-// ない場合は kValX を返す．
+// ない場合は Val3::_X を返す．
 Val3
 TpgLogicNAND4::coval() const
 {
-  return kVal1;
+  return Val3::_1;
 }
 
 // @brief noncontroling output value を得る．
 //
 // is_logic() が false の場合の返り値は不定
-// ない場合は kValX を返す．
+// ない場合は Val3::_X を返す．
 Val3
 TpgLogicNAND4::noval() const
 {
-  return kVal0;
+  return Val3::_0;
 }
 
 //////////////////////////////////////////////////////////////////////
@@ -220,7 +221,7 @@ TpgLogicNAND4::noval() const
 
 // @brief コンストラクタ
 // @param[in] id ID番号
-TpgLogicNANDN::TpgLogicNANDN(ymuint id) :
+TpgLogicNANDN::TpgLogicNANDN(int id) :
   TpgLogicN(id)
 {
 }
@@ -236,47 +237,47 @@ TpgLogicNANDN::~TpgLogicNANDN()
 GateType
 TpgLogicNANDN::gate_type() const
 {
-  return kGateNAND;
+  return GateType::NAND;
 }
 
 // @brief controling value を得る．
 //
 // is_logic() が false の場合の返り値は不定
-// ない場合は kValX を返す．
+// ない場合は Val3::_X を返す．
 Val3
 TpgLogicNANDN::cval() const
 {
-  return kVal0;
+  return Val3::_0;
 }
 
 // @brief noncontroling valueを得る．
 //
 // is_logic() が false の場合の返り値は不定
-// ない場合は kValX を返す．
+// ない場合は Val3::_X を返す．
 Val3
 TpgLogicNANDN::nval() const
 {
-  return kVal1;
+  return Val3::_1;
 }
 
 // @brief controling output value を得る．
 //
 // is_logic() が false の場合の返り値は不定
-// ない場合は kValX を返す．
+// ない場合は Val3::_X を返す．
 Val3
 TpgLogicNANDN::coval() const
 {
-  return kVal1;
+  return Val3::_1;
 }
 
 // @brief noncontroling output value を得る．
 //
 // is_logic() が false の場合の返り値は不定
-// ない場合は kValX を返す．
+// ない場合は Val3::_X を返す．
 Val3
 TpgLogicNANDN::noval() const
 {
-  return kVal0;
+  return Val3::_0;
 }
 
 END_NAMESPACE_YM_SATPG

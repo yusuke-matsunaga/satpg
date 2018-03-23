@@ -27,7 +27,7 @@ public:
   /// @param[in] td_mode 遷移故障モードの時 true にするフラグ
   /// @param[in] max_id ID番号の最大値
   JustSimple(bool td_mode,
-	     ymuint max_id);
+	     int max_id);
 
   /// @brief デストラクタ
   virtual

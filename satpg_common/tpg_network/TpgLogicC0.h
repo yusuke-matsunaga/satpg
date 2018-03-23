@@ -5,7 +5,7 @@
 /// @brief TpgLogicC0 のヘッダファイル
 /// @author Yusuke Matsunaga (松永 裕介)
 ///
-/// Copyright (C) 2016 Yusuke Matsunaga
+/// Copyright (C) 2016, 2018 Yusuke Matsunaga
 /// All rights reserved.
 
 
@@ -21,13 +21,16 @@ BEGIN_NAMESPACE_YM_SATPG
 class TpgLogicC0 :
   public TpgLogic0
 {
-public:
+  friend class TpgNodeFactory;
+
+private:
 
   /// @brief コンストラクタ
   /// @param[in] id ID番号
-  TpgLogicC0(ymuint id);
+  TpgLogicC0(int id);
 
   /// @brief デストラクタ
+  virtual
   ~TpgLogicC0();
 
 
@@ -41,7 +44,7 @@ public:
   /// is_logic() が false の場合の返り値は不定
   virtual
   GateType
-  gate_type() const;
+  gate_type() const override;
 
 
 private:

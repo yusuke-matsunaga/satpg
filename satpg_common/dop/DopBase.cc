@@ -46,7 +46,7 @@ DopBase::operator()(const TpgFault* f,
 		    const NodeValList& assign_list)
 
 {
-  mMgr.set_status(f, kFsDetected);
+  mMgr.set_status(f, FaultStatus::Detected);
 }
 
 // @brief テストパタンが見つかった時の処理
@@ -56,7 +56,7 @@ void
 DopBase::operator()(const TpgFault* f,
 		    const TestVector* tv)
 {
-  mMgr.set_status(f, kFsDetected);
+  mMgr.set_status(f, FaultStatus::Detected);
 }
 
 END_NAMESPACE_YM_SATPG

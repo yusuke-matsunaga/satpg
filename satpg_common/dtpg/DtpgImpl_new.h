@@ -10,7 +10,7 @@
 /// All rights reserved.
 
 
-#include "satpg.h"
+#include "dtpg_nsdef.h"
 
 #include "TpgNetwork.h"
 #include "TpgNode.h"
@@ -27,7 +27,7 @@
 #include "ym/StopWatch.h"
 
 
-BEGIN_NAMESPACE_YM_SATPG
+BEGIN_NAMESPACE_YM_SATPG_DTPG
 
 //////////////////////////////////////////////////////////////////////
 /// @class DtpgImpl DtpgImpl.h "DtpgImpl.h"
@@ -49,7 +49,7 @@ public:
 	   ostream* sat_outp,
 	   FaultType fault_type,
 	   Justifier& jt,
-	   ymuint max_node_id);
+	   int max_node_id);
 
   /// @brief デストラクタ
   virtual
@@ -126,7 +126,7 @@ protected:
   network() const;
 
   /// @brief ノード番号の最大値を返す．
-  ymuint
+  int
   max_node_id() const;
 
   /// @brief 起点となるノードを返す．
@@ -202,7 +202,7 @@ DtpgImpl::network() const
 
 // @brief ノード番号の最大値を返す．
 inline
-ymuint
+int
 DtpgImpl::max_node_id() const
 {
   return network().node_num();
@@ -217,6 +217,6 @@ DtpgImpl::root_node() const
 }
 #endif
 
-END_NAMESPACE_YM_SATPG
+END_NAMESPACE_YM_SATPG_DTPG
 
 #endif // DTPGIMPL_H

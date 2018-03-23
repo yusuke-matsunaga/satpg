@@ -47,7 +47,7 @@ Dtpg2Impl::Dtpg2Impl(const string& sat_type,
 		     BackTracer& bt,
 		     const TpgNetwork& network,
 		     const TpgNode* root) :
-  DtpgImpl(sat_type, sat_option, sat_outp, kFtTransitionDelay,
+  DtpgImpl(sat_type, sat_option, sat_outp, FaultType::TransitionDelay,
 	   bt, network, root)
 {
 }
@@ -59,7 +59,7 @@ Dtpg2Impl::~Dtpg2Impl()
 
 // @brief XOR制約のための変数リストを作る．
 // @return 変数の数を返す．
-ymuint
+int
 Dtpg2Impl::make_xor_list()
 {
   // 対象の故障に関係する外部入力のリストを作る．
@@ -85,13 +85,13 @@ Dtpg2Impl::make_xor_list()
 
 // @brief XOR制約を追加する．
 void
-Dtpg2Impl::add_xor_constraint(ymuint num,
+Dtpg2Impl::add_xor_constraint(int num,
 			      RandGen& rg)
 {
   mXorLitList.clear();
   if ( num == mXorNum2 ) {
     // もともとの入力数が少ないときはランダムに最小項を選ぶ．
-    for (ymuint idx = 0; idx < mXorNum2; ++ idx) {
+    for (int idx = 0; idx < mXorNum2; ++ idx) {
       const TpgNode* node = mXorNodeList[idx];
       SatVarId var;
       if ( idx < mXorNum1 ) {
@@ -108,11 +108,11 @@ Dtpg2Impl::add_xor_constraint(ymuint num,
 
   double p = 0.5;
   //double p = 0.1;
-  for (ymuint i = 0; i < num; ++ i) {
+  for (int i = 0; i < num; ++ i) {
     // p の確率で変数を選び，そのXORを作る．
     vector<SatVarId> var_list;
     for ( ; ; ) {
-      for (ymuint j = 0; j < mXorNum2; ++ j) {
+      for (int j = 0; j < mXorNum2; ++ j) {
 	if ( rg.real1() < p ) {
 	  const TpgNode* node = mXorNodeList[j];
 	  if ( j < mXorNum1 ) {
@@ -139,14 +139,14 @@ Dtpg2Impl::add_xor_constraint(ymuint num,
 
 SatLiteral
 Dtpg2Impl::make_xor(const vector<SatVarId>& var_list,
-		    ymuint start,
-		    ymuint end)
+		    int start,
+		    int end)
 {
   if ( !solver().sane() ) {
     return kSatLiteralX;
   }
 
-  ymuint n = end - start;
+  int n = end - start;
 
   ASSERT_COND( n > 0 );
 
@@ -155,7 +155,7 @@ Dtpg2Impl::make_xor(const vector<SatVarId>& var_list,
   }
 
   // n >= 2
-  ymuint n2 = start + (n / 2);
+  int n2 = start + (n / 2);
   SatLiteral lit1 = make_xor(var_list, start, n2);
   SatLiteral lit2 = make_xor(var_list, n2, end);
   SatVarId ovar = solver().new_variable();
@@ -171,7 +171,7 @@ Dtpg2Impl::make_xor(const vector<SatVarId>& var_list,
 // @return 結果を返す．
 SatBool3
 Dtpg2Impl::dtpg_with_xor(const TpgFault* fault,
-			 ymuint xor_assign,
+			 int xor_assign,
 			 NodeValList& nodeval_list,
 			 DtpgStats& stats)
 {
@@ -182,8 +182,7 @@ Dtpg2Impl::dtpg_with_xor(const TpgFault* fault,
   }
 
   vector<SatLiteral> assumptions;
-  for (ymuint i = 0; i < mXorLitList.size(); ++ i) {
-    SatLiteral lit = mXorLitList[i];
+  for ( auto lit: mXorLitList ) {
     if ( xor_assign & (1U << i) ) {
       lit = ~lit;
     }

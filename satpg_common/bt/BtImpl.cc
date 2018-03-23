@@ -19,7 +19,7 @@ BEGIN_NAMESPACE_YM_SATPG
 // @brief コンストラクタ
 // @param[in] max_id ノード番号の最大値
 // @param[in] fault_type 故障の型
-BtImpl::BtImpl(ymuint max_id,
+BtImpl::BtImpl(int max_id,
 	       FaultType fault_type) :
   mFaultType(fault_type),
   mMarkArray(max_id, 0U)
@@ -56,9 +56,7 @@ BtImpl::run(const NodeValList& assign_list,
   _run(assign_list, output_list, pi_assign_list);
 
   // マークを消す．
-  for (vector<ymuint>::iterator p = mNodeIdList.begin();
-       p != mNodeIdList.end(); ++ p) {
-    ymuint id = *p;
+  for ( auto id: mNodeIdList ) {
     mMarkArray[id] = 0U;
     _clear_hook(id);
   }
@@ -70,7 +68,7 @@ BtImpl::run(const NodeValList& assign_list,
 //
 // デフォルトの実装では何もしない．
 void
-BtImpl::_clear_hook(ymuint id)
+BtImpl::_clear_hook(int id)
 {
 }
 

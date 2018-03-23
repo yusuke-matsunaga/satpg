@@ -5,7 +5,7 @@
 /// @brief TpgDffOutput のヘッダファイル
 /// @author Yusuke Matsunaga (松永 裕介)
 ///
-/// Copyright (C) 2016 Yusuke Matsunaga
+/// Copyright (C) 2016, 2018 Yusuke Matsunaga
 /// All rights reserved.
 
 
@@ -21,14 +21,16 @@ BEGIN_NAMESPACE_YM_SATPG
 class TpgDffOutput :
   public TpgPPI
 {
-public:
+  friend class TpgNodeFactory;
+
+private:
 
   /// @brief コンストラクタ
   /// @param[in] id ID番号
   /// @param[in] input_id 入力番号
   /// @param[in] dff 接続しているDFF
-  TpgDffOutput(ymuint id,
-	       ymuint input_id,
+  TpgDffOutput(int id,
+	       int input_id,
 	       TpgDff* dff);
 
   /// @brief デストラクタ
@@ -44,7 +46,7 @@ public:
   /// @brief DFF の出力に接続している外部入力タイプの時 true を返す．
   virtual
   bool
-  is_dff_output() const;
+  is_dff_output() const override;
 
   /// @brief 接続している DFF を返す．
   ///
@@ -52,7 +54,7 @@ public:
   /// の時に意味を持つ．
   virtual
   TpgDff*
-  dff() const;
+  dff() const override;
 
 
 private:

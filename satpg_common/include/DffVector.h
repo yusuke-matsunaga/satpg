@@ -30,7 +30,7 @@ private:
   /// @brief コンストラクタ
   /// @param[in] vect_len ベクタ長
   explicit
-  DffVector(ymuint vect_len);
+  DffVector(int vect_len);
 
   /// @brief デストラクタ
   ~DffVector();
@@ -76,7 +76,7 @@ private:
 // @brief コンストラクタ
 // @param[in] vect_len ベクタ長
 inline
-DffVector::DffVector(ymuint vect_len) :
+DffVector::DffVector(int vect_len) :
   BitVector(vect_len)
 {
 }

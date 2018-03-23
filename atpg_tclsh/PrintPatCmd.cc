@@ -41,7 +41,7 @@ PrintPatCmd::cmd_proc(TclObjVector& objv)
 {
   // このコマンドはファイル名のみを引数に取る．
   // 引数がなければ標準出力に出す．
-  ymuint objc = objv.size();
+  int objc = objv.size();
   if ( objc > 2 ) {
     print_usage();
     return TCL_ERROR;
@@ -65,12 +65,13 @@ PrintPatCmd::cmd_proc(TclObjVector& objv)
   bool hex_flag = mPoptHex->is_specified();
   bool num_flag = mPoptNum->is_specified();
 
+#warning "TODO: sa 決め打ちでいいの？"
   vector<const TestVector*>& tvlist = _sa_tv_list();
-  ymuint n = tvlist.size();
-  for (ymuint i = 0; i < n; ++ i) {
-    const TestVector* tv = tvlist[i];
+  int i = 1;
+  for ( auto tv: tvlist ) {
     if ( num_flag ) {
       out << setw(5) << setfill('0') << (i + 1) << ": ";
+      ++ i;
     }
     if ( hex_flag ) {
       out << tv->hex_str();

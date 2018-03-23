@@ -49,7 +49,7 @@ PrintFaultCmd::cmd_proc(TclObjVector& objv)
 {
   // このコマンドはファイル名のみを引数に取る．
   // 引数がなければ標準出力に出す．
-  ymuint objc = objv.size();
+  int objc = objv.size();
   if ( objc > 2 ) {
     print_usage();
     return TCL_ERROR;
@@ -70,17 +70,17 @@ PrintFaultCmd::cmd_proc(TclObjVector& objv)
   // 参照を使いたいのでめんどくさいことをやっている．
   ostream& out = *osp;
 
-  FaultStatus type = kFsUndetected;
+  FaultStatus type = FaultStatus::Undetected;
   if ( mPoptType->is_specified() ) {
     string tmp = mPoptType->val();
     if ( tmp == "detected" ) {
-      type = kFsDetected;
+      type = FaultStatus::Detected;
     }
     else if ( tmp == "untestable" ) {
-      type = kFsUntestable;
+      type = FaultStatus::Untestable;
     }
     else if ( tmp == "remain" ) {
-      type = kFsUndetected;
+      type = FaultStatus::Undetected;
     }
     else {
       print_usage();
@@ -90,8 +90,8 @@ PrintFaultCmd::cmd_proc(TclObjVector& objv)
   TpgFaultMgr& fmgr = mPoptTd->is_specified() ? _td_fault_mgr() : _sa_fault_mgr();
 
   const TpgNetwork& network = _network();
-  ymuint n = network.rep_fault_num();
-  for (ymuint i = 0; i < n; ++ i) {
+  int n = network.rep_fault_num();
+  for (int i = 0; i < n; ++ i) {
     const TpgFault* f = network.rep_fault(i);
     if ( fmgr.status(f) == type ) {
       out << f->str() << endl;

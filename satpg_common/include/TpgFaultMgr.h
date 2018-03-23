@@ -43,13 +43,13 @@ public:
   //////////////////////////////////////////////////////////////////////
 
   /// @brief 故障IDの最大値+1を返す．
-  ymuint
+  int
   max_fault_id() const;
 
   /// @brief 故障IDから故障を返す．
   /// @param[in] id 故障ID
   const TpgFault*
-  fault(ymuint id) const;
+  fault(int id) const;
 
   /// @brief 故障の状態を得る．
   FaultStatus
@@ -81,7 +81,7 @@ private:
   //////////////////////////////////////////////////////////////////////
 
   // 故障番号の最大値
-  ymuint mMaxFaultId;
+  int mMaxFaultId;
 
   // 故障の配列
   // サイズは mMaxFaultId

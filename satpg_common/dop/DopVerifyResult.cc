@@ -45,7 +45,7 @@ DopVerifyResult::add_error(const TpgFault* f,
 }
 
 // @brief 成功回数を得る．
-ymuint
+int
 DopVerifyResult::good_count() const
 {
   return mGoodList.size();
@@ -54,14 +54,14 @@ DopVerifyResult::good_count() const
 // @brief 成功した故障を得る．
 // @param[in] pos 位置版号 ( 0 <= pos < good_count() )
 const TpgFault*
-DopVerifyResult::good_fault(ymuint pos) const
+DopVerifyResult::good_fault(int pos) const
 {
   ASSERT_COND( pos < good_count() );
   return mGoodList[pos];
 }
 
 // @brief エラー回数を得る．
-ymuint
+int
 DopVerifyResult::error_count() const
 {
   return mErrorList.size();
@@ -70,7 +70,7 @@ DopVerifyResult::error_count() const
 // @brief エラーの故障を得る．
 // @param[in] pos 位置版号 ( 0 <= pos < error_count() )
 const TpgFault*
-DopVerifyResult::error_fault(ymuint pos) const
+DopVerifyResult::error_fault(int pos) const
 {
   ASSERT_COND( pos < error_count() );
   return mErrorList[pos].mFault;
@@ -78,7 +78,7 @@ DopVerifyResult::error_fault(ymuint pos) const
 
 // @brief エラーとなった割当を得る．
 const NodeValList&
-DopVerifyResult::error_assign_list(ymuint pos) const
+DopVerifyResult::error_assign_list(int pos) const
 {
   ASSERT_COND( pos < error_count() );
   return mErrorList[pos].mAssignList;

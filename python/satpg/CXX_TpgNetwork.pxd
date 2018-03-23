@@ -12,8 +12,6 @@ from CXX_TpgNode cimport TpgNode
 from CXX_TpgDff cimport TpgDff
 from CXX_TpgFault cimport TpgFault
 
-ctypedef unsigned int ymuint
-
 
 cdef extern from "TpgNetwork.h" namespace "nsYm::nsSatpg" :
 
@@ -23,19 +21,19 @@ cdef extern from "TpgNetwork.h" namespace "nsYm::nsSatpg" :
         bool read_blif(const string& filename)
         bool read_blif(const string& filename, const ClibCellLibrary& cell_library)
         bool read_iscas89(const string& filename)
-        ymuint node_num()
-        const TpgNode* node(ymuint)
-        ymuint input_num()
-        const TpgNode* input(ymuint)
-        ymuint output_num()
-        const TpgNode* output(ymuint)
-        const TpgNode* output2(ymuint)
-        ymuint ppi_num()
-        const TpgNode* ppi(ymuint)
-        ymuint ppo_num()
-        const TpgNode* ppo(ymuint)
-        ymuint dff_num()
-        const TpgDff* dff(ymuint pos)
-        ymuint max_fault_id()
-        ymuint rep_fault_num()
-        const TpgFault* rep_fault(ymuint pos)
+        int node_num()
+        const TpgNode* node(int)
+        int input_num()
+        const TpgNode* input(int)
+        int output_num()
+        const TpgNode* output(int)
+        const TpgNode* output2(int)
+        int ppi_num()
+        const TpgNode* ppi(int)
+        int ppo_num()
+        const TpgNode* ppo(int)
+        int dff_num()
+        const TpgDff* dff(int pos)
+        int max_fault_id()
+        int rep_fault_num()
+        const TpgFault* rep_fault(int pos)

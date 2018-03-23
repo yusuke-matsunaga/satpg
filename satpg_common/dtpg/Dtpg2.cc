@@ -63,16 +63,16 @@ Dtpg2::run(TvMgr& tvmgr,
 	   const TpgNetwork& network,
 	   bool use_xorsampling,
 	   double wsa_ratio,
-	   ymuint scount_limit,
+	   int scount_limit,
 	   vector<const TestVector*>& tv_list,
 	   DtpgStats& stats)
 {
   cout << "scount_limit = " << scount_limit << endl;
-  ymuint wsa_limit = 0;
+  int wsa_limit = 0;
   { // 順序回路としてランダムに動かした時の
     // 平均の信号遷移回数を得る．
-    ymuint count = 10000;
-    ymuint warmup = 100;
+    int count = 10000;
+    int warmup = 100;
     bool weighted = false;
 
     InputVector* i_vect = tvmgr.new_input_vector();
@@ -85,15 +85,15 @@ Dtpg2::run(TvMgr& tvmgr,
     f_vect->set_from_random(rg);
     fsim.set_state(*i_vect, *f_vect);
 
-    for (ymuint i = 0; i < warmup; ++ i) {
+    for (int i = 0; i < warmup; ++ i) {
       // このシミュレーション結果は捨てる．
       // 状態を遷移させることが目的
       i_vect->set_from_random(rg);
       fsim.calc_wsa(*i_vect, weighted);
     }
-    for (ymuint i = 0; i < count; ++ i) {
+    for (int i = 0; i < count; ++ i) {
       i_vect->set_from_random(rg);
-      ymuint wsa1 = fsim.calc_wsa(*i_vect, weighted);
+      int wsa1 = fsim.calc_wsa(*i_vect, weighted);
       total_wsa += wsa1;
     }
     double ave_wsa = total_wsa / count;
@@ -101,7 +101,7 @@ Dtpg2::run(TvMgr& tvmgr,
     tvmgr.delete_vector(i_vect);
     tvmgr.delete_vector(f_vect);
 
-    wsa_limit = static_cast<ymuint>(ave_wsa * wsa_ratio);
+    wsa_limit = static_cast<int>(ave_wsa * wsa_ratio);
   }
 
 #if 0
@@ -118,10 +118,10 @@ Dtpg2::run(TvMgr& tvmgr,
 
   vector<TestVector*> initial_tv_list;
   vector<const TpgFault*> fault_list;
-  HashMap<ymuint, ymuint> fault_map;
+  HashMap<int, int> fault_map;
   TestVector* tv = tvmgr.new_vector();
-  ymuint nf = network.rep_fault_num();
-  for (ymuint i = 0; i < nf; ++ i) {
+  int nf = network.rep_fault_num();
+  for (int i = 0; i < nf; ++ i) {
     const TpgFault* fault = network.rep_fault(i);
     if ( fmgr.status(fault) == kFsUndetected ) {
       SatBool3 stat = dtpg(tvmgr, fsim, network, fault, use_xorsampling,
@@ -131,7 +131,7 @@ Dtpg2::run(TvMgr& tvmgr,
 	++ mPatNum;
 	fmgr.set_status(fault, kFsDetected);
 
-	ymuint fpos = fault_list.size();
+	int fpos = fault_list.size();
 	fault_list.push_back(fault);
 	fault_map.add(fault->id(), fpos);
       }
@@ -154,33 +154,33 @@ Dtpg2::run(TvMgr& tvmgr,
   }
 
   {
-    ymuint np = initial_tv_list.size();
-    ymuint nf = fault_list.size();
+    int np = initial_tv_list.size();
+    int nf = fault_list.size();
 
     MinCov mc;
     mc.set_size(nf, np);
 
-    Fsim* fsim = Fsim::new_Fsim2(network, kFtTransitionDelay);
-    for (ymuint i = 0; i < np; ++ i) {
+    Fsim* fsim = Fsim::new_Fsim2(network, FaultType::TransitionDelay);
+    for (int i = 0; i < np; ++ i) {
       const TestVector* tv = initial_tv_list[i];
       fsim->clear_skip_all();
-      ymuint nd = fsim->sppfp(tv);
-      for (ymuint j = 0; j < nd; ++ j) {
+      int nd = fsim->sppfp(tv);
+      for (int j = 0; j < nd; ++ j) {
 	const TpgFault* f = fsim->det_fault(j);
-	ymuint k;
+	int k;
 	bool stat = fault_map.find(f->id(), k);
 	ASSERT_COND( stat );
 	mc.insert_elem(k, i);
       }
     }
     cout << "initial patterns: " << np << endl;
-    vector<ymuint> solution;
-    ymuint c = mc.heuristic(solution);
+    vector<int> solution;
+    int c = mc.heuristic(solution);
     cout << "optimized patterns: " << solution.size() << endl;
 
     tv_list.clear();
     tv_list.resize(solution.size());
-    for (ymuint i = 0; i < solution.size(); ++ i) {
+    for (int i = 0; i < solution.size(); ++ i) {
       const TestVector* tv = initial_tv_list[solution[i]];
       tv_list[i] = tv;
     }
@@ -204,8 +204,8 @@ Dtpg2::dtpg(TvMgr& tvmgr,
 	    const TpgNetwork& network,
 	    const TpgFault* fault,
 	    bool use_xorsampling,
-	    ymuint wsa_limit,
-	    ymuint scount_limit,
+	    int wsa_limit,
+	    int scount_limit,
 	    vector<TestVector*>& tv_list,
 	    DtpgStats& stats)
 {
@@ -213,7 +213,7 @@ Dtpg2::dtpg(TvMgr& tvmgr,
   impl.gen_cnf(stats);
 
   // 今の故障に関係のある PPI の数を数える．
-  ymuint xor_num = impl.make_xor_list();
+  int xor_num = impl.make_xor_list();
   if ( xor_num > 30 ) {
     xor_num -= 20;
   }
@@ -225,11 +225,11 @@ Dtpg2::dtpg(TvMgr& tvmgr,
   }
   // とりあえず xor_num ぐらいの制約をつける．
 
-  ymuint count_limit = 50;
-  ymuint fcount_limit = 20;
-  ymuint count = 0;
-  ymuint fcount = 0;
-  ymuint scount = 0;
+  int count_limit = 50;
+  int fcount_limit = 20;
+  int count = 0;
+  int fcount = 0;
+  int scount = 0;
 
   NodeValList nodeval_list;
   SatBool3 ans = impl.dtpg(fault, nodeval_list, stats);
@@ -238,7 +238,7 @@ Dtpg2::dtpg(TvMgr& tvmgr,
   }
 
   TestVector* tv = tvmgr.new_vector();
-  ymuint wsa = optimize(tvmgr, fsim, wsa_limit, nodeval_list, tv);
+  int wsa = optimize(tvmgr, fsim, wsa_limit, nodeval_list, tv);
   if ( wsa <= wsa_limit ) {
     tv_list.push_back(tv);
     tv = tvmgr.new_vector();
@@ -259,7 +259,7 @@ Dtpg2::dtpg(TvMgr& tvmgr,
   {
     bool exit = false;
     TestVector* tv_min = tvmgr.new_vector();
-    ymuint wsa_min = UINT_MAX;
+    int wsa_min = UINT_MAX;
     for ( ; count < count_limit; ++ count) {
       ++ mTotalCount;
       Dtpg2Impl impl2(mSatType, mSatOption, mSatOutP, mBackTracer, network, fault->ffr()->root());
@@ -267,8 +267,8 @@ Dtpg2::dtpg(TvMgr& tvmgr,
       impl2.make_xor_list();
       impl2.add_xor_constraint(xor_num, mRandGen);
 
-      ymuint xn_exp = 1U << xor_num;
-      for (ymuint p = 0U; p < xn_exp; ++ p) {
+      int xn_exp = 1U << xor_num;
+      for (int p = 0U; p < xn_exp; ++ p) {
 	++ mTotalSampling;
 	NodeValList nodeval_list1;
 	SatBool3 ans = impl2.dtpg_with_xor(fault, p, nodeval_list1, stats);
@@ -324,28 +324,28 @@ Dtpg2::dtpg(TvMgr& tvmgr,
   return kB3True;
 }
 
-ymuint
+int
 Dtpg2::optimize(TvMgr& tvmgr,
 		Fsim& fsim,
-		ymuint wsa_limit,
+		int wsa_limit,
 		const NodeValList& nodeval_list,
 		TestVector* tv)
 {
-  ymuint ni = tvmgr.input_num();
-  ymuint nd = tvmgr.dff_num();
-  ymuint nall = ni + ni + nd;
-  ymuint n = nodeval_list.size();
-  ymuint nx = nall - n;
-  vector<ymuint> x_list;
+  int ni = tvmgr.input_num();
+  int nd = tvmgr.dff_num();
+  int nall = ni + ni + nd;
+  int n = nodeval_list.size();
+  int nx = nall - n;
+  vector<int> x_list;
   { // nodeval_list に現れない入力の番号を x_list に入れる．
     vector<bool> i0_map(ni, true);
     vector<bool> i1_map(ni, true);
     vector<bool> d0_map(nd, true);
-    for (ymuint i = 0; i < n; ++ i) {
+    for (int i = 0; i < n; ++ i) {
       NodeVal nv = nodeval_list[i];
       const TpgNode* node = nv.node();
       if ( node->is_primary_input() ) {
-	ymuint id = node->input_id();
+	int id = node->input_id();
 	if ( nv.time() == 1 ) {
 	  i1_map[id] = false;
 	}
@@ -355,7 +355,7 @@ Dtpg2::optimize(TvMgr& tvmgr,
       }
       else if ( node->is_dff_output() ) {
 	ASSERT_COND( nv.time() == 0 );
-	ymuint id = node->dff()->id();
+	int id = node->dff()->id();
 	d0_map[id] = false;
       }
       else {
@@ -363,17 +363,17 @@ Dtpg2::optimize(TvMgr& tvmgr,
       }
     }
     x_list.reserve(nx);
-    for (ymuint i = 0; i < ni; ++ i) {
+    for (int i = 0; i < ni; ++ i) {
       if ( i0_map[i] ) {
 	x_list.push_back(i);
       }
     }
-    for (ymuint i = 0; i < nd; ++ i) {
+    for (int i = 0; i < nd; ++ i) {
       if ( d0_map[i] ) {
 	x_list.push_back(i + ni);
       }
     }
-    for (ymuint i = 0; i < ni; ++ i) {
+    for (int i = 0; i < ni; ++ i) {
       if ( i1_map[i] ) {
 	x_list.push_back(i + ni + nd);
       }
@@ -381,20 +381,20 @@ Dtpg2::optimize(TvMgr& tvmgr,
     ASSERT_COND( x_list.size() == nx );
   }
 
-  //ymuint count_limit = nx * 1;
-  ymuint count_limit = 100;
+  //int count_limit = nx * 1;
+  int count_limit = 100;
 
   tv->init();
   tv->set_from_assign_list(nodeval_list);
   tv->fix_x_from_random(mRandGen2);
-  ymuint wsa = fsim.calc_wsa(tv, false);
+  int wsa = fsim.calc_wsa(tv, false);
   TestVector* tv1 = tvmgr.new_vector();
   for (double t = 100; wsa > wsa_limit && t > 0.001; t *= 0.6) {
-    for (ymuint count = 0; wsa > wsa_limit && count < count_limit; ++ count) {
+    for (int count = 0; wsa > wsa_limit && count < count_limit; ++ count) {
       // tv の一つのビットをランダムに反転させる．
       tv1->copy(*tv);
-      ymuint pos = mRandGen2.int32() % nx;
-      ymuint id = x_list[pos];
+      int pos = mRandGen2.int32() % nx;
+      int id = x_list[pos];
       if ( id < ni ) {
 	// 0時刻の入力
 	Val3 val = tv1->input_val(id);
@@ -412,7 +412,7 @@ Dtpg2::optimize(TvMgr& tvmgr,
 	Val3 val = tv1->aux_input_val(id);
 	tv1->set_aux_input_val(id, ~val);
       }
-      ymuint wsa1 = fsim.calc_wsa(tv1, false);
+      int wsa1 = fsim.calc_wsa(tv1, false);
       if ( wsa1 <= wsa ) {
 	tv->copy(*tv1);
 	wsa = wsa1;
@@ -439,20 +439,20 @@ void
 Dtpg2::rtpg(TvMgr& tvmgr,
 	    TpgFaultMgr& fmgr,
 	    Fsim& fsim,
-	    ymuint wsa_limit,
+	    int wsa_limit,
 	    DetectOp& dop)
 {
-  ymuint max_pat = 10000;
-  ymuint min_f = 0;
-  ymuint max_i = 4;
+  int max_pat = 10000;
+  int min_f = 0;
+  int max_i = 4;
 
-  ymuint fnum = 0;
-  ymuint undet_i = 0;
-  ymuint epat_num = 0;
-  ymuint total_det_count = 0;
+  int fnum = 0;
+  int undet_i = 0;
+  int epat_num = 0;
+  int total_det_count = 0;
 
   fsim.set_skip_all();
-  for (ymuint i = 0; i < fmgr.max_fault_id(); ++ i) {
+  for (int i = 0; i < fmgr.max_fault_id(); ++ i) {
     const TpgFault* f = fmgr.fault(i);
     if ( f != nullptr && fmgr.status(f) == kFsUndetected ) {
       fsim.clear_skip(f);
@@ -461,19 +461,19 @@ Dtpg2::rtpg(TvMgr& tvmgr,
   }
 
   TestVector* tv_array[kPvBitLen];
-  for (ymuint i = 0; i < kPvBitLen; ++ i) {
+  for (int i = 0; i < kPvBitLen; ++ i) {
     tv_array[i] = tvmgr.new_vector();
   }
 
   fsim.clear_patterns();
-  ymuint pat_num = 0;
-  ymuint wpos = 0;
+  int pat_num = 0;
+  int wpos = 0;
   for ( ; ; ) {
     if ( pat_num < max_pat ) {
       TestVector* tv = tv_array[wpos];
       for ( ; ; ) {
 	tv->set_from_random(mRandGen);
-	ymuint wsa = fsim.calc_wsa(tv, false);
+	int wsa = fsim.calc_wsa(tv, false);
 	if ( wsa <= wsa_limit ) {
 	  break;
 	}
@@ -489,20 +489,20 @@ Dtpg2::rtpg(TvMgr& tvmgr,
       break;
     }
 
-    ymuint det_count = fsim.ppsfp();
+    int det_count = fsim.ppsfp();
 
     const TpgFault* det_flags[kPvBitLen];
-    for (ymuint i = 0; i < kPvBitLen; ++ i) {
+    for (int i = 0; i < kPvBitLen; ++ i) {
       det_flags[i] = nullptr;
     }
-    ymuint num = wpos;
-    for (ymuint i = 0; i < det_count; ++ i) {
+    int num = wpos;
+    for (int i = 0; i < det_count; ++ i) {
       const TpgFault* f = fsim.det_fault(i);
       fmgr.set_status(f, kFsDetected);
       fsim.set_skip(f);
       PackedVal dpat = fsim.det_fault_pat(i);
       // dpat の最初の1のビットを調べる．
-      ymuint first = 0;
+      int first = 0;
       for ( ; first < num; ++ first) {
 	if ( dpat & (1ULL << first) ) {
 	  break;
@@ -511,7 +511,7 @@ Dtpg2::rtpg(TvMgr& tvmgr,
       ASSERT_COND( first < num );
       det_flags[first] = f;
     }
-    for (ymuint i = 0; i < num; ++ i) {
+    for (int i = 0; i < num; ++ i) {
       const TpgFault* f = det_flags[i];
       if ( f != nullptr ) {
 	// 検出できたパタンは tvlist に移す．
@@ -545,17 +545,17 @@ Dtpg2::rtpg(TvMgr& tvmgr,
     }
   }
 
-  for (ymuint i = 0; i < kPvBitLen; ++ i) {
+  for (int i = 0; i < kPvBitLen; ++ i) {
     tvmgr.delete_vector(tv_array[i]);
   }
 }
 
 Val3
 read_val(const TestVector* tv,
-	 ymuint pos)
+	 int pos)
 {
-  ymuint ni = tv->input_num();
-  ymuint nd = tv->dff_num();
+  int ni = tv->input_num();
+  int nd = tv->dff_num();
   if ( pos < ni ) {
     return tv->input_val(pos);
   }
@@ -570,17 +570,17 @@ read_val(const TestVector* tv,
 void
 Dtpg2::make_input_constraint(TvMgr& tvmgr,
 			     Fsim& fsim,
-			     ymuint wsa_limit)
+			     int wsa_limit)
 {
-  ymuint count_limit = 10000;
-  ymuint warm_up = 10;
+  int count_limit = 10000;
+  int warm_up = 10;
   RandGen rg;
   vector<TestVector*> on_list;
   vector<TestVector*> off_list;
-  for (ymuint i = 0; i < count_limit; ++ i) {
+  for (int i = 0; i < count_limit; ++ i) {
     TestVector* tv = tvmgr.new_vector();
     tv->set_from_random(rg);
-    ymuint wsa1 = fsim.calc_wsa(tv, false);
+    int wsa1 = fsim.calc_wsa(tv, false);
     if ( wsa1 <= wsa_limit ) {
       on_list.push_back(tv);
     }
@@ -591,17 +591,17 @@ Dtpg2::make_input_constraint(TvMgr& tvmgr,
   InputVector* i_vect = tvmgr.new_input_vector();
   DffVector* d_vect = tvmgr.new_dff_vector();
   InputVector* a_vect = tvmgr.new_input_vector();
-  for (ymuint i = 0; i < count_limit; ++ i) {
+  for (int i = 0; i < count_limit; ++ i) {
     i_vect->set_from_random(rg);
     d_vect->set_from_random(rg);
     fsim.set_state(*i_vect, *d_vect);
-    for (ymuint j = 0; j < warm_up; ++ j) {
+    for (int j = 0; j < warm_up; ++ j) {
       i_vect->set_from_random(rg);
       fsim.calc_wsa(*i_vect, false);
     }
     fsim.get_state(*i_vect, *d_vect);
     a_vect->set_from_random(rg);
-    ymuint wsa1 = fsim.calc_wsa(*i_vect, false);
+    int wsa1 = fsim.calc_wsa(*i_vect, false);
     TestVector* tv = tvmgr.new_vector();
     tv->set(*i_vect, *d_vect, *a_vect);
     if ( wsa1 <= wsa_limit ) {
@@ -621,21 +621,21 @@ Dtpg2::make_input_constraint(TvMgr& tvmgr,
 	 << " OFF patterns: " << off_list.size() << endl;
   }
 
-  ymuint ni = tvmgr.input_num();
-  ymuint nd = tvmgr.dff_num();
-  ymuint nall = ni + ni + nd;
-  for (ymuint i1 = 0; i1 < nall; ++ i1) {
-    for (ymuint i2 = i1 + 1; i2 < nall; ++ i2) {
-      for (ymuint i3 = i2 + 1; i3 < nall; ++ i3) {
-	ymuint n000 = 0;
-	ymuint n001 = 0;
-	ymuint n010 = 0;
-	ymuint n011 = 0;
-	ymuint n100 = 0;
-	ymuint n101 = 0;
-	ymuint n110 = 0;
-	ymuint n111 = 0;
-	for (ymuint i = 0; i < on_list.size(); ++ i) {
+  int ni = tvmgr.input_num();
+  int nd = tvmgr.dff_num();
+  int nall = ni + ni + nd;
+  for (int i1 = 0; i1 < nall; ++ i1) {
+    for (int i2 = i1 + 1; i2 < nall; ++ i2) {
+      for (int i3 = i2 + 1; i3 < nall; ++ i3) {
+	int n000 = 0;
+	int n001 = 0;
+	int n010 = 0;
+	int n011 = 0;
+	int n100 = 0;
+	int n101 = 0;
+	int n110 = 0;
+	int n111 = 0;
+	for (int i = 0; i < on_list.size(); ++ i) {
 	  TestVector* tv = on_list[i];
 	  Val3 v1 = read_val(tv, i1);
 	  Val3 v2 = read_val(tv, i2);
@@ -706,10 +706,10 @@ Dtpg2::make_input_constraint(TvMgr& tvmgr,
   }
 
 
-  for (ymuint i = 0; i < on_list.size(); ++ i) {
+  for (int i = 0; i < on_list.size(); ++ i) {
     tvmgr.delete_vector(on_list[i]);
   }
-  for (ymuint i = 0; i < off_list.size(); ++ i) {
+  for (int i = 0; i < off_list.size(); ++ i) {
     tvmgr.delete_vector(off_list[i]);
   }
 }

@@ -51,12 +51,12 @@ atpg_init(Tcl_Interp* interp)
   TclCmdBinder1<PrintStatsCmd, AtpgMgr*>::reg(interp, mgr, "::atpg::print_stats");
   TclCmdBinder1<PrintPatCmd, AtpgMgr*>::reg(interp, mgr, "::atpg::print_pat");
   TclCmdBinder1<PrintPatStatsCmd, AtpgMgr*>::reg(interp, mgr, "::atpg::print_pat_stats");
-  TclCmdBinder1<RtpgCmd, AtpgMgr*>::reg(interp, mgr, "::atpg::rtpg");
-  TclCmdBinder1<Rtpg1Cmd, AtpgMgr*>::reg(interp, mgr, "::atpg::rtpg1");
+  //TclCmdBinder1<RtpgCmd, AtpgMgr*>::reg(interp, mgr, "::atpg::rtpg");
+  //TclCmdBinder1<Rtpg1Cmd, AtpgMgr*>::reg(interp, mgr, "::atpg::rtpg1");
   TclCmdBinder1<DtpgCmd, AtpgMgr*>::reg(interp, mgr, "::atpg::dtpg");
   //TclCmdBinder1<DtpgMinPowerCmd, AtpgMgr*>::reg(interp, mgr, "::atpg::dtpg_minpower");
   TclCmdBinder1<RandWsaCmd, AtpgMgr*>::reg(interp, mgr, "::atpg::random_wsa");
-  TclCmdBinder1<MinPatCmd, AtpgMgr*>::reg(interp, mgr, "::atpg::minpat");
+  //TclCmdBinder1<MinPatCmd, AtpgMgr*>::reg(interp, mgr, "::atpg::minpat");
   TclCmdBinder<StopwatchCls>::reg(interp, "atpg::stopwatch");
   TclCmdBinder<TimeCmd>::reg(interp,     "atpg::time");
 

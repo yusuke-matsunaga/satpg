@@ -3,12 +3,13 @@
 /// @brief TpgLogicXOR[x] の実装ファイル
 /// @author Yusuke Matsunaga (松永 裕介)
 ///
-/// Copyright (C) 2016 Yusuke Matsunaga
+/// Copyright (C) 2016, 2018 Yusuke Matsunaga
 /// All rights reserved.
 
 
 #include "TpgLogicXOR.h"
-#include "ym/SatSolver.h"
+#include "GateType.h"
+#include "Val3.h"
 
 
 BEGIN_NAMESPACE_YM_SATPG
@@ -20,7 +21,7 @@ BEGIN_NAMESPACE_YM_SATPG
 // @brief コンストラクタ
 // @param[in] id ID番号
 // @param[in] fanin_list ファンインのリスト
-TpgLogicXOR2::TpgLogicXOR2(ymuint id,
+TpgLogicXOR2::TpgLogicXOR2(int id,
 			   const vector<TpgNode*>& fanin_list) :
   TpgLogic2(id, fanin_list)
 {
@@ -37,47 +38,47 @@ TpgLogicXOR2::~TpgLogicXOR2()
 GateType
 TpgLogicXOR2::gate_type() const
 {
-  return kGateXOR;
+  return GateType::XOR;
 }
 
 // @brief controling value を得る．
 //
 // is_logic() が false の場合の返り値は不定
-// ない場合は kValX を返す．
+// ない場合は Val3::_X を返す．
 Val3
 TpgLogicXOR2::cval() const
 {
-  return kValX;
+  return Val3::_X;
 }
 
 // @brief noncontroling valueを得る．
 //
 // is_logic() が false の場合の返り値は不定
-// ない場合は kValX を返す．
+// ない場合は Val3::_X を返す．
 Val3
 TpgLogicXOR2::nval() const
 {
-  return kValX;
+  return Val3::_X;
 }
 
 // @brief controling output value を得る．
 //
 // is_logic() が false の場合の返り値は不定
-// ない場合は kValX を返す．
+// ない場合は Val3::_X を返す．
 Val3
 TpgLogicXOR2::coval() const
 {
-  return kValX;
+  return Val3::_X;
 }
 
 // @brief noncontroling output value を得る．
 //
 // is_logic() が false の場合の返り値は不定
-// ない場合は kValX を返す．
+// ない場合は Val3::_X を返す．
 Val3
 TpgLogicXOR2::noval() const
 {
-  return kValX;
+  return Val3::_X;
 }
 
 END_NAMESPACE_YM_SATPG

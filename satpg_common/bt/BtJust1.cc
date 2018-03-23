@@ -9,6 +9,7 @@
 
 #include "BtJust1.h"
 #include "TpgDff.h"
+#include "GateType.h"
 
 
 BEGIN_NAMESPACE_YM_SATPG
@@ -20,7 +21,7 @@ BEGIN_NAMESPACE_YM_SATPG
 // @brief コンストラクタ
 // @param[in] max_id ノード番号の最大値
 // @param[in] fault_type 故障の型
-BtJust1::BtJust1(ymuint max_id,
+BtJust1::BtJust1(int max_id,
 		 FaultType fault_type) :
   BtImpl(max_id, fault_type)
 {
@@ -48,7 +49,7 @@ BtJust1::_run(const NodeValList& assign_list,
   pi_assign_list.clear();
 
   // assign_list の値を正当化する．
-  for (ymuint i = 0; i < assign_list.size(); ++ i) {
+  for (int i = 0; i < assign_list.size(); ++ i) {
     NodeVal nv = assign_list[i];
     const TpgNode* node = nv.node();
     justify(node, nv.time(), pi_assign_list);
@@ -89,7 +90,7 @@ BtJust1::justify(const TpgNode* node,
     return;
   }
   if ( node->is_dff_output() ) {
-    if ( time == 1 && fault_type() == kFtTransitionDelay ) {
+    if ( time == 1 && fault_type() == FaultType::TransitionDelay ) {
       // 1時刻前のタイムフレームに戻る．
       const TpgDff* dff = node->dff();
       const TpgNode* alt_node = dff->input();
@@ -113,58 +114,58 @@ BtJust1::justify(const TpgNode* node,
   }
 
   switch ( node->gate_type() ) {
-  case kGateBUFF:
-  case kGateNOT:
+  case GateType::BUFF:
+  case GateType::NOT:
     // 無条件で唯一のファンインをたどる．
     justify(node->fanin(0), time, assign_list);
     break;
 
-  case kGateAND:
-    if ( gval == kVal1 ) {
+  case GateType::AND:
+    if ( gval == Val3::_1 ) {
       // すべてのファンインノードをたどる．
       just_all(node, time, assign_list);
     }
-    else if ( gval == kVal0 ) {
+    else if ( gval == Val3::_0 ) {
       // 0の値を持つ最初のノードをたどる．
-      just_one(node, time, kVal0, assign_list);
+      just_one(node, time, Val3::_0, assign_list);
     }
     break;
 
-  case kGateNAND:
-    if ( gval == kVal1 ) {
+  case GateType::NAND:
+    if ( gval == Val3::_1 ) {
       // 0の値を持つ最初のノードをたどる．
-      just_one(node, time, kVal0, assign_list);
+      just_one(node, time, Val3::_0, assign_list);
     }
-    else if ( gval == kVal0 ) {
+    else if ( gval == Val3::_0 ) {
       // すべてのファンインノードをたどる．
       just_all(node, time, assign_list);
     }
     break;
 
-  case kGateOR:
-    if ( gval == kVal1 ) {
+  case GateType::OR:
+    if ( gval == Val3::_1 ) {
       // 1の値を持つ最初のノードをたどる．
-      just_one(node, time, kVal1, assign_list);
+      just_one(node, time, Val3::_1, assign_list);
     }
-    else if ( gval == kVal0 ) {
+    else if ( gval == Val3::_0 ) {
       // すべてのファンインノードをたどる．
       just_all(node, time, assign_list);
     }
     break;
 
-  case kGateNOR:
-    if ( gval == kVal1 ) {
+  case GateType::NOR:
+    if ( gval == Val3::_1 ) {
       // すべてのファンインノードをたどる．
       just_all(node, time, assign_list);
     }
-    else if ( gval == kVal0 ) {
+    else if ( gval == Val3::_0 ) {
       // 1の値を持つ最初のノードをたどる．
-      just_one(node, time, kVal1, assign_list);
+      just_one(node, time, Val3::_1, assign_list);
     }
     break;
 
-  case kGateXOR:
-  case kGateXNOR:
+  case GateType::XOR:
+  case GateType::XNOR:
     // すべてのファンインノードをたどる．
     just_all(node, time, assign_list);
     break;
@@ -184,8 +185,8 @@ BtJust1::just_all(const TpgNode* node,
 		  int time,
 		  NodeValList& assign_list)
 {
-  ymuint ni = node->fanin_num();
-  for (ymuint i = 0; i < ni; ++ i) {
+  int ni = node->fanin_num();
+  for (int i = 0; i < ni; ++ i) {
     const TpgNode* inode = node->fanin(i);
     justify(inode, time, assign_list);
   }
@@ -204,8 +205,8 @@ BtJust1::just_one(const TpgNode* node,
 {
   bool gfound = false;
   bool ffound = false;
-  ymuint ni = node->fanin_num();
-  for (ymuint i = 0; i < ni; ++ i) {
+  int ni = node->fanin_num();
+  for (int i = 0; i < ni; ++ i) {
     const TpgNode* inode = node->fanin(i);
     Val3 igval = gval(inode, time);
     Val3 ifval = fval(inode, time);

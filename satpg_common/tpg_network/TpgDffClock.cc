@@ -20,7 +20,7 @@ BEGIN_NAMESPACE_YM_SATPG
 // @param[in] id ID番号
 // @param[in] dff 接続しているDFF
 // @param[in] fanin ファンインのノード
-TpgDffClock::TpgDffClock(ymuint id,
+TpgDffClock::TpgDffClock(int id,
 			 TpgDff* dff,
 			 TpgNode* fanin) :
   TpgDffControl(id, dff, fanin)

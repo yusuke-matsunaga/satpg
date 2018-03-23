@@ -51,12 +51,8 @@ void
 DopDrop::operator()(const TpgFault* f,
 		    const NodeValList& assign_list)
 {
-  ymuint n = mFsim.sppfp(assign_list);
-  for (ymuint i = 0; i < n; ++ i) {
-    const TpgFault* f = mFsim.det_fault(i);
-    mMgr.set_status(f, kFsDetected);
-    mFsim.set_skip(f);
-  }
+  int n = mFsim.sppfp(assign_list);
+  common(n);
 }
 
 // @brief テストパタンが見つかった時の処理
@@ -66,10 +62,18 @@ void
 DopDrop::operator()(const TpgFault* f,
 		    const TestVector* tv)
 {
-  ymuint n = mFsim.sppfp(tv);
-  for (ymuint i = 0; i < n; ++ i) {
+  int n = mFsim.sppfp(tv);
+  common(n);
+}
+
+// @brief 検出された故障に印をつける．
+// @param[in] n 検出された故障数
+void
+DopDrop::common(int n)
+{
+  for (int i = 0; i < n; ++ i) {
     const TpgFault* f = mFsim.det_fault(i);
-    mMgr.set_status(f, kFsDetected);
+    mMgr.set_status(f, FaultStatus::Detected);
     mFsim.set_skip(f);
   }
 }

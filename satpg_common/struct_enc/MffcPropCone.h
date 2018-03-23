@@ -14,7 +14,7 @@
 #include "ym/HashMap.h"
 
 
-BEGIN_NAMESPACE_YM_SATPG
+BEGIN_NAMESPACE_YM_SATPG_STRUCTENC
 
 //////////////////////////////////////////////////////////////////////
 /// @class MffcPropCone MffcPropCone.h "MffcPropCone.h"
@@ -92,7 +92,7 @@ private:
   /// @param[in] elem_pos 要素番号
   /// @param[in] ovar ゲートの出力の変数
   void
-  inject_fault(ymuint elem_pos,
+  inject_fault(int elem_pos,
 	       SatVarId ovar);
 
 
@@ -110,7 +110,7 @@ private:
   vector<SatVarId> mElemVarArray;
 
   // ノード番号をキーにしてFFR番号を入れる連想配列
-  HashMap<ymuint, ymuint> mElemPosMap;
+  HashMap<int, int> mElemPosMap;
 
 };
 
@@ -119,6 +119,6 @@ private:
 // インライン関数の定義
 //////////////////////////////////////////////////////////////////////
 
-END_NAMESPACE_YM_SATPG
+END_NAMESPACE_YM_SATPG_STRUCTENC
 
 #endif // MFFCPROPCONE_H

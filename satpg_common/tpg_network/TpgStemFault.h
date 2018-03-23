@@ -28,7 +28,7 @@ public:
   /// @param[in] val 故障値
   /// @param[in] node 故障位置のノード
   /// @param[in] rep_fault 代表故障
-  TpgStemFault(ymuint id,
+  TpgStemFault(int id,
 	       const char* name,
 	       int val,
 	       const TpgNode* node,
@@ -65,14 +65,14 @@ public:
   ///
   /// is_branch_fault() == true の時のみ意味を持つ．
   virtual
-  ymuint
+  int
   fault_pos() const;
 
   /// @brief tpg_onode 上の故障位置を返す．
   ///
   /// is_branch_fault() == true の時のみ意味を持つ．
   virtual
-  ymuint
+  int
   tpg_pos() const;
 
   /// @brief 故障の内容を表す文字列を返す．

@@ -75,7 +75,7 @@ Dtpg2Cmd::~Dtpg2Cmd()
 int
 Dtpg2Cmd::cmd_proc(TclObjVector& objv)
 {
-  ymuint objc = objv.size();
+  int objc = objv.size();
   if ( objc != 1 ) {
     print_usage();
     return TCL_ERROR;

@@ -22,9 +22,9 @@ BEGIN_NAMESPACE_YM_SATPG
 // @brief コンストラクタ
 // @param[in] fault_type 故障の型
 // @param[in] max_id ID番号の最大値
-BackTracer::BackTracer(ymuint xmode,
+BackTracer::BackTracer(int xmode,
 		       FaultType fault_type,
-		       ymuint max_id)
+		       int max_id)
 {
   switch ( xmode ) {
   case 0:  mImpl = new BtSimple(max_id, fault_type); break;

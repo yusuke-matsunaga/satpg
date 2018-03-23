@@ -3,38 +3,15 @@
 /// @brief SnGate の実装ファイル
 /// @author Yusuke Matsunaga (松永 裕介)
 ///
-/// Copyright (C) 2016 Yusuke Matsunaga
+/// Copyright (C) 2016, 2018 Yusuke Matsunaga
 /// All rights reserved.
 
 
 #include "SnGate.h"
+#include "GateType.h"
 
 
 BEGIN_NAMESPACE_YM_SATPG_FSIM
-
-BEGIN_NONAMESPACE
-
-// ゲート名を出力する．
-void
-dump_gate(ostream& s,
-	  GateType gate_type)
-{
-  switch ( gate_type ) {
-  case kGateCONST0: s << "CONST0"; break;
-  case kGateCONST1: s << "CONST1"; break;
-  case kGateBUFF:   s << "BUFF";   break;
-  case kGateNOT:    s << "NOT";    break;
-  case kGateAND:    s << "AND";    break;
-  case kGateNAND:   s << "NAND";   break;
-  case kGateOR:     s << "OR";     break;
-  case kGateNOR:    s << "NOR";    break;
-  case kGateXOR:    s << "XOR";    break;
-  case kGateXNOR:   s << "XNOR";   break;
-  default: ASSERT_NOT_REACHED;
-  }
-}
-
-END_NONAMESPACE
 
 //////////////////////////////////////////////////////////////////////
 // @class SnGate SimNode.h
@@ -86,10 +63,10 @@ SnGate::fanin(ymuint pos) const
 void
 SnGate::dump(ostream& s) const
 {
-  dump_gate(s, gate_type());
-  s << "(" << _fanin(0)->id();
-  ymuint n = _fanin_num();
-  for (ymuint i = 1; i < n; ++ i) {
+  s <<  gate_type()
+    << "(" << _fanin(0)->id();
+  int n = _fanin_num();
+  for ( int i = 1; i < n; ++ i ) {
     s << ", " << _fanin(i)->id();
   }
   s << ")" << endl;
@@ -135,8 +112,8 @@ SnGate1::fanin(ymuint pos) const
 void
 SnGate1::dump(ostream& s) const
 {
-  dump_gate(s, gate_type());
-  s << "(" << _fanin()->id() << ")" << endl;
+  s <<  gate_type()
+    << "(" << _fanin()->id() << ")" << endl;
 }
 
 
@@ -185,10 +162,10 @@ SnGate2::fanin(ymuint pos) const
 void
 SnGate2::dump(ostream& s) const
 {
-  dump_gate(s, gate_type());
-  s << "2(" << _fanin(0)->id();
-  s << ", " << _fanin(1)->id();
-  s << ")" << endl;
+  s << gate_type()
+    << "2(" << _fanin(0)->id()
+    << ", " << _fanin(1)->id()
+    << ")" << endl;
 }
 
 
@@ -242,11 +219,11 @@ SnGate3::fanin(ymuint pos) const
 void
 SnGate3::dump(ostream& s) const
 {
-  dump_gate(s, gate_type());
-  s << "3(" << _fanin(0)->id();
-  s << ", " << _fanin(1)->id();
-  s << ", " << _fanin(2)->id();
-  s << ")" << endl;
+  s << gate_type()
+    << "3(" << _fanin(0)->id()
+    << ", " << _fanin(1)->id()
+    << ", " << _fanin(2)->id()
+    << ")" << endl;
 }
 
 
@@ -305,12 +282,12 @@ SnGate4::fanin(ymuint pos) const
 void
 SnGate4::dump(ostream& s) const
 {
-  dump_gate(s, gate_type());
-  s << "4(" << _fanin(0)->id();
-  s << ", " << _fanin(1)->id();
-  s << ", " << _fanin(2)->id();
-  s << ", " << _fanin(3)->id();
-  s << ")" << endl;
+  s << gate_type()
+    << "4(" << _fanin(0)->id()
+    << ", " << _fanin(1)->id()
+    << ", " << _fanin(2)->id()
+    << ", " << _fanin(3)->id()
+    << ")" << endl;
 }
 
 END_NAMESPACE_YM_SATPG_FSIM

@@ -96,7 +96,7 @@ DtpgMinPowerCmd::~DtpgMinPowerCmd()
 int
 DtpgMinPowerCmd::cmd_proc(TclObjVector& objv)
 {
-  ymuint objc = objv.size();
+  int objc = objv.size();
   if ( objc != 1 ) {
     print_usage();
     return TCL_ERROR;
@@ -129,8 +129,8 @@ DtpgMinPowerCmd::cmd_proc(TclObjVector& objv)
   bool td_mode = true;
 
   string engine_type;
-  ymuint mode_val = 0;
-  ymuint kdet_val = 0;
+  int mode_val = 0;
+  int kdet_val = 0;
 
   string option_str = mPoptOpt->val();
 
@@ -141,12 +141,12 @@ DtpgMinPowerCmd::cmd_proc(TclObjVector& objv)
     wsa_ratio = mPoptW->val();
   }
 
-  ymuint scount_limit = 3;
+  int scount_limit = 3;
   if ( mPoptS->is_specified() ) {
     scount_limit = mPoptS->val();
   }
 
-  ymuint xmode = 0;
+  int xmode = 0;
   if ( mPoptX->is_specified() ) {
     xmode = mPoptX->val();
   }
@@ -160,7 +160,7 @@ DtpgMinPowerCmd::cmd_proc(TclObjVector& objv)
   }
 
   _td_fsim3().set_skip_all();
-  for (ymuint i = 0; i < _td_fault_mgr().max_fault_id(); ++ i) {
+  for (int i = 0; i < _td_fault_mgr().max_fault_id(); ++ i) {
     const TpgFault* f = _td_fault_mgr().fault(i);
     if ( f != nullptr && _td_fault_mgr().status(f) == kFsUndetected ) {
       _td_fsim3().clear_skip(f);
@@ -176,13 +176,13 @@ DtpgMinPowerCmd::cmd_proc(TclObjVector& objv)
   after_update_faults();
 
   { // 求まったパタンの平均の遷移回数を求める．
-    ymuint wsa_sum = 0;
-    ymuint np = _td_tv_list().size();
-    vector<ymuint> wsa_list;
+    int wsa_sum = 0;
+    int np = _td_tv_list().size();
+    vector<int> wsa_list;
     wsa_list.reserve(np);
-    for (ymuint i = 0; i < np; ++ i) {
+    for (int i = 0; i < np; ++ i) {
       const TestVector* tv = _td_tv_list()[i];
-      ymuint wsa = _td_fsim2().calc_wsa(tv, false);
+      int wsa = _td_fsim2().calc_wsa(tv, false);
       wsa_sum += wsa;
       wsa_list.push_back(wsa);
     }
@@ -190,8 +190,8 @@ DtpgMinPowerCmd::cmd_proc(TclObjVector& objv)
     cout << "Ave. wsa = " << wsa_ave << endl;
 
     double div_sum = 0.0;
-    for (ymuint i = 0; i < np; ++ i) {
-      ymuint wsa = wsa_list[i];
+    for (int i = 0; i < np; ++ i) {
+      int wsa = wsa_list[i];
       double div = static_cast<double>(wsa) - wsa_ave;
       div_sum += div * div;
     }

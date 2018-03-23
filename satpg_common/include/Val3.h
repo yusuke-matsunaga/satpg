@@ -5,7 +5,7 @@
 /// @brief 3値を表す型の定義ファイル
 /// @author Yusuke Matsunaga (松永 裕介)
 ///
-/// Copyright (C) 2005-2010, 2012-2014 Yusuke Matsunaga
+/// Copyright (C) 2005-2010, 2012-2014, 2018 Yusuke Matsunaga
 /// All rights reserved.
 
 
@@ -18,20 +18,20 @@ BEGIN_NAMESPACE_YM_SATPG
 //////////////////////////////////////////////////////////////////////
 /// @brief 3値を表す列挙型
 //////////////////////////////////////////////////////////////////////
-enum Val3 {
+enum class Val3 {
   /// @brief 未定
-  kValX = 0,
+  _X = 0,
   /// @brief 0
-  kVal0 = 1,
+  _0 = 1,
   /// @brief 1
-  kVal1 = 2
+  _1 = 2
 };
-
 
 /// @relates Val3
 /// @brief 否定演算子
 /// @param[in] val 値
-/// @note kValX の場合には変化しない
+///
+/// Val3::_X の場合には変化しない
 inline
 Val3
 operator~(Val3 val)
@@ -120,16 +120,12 @@ inline
 char
 value_name1(Val3 val)
 {
-  if (val == kValX) {
-    return 'X';
+  switch ( val ) {
+  case Val3::_X: return 'X';
+  case Val3::_0: return '0';
+  case Val3::_1: return '1';
+  default:       return '-';
   }
-  if (val == kVal0) {
-    return '0';
-  }
-  if (val == kVal1) {
-    return '1';
-  }
-  return '-';
 }
 
 /// @relates Val3
@@ -141,20 +137,28 @@ const char*
 value_name(Val3 gval,
 	   Val3 fval)
 {
-  if (gval == kValX) {
-    if (fval == kValX)      return "X/X";
-    else if (fval == kVal0) return "X/0";
-    else if (fval == kVal1) return "X/1";
-  }
-  else if (gval == kVal0) {
-    if (fval == kValX)      return "0/X";
-    else if (fval == kVal0) return "0/0";
-    else if (fval == kVal1) return "0/1";
-  }
-  else if (gval == kVal1) {
-    if (fval == kValX)      return "1/X";
-    else if (fval == kVal0) return "1/0";
-    else if (fval == kVal1) return "1/1";
+  switch ( gval ) {
+  case Val3::_X :
+    switch ( fval ) {
+    case Val3::_X: return "X/X";
+    case Val3::_0: return "X/0";
+    case Val3::_1: return "X/1";
+    }
+    break;
+  case Val3::_0:
+    switch ( fval ) {
+    case Val3::_X: return "0/X";
+    case Val3::_0: return "0/0";
+    case Val3::_1: return "0/1";
+    }
+    break;
+  case Val3::_1:
+    switch ( fval ) {
+    case Val3::_X: return "1/X";
+    case Val3::_0: return "1/0";
+    case Val3::_1: return "1/1";
+    }
+    break;
   }
   return "illegal data";
 }
@@ -171,19 +175,52 @@ operator<<(ostream& s,
   return s << value_name1(val);
 }
 
-// @brief SatBool3 から Val3 への変換
+/// @brief SatBool3 から Val3 への変換
 inline
 Val3
 bool3_to_val3(SatBool3 bval)
 {
   switch ( bval ) {
-  case kB3True:  return kVal1;
-  case kB3False: return kVal0;
-  case kB3X:     return kValX;
+  case SatBool3::True:  return Val3::_1;
+  case SatBool3::False: return Val3::_0;
+  case SatBool3::X:     return Val3::_X;
   default: break;
   }
   ASSERT_NOT_REACHED;
-  return kValX;
+  return Val3::_X;
+}
+
+
+//////////////////////////////////////////////////////////////////////
+// cython とのインターフェイス用の暫定的な関数
+//////////////////////////////////////////////////////////////////////
+
+/// @brief Val3 を int に変換する．
+inline
+int
+__val3_to_int(Val3 val)
+{
+  switch ( val ) {
+  case Val3::_X: return 0;
+  case Val3::_0: return 1;
+  case Val3::_1: return 2;
+  }
+  ASSERT_NOT_REACHED;
+  return 0;
+}
+
+/// @brief int を Val3 に変換する．
+inline
+Val3
+__int_to_val3(int val)
+{
+  switch ( val ) {
+  case 0: return Val3::_X;
+  case 1: return Val3::_0;
+  case 2: return Val3::_1;
+  }
+  ASSERT_NOT_REACHED;
+  return Val3::_X;
 }
 
 END_NAMESPACE_YM_SATPG

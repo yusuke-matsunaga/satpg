@@ -39,12 +39,12 @@ public:
   /// @param[in] bnnode_id BnNode のID番号
   /// @param[in] tpgnode TpgNode
   void
-  reg(ymuint bnnode_id,
+  reg(int bnnode_id,
       TpgNode* tpgnode);
 
   /// @brief 対応するノードを得る．
   TpgNode*
-  get(ymuint bnnode_id) const;
+  get(int bnnode_id) const;
 
 
 private:
@@ -59,7 +59,7 @@ private:
   //////////////////////////////////////////////////////////////////////
 
   // BnNode::id() をキーにした配列
-  HashMap<ymuint, TpgNode*> mNodeMap;
+  HashMap<int, TpgNode*> mNodeMap;
 
 };
 

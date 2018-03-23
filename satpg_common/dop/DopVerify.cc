@@ -74,6 +74,7 @@ DopVerify::operator()(const TpgFault* f,
     mResult.add_good(f);
   }
   else {
+#warning "TODO: tv -> assign_list への変換を行う．"
     //mResult.add_error(f, assign_list);
   }
 }

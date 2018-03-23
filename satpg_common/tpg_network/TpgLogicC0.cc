@@ -3,12 +3,12 @@
 /// @brief TpgLogicC0 の実装ファイル
 /// @author Yusuke Matsunaga (松永 裕介)
 ///
-/// Copyright (C) 2016 Yusuke Matsunaga
+/// Copyright (C) 2016, 2018 Yusuke Matsunaga
 /// All rights reserved.
 
 
 #include "TpgLogicC0.h"
-#include "ym/SatSolver.h"
+#include "GateType.h"
 
 
 BEGIN_NAMESPACE_YM_SATPG
@@ -19,7 +19,7 @@ BEGIN_NAMESPACE_YM_SATPG
 
 // @brief コンストラクタ
 // @param[in] id ID番号
-TpgLogicC0::TpgLogicC0(ymuint id) :
+TpgLogicC0::TpgLogicC0(int id) :
   TpgLogic0(id)
 {
 }
@@ -35,7 +35,7 @@ TpgLogicC0::~TpgLogicC0()
 GateType
 TpgLogicC0::gate_type() const
 {
-  return kGateCONST0;
+  return GateType::CONST0;
 }
 
 END_NAMESPACE_YM_SATPG

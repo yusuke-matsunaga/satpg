@@ -14,7 +14,7 @@
 #include "ValMap_model.h"
 
 
-BEGIN_NAMESPACE_YM_SATPG
+BEGIN_NAMESPACE_YM_SATPG_STRUCTENC
 
 BEGIN_NONAMESPACE
 
@@ -26,8 +26,13 @@ END_NONAMESPACE
 // クラス Extractor
 //////////////////////////////////////////////////////////////////////
 
-// @brief コンストラクタ
-Extractor::Extractor()
+// @param[in] gvar_map 正常値の変数番号のマップ
+// @param[in] fvar_map 故障値の変数番号のマップ
+// @param[in] model SATソルバの作ったモデル
+Extractor::Extractor(const VidMap& gvar_map,
+		     const VidMap& fvar_map,
+		     const vector<SatBool3>& model) :
+  mValMap(gvar_map, fvar_map, model)
 {
 }
 
@@ -38,15 +43,11 @@ Extractor::~Extractor()
 
 // @brief 値割当を求める．
 // @param[in] root 起点となるノード
-// @param[in] val_map 値割り当ての結果を保持するオブジェクト
 // @param[out] assign_list 値の割当リスト
 void
 Extractor::operator()(const TpgNode* root,
-		      const ValMap& val_map,
 		      NodeValList& assign_list)
 {
-  mValMapPtr = &val_map;
-
   // root の TFO (fault cone) に印をつける．
   // 同時に故障差の伝搬している外部出力のリストを作る．
   mFconeMark.clear();
@@ -66,9 +67,9 @@ Extractor::operator()(const TpgNode* root,
   if ( debug ) {
     ostream& dbg_out = cout;
     dbg_out << "Extract at " << root->name() << endl;
-    ymuint n = assign_list.size();
+    int n = assign_list.size();
     const char* comma = "";
-    for (ymuint i = 0; i < n; ++ i) {
+    for (int i = 0; i < n; ++ i) {
       NodeVal nv = assign_list[i];
       const TpgNode* node = nv.node();
       dbg_out << comma << "Node#" << node->id()
@@ -100,8 +101,8 @@ Extractor::mark_tfo(const TpgNode* node)
     }
   }
 
-  ymuint nfo = node->fanout_num();
-  for (ymuint i = 0; i < nfo; ++ i) {
+  int nfo = node->fanout_num();
+  for (int i = 0; i < nfo; ++ i) {
     const TpgNode* onode = node->fanout(i);
     mark_tfo(onode);
   }
@@ -121,8 +122,8 @@ Extractor::record_sensitized_node(const TpgNode* node,
 
   ASSERT_COND( gval(node) != fval(node) );
 
-  ymuint ni = node->fanin_num();
-  for (ymuint i = 0; i < ni; ++ i) {
+  int ni = node->fanin_num();
+  for (int i = 0; i < ni; ++ i) {
     const TpgNode* inode = node->fanin(i);
     if ( mFconeMark.check(inode->id()) ) {
       if ( gval(inode) != fval(inode) ) {
@@ -152,13 +153,13 @@ Extractor::record_masking_node(const TpgNode* node,
 
   ASSERT_COND ( gval(node) == fval(node) );
 
-  ymuint ni = node->fanin_num();
+  int ni = node->fanin_num();
   // ファンインには sensitized node があって
   // side input がある場合．
   bool has_cval = false;
   bool has_snode = false;
   const TpgNode* cnode = nullptr;
-  for (ymuint i = 0; i < ni; ++ i) {
+  for (int i = 0; i < ni; ++ i) {
     const TpgNode* inode = node->fanin(i);
     if ( mFconeMark.check(inode->id()) ) {
       if ( gval(inode) != fval(inode) ) {
@@ -185,7 +186,7 @@ Extractor::record_masking_node(const TpgNode* node,
   // ここに来たということは全てのファンインに故障差が伝搬していないか
   // 複数のファンインの故障差が打ち消し合っているのですべてのファンイン
   // に再帰する．
-  for (ymuint i = 0; i < ni; ++ i) {
+  for (int i = 0; i < ni; ++ i) {
     const TpgNode* inode = node->fanin(i);
     if ( mFconeMark.check(inode->id()) ) {
       if ( gval(inode) != fval(inode) ) {
@@ -215,8 +216,8 @@ Extractor::record_side_input(const TpgNode* node,
   }
   mRecorded.add(node->id());
 
-  bool val = (gval(node) == kVal1);
+  bool val = (gval(node) == Val3::_1);
   assign_list.add(node, 1, val);
 }
 
-END_NAMESPACE_YM_SATPG
+END_NAMESPACE_YM_SATPG_STRUCTENC

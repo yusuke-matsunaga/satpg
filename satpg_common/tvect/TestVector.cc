@@ -34,10 +34,10 @@ TestVector::~TestVector()
 }
 
 // @brief X の個数を得る．
-ymuint
+int
 TestVector::x_count() const
 {
-  ymuint ans = mInputVector->x_count();
+  int ans = mInputVector->x_count();
   if ( mDffVector != nullptr ) {
     ans += mDffVector->x_count();
   }
@@ -188,21 +188,21 @@ TestVector::set(const InputVector& input_vector,
 void
 TestVector::set_from_assign_list(const NodeValList& assign_list)
 {
-  ymuint n = assign_list.size();
-  for (ymuint i = 0; i < n; ++ i) {
+  int n = assign_list.size();
+  for (int i = 0; i < n; ++ i) {
     NodeVal nv = assign_list[i];
-    Val3 val = nv.val() ? kVal1 : kVal0;
+    Val3 val = nv.val() ? Val3::_1 : Val3::_0;
     const TpgNode* node = nv.node();
     ASSERT_COND( node->is_ppi() );
-    if ( fault_type() == kFtStuckAt ) {
+    if ( fault_type() == FaultType::StuckAt ) {
       ASSERT_COND( nv.time() == 1 );
 
-      ymuint id = node->input_id();
+      int id = node->input_id();
       set_ppi_val(id, val);
     }
     else {
       if ( node->is_primary_input() ) {
-	ymuint id = node->input_id();
+	int id = node->input_id();
 	if ( nv.time() == 1 ) {
 	  set_aux_input_val(id, val);
 	}
@@ -213,7 +213,7 @@ TestVector::set_from_assign_list(const NodeValList& assign_list)
       else if ( node->is_dff_output() ) {
 	ASSERT_COND( nv.time() == 0 );
 
-	ymuint id = node->dff()->id();
+	int id = node->dff()->id();
 	set_dff_val(id, val);
       }
     }

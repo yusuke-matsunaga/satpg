@@ -16,9 +16,10 @@
 #include "ValMap_model.h"
 #include "Extractor.h"
 #include "NodeValList.h"
+#include "GateType.h"
 
 
-BEGIN_NAMESPACE_YM_SATPG
+BEGIN_NAMESPACE_YM_SATPG_STRUCTENC
 
 BEGIN_NONAMESPACE
 
@@ -45,12 +46,12 @@ MffcPropCone::MffcPropCone(StructEnc& struct_sat,
   mElemArray(mffc->elem_num()),
   mElemVarArray(mffc->elem_num())
 {
-  for (ymuint i = 0; i < mffc->elem_num(); ++ i ) {
+  for (int i = 0; i < mffc->elem_num(); ++ i ) {
     const TpgFFR* ffr = mffc->elem(i);
     mElemArray[i] = ffr->root();
     ASSERT_COND( ffr->root() != nullptr );
-    ymuint nf = ffr->fault_num();
-    for (ymuint j = 0; j < nf; ++ j) {
+    int nf = ffr->fault_num();
+    for (int j = 0; j < nf; ++ j) {
       const TpgFault* f = ffr->fault(j);
       const TpgNode* node = f->tpg_onode()->ffr_root();
       mElemPosMap.add(node->id(), i);
@@ -73,9 +74,8 @@ MffcPropCone::extract(const vector<SatBool3>& model,
 		      NodeValList& assign_list)
 {
   // 実際の処理は Extractor が行う．
-  ValMap_model val_map(gvar_map(), fvar_map(), model);
-  Extractor extractor;
-  extractor(root, val_map, assign_list);
+  Extractor extractor(gvar_map(), fvar_map(), model);
+  extractor(root, assign_list);
 }
 
 // @brief 関係するノードの変数を作る．
@@ -93,7 +93,7 @@ MffcPropCone::make_cnf()
 
   // 各FFRの根にXORゲートを挿入した故障回路を作る．
   // そのXORをコントロールする入力変数を作る．
-  for (ymuint i = 0; i < mElemArray.size(); ++ i) {
+  for (int i = 0; i < mElemArray.size(); ++ i) {
     mElemVarArray[i] = solver().new_variable();
 
     if ( debug_mffccone ) {
@@ -104,15 +104,15 @@ MffcPropCone::make_cnf()
   // mElemArray[] に含まれるノードと root の間にあるノードを
   // 求め，同時に変数を割り当てる．
   vector<const TpgNode*> node_list;
-  HashMap<ymuint, ymuint> elem_map;
-  for (ymuint i = 0; i < mElemArray.size(); ++ i) {
+  HashMap<int, int> elem_map;
+  for (int i = 0; i < mElemArray.size(); ++ i) {
     const TpgNode* node = mElemArray[i];
     elem_map.add(node->id(), i);
     if ( node == root_node() ) {
       continue;
     }
-    ymuint nfo = node->fanout_num();
-    for (ymuint i = 0; i < nfo; ++ i) {
+    int nfo = node->fanout_num();
+    for (int i = 0; i < nfo; ++ i) {
       const TpgNode* onode = node->fanout(i);
       if ( fvar(onode) == gvar(onode) ) {
 	SatVarId var = solver().new_variable();
@@ -125,13 +125,13 @@ MffcPropCone::make_cnf()
       }
     }
   }
-  for (ymuint rpos = 0; rpos < node_list.size(); ++ rpos) {
+  for (int rpos = 0; rpos < node_list.size(); ++ rpos) {
     const TpgNode* node = node_list[rpos];
     if ( node == root_node() ) {
       continue;
     }
-    ymuint nfo = node->fanout_num();
-    for (ymuint i = 0; i < nfo; ++ i) {
+    int nfo = node->fanout_num();
+    for (int i = 0; i < nfo; ++ i) {
       const TpgNode* onode = node->fanout(i);
       if ( fvar(onode) == gvar(onode) ) {
 	SatVarId var = solver().new_variable();
@@ -148,7 +148,7 @@ MffcPropCone::make_cnf()
 
   // 最も入力よりにある FFR の根のノードの場合
   // 正常回路と制御変数のXORをとったものを故障値とする．
-  for (ymuint i = 0; i < mElemArray.size(); ++ i) {
+  for (int i = 0; i < mElemArray.size(); ++ i) {
     const TpgNode* node = mElemArray[i];
     if ( fvar(node) != gvar(node) ) {
       // このノードは入力側ではない．
@@ -162,10 +162,10 @@ MffcPropCone::make_cnf()
   }
 
   // node_list に含まれるノードの入出力の関係を表すCNF式を作る．
-  for (ymuint rpos = 0; rpos < node_list.size(); ++ rpos) {
+  for (int rpos = 0; rpos < node_list.size(); ++ rpos) {
     const TpgNode* node = node_list[rpos];
     SatVarId ovar = fvar(node);
-    ymuint elem_pos;
+    int elem_pos;
     if ( elem_map.find(node->id(), elem_pos) ) {
       // 実際のゲートの出力と ovar の間に XOR ゲートを挿入する．
       // XORの一方の入力は mElemVarArray[elem_pos]
@@ -182,8 +182,8 @@ MffcPropCone::make_cnf()
       DEBUG_OUT << "Node#" << node->id() << ": ofvar("
 		<< ovar << ") := " << node->gate_type()
 		<< "(";
-      ymuint ni = node->fanin_num();
-      for (ymuint i = 0; i < ni; ++ i) {
+      int ni = node->fanin_num();
+      for (int i = 0; i < ni; ++ i) {
 	const TpgNode* inode = node->fanin(i);
 	DEBUG_OUT << " " << fvar(inode);
       }
@@ -196,7 +196,7 @@ MffcPropCone::make_cnf()
 // @param[in] elem_pos 要素番号
 // @param[in] ovar ゲートの出力の変数
 void
-MffcPropCone::inject_fault(ymuint elem_pos,
+MffcPropCone::inject_fault(int elem_pos,
 			   SatVarId ovar)
 {
   SatLiteral lit1(ovar);
@@ -220,7 +220,7 @@ MffcPropCone::make_prop_condition(const TpgNode* root,
 				  vector<SatLiteral>& assumptions)
 {
   // root のある FFR を活性化する条件を作る．
-  ymuint ffr_id;
+  int ffr_id;
   bool stat = mElemPosMap.find(root->id(), ffr_id);
   if ( !stat ) {
     cerr << "Error[MffcPropCone::make_prop_condition()]: "
@@ -228,11 +228,11 @@ MffcPropCone::make_prop_condition(const TpgNode* root,
     return;
   }
 
-  ymuint ffr_num = mElemArray.size();
+  int ffr_num = mElemArray.size();
   if ( ffr_num > 1 ) {
     // FFR の根の出力に故障を挿入する．
     assumptions.reserve(assumptions.size() + ffr_num);
-    for (ymuint i = 0; i < ffr_num; ++ i) {
+    for (int i = 0; i < ffr_num; ++ i) {
       SatVarId evar = mElemVarArray[i];
       bool inv = (i != ffr_id);
       assumptions.push_back(SatLiteral(evar, inv));
@@ -240,4 +240,4 @@ MffcPropCone::make_prop_condition(const TpgNode* root,
   }
 }
 
-END_NAMESPACE_YM_SATPG
+END_NAMESPACE_YM_SATPG_STRUCTENC

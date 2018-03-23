@@ -10,9 +10,8 @@
 
 
 #include "satpg.h"
-#include "Val3.h"
-#include "TpgDff.h"
-#include "TpgNode.h"
+//#include "TpgDff.h"
+//#include "TpgNode.h"
 
 #include "ym/bnet.h"
 #include "ym/clib.h"
@@ -66,7 +65,7 @@ public:
   //////////////////////////////////////////////////////////////////////
 
   /// @brief ノード数を得る．
-  ymuint
+  int
   node_num() const;
 
   /// @brief ノードを得る．
@@ -77,10 +76,10 @@ public:
   /// @endcode
   /// の関係が成り立つ．
   const TpgNode*
-  node(ymuint id) const;
+  node(int id) const;
 
   /// @brief 外部入力数を得る．
-  ymuint
+  int
   input_num() const;
 
   /// @brief 外部入力ノードを得る．
@@ -91,10 +90,10 @@ public:
   /// @endcode
   /// の関係が成り立つ．
   const TpgNode*
-  input(ymuint pos) const;
+  input(int pos) const;
 
   /// @brief 外部出力数を得る．
-  ymuint
+  int
   output_num() const;
 
   /// @brief 外部出力ノードを得る．
@@ -105,7 +104,7 @@ public:
   /// @endcode
   /// の関係が成り立つ．
   const TpgNode*
-  output(ymuint pos) const;
+  output(int pos) const;
 
   /// @brief TFIサイズの降順で整列した順番で外部出力ノードを取り出す．
   /// @param[in] pos 位置番号 ( 0 <= pos < output_num() )
@@ -115,12 +114,12 @@ public:
   /// @endcode
   /// の関係が成り立つ．
   const TpgNode*
-  output2(ymuint pos) const;
+  output2(int pos) const;
 
   /// @brief スキャン方式の擬似外部入力数を得る．
   ///
   /// = input_num() + dff_num()
-  ymuint
+  int
   ppi_num() const;
 
   /// @brief スキャン方式の擬似外部入力を得る．
@@ -131,12 +130,12 @@ public:
   /// @endcode
   /// の関係が成り立つ．
   const TpgNode*
-  ppi(ymuint pos) const;
+  ppi(int pos) const;
 
   /// @brief スキャン方式の擬似外部出力数を得る．
   ///
   /// = output_num() + dff_num()
-  ymuint
+  int
   ppo_num() const;
 
   /// @brief スキャン方式の擬似外部出力を得る．
@@ -147,28 +146,28 @@ public:
   /// @endcode
   /// の関係が成り立つ．
   const TpgNode*
-  ppo(ymuint pos) const;
+  ppo(int pos) const;
 
   /// @brief MFFC 数を返す．
-  ymuint
+  int
   mffc_num() const;
 
   /// @brief MFFC を返す．
   /// @param[in] pos 位置番号 ( 0 <= pos < mffc_num() )
   const TpgMFFC*
-  mffc(ymuint pos) const;
+  mffc(int pos) const;
 
   /// @brief FFR 数を返す．
-  ymuint
+  int
   ffr_num() const;
 
   /// @brief FFR を返す．
   /// @param[in] pos 位置番号 ( 0 <= pos < ffr_num() )
   const TpgFFR*
-  ffr(ymuint pos) const;
+  ffr(int pos) const;
 
   /// @brief DFF数を得る．
-  ymuint
+  int
   dff_num() const;
 
   /// @brief DFF を得る．
@@ -179,20 +178,20 @@ public:
   /// @endcode
   /// の関係が成り立つ．
   const TpgDff*
-  dff(ymuint pos) const;
+  dff(int pos) const;
 
   /// @brief 故障IDの最大値+1を返す．
-  ymuint
+  int
   max_fault_id() const;
 
   /// @brief 全代表故障数を返す．
-  ymuint
+  int
   rep_fault_num() const;
 
   /// @brief 代表故障を返す．
   /// @param[in] pos 位置番号 ( 0 <= pos < rep_fault_num() )
   const TpgFault*
-  rep_fault(ymuint pos) const;
+  rep_fault(int pos) const;
 
 
 public:
@@ -238,7 +237,7 @@ private:
   struct InodeInfo
   {
     InodeInfo(TpgNode* node = nullptr,
-	      ymuint pos = 0) :
+	      int pos = 0) :
       mNode(node),
       mPos(pos)
     {
@@ -246,14 +245,14 @@ private:
 
     void
     set(TpgNode* node,
-	ymuint pos)
+	int pos)
     {
       mNode = node;
       mPos = pos;
     }
 
     TpgNode* mNode;
-    ymuint mPos;
+    int mPos;
   };
 
 
@@ -272,9 +271,9 @@ private:
   /// @param[in] fanout_num ファンアウト数
   /// @return 生成したノードを返す．
   TpgNode*
-  make_input_node(ymuint iid,
+  make_input_node(int iid,
 		  const string& name,
-		  ymuint fanout_num);
+		  int fanout_num);
 
   /// @brief 出力ノードを生成する．
   /// @param[in] oid 出力の番号
@@ -282,7 +281,7 @@ private:
   /// @param[in] inode 入力のノード
   /// @return 生成したノードを返す．
   TpgNode*
-  make_output_node(ymuint oid,
+  make_output_node(int oid,
 		   const string& name,
 		   TpgNode* inode);
 
@@ -293,7 +292,7 @@ private:
   /// @param[in] inode 入力のノード
   /// @return 生成したノードを返す．
   TpgNode*
-  make_dff_input_node(ymuint oid,
+  make_dff_input_node(int oid,
 		      TpgDff* dff,
 		      const string& name,
 		      TpgNode* inode);
@@ -305,10 +304,10 @@ private:
   /// @param[in] fanout_num ファンアウト数
   /// @return 生成したノードを返す．
   TpgNode*
-  make_dff_output_node(ymuint iid,
+  make_dff_output_node(int iid,
 		       TpgDff* dff,
 		       const string& name,
-		       ymuint fanout_num);
+		       int fanout_num);
 
   /// @brief DFFのクロック端子を生成する．
   /// @param[in] dff 接続しているDFF
@@ -350,7 +349,7 @@ private:
   make_logic_node(const string& name,
 		  const TpgGateInfo* node_info,
 		  const vector<TpgNode*>& fanin_list,
-		  ymuint fanout_num);
+		  int fanout_num);
 
   /// @brief 論理式から TpgNode の木を生成する．
   /// @param[in] name ノード名
@@ -367,7 +366,7 @@ private:
 		 const Expr& expr,
 		 const vector<TpgNode*>& leaf_nodes,
 		 vector<InodeInfo>& inode_array,
-		 ymuint fanout_num);
+		 int fanout_num);
 
   /// @brief 組み込み型の論理ゲートを生成する．
   /// @param[in] name ノード名
@@ -379,7 +378,23 @@ private:
   make_prim_node(const string& name,
 		 GateType type,
 		 const vector<TpgNode*>& fanin_list,
-		 ymuint fanout_num);
+		 int fanout_num);
+
+  /// @brief バッファを生成する．
+  /// @param[in] fanin ファンインのノード
+  /// @param[in] fanout_num ファンアウト数
+  /// @return 生成したノードを返す．
+  TpgNode*
+  make_buff_node(TpgNode* fanin,
+		 int fanout_num);
+
+  /// @brief インバーターを生成する．
+  /// @param[in] fanin ファンインのノード
+  /// @param[in] fanout_num ファンアウト数
+  /// @return 生成したノードを返す．
+  TpgNode*
+  make_not_node(TpgNode* fanin,
+		int fanout_num);
 
   /// @brief 出力の故障を作る．
   /// @param[in] name 故障位置のノード名
@@ -401,7 +416,7 @@ private:
   /// 複合型の場合には異なる．
   void
   new_ifault(const char* name,
-	     ymuint ipos,
+	     int ipos,
 	     int val,
 	     const InodeInfo& inode_info,
 	     TpgFault* rep);
@@ -410,7 +425,7 @@ private:
   /// @param[in] id ノードID ( 0 <= id < node_num() )
   /// @param[in] val 故障値 ( 0 / 1 )
   TpgFault*
-  _node_output_fault(ymuint id,
+  _node_output_fault(int id,
 		     int val);
 
   /// @brief 入力の故障を得る．
@@ -418,9 +433,9 @@ private:
   /// @param[in] val 故障値 ( 0 / 1 )
   /// @param[in] pos 入力の位置番号
   TpgFault*
-  _node_input_fault(ymuint id,
+  _node_input_fault(int id,
 		    int val,
-		    ymuint pos);
+		    int pos);
 
 
   /// @brief 代表故障を設定する．
@@ -465,19 +480,19 @@ private:
   SimpleAlloc mAlloc;
 
   // 外部入力数
-  ymuint mInputNum;
+  int mInputNum;
 
   // 外部出力数
-  ymuint mOutputNum;
+  int mOutputNum;
 
   // DFF数
-  ymuint mDffNum;
+  int mDffNum;
 
   // DFFの実体の配列
   TpgDff* mDffArray;
 
   // ノード数(mNodeArrayの要素数)
-  ymuint mNodeNum;
+  int mNodeNum;
 
   // ノードの配列
   TpgNode** mNodeArray;
@@ -495,22 +510,22 @@ private:
   TpgNode** mPPOArray2;
 
   // MFFC 数
-  ymuint mMffcNum;
+  int mMffcNum;
 
   // MFFC の本体の配列
   TpgMFFC* mMffcArray;
 
   // FFR 数
-  ymuint mFfrNum;
+  int mFfrNum;
 
   // FFR の本体の配列
   TpgFFR* mFfrArray;
 
   // 全故障数
-  ymuint mFaultNum;
+  int mFaultNum;
 
   // 全代表故障数
-  ymuint mRepFaultNum;
+  int mRepFaultNum;
 
   // 代表故障の配列
   const TpgFault** mRepFaultArray;
@@ -531,7 +546,7 @@ print_network(ostream& s,
 
 // @brief ノード数を得る．
 inline
-ymuint
+int
 TpgNetwork::node_num() const
 {
   return mNodeNum;
@@ -539,7 +554,7 @@ TpgNetwork::node_num() const
 
 // @brief 外部入力数を得る．
 inline
-ymuint
+int
 TpgNetwork::input_num() const
 {
   return mInputNum;
@@ -549,16 +564,16 @@ TpgNetwork::input_num() const
 // @param[in] pos 位置番号 ( 0 <= pos < input_num() )
 inline
 const TpgNode*
-TpgNetwork::input(ymuint pos) const
+TpgNetwork::input(int pos) const
 {
-  ASSERT_COND( pos < input_num() );
+  ASSERT_COND( pos >= 0 && pos < input_num() );
 
   return mPPIArray[pos];
 }
 
 // @brief 外部出力数を得る．
 inline
-ymuint
+int
 TpgNetwork::output_num() const
 {
   return mOutputNum;
@@ -568,9 +583,9 @@ TpgNetwork::output_num() const
 // @param[in] pos 位置番号 ( 0 <= pos < output_num() )
 inline
 const TpgNode*
-TpgNetwork::output(ymuint pos) const
+TpgNetwork::output(int pos) const
 {
-  ASSERT_COND( pos < output_num() );
+  ASSERT_COND( pos >= 0 && pos < output_num() );
 
   return mPPIArray[pos];
 }
@@ -578,36 +593,26 @@ TpgNetwork::output(ymuint pos) const
 // @brief サイズの降順で整列した順番で外部出力ノードを取り出す．
 inline
 const TpgNode*
-TpgNetwork::output2(ymuint pos) const
+TpgNetwork::output2(int pos) const
 {
-  ASSERT_COND( pos < output_num() );
+  ASSERT_COND( pos >= 0 && pos < output_num() );
 
   return mPPOArray2[pos];
 }
 
 // @brief DFF数を得る．
 inline
-ymuint
+int
 TpgNetwork::dff_num() const
 {
   return mDffNum;
-}
-
-// @brief DFF を得る．
-// @param[in] pos 位置番号 ( 0 <= pos < dff_num() )
-inline
-const TpgDff*
-TpgNetwork::dff(ymuint pos) const
-{
-  ASSERT_COND( pos < dff_num() );
-  return &mDffArray[pos];
 }
 
 // @brief スキャン方式の擬似外部入力数を得る．
 //
 // = input_num() + dff_num()
 inline
-ymuint
+int
 TpgNetwork::ppi_num() const
 {
   return mInputNum + mDffNum;
@@ -617,9 +622,9 @@ TpgNetwork::ppi_num() const
 // @param[in] pos 位置番号 ( 0 <= pos < ppi_num() )
 const inline
 TpgNode*
-TpgNetwork::ppi(ymuint pos) const
+TpgNetwork::ppi(int pos) const
 {
-  ASSERT_COND( pos < ppi_num() );
+  ASSERT_COND( pos >= 0 && pos < ppi_num() );
 
   return mPPIArray[pos];
 }
@@ -628,7 +633,7 @@ TpgNetwork::ppi(ymuint pos) const
 //
 // = output_num() + dff_num()
 inline
-ymuint
+int
 TpgNetwork::ppo_num() const
 {
   return mOutputNum + mDffNum;
@@ -638,9 +643,9 @@ TpgNetwork::ppo_num() const
 // @param[in] pos 位置番号 ( 0 <= pos < ppo_num() )
 inline
 const TpgNode*
-TpgNetwork::ppo(ymuint pos) const
+TpgNetwork::ppo(int pos) const
 {
-  ASSERT_COND( pos < ppo_num() );
+  ASSERT_COND( pos >= 0 && pos < ppo_num() );
 
   return mPPOArray[pos];
 }
@@ -648,15 +653,16 @@ TpgNetwork::ppo(ymuint pos) const
 // @brief ノードを得る．
 inline
 const TpgNode*
-TpgNetwork::node(ymuint pos) const
+TpgNetwork::node(int pos) const
 {
-  ASSERT_COND( pos < mNodeNum );
+  ASSERT_COND( pos >= 0 && pos < mNodeNum );
+
   return mNodeArray[pos];
 }
 
 // @brief 故障IDの最大値+1を返す．
 inline
-ymuint
+int
 TpgNetwork::max_fault_id() const
 {
   return mFaultNum;
@@ -664,7 +670,7 @@ TpgNetwork::max_fault_id() const
 
 // @brief MFFC 数を返す．
 inline
-ymuint
+int
 TpgNetwork::mffc_num() const
 {
   return mMffcNum;
@@ -672,7 +678,7 @@ TpgNetwork::mffc_num() const
 
 // @brief FFR 数を返す．
 inline
-ymuint
+int
 TpgNetwork::ffr_num() const
 {
   return mFfrNum;
@@ -680,7 +686,7 @@ TpgNetwork::ffr_num() const
 
 // @brief 全代表故障数を返す．
 inline
-ymuint
+int
 TpgNetwork::rep_fault_num() const
 {
   return mRepFaultNum;
@@ -690,9 +696,10 @@ TpgNetwork::rep_fault_num() const
 // @param[in] pos 位置番号 ( 0 <= pos < rep_fault_num() )
 inline
 const TpgFault*
-TpgNetwork::rep_fault(ymuint pos) const
+TpgNetwork::rep_fault(int pos) const
 {
-  ASSERT_COND( pos < rep_fault_num() );
+  ASSERT_COND( pos >= 0 && pos < rep_fault_num() );
+
   return mRepFaultArray[pos];
 }
 

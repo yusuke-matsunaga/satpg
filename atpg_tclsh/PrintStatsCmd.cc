@@ -47,7 +47,7 @@ PrintStatsCmd::cmd_proc(TclObjVector& objv)
 {
   // このコマンドはファイル名のみを引数に取る．
   // 引数がなければ標準出力に出す．
-  ymuint objc = objv.size();
+  int objc = objv.size();
   if ( objc > 2 ) {
     print_usage();
     return TCL_ERROR;
@@ -80,17 +80,17 @@ PrintStatsCmd::cmd_proc(TclObjVector& objv)
 
   TpgFaultMgr& fmgr = mPoptTd->is_specified() ? _td_fault_mgr() : _sa_fault_mgr();
 
-  ymuint n_all = _network().max_fault_id();
-  ymuint n_rep = _network().rep_fault_num();
-  ymuint n_remain = 0;
-  ymuint n_untest = 0;
-  ymuint n_det = 0;
-  for (ymuint i = 0; i < n_rep; ++ i) {
+  int n_all = _network().max_fault_id();
+  int n_rep = _network().rep_fault_num();
+  int n_remain = 0;
+  int n_untest = 0;
+  int n_det = 0;
+  for (int i = 0; i < n_rep; ++ i) {
     const TpgFault* fault = _network().rep_fault(i);
     switch ( fmgr.status(fault) ) {
-    case kFsDetected:   ++ n_det; break;
-    case kFsUntestable: ++ n_untest; break;
-    case kFsUndetected: ++ n_remain; break;
+    case FaultStatus::Detected:   ++ n_det; break;
+    case FaultStatus::Untestable: ++ n_untest; break;
+    case FaultStatus::Undetected: ++ n_remain; break;
     default: break;
     }
   }

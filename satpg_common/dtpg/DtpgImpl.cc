@@ -148,49 +148,49 @@ DtpgImpl::gen_cnf_base()
 {
   // root の TFO を mNodeList に入れる．
   set_tfo_mark(mRoot);
-  for (ymuint rpos = 0; rpos < mNodeList.size(); ++ rpos) {
+  for (int rpos = 0; rpos < mNodeList.size(); ++ rpos) {
     const TpgNode* node = mNodeList[rpos];
-    if ( mFaultType == kFtTransitionDelay && node->is_dff_output() ) {
+    if ( mFaultType == FaultType::TransitionDelay && node->is_dff_output() ) {
       mDffList.push_back(node->dff());
     }
-    ymuint nfo = node->fanout_num();
-    for (ymuint i = 0; i < nfo; ++ i) {
+    int nfo = node->fanout_num();
+    for (int i = 0; i < nfo; ++ i) {
       const TpgNode* onode = node->fanout(i);
       set_tfo_mark(onode);
     }
   }
-  ymuint tfo_num = mNodeList.size();
+  int tfo_num = mNodeList.size();
 
   // TFO の TFI を mNodeList に入れる．
-  for (ymuint rpos = 0; rpos < mNodeList.size(); ++ rpos) {
+  for (int rpos = 0; rpos < mNodeList.size(); ++ rpos) {
     const TpgNode* node = mNodeList[rpos];
-    ymuint ni = node->fanin_num();
-    for (ymuint i = 0; i < ni; ++ i) {
+    int ni = node->fanin_num();
+    for (int i = 0; i < ni; ++ i) {
       const TpgNode* inode = node->fanin(i);
       set_tfi_mark(inode);
     }
   }
-  ymuint tfi_num = mNodeList.size();
+  int tfi_num = mNodeList.size();
 
   // TFI に含まれる DFF のさらに TFI を mNodeList2 に入れる．
   set_tfi2_mark(mRoot);
-  for (ymuint i = 0; i < mDffList.size(); ++ i) {
+  for (int i = 0; i < mDffList.size(); ++ i) {
     const TpgDff* dff = mDffList[i];
     const TpgNode* node = dff->input();
     mNodeList2.push_back(node);
   }
-  for (ymuint rpos = 0; rpos < mNodeList2.size(); ++ rpos) {
+  for (int rpos = 0; rpos < mNodeList2.size(); ++ rpos) {
     const TpgNode* node = mNodeList2[rpos];
-    ymuint ni = node->fanin_num();
-    for (ymuint i = 0; i < ni; ++ i) {
+    int ni = node->fanin_num();
+    for (int i = 0; i < ni; ++ i) {
       const TpgNode* inode = node->fanin(i);
       set_tfi2_mark(inode);
     }
   }
-  ymuint tfi2_num = mNodeList2.size();
+  int tfi2_num = mNodeList2.size();
 
   // TFO の部分に変数を割り当てる．
-  for (ymuint rpos = 0; rpos < tfo_num; ++ rpos) {
+  for (int rpos = 0; rpos < tfo_num; ++ rpos) {
     const TpgNode* node = mNodeList[rpos];
     SatVarId gvar = mSolver.new_variable();
     SatVarId fvar = mSolver.new_variable();
@@ -208,7 +208,7 @@ DtpgImpl::gen_cnf_base()
   }
 
   // TFI の部分に変数を割り当てる．
-  for (ymuint rpos = tfo_num; rpos < tfi_num; ++ rpos) {
+  for (int rpos = tfo_num; rpos < tfi_num; ++ rpos) {
     const TpgNode* node = mNodeList[rpos];
     SatVarId gvar = mSolver.new_variable();
 
@@ -222,7 +222,7 @@ DtpgImpl::gen_cnf_base()
   }
 
   // TFI2 の部分に変数を割り当てる．
-  for (ymuint rpos = 0; rpos < tfi2_num; ++ rpos) {
+  for (int rpos = 0; rpos < tfi2_num; ++ rpos) {
     const TpgNode* node = mNodeList2[rpos];
     SatVarId hvar = mSolver.new_variable();
 
@@ -237,7 +237,7 @@ DtpgImpl::gen_cnf_base()
   //////////////////////////////////////////////////////////////////////
   // 正常回路の CNF を生成
   //////////////////////////////////////////////////////////////////////
-  for (ymuint i = 0; i < tfi_num; ++ i) {
+  for (int i = 0; i < tfi_num; ++ i) {
     const TpgNode* node = mNodeList[i];
     make_node_cnf(node, GateLitMap_vid(node, mGvarMap));
 
@@ -245,7 +245,7 @@ DtpgImpl::gen_cnf_base()
       DEBUG_OUT << "Node#" << node->id() << ": gvar("
 		<< gvar(node) << ") := " << node->gate_type()
 		<< "(";
-      for (ymuint j = 0; j < node->fanin_num(); ++ j) {
+      for (int j = 0; j < node->fanin_num(); ++ j) {
 	const TpgNode* inode = node->fanin(j);
 	DEBUG_OUT << " " << gvar(inode);
       }
@@ -253,7 +253,7 @@ DtpgImpl::gen_cnf_base()
     }
   }
 
-  for (ymuint i = 0; i < mDffList.size(); ++ i) {
+  for (int i = 0; i < mDffList.size(); ++ i) {
     const TpgDff* dff = mDffList[i];
     const TpgNode* onode = dff->output();
     const TpgNode* inode = dff->input();
@@ -263,7 +263,7 @@ DtpgImpl::gen_cnf_base()
     mSolver.add_eq_rel(olit, ilit);
   }
 
-  for (ymuint i = 0; i < tfi2_num; ++ i) {
+  for (int i = 0; i < tfi2_num; ++ i) {
     const TpgNode* node = mNodeList2[i];
     make_node_cnf(node, GateLitMap_vid(node, mHvarMap));
 
@@ -271,7 +271,7 @@ DtpgImpl::gen_cnf_base()
       DEBUG_OUT << "Node#" << node->id() << ": hvar("
 		<< hvar(node) << ") := " << node->gate_type()
 		<< "(";
-      for (ymuint j = 0; j < node->fanin_num(); ++ j) {
+      for (int j = 0; j < node->fanin_num(); ++ j) {
 	const TpgNode* inode = node->fanin(j);
 	DEBUG_OUT << " " << hvar(inode);
       }
@@ -283,7 +283,7 @@ DtpgImpl::gen_cnf_base()
   //////////////////////////////////////////////////////////////////////
   // 故障回路の CNF を生成
   //////////////////////////////////////////////////////////////////////
-  for (ymuint i = 0; i < tfo_num; ++ i) {
+  for (int i = 0; i < tfo_num; ++ i) {
     const TpgNode* node = mNodeList[i];
     if ( node != mRoot ) {
       make_node_cnf(node, GateLitMap_vid(node, mFvarMap));
@@ -292,7 +292,7 @@ DtpgImpl::gen_cnf_base()
 	DEBUG_OUT << "Node#" << node->id() << ": fvar("
 		  << fvar(node) << ") := " << node->gate_type()
 		  << "(";
-	for (ymuint j = 0; j < node->fanin_num(); ++ j) {
+	for (int j = 0; j < node->fanin_num(); ++ j) {
 	  const TpgNode* inode = node->fanin(j);
 	  DEBUG_OUT << " " << fvar(inode);
 	}
@@ -307,9 +307,9 @@ DtpgImpl::gen_cnf_base()
   //////////////////////////////////////////////////////////////////////
   // 故障の検出条件
   //////////////////////////////////////////////////////////////////////
-  ymuint no = mOutputList.size();
+  int no = mOutputList.size();
   vector<SatLiteral> odiff(no);
-  for (ymuint i = 0; i < no; ++ i) {
+  for (int i = 0; i < no; ++ i) {
     const TpgNode* node = mOutputList[i];
     SatLiteral dlit(dvar(node));
     odiff[i] = dlit;
@@ -330,35 +330,35 @@ DtpgImpl::make_node_cnf(const TpgNode* node,
 			const GateLitMap& litmap)
 {
   SatLiteral olit = litmap.output();
-  ymuint ni = litmap.input_size();
+  int ni = litmap.input_size();
   switch ( node->gate_type() ) {
-  case kGateCONST0:
+  case GateType::CONST0:
     mSolver.add_clause(~olit);
     break;
 
-  case kGateCONST1:
+  case GateType::CONST1:
     mSolver.add_clause( olit);
     break;
 
-  case kGateINPUT:
+  case GateType::INPUT:
     // なにもしない．
     break;
 
-  case kGateBUFF:
+  case GateType::BUFF:
     {
       SatLiteral ilit = litmap.input(0);
       mSolver.add_eq_rel( ilit,  olit);
     }
     break;
 
-  case kGateNOT:
+  case GateType::NOT:
     {
       SatLiteral ilit = litmap.input(0);
       mSolver.add_eq_rel( ilit, ~olit);
     }
     break;
 
-  case kGateAND:
+  case GateType::AND:
     switch ( ni ) {
     case 2:
       {
@@ -391,7 +391,7 @@ DtpgImpl::make_node_cnf(const TpgNode* node,
       ASSERT_COND( ni > 4 );
       {
 	vector<SatLiteral> ilits(ni);
-	for (ymuint i = 0; i < ni; ++ i) {
+	for (int i = 0; i < ni; ++ i) {
 	  ilits[i] = litmap.input(i);
 	}
 	mSolver.add_andgate_rel( olit, ilits);
@@ -400,7 +400,7 @@ DtpgImpl::make_node_cnf(const TpgNode* node,
     }
     break;
 
-  case kGateNAND:
+  case GateType::NAND:
     switch ( ni ) {
     case 2:
       {
@@ -433,7 +433,7 @@ DtpgImpl::make_node_cnf(const TpgNode* node,
       ASSERT_COND( ni > 4 );
       {
 	vector<SatLiteral> ilits(ni);
-	for (ymuint i = 0; i < ni; ++ i) {
+	for (int i = 0; i < ni; ++ i) {
 	  ilits[i] = litmap.input(i);
 	}
 	mSolver.add_nandgate_rel( olit, ilits);
@@ -442,7 +442,7 @@ DtpgImpl::make_node_cnf(const TpgNode* node,
     }
     break;
 
-  case kGateOR:
+  case GateType::OR:
     switch ( ni ) {
     case 2:
       {
@@ -475,7 +475,7 @@ DtpgImpl::make_node_cnf(const TpgNode* node,
       ASSERT_COND( ni > 4 );
       {
 	vector<SatLiteral> ilits(ni);
-	for (ymuint i = 0; i < ni; ++ i) {
+	for (int i = 0; i < ni; ++ i) {
 	  ilits[i] = litmap.input(i);
 	}
 	mSolver.add_orgate_rel( olit, ilits);
@@ -484,7 +484,7 @@ DtpgImpl::make_node_cnf(const TpgNode* node,
     }
     break;
 
-  case kGateNOR:
+  case GateType::NOR:
     switch ( ni ) {
     case 2:
       {
@@ -517,7 +517,7 @@ DtpgImpl::make_node_cnf(const TpgNode* node,
       ASSERT_COND( ni > 4 );
       {
 	vector<SatLiteral> ilits(ni);
-	for (ymuint i = 0; i < ni; ++ i) {
+	for (int i = 0; i < ni; ++ i) {
 	  ilits[i] = litmap.input(i);
 	}
 	mSolver.add_norgate_rel( olit, ilits);
@@ -526,7 +526,7 @@ DtpgImpl::make_node_cnf(const TpgNode* node,
     }
     break;
 
-  case kGateXOR:
+  case GateType::XOR:
     ASSERT_COND( ni == 2 );
     {
       SatLiteral ilit0 = litmap.input(0);
@@ -535,7 +535,7 @@ DtpgImpl::make_node_cnf(const TpgNode* node,
     }
     break;
 
-  case kGateXNOR:
+  case GateType::XNOR:
     ASSERT_COND( ni == 2 );
     {
       SatLiteral ilit0 = litmap.input(0);
@@ -584,7 +584,7 @@ DtpgImpl::make_dchain_cnf(const TpgNode* node)
     if ( debug_dtpg ) {
       DEBUG_OUT << "dvar(Node#" << node->id() << ") -> ";
     }
-    ymuint nfo = node->fanout_num();
+    int nfo = node->fanout_num();
     if ( nfo == 1 ) {
       SatLiteral odlit(mDvarMap(node->fanout(0)));
       mSolver.add_clause(~dlit, odlit);
@@ -595,7 +595,7 @@ DtpgImpl::make_dchain_cnf(const TpgNode* node)
     }
     else {
       vector<SatLiteral> tmp_lits(nfo + 1);
-      for (ymuint i = 0; i < nfo; ++ i) {
+      for (int i = 0; i < nfo; ++ i) {
 	const TpgNode* onode = node->fanout(i);
 	tmp_lits[i] = SatLiteral(mDvarMap(onode));
 
@@ -641,7 +641,7 @@ DtpgImpl::make_ffr_condition(const TpgFault* fault,
   bool val = (fault->val() == 0);
   add_assign(assign_list, inode, 1, val);
 
-  if ( mFaultType == kFtTransitionDelay ) {
+  if ( mFaultType == FaultType::TransitionDelay ) {
     // 1時刻前の値が逆の値である条件を作る．
     add_assign(assign_list, inode, 0, !val);
   }
@@ -651,9 +651,9 @@ DtpgImpl::make_ffr_condition(const TpgFault* fault,
     const TpgNode* onode = fault->tpg_onode();
     Val3 nval = onode->nval();
     if ( nval != kValX ) {
-      ymuint ni = onode->fanin_num();
+      int ni = onode->fanin_num();
       bool val = (nval == kVal1);
-      for (ymuint i = 0; i < ni; ++ i) {
+      for (int i = 0; i < ni; ++ i) {
 	const TpgNode* inode1 = onode->fanin(i);
 	if ( inode1 != inode ) {
 	  add_assign(assign_list, inode1, 1, val);
@@ -666,7 +666,7 @@ DtpgImpl::make_ffr_condition(const TpgFault* fault,
   for (const TpgNode* node = fault->tpg_onode(); node->fanout_num() == 1;
        node = node->fanout(0)) {
     const TpgNode* fonode = node->fanout(0);
-    ymuint ni = fonode->fanin_num();
+    int ni = fonode->fanin_num();
     if ( ni == 1 ) {
       continue;
     }
@@ -675,7 +675,7 @@ DtpgImpl::make_ffr_condition(const TpgFault* fault,
       continue;
     }
     bool val = (nval == kVal1);
-    for (ymuint i = 0; i < ni; ++ i) {
+    for (int i = 0; i < ni; ++ i) {
       const TpgNode* inode1 = fonode->fanin(i);
       if ( inode1 != node ) {
 	add_assign(assign_list, inode1, 1, val);
@@ -736,17 +736,17 @@ DtpgImpl::solve(const TpgFault* fault,
   make_ffr_condition(fault, assign_list);
 
   // assign_list の内容と assumptions を足したものを assumptions1 に入れる．
-  ymuint n0 = assumptions.size();
-  ymuint n = assign_list.size();
+  int n0 = assumptions.size();
+  int n = assign_list.size();
   vector<SatLiteral> assumptions1(n + n0);
-  for (ymuint i = 0; i < n; ++ i) {
+  for (int i = 0; i < n; ++ i) {
     NodeVal nv = assign_list[i];
     const TpgNode* node = nv.node();
     bool inv = !nv.val();
     SatVarId vid = (nv.time() == 0) ? hvar(node) : gvar(node);
     assumptions1[i] = SatLiteral(vid, inv);
   }
-  for (ymuint i = 0; i < n0; ++ i) {
+  for (int i = 0; i < n0; ++ i) {
     assumptions1[i + n] = assumptions[i];
   }
 
@@ -767,7 +767,7 @@ DtpgImpl::solve(const TpgFault* fault,
     timer.start();
 
     // バックトレースを行う．
-    const VidMap& hvar_map = mFaultType == kFtTransitionDelay ? mHvarMap : mGvarMap;
+    const VidMap& hvar_map = mFaultType == FaultType::TransitionDelay ? mHvarMap : mGvarMap;
     ValMap_model val_map(hvar_map, mGvarMap, mFvarMap, model);
     mBackTracer(assign_list, mOutputList, val_map, nodeval_list);
 

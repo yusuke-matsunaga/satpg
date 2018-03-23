@@ -5,7 +5,7 @@
 /// @brief TpgInput のヘッダファイル
 /// @author Yusuke Matsunaga (松永 裕介)
 ///
-/// Copyright (C) 2016 Yusuke Matsunaga
+/// Copyright (C) 2016, 2018 Yusuke Matsunaga
 /// All rights reserved.
 
 
@@ -21,13 +21,15 @@ BEGIN_NAMESPACE_YM_SATPG
 class TpgInput :
   public TpgPPI
 {
-public:
+  friend class TpgNodeFactory;
+
+private:
 
   /// @brief コンストラクタ
   /// @param[in] id ID番号
   /// @param[in] input_id 入力番号
-  TpgInput(ymuint id,
-	   ymuint input_id);
+  TpgInput(int id,
+	   int input_id);
 
   /// @brief デストラクタ
   virtual
@@ -42,7 +44,7 @@ public:
   /// @brief 外部入力タイプの時 true を返す．
   virtual
   bool
-  is_primary_input() const;
+  is_primary_input() const override;
 
 
 private:

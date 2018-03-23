@@ -37,16 +37,16 @@ public:
   //////////////////////////////////////////////////////////////////////
 
   /// @brief ベクタ長を返す．
-  ymuint
+  int
   vect_len() const;
 
   /// @brief 値を得る．
   /// @param[in] pos 位置番号 ( 0 <= pos < vect_len() )
   Val3
-  val(ymuint pos) const;
+  val(int pos) const;
 
   /// @brief X の個数を得る．
-  ymuint
+  int
   x_count() const;
 
   /// @brief 2つのベクタが両立しないとき true を返す．
@@ -104,7 +104,7 @@ public:
   /// @param[in] pos 位置番号 ( 0 <= pos < vect_len() )
   /// @param[in] val 値
   void
-  set_val(ymuint pos,
+  set_val(int pos,
 	  Val3 val);
 
   /// @brief HEX文字列から内容を設定する．
@@ -143,8 +143,8 @@ public:
   /// @brief ブロック数を返す．
   /// @param[in] ni 入力数
   static
-  ymuint
-  block_num(ymuint ni);
+  int
+  block_num(int ni);
 
 
 private:
@@ -155,20 +155,20 @@ private:
   /// @brief HEX文字列の長さを返す．
   /// @param[in] ni 入力数
   static
-  ymuint
-  hex_length(ymuint ni);
+  int
+  hex_length(int ni);
 
   // 入力位置からブロック番号を得る．
   /// @param[in] ipos 入力の位置番号
   static
-  ymuint
-  block_idx(ymuint ipos);
+  int
+  block_idx(int ipos);
 
   // 入力位置からシフト量を得る．
   /// @param[in] ipos 入力の位置番号
   static
-  ymuint
-  shift_num(ymuint ipos);
+  int
+  shift_num(int ipos);
 
 
 protected:
@@ -180,7 +180,7 @@ protected:
   /// @brief コンストラクタ
   /// @param[in] vect_len ベクタ長
   explicit
-  BitVector(ymuint vect_len);
+  BitVector(int vect_len);
 
   /// @brief デストラクタ
   ~BitVector();
@@ -207,7 +207,7 @@ private:
   //////////////////////////////////////////////////////////////////////
 
   // ベクタ長
-  ymuint mVectLen;
+  int mVectLen;
 
   // 最後のブロックのマスク
   PackedVal mMask;
@@ -223,7 +223,7 @@ private:
 
   // 1ワードあたりのHEX文字数
   static
-  const ymuint HPW = kPvBitLen / 4;
+  const int HPW = kPvBitLen / 4;
 
 };
 
@@ -285,7 +285,7 @@ operator<<(ostream& s,
 
 // @brief ベクタ長を返す．
 inline
-ymuint
+int
 BitVector::vect_len() const
 {
   return mVectLen;
@@ -295,13 +295,13 @@ BitVector::vect_len() const
 // @param[in] pos 位置番号 ( 0 <= pos < vect_len() )
 inline
 Val3
-BitVector::val(ymuint pos) const
+BitVector::val(int pos) const
 {
   ASSERT_COND( pos < vect_len() );
 
-  ymuint shift = shift_num(pos);
-  ymuint block0 = block_idx(pos);
-  ymuint block1 = block0 + 1;
+  int shift = shift_num(pos);
+  int block0 = block_idx(pos);
+  int block1 = block0 + 1;
   int v0 = (mPat[block0] >> shift) & 1UL;
   int v1 = (mPat[block1] >> shift) & 1UL;
   int tmp = v0 + v0 + v1;
@@ -311,24 +311,25 @@ BitVector::val(ymuint pos) const
 // @breif pos 番めの値を設定する．
 inline
 void
-BitVector::set_val(ymuint pos,
+BitVector::set_val(int pos,
 		   Val3 val)
 {
   ASSERT_COND( pos < vect_len() );
 
-  ymuint shift = shift_num(pos);
-  ymuint block0 = block_idx(pos);
-  ymuint block1 = block0 + 1;
+  int shift = shift_num(pos);
+  int block0 = block_idx(pos);
+  int block1 = block0 + 1;
   PackedVal mask = 1UL << shift;
-  if ( val == kVal0 ) {
+  switch ( val ) {
+  case Val3::_0:
     mPat[block0] |= mask;
     mPat[block1] &= ~mask;
-  }
-  else if ( val == kVal1 ) {
+    break;
+  case Val3::_1:
     mPat[block0] &= ~mask;
     mPat[block1] |= mask;
-  }
-  else { // val == kValX
+    break;
+  case Val3::_X:
     mPat[block0] |= mask;
     mPat[block1] |= mask;
   }
@@ -336,32 +337,32 @@ BitVector::set_val(ymuint pos,
 
 // @brief ブロック数を返す．
 inline
-ymuint
-BitVector::block_num(ymuint ni)
+int
+BitVector::block_num(int ni)
 {
   return ((ni + kPvBitLen - 1) / kPvBitLen) * 2;
 }
 
 // @brief HEX文字列の長さを返す．
 inline
-ymuint
-BitVector::hex_length(ymuint ni)
+int
+BitVector::hex_length(int ni)
 {
   return (ni + 3) / 4;
 }
 
 // 入力位置からブロック番号を得る．
 inline
-ymuint
-BitVector::block_idx(ymuint ipos)
+int
+BitVector::block_idx(int ipos)
 {
   return (ipos / kPvBitLen) * 2;
 }
 
 // 入力位置からシフト量を得る．
 inline
-ymuint
-BitVector::shift_num(ymuint ipos)
+int
+BitVector::shift_num(int ipos)
 {
   return (kPvBitLen - 1 - ipos) % kPvBitLen;
 }

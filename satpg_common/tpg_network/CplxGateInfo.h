@@ -5,7 +5,7 @@
 /// @brief CplxGateInfo のヘッダファイル
 /// @author Yusuke Matsunaga (松永 裕介)
 ///
-/// Copyright (C) 2016 Yusuke Matsunaga
+/// Copyright (C) 2016, 2018 Yusuke Matsunaga
 /// All rights reserved.
 
 #include "TpgGateInfo.h"
@@ -26,8 +26,8 @@ public:
   /// @brief コンストラクタ
   /// @param[in] ni 入力数
   /// @param[in] expr 論理式
-  CplxGateInfo(ymuint ni,
-		  const Expr& expr);
+  CplxGateInfo(int ni,
+	       const Expr& expr);
 
   /// @brief デストラクタ
   virtual
@@ -39,28 +39,33 @@ public:
   // 外部インターフェイス
   //////////////////////////////////////////////////////////////////////
 
+  /// @brief 組み込みタイプのときに true を返す．
+  virtual
+  bool
+  is_simple() const override;
+
   /// @brief ゲートタイプを返す．
   virtual
   GateType
-  gate_type() const;
+  gate_type() const override;
 
   /// @brief 論理式を返す．
   virtual
   Expr
-  expr() const;
+  expr() const override;
 
   /// @brief 追加ノード数を返す．
   virtual
-  ymuint
-  extra_node_num() const;
+  int
+  extra_node_num() const override;
 
   /// @brief 制御値を返す．
   /// @param[in] pos 入力位置
   /// @param[in] val 値
   virtual
   Val3
-  cval(ymuint pos,
-       Val3 val) const;
+  cval(int pos,
+       Val3 val) const override;
 
 
 private:
@@ -78,7 +83,7 @@ private:
   Expr mExpr;
 
   // 追加のノード数
-  ymuint mExtraNodeNum;
+  int mExtraNodeNum;
 
   // 制御値の配列
   vector<Val3> mCVal;

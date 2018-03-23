@@ -16,7 +16,7 @@
 #include "NodeValList.h"
 
 
-BEGIN_NAMESPACE_YM_SATPG
+BEGIN_NAMESPACE_YM_SATPG_STRUCTENC
 
 BEGIN_NONAMESPACE
 
@@ -75,19 +75,16 @@ PropCone::mark_tfo(const TpgNode* node)
 {
   set_tfo_mark(node);
 
-  for (ymuint rpos = 0; rpos < mNodeList.size(); ++ rpos) {
+  for (int rpos = 0; rpos < mNodeList.size(); ++ rpos) {
     const TpgNode* node = mNodeList[rpos];
     if ( end_mark(node) ) {
       // ここで止まる．
       continue;
     }
-    ymuint nfo = node->fanout_num();
-    for (ymuint i = 0; i < nfo; ++ i) {
+    int nfo = node->fanout_num();
+    for (int i = 0; i < nfo; ++ i) {
       const TpgNode* fonode = node->fanout(i);
-      if ( !tfo_mark(fonode) ) {
-	// マークをつけて mNodeList に追加する．
-	set_tfo_mark(fonode);
-      }
+      set_tfo_mark(fonode);
     }
   }
 
@@ -100,7 +97,7 @@ void
 PropCone::make_vars()
 {
   // TFO のノードに変数を割り当てる．
-  for (ymuint i = 0; i < mNodeList.size(); ++ i) {
+  for (int i = 0; i < mNodeList.size(); ++ i) {
     const TpgNode* node = mNodeList[i];
     SatVarId fvar = solver().new_variable();
     set_fvar(node, fvar);
@@ -113,8 +110,8 @@ PropCone::make_vars()
     }
 #if 0
     // ファンインのノードうち TFO に含まれないノードの fvar を gvar にする．
-    ymuint ni = node->fanin_num();
-    for (ymuint i = 0; i < ni; ++ i) {
+    int ni = node->fanin_num();
+    for (int i = 0; i < ni; ++ i) {
       const TpgNode* inode = node->fanin(i);
       if ( !tfo_mark(inode) ) {
 	set_fvar(inode, gvar(inode));
@@ -130,10 +127,10 @@ PropCone::make_vars()
   // TFO の TFI のノードの fvar を gvar と同じにする．
   vector<const TpgNode*> tmp_list;
   vector<bool> tfi_mark(max_id(), false);
-  for (ymuint i = 0; i < mNodeList.size(); ++ i) {
+  for (int i = 0; i < mNodeList.size(); ++ i) {
     const TpgNode* node = mNodeList[i];
-    ymuint ni = node->fanin_num();
-    for (ymuint j = 0; j < ni; ++ j) {
+    int ni = node->fanin_num();
+    for (int j = 0; j < ni; ++ j) {
       const TpgNode* inode = node->fanin(j);
       if ( !tfo_mark(inode) && !tfi_mark[inode->id()] ) {
 	tfi_mark[inode->id()] = true;
@@ -141,11 +138,11 @@ PropCone::make_vars()
       }
     }
   }
-  for (ymuint rpos = 0; rpos < tmp_list.size(); ++ rpos) {
+  for (int rpos = 0; rpos < tmp_list.size(); ++ rpos) {
     const TpgNode* node = tmp_list[rpos];
     set_fvar(node, gvar(node));
-    ymuint ni = node->fanin_num();
-    for (ymuint i = 0; i < ni; ++ i) {
+    int ni = node->fanin_num();
+    for (int i = 0; i < ni; ++ i) {
       const TpgNode* inode = node->fanin(i);
       if ( !tfi_mark[inode->id()] ) {
 	tfi_mark[inode->id()] = true;
@@ -159,7 +156,7 @@ PropCone::make_vars()
 void
 PropCone::make_cnf()
 {
-  for (ymuint i = 0; i < mNodeList.size(); ++ i) {
+  for (int i = 0; i < mNodeList.size(); ++ i) {
     const TpgNode* node = mNodeList[i];
     if ( i > 0 ) {
       // 故障回路のゲートの入出力関係を表すCNFを作る．
@@ -173,9 +170,9 @@ PropCone::make_cnf()
   }
 
   // 外部出力へ故障の影響が伝搬する条件を作る．
-  ymuint no = mOutputList.size();
+  int no = mOutputList.size();
   vector<SatLiteral> odiff(no);
-  for (ymuint i = 0; i < no; ++ i) {
+  for (int i = 0; i < no; ++ i) {
     const TpgNode* node = mOutputList[i];
     SatLiteral dlit(dvar(node));
     odiff[i] = dlit;
@@ -199,9 +196,8 @@ PropCone::extract(const vector<SatBool3>& model,
 		  NodeValList& assign_list)
 {
   // 実際の処理は Extractor が行う．
-  ValMap_model val_map(gvar_map(), fvar_map(), model);
-  Extractor extractor;
-  extractor(root, val_map, assign_list);
+  Extractor extractor(gvar_map(), fvar_map(), model);
+  extractor(root, assign_list);
 }
 
 // @brief node に関する故障伝搬条件を作る．
@@ -224,11 +220,11 @@ PropCone::make_dchain_cnf(const TpgNode* node)
   }
   else {
     // dlit が 1 の時，ファンアウトの dlit が最低1つは 1 でなければならない．
-    ymuint nfo = node->fanout_num();
+    int nfo = node->fanout_num();
     vector<SatLiteral> tmp_lits;
     tmp_lits.reserve(nfo + 1);
     tmp_lits.push_back(~dlit);
-    for (ymuint j = 0; j < nfo; ++ j) {
+    for (int j = 0; j < nfo; ++ j) {
       const TpgNode* onode = node->fanout(j);
       SatLiteral odlit(dvar(onode), false);
       tmp_lits.push_back(odlit);
@@ -244,4 +240,4 @@ PropCone::make_dchain_cnf(const TpgNode* node)
   }
 }
 
-END_NAMESPACE_YM_SATPG
+END_NAMESPACE_YM_SATPG_STRUCTENC

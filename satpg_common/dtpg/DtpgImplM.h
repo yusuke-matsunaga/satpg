@@ -81,7 +81,7 @@ private:
   /// @param[in] elem_pos 要素番号
   /// @param[in] ovar ゲートの出力の変数
   void
-  inject_fault(ymuint elem_pos,
+  inject_fault(int elem_pos,
 	       SatVarId ovar);
 
   /// @brief 正常値を表す変数を得る．
@@ -119,7 +119,7 @@ private:
   vector<SatVarId> mElemVarArray;
 
   // 故障番号をキーにしてFFR番号を入れる配列
-  vector<ymuint> mElemPosMap;
+  vector<int> mElemPosMap;
 
   // MFFC内の故障回路の変数マップ
   VidMap mFvarMap;

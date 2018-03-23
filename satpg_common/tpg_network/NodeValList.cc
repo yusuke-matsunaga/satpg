@@ -21,11 +21,11 @@ void
 NodeValList::merge(const NodeValList& src_list)
 {
   vector<NodeVal> tmp_list;
-  ymuint n1 = mAsList.size();
-  ymuint n2 = src_list.mAsList.size();
+  int n1 = mAsList.size();
+  int n2 = src_list.mAsList.size();
   tmp_list.reserve(n1 + n2);
-  ymuint i1 = 0;
-  ymuint i2 = 0;
+  int i1 = 0;
+  int i2 = 0;
   while ( i1 < n1 && i2 < n2 ) {
     NodeVal v1 = mAsList[i1];
     NodeVal v2 = src_list.mAsList[i2];
@@ -61,11 +61,11 @@ void
 NodeValList::diff(const NodeValList& src_list)
 {
   vector<NodeVal> tmp_list;
-  ymuint n1 = mAsList.size();
-  ymuint n2 = src_list.mAsList.size();
+  int n1 = mAsList.size();
+  int n2 = src_list.mAsList.size();
   tmp_list.reserve(n1);
-  ymuint i1 = 0;
-  ymuint i2 = 0;
+  int i1 = 0;
+  int i2 = 0;
   while ( i1 < n1 && i2 < n2 ) {
     NodeVal v1 = mAsList[i1];
     NodeVal v2 = src_list.mAsList[i2];
@@ -98,7 +98,7 @@ bool
 NodeValList::sanity_check() const
 {
   NodeVal prev(nullptr, 0, false);
-  for (ymuint i = 0; i < mAsList.size(); ++ i) {
+  for (int i = 0; i < mAsList.size(); ++ i) {
     NodeVal nv = mAsList[i];
     if ( prev.node() == nv.node() && prev.val() != nv.val() ) {
       return false;
@@ -113,10 +113,10 @@ bool
 check_conflict(const NodeValList& src_list1,
 	       const NodeValList& src_list2)
 {
-  ymuint n1 = src_list1.size();
-  ymuint n2 = src_list2.size();
-  ymuint i1 = 0;
-  ymuint i2 = 0;
+  int n1 = src_list1.size();
+  int n2 = src_list2.size();
+  int i1 = 0;
+  int i2 = 0;
   while ( i1 < n1 && i2 < n2 ) {
     NodeVal nv1 = src_list1[i1];
     NodeVal nv2 = src_list2[i2];
@@ -142,10 +142,10 @@ bool
 check_contain(const NodeValList& src_list1,
 	      const NodeValList& src_list2)
 {
-  ymuint n1 = src_list1.size();
-  ymuint n2 = src_list2.size();
-  ymuint i1 = 0;
-  ymuint i2 = 0;
+  int n1 = src_list1.size();
+  int n2 = src_list2.size();
+  int i1 = 0;
+  int i2 = 0;
   while ( i1 < n1 && i2 < n2 ) {
     NodeVal nv1 = src_list1[i1];
     NodeVal nv2 = src_list2[i2];
@@ -184,9 +184,9 @@ ostream&
 operator<<(ostream& s,
 	   const NodeValList& src_list)
 {
-  ymuint n = src_list.size();
+  int n = src_list.size();
   const char* comma = "";
-  for (ymuint i = 0; i < n; ++ i) {
+  for (int i = 0; i < n; ++ i) {
     NodeVal nv = src_list[i];
     s << comma << nv;
     comma = ", ";

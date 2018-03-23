@@ -29,7 +29,7 @@ const int debug_dtpg = 0;
 END_NONAMESPACE
 
 
-BEGIN_NAMESPACE_YM_SATPG
+BEGIN_NAMESPACE_YM_SATPG_DTPG
 
 // @brief コンストラクタ
 // @param[in] sat_type SATソルバの種類を表す文字列
@@ -43,7 +43,7 @@ DtpgImpl::DtpgImpl(const string& sat_type,
 		   ostream* sat_outp,
 		   FaultType fault_type,
 		   Justifier& jt,
-		   ymuint max_node_id) :
+		   int max_node_id) :
   mStructEnc(max_node_id, fault_type, sat_type, sat_option, sat_outp),
   mFaultType(fault_type),
   mJustifier(jt),
@@ -112,14 +112,6 @@ DtpgImpl::dtpg(const TpgFault* fault,
 	       NodeValList& nodeval_list,
 	       DtpgStats& stats)
 {
-#if 0
-  if ( fault->tpg_onode()->ffr_root() != root_node() ) {
-    cerr << "Error[DtpgImpl::dtpg()]: " << fault << " is not within mFfrRoot's FFR" << endl;
-    cerr << " fautl->ffr_root() = " << fault->tpg_onode()->ffr_root()->name() << endl;
-    return kB3X;
-  }
-#endif
-
   StopWatch timer;
   timer.start();
 
@@ -139,7 +131,7 @@ DtpgImpl::dtpg(const TpgFault* fault,
   mStructEnc.solver().get_stats(sat_stats);
   //sat_stats -= prev_stats;
 
-  if ( ans == kB3True ) {
+  if ( ans == SatBool3::True ) {
     // パタンが求まった．
 
     timer.reset();
@@ -150,25 +142,18 @@ DtpgImpl::dtpg(const TpgFault* fault,
     mStructEnc.extract(model, fault, 0, assign_list);
 
     mStructEnc.justify(model, assign_list, mJustifier, nodeval_list);
-#if 0
-    //mFoCone->extract(model, assign_list);
 
-    ValMap* val_map = mFoCone->val_map(model);
-    mBackTracer(assign_list, mFoCone->output_list(), *val_map, nodeval_list);
-    // ここで val_map を削除しなければならない仕様はちょっと醜い．
-    delete val_map;
-#endif
     timer.stop();
     stats.mBackTraceTime += timer.time();
 
     stats.update_det(sat_stats, time);
   }
-  else if ( ans == kB3False ) {
+  else if ( ans == SatBool3::False ) {
     // 検出不能と判定された．
     stats.update_red(sat_stats, time);
   }
   else {
-    // ans == kB3X つまりアボート
+    // ans == SatBool3::X つまりアボート
     stats.update_abort(sat_stats, time);
   }
 
@@ -213,4 +198,4 @@ DtpgImpl::timer_stop()
   return time;
 }
 
-END_NAMESPACE_YM_SATPG
+END_NAMESPACE_YM_SATPG_DTPG

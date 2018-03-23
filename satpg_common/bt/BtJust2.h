@@ -27,7 +27,7 @@ public:
   /// @brief コンストラクタ
   /// @param[in] max_id ノード番号の最大値
   /// @param[in] fault_type 故障の型
-  BtJust2(ymuint max_id,
+  BtJust2(int max_id,
 	  FaultType fault_type);
 
   /// @brief デストラクタ
@@ -57,7 +57,7 @@ private:
   /// @param[in] id ノード番号
   virtual
   void
-  _clear_hook(ymuint id);
+  _clear_hook(int id);
 
 
 private:
@@ -116,7 +116,7 @@ private:
 
   /// @brief リストのサイズを返す．
   static
-  ymuint
+  int
   list_size(NodeList* node_list);
 
   /// @brief リストを削除する．
@@ -139,7 +139,7 @@ private:
   UnitAlloc mAlloc;
 
   // ノード番号の最大値
-  ymuint mMaxId;
+  int mMaxId;
 
   // node->id() をキーにして入力番号のリストを納める配列
   vector<NodeList*> mJustArray;

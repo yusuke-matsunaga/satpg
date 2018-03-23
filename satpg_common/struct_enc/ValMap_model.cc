@@ -10,7 +10,7 @@
 #include "ValMap_model.h"
 
 
-BEGIN_NAMESPACE_YM_SATPG
+BEGIN_NAMESPACE_YM_SATPG_STRUCTENC
 
 //////////////////////////////////////////////////////////////////////
 // クラス ValMap
@@ -81,4 +81,4 @@ ValMap_model::hval(const TpgNode* node) const
   return val(vid);
 }
 
-END_NAMESPACE_YM_SATPG
+END_NAMESPACE_YM_SATPG_STRUCTENC

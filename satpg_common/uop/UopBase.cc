@@ -43,7 +43,7 @@ UopBase::~UopBase()
 void
 UopBase::operator()(const TpgFault* f)
 {
-  mMgr.set_status(f, kFsUntestable);
+  mMgr.set_status(f, FaultStatus::Untestable);
 }
 
 

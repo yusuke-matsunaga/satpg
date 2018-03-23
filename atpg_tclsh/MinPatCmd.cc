@@ -62,7 +62,7 @@ MinPatCmd::~MinPatCmd()
 int
 MinPatCmd::cmd_proc(TclObjVector& objv)
 {
-  ymuint objc = objv.size();
+  int objc = objv.size();
   if ( objc != 1 ) {
     print_usage();
     return TCL_ERROR;
@@ -81,7 +81,7 @@ MinPatCmd::cmd_proc(TclObjVector& objv)
   bool fast_compaction = mPoptFastCompaction->is_specified();
   bool mc_compaction = mPoptMcCompaction->is_specified();
   bool has_thval = mPoptThVal->is_specified();
-  ymuint thval = mPoptThVal->val();
+  int thval = mPoptThVal->val();
   bool rep_faults = mPoptRepFaults->is_specified();
 
   nsSa::MinPat* minpat = nullptr;

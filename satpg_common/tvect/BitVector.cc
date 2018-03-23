@@ -14,14 +14,14 @@ BEGIN_NAMESPACE_YM_SATPG
 
 // @brief コンストラクタ
 // @param[in] vlen ベクタ長
-BitVector::BitVector(ymuint vlen) :
+BitVector::BitVector(int vlen) :
   mVectLen(vlen)
 {
   // X に初期化しておく．
   init();
 
   // マスクを設定する．
-  ymuint k = vect_len() % kPvBitLen;
+  int k = vect_len() % kPvBitLen;
   mMask = kPvAll1 << (kPvBitLen - k);
 }
 
@@ -31,14 +31,14 @@ BitVector::~BitVector()
 }
 
 // @brief X の個数を得る．
-ymuint
+int
 BitVector::x_count() const
 {
-  ymuint nb = block_num(vect_len());
+  int nb = block_num(vect_len());
   ymint n = 0;
-  for (ymuint i = 0; i < nb; i += 2) {
-    ymuint i0 = i;
-    ymuint i1 = i + 1;
+  for (int i = 0; i < nb; i += 2) {
+    int i0 = i;
+    int i1 = i + 1;
     PackedVal v = mPat[i] | mPat[i + 1];
     // v 中の1の数を数える．
     n += count_ones(v);
@@ -53,10 +53,10 @@ BitVector::is_conflict(const BitVector& bv1,
 {
   ASSERT_COND( bv1.vect_len() == bv2.vect_len() );
 
-  ymuint nb = block_num(bv1.vect_len());
-  for (ymuint i = 0; i < nb; i += 2) {
-    ymuint i0 = i;
-    ymuint i1 = i + 1;
+  int nb = block_num(bv1.vect_len());
+  for (int i = 0; i < nb; i += 2) {
+    int i0 = i;
+    int i1 = i + 1;
     // 0 のビットと 1 のビットの両方が異なっていると
     // コンフリクトしている．
     PackedVal diff0 = (bv1.mPat[i0] ^ bv2.mPat[i0]);
@@ -76,8 +76,8 @@ BitVector::operator==(const BitVector& right) const
 {
   ASSERT_COND( vect_len() == right.vect_len() );
 
-  ymuint nb = block_num(vect_len());
-  for (ymuint i = 0; i < nb; ++ i) {
+  int nb = block_num(vect_len());
+  for (int i = 0; i < nb; ++ i) {
     if ( mPat[i] != right.mPat[i] ) {
       return false;
     }
@@ -95,11 +95,11 @@ BitVector::operator<(const BitVector& right) const
 {
   ASSERT_COND( vect_len() == right.vect_len() );
 
-  ymuint nb = block_num(vect_len());
+  int nb = block_num(vect_len());
   bool diff = false;
-  for (ymuint i = 0; i < nb; i += 2) {
-    ymuint i0 = i;
-    ymuint i1 = i + 1;
+  for (int i = 0; i < nb; i += 2) {
+    int i0 = i;
+    int i1 = i + 1;
     PackedVal val1_0 = mPat[i0];
     PackedVal val1_1 = mPat[i1];
     PackedVal val2_0 = right.mPat[i0];
@@ -126,10 +126,10 @@ BitVector::operator<=(const BitVector& right) const
 {
   ASSERT_COND( vect_len() == right.vect_len() );
 
-  ymuint nb = block_num(vect_len());
-  for (ymuint i = 0; i < nb; ++ i) {
-    ymuint i0 = i;
-    ymuint i1 = i + 1;
+  int nb = block_num(vect_len());
+  for (int i = 0; i < nb; ++ i) {
+    int i0 = i;
+    int i1 = i + 1;
     PackedVal val1_0 = mPat[i0];
     PackedVal val1_1 = mPat[i1];
     PackedVal val2_0 = right.mPat[i0];
@@ -146,8 +146,8 @@ BitVector::operator<=(const BitVector& right) const
 void
 BitVector::init()
 {
-  ymuint nb = block_num(vect_len());
-  for (ymuint i = 0; i < nb; ++ i) {
+  int nb = block_num(vect_len());
+  for (int i = 0; i < nb; ++ i) {
     mPat[i] = kPvAll1;
   }
 }
@@ -161,11 +161,11 @@ bool
 BitVector::set_from_hex(const string& hex_string)
 {
   // よく問題になるが，ここでは最下位ビット側から入力する．
-  ymuint nl = hex_length(vect_len());
-  ymuint sft = 0;
-  ymuint blk = 0;
+  int nl = hex_length(vect_len());
+  int sft = 0;
+  int blk = 0;
   PackedVal pat = kPvAll0;
-  for (ymuint i = 0; i < nl; ++ i) {
+  for (int i = 0; i < nl; ++ i) {
     char c = (i < hex_string.size()) ? hex_string[i] : '0';
     PackedVal pat1 = kPvAll0;
     if ( '0' <= c && c <= '9' ) {
@@ -203,11 +203,11 @@ BitVector::set_from_hex(const string& hex_string)
 void
 BitVector::set_from_random(RandGen& randgen)
 {
-  ymuint nb = block_num(vect_len());
-  for (ymuint i = 0; i < nb; i += 2) {
+  int nb = block_num(vect_len());
+  for (int i = 0; i < nb; i += 2) {
     PackedVal v = randgen.uint64();
-    ymuint i0 = i;
-    ymuint i1 = i + 1;
+    int i0 = i;
+    int i1 = i + 1;
     if ( i == nb - 2 ) {
       mPat[i0] = ~v & mMask;
       mPat[i1] =  v & mMask;
@@ -224,10 +224,10 @@ BitVector::set_from_random(RandGen& randgen)
 void
 BitVector::fix_x_from_random(RandGen& randgen)
 {
-  ymuint nb = block_num(vect_len());
-  for (ymuint i = 0; i < nb; i += 2) {
-    ymuint i0 = i;
-    ymuint i1 = i + 1;
+  int nb = block_num(vect_len());
+  for (int i = 0; i < nb; i += 2) {
+    int i0 = i;
+    int i1 = i + 1;
     // X のビットマスク
     PackedVal xmask = mPat[i0] & mPat[i1];
     if ( i == nb - 2 ) {
@@ -249,10 +249,10 @@ BitVector::fix_x_from_random(RandGen& randgen)
 void
 BitVector::copy(const BitVector& src)
 {
-  ymuint nb = block_num(vect_len());
-  for (ymuint i = 0; i < nb; i += 2) {
-    ymuint i0 = i;
-    ymuint i1 = i + 1;
+  int nb = block_num(vect_len());
+  for (int i = 0; i < nb; i += 2) {
+    int i0 = i;
+    int i1 = i + 1;
     // X のビットマスク
     PackedVal xmask = src.mPat[i0] & src.mPat[i1];
     mPat[i0] = (src.mPat[i0] | xmask);
@@ -265,12 +265,12 @@ BitVector::copy(const BitVector& src)
 bool
 BitVector::merge(const BitVector& src)
 {
-  ymuint nb = block_num(vect_len());
+  int nb = block_num(vect_len());
 
   // コンフリクトチェック
-  for (ymuint i = 0; i < nb; i += 2) {
-    ymuint i0 = i;
-    ymuint i1 = i + 1;
+  for (int i = 0; i < nb; i += 2) {
+    int i0 = i;
+    int i1 = i + 1;
     PackedVal diff0 = (mPat[i0] ^ src.mPat[i0]);
     PackedVal diff1 = (mPat[i1] ^ src.mPat[i1]);
     if ( (diff0 & diff1) != kPvAll0 ) {
@@ -279,9 +279,9 @@ BitVector::merge(const BitVector& src)
   }
 
   // 実際のマージ
-  for (ymuint i = 0; i < nb; i += 2) {
-    ymuint i0 = i;
-    ymuint i1 = i + 1;
+  for (int i = 0; i < nb; i += 2) {
+    int i0 = i;
+    int i1 = i + 1;
     mPat[i0] |= src.mPat[i0];
     mPat[i1] |= src.mPat[i1];
   }
@@ -294,12 +294,12 @@ BitVector::bin_str() const
 {
   // よく問題になるが，ここでは最下位ビット側から出力する．
   string ans;
-  for (ymuint i = 0; i < vect_len(); ++ i) {
+  for (int i = 0; i < vect_len(); ++ i) {
     switch ( val(i) ) {
-    case kVal0: ans += '0'; break;
-    case kVal1: ans += '1'; break;
-    case kValX: ans += 'X'; break;
-    default:    ans += '-'; break; // ありえないけどバグで起こりうる．
+    case Val3::_0: ans += '0'; break;
+    case Val3::_1: ans += '1'; break;
+    case Val3::_X: ans += 'X'; break;
+    default:       ans += '-'; break; // ありえないけどバグで起こりうる．
     }
   }
   return ans;
@@ -310,13 +310,13 @@ string
 BitVector::hex_str() const
 {
   // よく問題になるが，ここでは最下位ビット側から出力する．
-  ymuint tmp = 0U;
-  ymuint bit = 1U;
+  int tmp = 0U;
+  int bit = 1U;
   string ans;
-  for (ymuint i = 0; ; ++ i) {
+  for (int i = 0; ; ++ i) {
     if ( i < vect_len() ) {
-      if ( val(i) == kVal1 ) {
-	// 面倒くさいので kValX は kVal0 と同じとみなす．
+      if ( val(i) == Val3::_1 ) {
+	// 面倒くさいので Val3::X は Val3::_0 と同じとみなす．
 	tmp += bit;
       }
       bit <<= 1;

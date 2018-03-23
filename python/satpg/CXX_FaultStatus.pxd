@@ -10,7 +10,10 @@
 cdef extern from "FaultStatus.h" namespace "nsYm::nsSatpg" :
 
     cdef enum FaultStatus :
-        kFsUndetected
-        kFsDetected
-        kFsUntestable
-        kFsAborted
+        Undetected
+        Detected
+        Untestable
+        Aborted
+
+    cdef int __fault_status_to_int(FaultStatus)
+    cdef FaultStatus __int_to_fault_status(int)

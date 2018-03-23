@@ -197,7 +197,7 @@ dtpg_test(int argc,
     td_mode = false;
     sa_mode = true;
   }
-  FaultType fault_type = sa_mode ? kFtStuckAt : kFtTransitionDelay;
+  FaultType fault_type = sa_mode ? FaultType::StuckAt : FaultType::TransitionDelay;
 
   if ( dump ) {
     print_network(cout, network);

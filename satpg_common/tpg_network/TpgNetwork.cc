@@ -3,18 +3,23 @@
 /// @brief TpgNetwork の実装ファイル
 /// @author Yusuke Matsunaga (松永 裕介)
 ///
-/// Copyright (C) 2005-2014, 2016 Yusuke Matsunaga
+/// Copyright (C) 2005-2014, 2016, 2018 Yusuke Matsunaga
 /// All rights reserved.
 
 
 #include "TpgNetwork.h"
 #include "TpgNode.h"
+#include "TpgNodeFactory.h"
 #include "TpgGateInfo.h"
 #include "TpgFault.h"
 #include "TpgStemFault.h"
 #include "TpgBranchFault.h"
+#include "TpgDff.h"
 #include "TpgMFFC.h"
 #include "TpgFFR.h"
+
+#include "GateType.h"
+#include "Val3.h"
 
 #include "NodeMap.h"
 #include "AuxNodeInfo.h"
@@ -38,21 +43,20 @@ GateType
 conv_to_gate_type(BnNodeType type)
 {
   switch ( type ) {
-  case kBnLogic_C0:   return kGateCONST0;
-  case kBnLogic_C1:   return kGateCONST1;
-  case kBnLogic_BUFF: return kGateBUFF;
-  case kBnLogic_NOT:  return kGateNOT;
-  case kBnLogic_AND:  return kGateAND;
-  case kBnLogic_NAND: return kGateNAND;
-  case kBnLogic_OR:   return kGateOR;
-  case kBnLogic_NOR:  return kGateNOR;
-  case kBnLogic_XOR:  return kGateXOR;
-  case kBnLogic_XNOR: return kGateXNOR;
-  case kBnLogic_EXPR: return kGateCPLX;
+  case BnNodeType::Logic_C0:   return GateType::CONST0;
+  case BnNodeType::Logic_C1:   return GateType::CONST1;
+  case BnNodeType::Logic_BUFF: return GateType::BUFF;
+  case BnNodeType::Logic_NOT:  return GateType::NOT;
+  case BnNodeType::Logic_AND:  return GateType::AND;
+  case BnNodeType::Logic_NAND: return GateType::NAND;
+  case BnNodeType::Logic_OR:   return GateType::OR;
+  case BnNodeType::Logic_NOR:  return GateType::NOR;
+  case BnNodeType::Logic_XOR:  return GateType::XOR;
+  case BnNodeType::Logic_XNOR: return GateType::XNOR;
   default: break;
   }
   ASSERT_NOT_REACHED;
-  return kGateCPLX;
+  return GateType::CONST0;
 }
 
 // immediate dominator リストをマージする．
@@ -67,8 +71,8 @@ merge(const TpgNode* node1,
     if ( node1 == nullptr || node2 == nullptr ) {
       return nullptr;
     }
-    ymuint id1 = node1->id();
-    ymuint id2 = node2->id();
+    int id1 = node1->id();
+    int id2 = node2->id();
     if ( id1 < id2 ) {
       node1 = node1->imm_dom();
     }
@@ -83,8 +87,8 @@ merge(const TpgNode* node1,
 struct Lt
 {
   bool
-  operator()(const pair<ymuint, ymuint>& left,
-	     const pair<ymuint, ymuint>& right)
+  operator()(const pair<int, int>& left,
+	     const pair<int, int>& right)
   {
     return left.first < right.first;
   }
@@ -98,15 +102,15 @@ check_network_connection(const TpgNetwork& network)
   // fanin/fanout の sanity check
   bool error = false;
 
-  ymuint nn = network.node_num();
-  for (ymuint i = 0; i < nn; ++ i) {
+  int nn = network.node_num();
+  for ( int i = 0; i < nn; ++ i ) {
     const TpgNode* node = network.node(i);
-    ymuint nfi = node->fanin_num();
-    for (ymuint j = 0; j < nfi; ++ j) {
+    int nfi = node->fanin_num();
+    for ( int j = 0; j < nfi; ++ j ) {
       const TpgNode* inode = node->fanin(j);
-      ymuint nfo = inode->fanout_num();
+      int nfo = inode->fanout_num();
       bool found = false;
-      for (ymuint k = 0; k < nfo; ++ k) {
+      for ( int k = 0; k < nfo; ++ k ) {
 	if ( inode->fanout(k) == node ) {
 	  found = true;
 	  break;
@@ -120,12 +124,12 @@ check_network_connection(const TpgNetwork& network)
 	     << "inode(" << inode->id() << ")" << endl;
       }
     }
-    ymuint nfo = node->fanout_num();
-    for (ymuint j = 0; j < nfo; ++ j) {
+    int nfo = node->fanout_num();
+    for ( int j = 0; j < nfo; ++ j ) {
       const TpgNode* onode = node->fanout(j);
-      ymuint nfi = onode->fanin_num();
+      int nfi = onode->fanin_num();
       bool found = false;
-      for (ymuint k = 0; k < nfi; ++ k) {
+      for ( int k = 0; k < nfi; ++ k ) {
 	if ( onode->fanin(k) == node ) {
 	  found = true;
 	  break;
@@ -233,10 +237,10 @@ TpgNetwork::read_iscas89(const string& filename)
 // @param[in] id ノードID ( 0 <= id < node_num() )
 // @param[in] val 故障値 ( 0 / 1 )
 TpgFault*
-TpgNetwork::_node_output_fault(ymuint id,
+TpgNetwork::_node_output_fault(int id,
 			       int val)
 {
-  ASSERT_COND( id < mNodeNum );
+  ASSERT_COND( id >= 0 && id < mNodeNum );
 
   return mAuxInfoArray[id].output_fault(val);
 }
@@ -246,11 +250,11 @@ TpgNetwork::_node_output_fault(ymuint id,
 // @param[in] val 故障値 ( 0 / 1 )
 // @param[in] pos 入力の位置番号
 TpgFault*
-TpgNetwork::_node_input_fault(ymuint id,
+TpgNetwork::_node_input_fault(int id,
 			      int val,
-			      ymuint pos)
+			      int pos)
 {
-  ASSERT_COND( id < mNodeNum );
+  ASSERT_COND( id >= 0 && id < mNodeNum );
 
   return mAuxInfoArray[id].input_fault(pos, val);
 }
@@ -258,7 +262,7 @@ TpgNetwork::_node_input_fault(ymuint id,
 BEGIN_NONAMESPACE
 
 // @brief ノードの TFI にマークをつける．
-ymuint
+int
 tfimark(const TpgNode* node,
 	vector<bool>& mark)
 {
@@ -267,9 +271,9 @@ tfimark(const TpgNode* node,
   }
   mark[node->id()] = true;
 
-  ymuint ni = node->fanin_num();
-  ymuint n = 1;
-  for (ymuint i = 0; i < ni; ++ i) {
+  int ni = node->fanin_num();
+  int n = 1;
+  for ( int i = 0; i < ni; ++ i ) {
     n += tfimark(node->fanin(i), mark);
   }
   return n;
@@ -318,12 +322,12 @@ TpgNetwork::set(const BnNetwork& network)
   // NodeInfoMgr にノードの論理関数を登録する．
   //////////////////////////////////////////////////////////////////////
   TpgGateInfoMgr node_info_mgr;
-  ymuint nexpr = network.expr_num();
+  int nexpr = network.expr_num();
   vector<const TpgGateInfo*> node_info_list(nexpr);
-  ymuint extra_node_num = 0;
-  for (ymuint i = 0; i < nexpr; ++ i) {
+  int extra_node_num = 0;
+  for ( int i = 0; i < nexpr; ++ i ) {
     Expr expr = network.expr(i);
-    ymuint ni = expr.input_size();
+    int ni = expr.input_size();
     const TpgGateInfo* node_info = node_info_mgr.complex_type(ni, expr);
     node_info_list[i] = node_info;
   }
@@ -332,16 +336,16 @@ TpgNetwork::set(const BnNetwork& network)
   //////////////////////////////////////////////////////////////////////
   // 追加で生成されるノード数を数える．
   //////////////////////////////////////////////////////////////////////
-  ymuint nl = network.logic_num();
-  for (ymuint i = 0; i < nl; ++ i) {
+  int nl = network.logic_num();
+  for ( int i = 0; i < nl; ++ i ) {
     const BnNode* src_node = network.logic(i);
     BnNodeType logic_type = src_node->type();
-    if ( logic_type == kBnLogic_EXPR ) {
+    if ( logic_type == BnNodeType::Logic_EXPR ) {
       const TpgGateInfo* node_info = node_info_list[src_node->func_id()];
       extra_node_num += node_info->extra_node_num();
     }
-    else if ( logic_type == kBnLogic_XOR || logic_type == kBnLogic_XNOR ) {
-      ymuint ni = src_node->fanin_num();
+    else if ( logic_type == BnNodeType::Logic_XOR || logic_type == BnNodeType::Logic_XNOR ) {
+      int ni = src_node->fanin_num();
       extra_node_num += (ni - 2);
     }
   }
@@ -352,14 +356,14 @@ TpgNetwork::set(const BnNetwork& network)
   //////////////////////////////////////////////////////////////////////
 
   // BnPort は複数ビットの場合があり，さらに入出力が一緒なのでめんどくさい
-  vector<ymuint> input_map;
-  vector<ymuint> output_map;
-  ymuint np = network.port_num();
-  for (ymuint i = 0; i < np; ++ i) {
+  vector<int> input_map;
+  vector<int> output_map;
+  int np = network.port_num();
+  for ( int i = 0; i < np; ++ i ) {
     const BnPort* port = network.port(i);
-    ymuint nb = port->bit_width();
-    for (ymuint j = 0; j < nb; ++ j) {
-      ymuint id = port->bit(j);
+    int nb = port->bit_width();
+    for ( int j = 0; j < nb; ++ j ) {
+      int id = port->bit(j);
       const BnNode* node = network.node(id);
       if ( node->is_input() ) {
 	input_map.push_back(id);
@@ -376,8 +380,8 @@ TpgNetwork::set(const BnNetwork& network)
   mOutputNum = output_map.size();
   mDffNum = network.dff_num();
 
-  ymuint dff_control_num = 0;
-  for (ymuint i = 0; i < mDffNum; ++ i) {
+  int dff_control_num = 0;
+  for ( int i = 0; i < mDffNum; ++ i ) {
     const BnDff* dff = network.dff(i);
     // まずクロックで一つ
     ++ dff_control_num;
@@ -392,18 +396,18 @@ TpgNetwork::set(const BnNetwork& network)
   }
 
   mDffArray = new TpgDff[mDffNum];
-  for (ymuint i = 0; i < mDffNum; ++ i) {
+  for ( int i = 0; i < mDffNum; ++ i ) {
     mDffArray[i].mId = i;
   }
 
-  ymuint nn = mInputNum + mOutputNum + mDffNum * 2 + nl + extra_node_num + dff_control_num;
+  int nn = mInputNum + mOutputNum + mDffNum * 2 + nl + extra_node_num + dff_control_num;
   mNodeArray = new TpgNode*[nn];
   mAuxInfoArray = new AuxNodeInfo[nn];
 
-  ymuint nppi = mInputNum + mDffNum;
+  int nppi = mInputNum + mDffNum;
   mPPIArray = new TpgNode*[nppi];
 
-  ymuint nppo = mOutputNum + mDffNum;
+  int nppo = mOutputNum + mDffNum;
   mPPOArray = new TpgNode*[nppo];
   mPPOArray2 = new TpgNode*[nppo];
 
@@ -416,11 +420,11 @@ TpgNetwork::set(const BnNetwork& network)
   //////////////////////////////////////////////////////////////////////
   // 入力ノードを作成する．
   //////////////////////////////////////////////////////////////////////
-  for (ymuint i = 0; i < mInputNum; ++ i) {
-    ymuint id = input_map[i];
+  for ( int i = 0; i < mInputNum; ++ i ) {
+    int id = input_map[i];
     const BnNode* src_node = network.node(id);
     ASSERT_COND( src_node->is_input() );
-    ymuint nfo = src_node->fanout_num();
+    int nfo = src_node->fanout_num();
     TpgNode* node = make_input_node(i, src_node->name(), nfo);
     mPPIArray[i] = node;
 
@@ -431,13 +435,13 @@ TpgNetwork::set(const BnNetwork& network)
   //////////////////////////////////////////////////////////////////////
   // DFFの出力ノードを作成する．
   //////////////////////////////////////////////////////////////////////
-  for (ymuint i = 0; i < mDffNum; ++ i) {
+  for ( int i = 0; i < mDffNum; ++ i ) {
     const BnDff* src_dff = network.dff(i);
     const BnNode* src_node = network.node(src_dff->output());
     ASSERT_COND( src_node->is_input() );
-    ymuint nfo = src_node->fanout_num();
+    int nfo = src_node->fanout_num();
     TpgDff* dff = &mDffArray[i];
-    ymuint iid = i + mInputNum;
+    int iid = i + mInputNum;
     TpgNode* node = make_dff_output_node(iid, dff, src_node->name(), nfo);
     mPPIArray[iid] = node;
     dff->mOutput = node;
@@ -451,26 +455,26 @@ TpgNetwork::set(const BnNetwork& network)
   // BnNetwork::logic() はトポロジカルソートされているので
   // 結果として TpgNode もトポロジカル順に並べられる．
   //////////////////////////////////////////////////////////////////////
-  for (ymuint i = 0; i < nl; ++ i) {
+  for ( int i = 0; i < nl; ++ i ) {
     const BnNode* src_node = network.logic(i);
     const TpgGateInfo* node_info = nullptr;
     BnNodeType logic_type = src_node->type();
-    if ( logic_type == kBnLogic_EXPR ) {
+    if ( logic_type == BnNodeType::Logic_EXPR ) {
       node_info = node_info_list[src_node->func_id()];
     }
     else {
-      ASSERT_COND( logic_type != kBnLogic_TV );
+      ASSERT_COND( logic_type != BnNodeType::Logic_TV );
       GateType gate_type = conv_to_gate_type(logic_type);
       node_info = node_info_mgr.simple_type(gate_type);
     }
 
     // ファンインのノードを取ってくる．
-    ymuint ni = src_node->fanin_num();
+    int ni = src_node->fanin_num();
     vector<TpgNode*> fanin_array(ni);
-    for (ymuint j = 0; j < ni; ++ j) {
+    for ( int j = 0; j < ni; ++ j ) {
       fanin_array[j] = node_map.get(src_node->fanin(j));
     }
-    ymuint nfo = src_node->fanout_num();
+    int nfo = src_node->fanout_num();
     TpgNode* node = make_logic_node(src_node->name(), node_info, fanin_array, nfo);
 
     // ノードを登録する．
@@ -481,8 +485,8 @@ TpgNetwork::set(const BnNetwork& network)
   //////////////////////////////////////////////////////////////////////
   // 出力ノードを作成する．
   //////////////////////////////////////////////////////////////////////
-  for (ymuint i = 0; i < mOutputNum; ++ i) {
-    ymuint id = output_map[i];
+  for ( int i = 0; i < mOutputNum; ++ i ) {
+    int id = output_map[i];
     const BnNode* src_node = network.node(id);
     ASSERT_COND( src_node->is_output() );
     TpgNode* inode = node_map.get(src_node->fanin());
@@ -496,7 +500,7 @@ TpgNetwork::set(const BnNetwork& network)
   //////////////////////////////////////////////////////////////////////
   // DFFの入力ノードを作成する．
   //////////////////////////////////////////////////////////////////////
-  for (ymuint i = 0; i < mDffNum; ++ i) {
+  for ( int i = 0; i < mDffNum; ++ i ) {
     const BnDff* src_dff = network.dff(i);
     const BnNode* src_node = network.node(src_dff->input());
 
@@ -504,7 +508,7 @@ TpgNetwork::set(const BnNetwork& network)
     string dff_name = src_dff->name();
     string input_name = dff_name + ".input";
     TpgDff* dff = &mDffArray[i];
-    ymuint oid = i + mOutputNum;
+    int oid = i + mOutputNum;
     TpgNode* node = make_dff_input_node(oid, dff, input_name, inode);
     mPPOArray[oid] = node;
     dff->mInput = node;
@@ -541,20 +545,20 @@ TpgNetwork::set(const BnNetwork& network)
   //////////////////////////////////////////////////////////////////////
   // ファンアウトをセットする．
   //////////////////////////////////////////////////////////////////////
-  vector<ymuint> nfo_array(mNodeNum, 0);
-  for (ymuint i = 0; i < mNodeNum; ++ i) {
+  vector<int> nfo_array(mNodeNum, 0);
+  for ( int i = 0; i < mNodeNum; ++ i ) {
     TpgNode* node = mNodeArray[i];
-    ymuint ni = node->fanin_num();
-    for (ymuint j = 0; j < ni; ++ j) {
+    int ni = node->fanin_num();
+    for ( int j = 0; j < ni; ++ j ) {
       TpgNode* inode = node->fanin(j);
-      ymuint& fo_pos = nfo_array[inode->id()];
+      int& fo_pos = nfo_array[inode->id()];
       inode->set_fanout(fo_pos, node);
       ++ fo_pos;
     }
   }
   { // 検証
-    ymuint error = 0;
-    for (ymuint i = 0; i < mNodeNum; ++ i) {
+    int error = 0;
+    for ( int i = 0; i < mNodeNum; ++ i ) {
       TpgNode* node = mNodeArray[i];
       if ( nfo_array[node->id()] != node->fanout_num() ) {
 	if ( error == 0 ) {
@@ -577,7 +581,7 @@ TpgNetwork::set(const BnNetwork& network)
   // データ系のノードに印をつける．
   //////////////////////////////////////////////////////////////////////
   vector<bool> dmarks(mNodeNum, false);
-  for (ymuint i = 0; i < ppo_num(); ++ i) {
+  for ( int i = 0; i < ppo_num(); ++ i ) {
     const TpgNode* node = ppo(i);
     tfimark(node, dmarks);
   }
@@ -587,22 +591,22 @@ TpgNetwork::set(const BnNetwork& network)
   // 代表故障を求める．
   //////////////////////////////////////////////////////////////////////
   mRepFaultNum = 0;
-  for (ymuint i = 0; i < mNodeNum; ++ i) {
+  for ( int i = 0; i < mNodeNum; ++ i ) {
     // ノードごとに代表故障を設定する．
     // この処理は出力側から行う必要がある．
     TpgNode* node = mNodeArray[mNodeNum - i - 1];
     if ( dmarks[node->id()] ) {
       set_rep_faults(node);
-      ymuint nf = node->fault_num();
+      int nf = node->fault_num();
       mRepFaultNum += nf;
     }
   }
   mRepFaultArray = new const TpgFault*[mRepFaultNum];
-  ymuint wpos = 0;
-  for (ymuint i = 0; i < mNodeNum; ++ i) {
+  int wpos = 0;
+  for ( int i = 0; i < mNodeNum; ++ i ) {
     TpgNode* node = mNodeArray[i];
-    ymuint nf = node->fault_num();
-    for (ymuint j = 0; j < nf; ++ j, ++ wpos) {
+    int nf = node->fault_num();
+    for ( int j = 0; j < nf; ++ j, ++ wpos ) {
       const TpgFault* fault = node->fault(j);
       mRepFaultArray[wpos] = fault;
     }
@@ -613,35 +617,35 @@ TpgNetwork::set(const BnNetwork& network)
   // TFI のサイズの昇順に並べた出力順を
   // mPPOArray2 に記録する．
   //////////////////////////////////////////////////////////////////////
-  ymuint npo = ppo_num();
-  vector<pair<ymuint, ymuint> > tmp_list(npo);
-  for (ymuint i = 0; i < npo; ++ i) {
+  int npo = ppo_num();
+  vector<pair<int, int> > tmp_list(npo);
+  for ( int i = 0; i < npo; ++ i ) {
     const TpgNode* onode = ppo(i);
     // onode の TFI のノード数を計算する．
     vector<bool> mark(nn, false);
-    ymuint n = tfimark(onode, mark);
+    int n = tfimark(onode, mark);
     tmp_list[i] = make_pair(n, i);
   }
 
   // TFI のサイズの昇順にソートする．
   sort(tmp_list.begin(), tmp_list.end(), Lt());
   // tmp_list の順に mPPOArray2 にセットする．
-  for (ymuint i = 0; i < npo; ++ i) {
-    ymuint opos = tmp_list[i].second;
+  for ( int i = 0; i < npo; ++ i ) {
+    int opos = tmp_list[i].second;
     TpgNode* onode = mPPOArray[opos];
     mPPOArray2[i] = onode;
     onode->set_output_id2(i);
   }
 
   // immediate dominator を求める．
-  for (ymuint i = 0; i < mNodeNum; ++ i) {
+  for ( int i = 0; i < mNodeNum; ++ i ) {
     TpgNode* node = mNodeArray[mNodeNum - i - 1];
     const TpgNode* imm_dom = nullptr;
     if ( !node->is_ppo() ) {
-      ymuint nfo = node->fanout_num();
+      int nfo = node->fanout_num();
       if ( nfo > 0 ) {
 	imm_dom = node->fanout(0);
-	for (ymuint i = 1; imm_dom != nullptr && i < nfo; ++ i) {
+	for ( int i = 1; imm_dom != nullptr && i < nfo; ++ i ) {
 	  imm_dom = merge(imm_dom, node->fanout(i));
 	}
       }
@@ -655,7 +659,7 @@ TpgNetwork::set(const BnNetwork& network)
   //////////////////////////////////////////////////////////////////////
   vector<TpgNode*> ffr_root_list;
   vector<TpgNode*> mffc_root_list;
-  for (ymuint i = 0; i < mNodeNum; ++ i) {
+  for ( int i = 0; i < mNodeNum; ++ i ) {
     TpgNode* node = mNodeArray[i];
     if ( !dmarks[node->id()] ) {
       // データ系のノードでなければスキップ
@@ -677,7 +681,7 @@ TpgNetwork::set(const BnNetwork& network)
   //////////////////////////////////////////////////////////////////////
   mFfrNum = ffr_root_list.size();
   mFfrArray = new TpgFFR[mFfrNum];
-  for (ymuint i = 0; i < mFfrNum; ++ i) {
+  for ( int i = 0; i < mFfrNum; ++ i ) {
     TpgNode* node = ffr_root_list[i];
     TpgFFR* ffr = &mFfrArray[i];
     set_ffr(node, ffr);
@@ -689,7 +693,7 @@ TpgNetwork::set(const BnNetwork& network)
   //////////////////////////////////////////////////////////////////////
   mMffcNum = mffc_root_list.size();
   mMffcArray = new TpgMFFC[mMffcNum];
-  for (ymuint i = 0; i < mMffcNum; ++ i) {
+  for ( int i = 0; i < mMffcNum; ++ i ) {
     TpgNode* node = mffc_root_list[i];
     TpgMFFC* mffc = &mMffcArray[i];
     set_mffc(node, mffc);
@@ -703,7 +707,7 @@ class FoNodeLt
 public:
 
   // コンストラクタ
-  FoNodeLt(const vector<ymuint>& level_array) :
+  FoNodeLt(const vector<int>& level_array) :
     mLevelArray(level_array)
   {
   }
@@ -721,7 +725,7 @@ private:
   // データメンバ
   //////////////////////////////////////////////////////////////////////
 
-  const vector<ymuint>& mLevelArray;
+  const vector<int>& mLevelArray;
 
 };
 
@@ -733,11 +737,13 @@ END_NONAMESPACE
 // @param[in] fanout_num ファンアウト数
 // @return 生成したノードを返す．
 TpgNode*
-TpgNetwork::make_input_node(ymuint iid,
+TpgNetwork::make_input_node(int iid,
 			    const string& name,
-			    ymuint fanout_num)
+			    int fanout_num)
 {
-  TpgNode* node = TpgNode::make_input(mNodeNum, name, iid, fanout_num, mAlloc);
+  TpgNodeFactory factory(mAlloc);
+
+  TpgNode* node = factory.make_input(mNodeNum, name, iid, fanout_num);
   mNodeArray[mNodeNum] = node;
   ++ mNodeNum;
 
@@ -759,11 +765,13 @@ TpgNetwork::make_input_node(ymuint iid,
 // @param[in] fanout_num ファンアウト数
 // @return 生成したノードを返す．
 TpgNode*
-TpgNetwork::make_output_node(ymuint oid,
+TpgNetwork::make_output_node(int oid,
 			     const string& name,
 			     TpgNode* inode)
 {
-  TpgNode* node = TpgNode::make_output(mNodeNum, name, oid, inode, mAlloc);
+  TpgNodeFactory factory(mAlloc);
+
+  TpgNode* node = factory.make_output(mNodeNum, name, oid, inode);
   mNodeArray[mNodeNum] = node;
   ++ mNodeNum;
 
@@ -771,8 +779,8 @@ TpgNetwork::make_output_node(ymuint oid,
 
   // 入力位置の故障を生成
   const char* c_name = node->name();
-  ymuint ipos = 0;
-  for (int val = 0; val < 2; ++ val) {
+  int ipos = 0;
+  for ( int val = 0; val < 2; ++ val ) {
     new_ifault(c_name, ipos, val, InodeInfo(node, ipos), nullptr);
   }
 
@@ -786,12 +794,14 @@ TpgNetwork::make_output_node(ymuint oid,
 // @param[in] inode 入力のノード
 // @return 生成したノードを返す．
 TpgNode*
-TpgNetwork::make_dff_input_node(ymuint oid,
+TpgNetwork::make_dff_input_node(int oid,
 				TpgDff* dff,
 				const string& name,
 				TpgNode* inode)
 {
-  TpgNode* node = TpgNode::make_dff_input(mNodeNum, name, oid, dff, inode, mAlloc);
+  TpgNodeFactory factory(mAlloc);
+
+  TpgNode* node = factory.make_dff_input(mNodeNum, name, oid, dff, inode);
   mNodeArray[mNodeNum] = node;
   ++ mNodeNum;
 
@@ -799,27 +809,29 @@ TpgNetwork::make_dff_input_node(ymuint oid,
 
   // 入力位置の故障を生成
   const char* c_name = node->name();
-  ymuint ipos = 0;
-  for (int val = 0; val < 2; ++ val) {
+  int ipos = 0;
+  for ( int val = 0; val < 2; ++ val ) {
     new_ifault(c_name, ipos, val, InodeInfo(node, ipos), nullptr);
   }
 
   return node;
 }
 
-// @brief 入力ノードを生成する．
+// @brief DFFの出力ノードを生成する．
 // @param[in] iid 入力の番号
 // @param[in] dff 接続しているDFF
 // @param[in] name ノード名
 // @param[in] fanout_num ファンアウト数
 // @return 生成したノードを返す．
 TpgNode*
-TpgNetwork::make_dff_output_node(ymuint iid,
+TpgNetwork::make_dff_output_node(int iid,
 				 TpgDff* dff,
 				 const string& name,
-				 ymuint fanout_num)
+				 int fanout_num)
 {
-  TpgNode* node = TpgNode::make_dff_output(mNodeNum, name, iid, dff, fanout_num, mAlloc);
+  TpgNodeFactory factory(mAlloc);
+
+  TpgNode* node = factory.make_dff_output(mNodeNum, name, iid, dff, fanout_num);
   mNodeArray[mNodeNum] = node;
   ++ mNodeNum;
 
@@ -844,7 +856,9 @@ TpgNetwork::make_dff_clock_node(TpgDff* dff,
 				const string& name,
 				TpgNode* inode)
 {
-  TpgNode* node = TpgNode::make_dff_clock(mNodeNum, name, dff, inode, mAlloc);
+  TpgNodeFactory factory(mAlloc);
+
+  TpgNode* node = factory.make_dff_clock(mNodeNum, name, dff, inode);
   mNodeArray[mNodeNum] = node;
   ++ mNodeNum;
 
@@ -852,8 +866,8 @@ TpgNetwork::make_dff_clock_node(TpgDff* dff,
 
   // 入力位置の故障を生成
   const char* c_name = node->name();
-  ymuint ipos = 0;
-  for (int val = 0; val < 2; ++ val) {
+  int ipos = 0;
+  for ( int val = 0; val < 2; ++ val ) {
     new_ifault(c_name, ipos, val, InodeInfo(node, ipos), nullptr);
   }
 
@@ -870,7 +884,9 @@ TpgNetwork::make_dff_clear_node(TpgDff* dff,
 				const string& name,
 				TpgNode* inode)
 {
-  TpgNode* node = TpgNode::make_dff_clear(mNodeNum, name, dff, inode, mAlloc);
+  TpgNodeFactory factory(mAlloc);
+
+  TpgNode* node = factory.make_dff_clear(mNodeNum, name, dff, inode);
   mNodeArray[mNodeNum] = node;
   ++ mNodeNum;
 
@@ -878,8 +894,8 @@ TpgNetwork::make_dff_clear_node(TpgDff* dff,
 
   // 入力位置の故障を生成
   const char* c_name = node->name();
-  ymuint ipos = 0;
-  for (int val = 0; val < 2; ++ val) {
+  int ipos = 0;
+  for ( int val = 0; val < 2; ++ val ) {
     new_ifault(c_name, ipos, val, InodeInfo(node, ipos), nullptr);
   }
 
@@ -896,7 +912,9 @@ TpgNetwork::make_dff_preset_node(TpgDff* dff,
 				 const string& name,
 				 TpgNode* inode)
 {
-  TpgNode* node = TpgNode::make_dff_preset(mNodeNum, name, dff, inode, mAlloc);
+  TpgNodeFactory factory(mAlloc);
+
+  TpgNode* node = factory.make_dff_preset(mNodeNum, name, dff, inode);
   mNodeArray[mNodeNum] = node;
   ++ mNodeNum;
 
@@ -904,8 +922,8 @@ TpgNetwork::make_dff_preset_node(TpgDff* dff,
 
   // 入力位置の故障を生成
   const char* c_name = node->name();
-  ymuint ipos = 0;
-  for (int val = 0; val < 2; ++ val) {
+  int ipos = 0;
+  for ( int val = 0; val < 2; ++ val ) {
     new_ifault(c_name, ipos, val, InodeInfo(node, ipos), nullptr);
   }
 
@@ -922,53 +940,53 @@ TpgNode*
 TpgNetwork::make_logic_node(const string& src_name,
 			    const TpgGateInfo* node_info,
 			    const vector<TpgNode*>& fanin_list,
-			    ymuint fanout_num)
+			    int fanout_num)
 {
-  ymuint ni = fanin_list.size();
+  int ni = fanin_list.size();
 
   // 複合型の場合の入力ノードを納める配列
   vector<InodeInfo> inode_array(ni);
 
-  GateType gate_type = node_info->gate_type();
   TpgNode* node = nullptr;
-  if ( gate_type != kGateCPLX ) {
+  if ( node_info->is_simple() ) {
     // 組み込み型の場合．
     // 2入力以上の XOR/XNOR ゲートを2入力に分解する．
-    if ( gate_type == kGateXOR && ni > 2 ) {
+    GateType gate_type = node_info->gate_type();
+    if ( gate_type == GateType::XOR && ni > 2 ) {
       vector<TpgNode*> tmp_list(2);
       tmp_list[0] = fanin_list[0];
       tmp_list[1] = fanin_list[1];
-      TpgNode* tmp_node = make_prim_node(string(), kGateXOR, tmp_list, 1);
+      TpgNode* tmp_node = make_prim_node(string(), GateType::XOR, tmp_list, 1);
       inode_array[0].set(tmp_node, 0);
       inode_array[1].set(tmp_node, 1);
-      for (ymuint i = 2; i < ni; ++ i) {
+      for ( int i = 2; i < ni; ++ i ) {
 	tmp_list[0] = tmp_node;
 	tmp_list[1] = fanin_list[i];
 	if ( i < ni - 1 ) {
-	  tmp_node = make_prim_node(string(), kGateXOR, tmp_list, 1);
+	  tmp_node = make_prim_node(string(), GateType::XOR, tmp_list, 1);
 	}
 	else {
-	  tmp_node = make_prim_node(src_name, kGateXOR, tmp_list, fanout_num);
+	  tmp_node = make_prim_node(src_name, GateType::XOR, tmp_list, fanout_num);
 	}
 	inode_array[i].set(tmp_node, 1);
       }
       node = tmp_node;
     }
-    else if ( gate_type == kGateXNOR && ni > 2 ) {
+    else if ( gate_type == GateType::XNOR && ni > 2 ) {
       vector<TpgNode*> tmp_list(2);
       tmp_list[0] = fanin_list[0];
       tmp_list[1] = fanin_list[1];
-      TpgNode* tmp_node = make_prim_node(string(), kGateXOR, tmp_list, 1);
+      TpgNode* tmp_node = make_prim_node(string(), GateType::XOR, tmp_list, 1);
       inode_array[0].set(tmp_node, 0);
       inode_array[1].set(tmp_node, 1);
-      for (ymuint i = 2; i < ni; ++ i) {
+      for ( int i = 2; i < ni; ++ i ) {
 	tmp_list[0] = tmp_node;
 	tmp_list[1] = fanin_list[i];
 	if ( i < ni - 1 ) {
-	  tmp_node = make_prim_node(string(), kGateXOR, tmp_list, 1);
+	  tmp_node = make_prim_node(string(), GateType::XOR, tmp_list, 1);
 	}
 	else {
-	  tmp_node = make_prim_node(src_name, kGateXNOR, tmp_list, fanout_num);
+	  tmp_node = make_prim_node(src_name, GateType::XNOR, tmp_list, fanout_num);
 	}
 	inode_array[i].set(tmp_node, i);
       }
@@ -976,7 +994,7 @@ TpgNetwork::make_logic_node(const string& src_name,
     }
     else {
       node = make_prim_node(src_name, gate_type, fanin_list, fanout_num);
-      for (ymuint i = 0; i < ni; ++ i) {
+      for ( int i = 0; i < ni; ++ i ) {
 	inode_array[i].set(node, i);
       }
     }
@@ -988,9 +1006,9 @@ TpgNetwork::make_logic_node(const string& src_name,
     // pos * 2 + 0: 肯定のリテラル
     // pos * 2 + 1: 否定のリテラルに対応する．
     vector<TpgNode*> leaf_nodes(ni * 2, nullptr);
-    for (ymuint i = 0; i < ni; ++ i) {
-      ymuint p_num = expr.litnum(VarId(i), false);
-      ymuint n_num = expr.litnum(VarId(i), true);
+    for ( int i = 0; i < ni; ++ i ) {
+      int p_num = expr.litnum(VarId(i), false);
+      int n_num = expr.litnum(VarId(i), true);
       TpgNode* inode = fanin_list[i];
       if ( n_num == 0 ) {
 	if ( p_num == 1 ) {
@@ -1001,8 +1019,7 @@ TpgNetwork::make_logic_node(const string& src_name,
 	else {
 	  // 肯定のリテラルが2回以上現れている場合
 	  // ブランチの故障に対応するためにダミーのバッファをつくる．
-	  TpgNode* dummy_buff = make_prim_node(string(), kGateBUFF,
-					       vector<TpgNode*>(1, inode), p_num);
+	  TpgNode* dummy_buff = make_buff_node(inode, p_num);
 	  leaf_nodes[i * 2 + 0] = dummy_buff;
 	  // このバッファの入力が故障位置となる．
 	  inode_array[i].set(dummy_buff, 0);
@@ -1012,15 +1029,13 @@ TpgNetwork::make_logic_node(const string& src_name,
 	if ( p_num > 0 ) {
 	  // 肯定と否定のリテラルがともに現れる場合
 	  // ブランチの故障に対応するためにダミーのバッファを作る．
-	  TpgNode* dummy_buff = make_prim_node(string(), kGateBUFF,
-					       vector<TpgNode*>(1, inode), p_num + 1);
+	  TpgNode* dummy_buff = make_buff_node(inode, p_num + 1);
 	  inode = dummy_buff;
 	  leaf_nodes[i * 2 + 0] = dummy_buff;
 	}
 
 	// 否定のリテラルに対応するNOTゲートを作る．
-	TpgNode* not_gate = make_prim_node(string(), kGateNOT,
-					   vector<TpgNode*>(1, inode), n_num);
+	TpgNode* not_gate = make_not_node(inode, n_num);
 	leaf_nodes[i * 2 + 1] = not_gate;
 
 	if ( p_num > 0 ) {
@@ -1044,23 +1059,23 @@ TpgNetwork::make_logic_node(const string& src_name,
 
   // 入力位置の故障を生成
   mAuxInfoArray[node->id()].init(ni, mAlloc);
-  for (ymuint i = 0; i < ni; ++ i) {
-    Val3 oval0 = node_info->cval(i, kVal0);
-    Val3 oval1 = node_info->cval(i, kVal1);
+  for ( int i = 0; i < ni; ++ i ) {
+    Val3 oval0 = node_info->cval(i, Val3::_0);
+    Val3 oval1 = node_info->cval(i, Val3::_1);
 
     TpgFault* rep0 = nullptr;
-    if ( oval0 == kVal0 ) {
+    if ( oval0 == Val3::_0 ) {
       rep0 = _node_output_fault(node->id(), 0);
     }
-    else if ( oval0 == kVal1 ) {
+    else if ( oval0 == Val3::_1 ) {
       rep0 = _node_output_fault(node->id(), 1);
     }
 
     TpgFault* rep1 = nullptr;
-    if ( oval1 == kVal0 ) {
+    if ( oval1 == Val3::_0 ) {
       rep1 = _node_output_fault(node->id(), 0);
     }
-    else if ( oval1 == kVal1 ) {
+    else if ( oval1 == Val3::_1 ) {
       rep1 = _node_output_fault(node->id(), 1);
     }
     new_ifault(c_name, i, 0, inode_array[i], rep0);
@@ -1085,35 +1100,35 @@ TpgNetwork::make_cplx_node(const string& name,
 			   const Expr& expr,
 			   const vector<TpgNode*>& leaf_nodes,
 			   vector<InodeInfo>& inode_array,
-			   ymuint fanout_num)
+			   int fanout_num)
 {
   if ( expr.is_posiliteral() ) {
-    ymuint iid = expr.varid().val();
+    int iid = expr.varid().val();
     return leaf_nodes[iid * 2 + 0];
   }
   if ( expr.is_negaliteral() ) {
-    ymuint iid = expr.varid().val();
+    int iid = expr.varid().val();
     return leaf_nodes[iid * 2 + 1];
   }
 
   GateType gate_type;
   if ( expr.is_and() ) {
-    gate_type = kGateAND;
+    gate_type = GateType::AND;
   }
   else if ( expr.is_or() ) {
-    gate_type = kGateOR;
+    gate_type = GateType::OR;
   }
   else if ( expr.is_xor() ) {
-    gate_type = kGateXOR;
+    gate_type = GateType::XOR;
   }
   else {
     ASSERT_NOT_REACHED;
   }
 
   // 子供の論理式を表すノード(の木)を作る．
-  ymuint nc = expr.child_num();
+  int nc = expr.child_num();
   vector<TpgNode*> fanins(nc);
-  for (ymuint i = 0; i < nc; ++ i) {
+  for ( int i = 0; i < nc; ++ i ) {
     const Expr& expr1 = expr.child(i);
     TpgNode* inode = make_cplx_node(string(), expr1, leaf_nodes, inode_array, 1);
     ASSERT_COND( inode != nullptr );
@@ -1125,11 +1140,11 @@ TpgNetwork::make_cplx_node(const string& name,
 
   // オペランドがリテラルの場合，inode_array[]
   // の設定を行う．
-  for (ymuint i = 0; i < nc; ++ i) {
+  for ( int i = 0; i < nc; ++ i ) {
     // 美しくないけどスマートなやり方を思いつかない．
     const Expr& expr1 = expr.child(i);
     if ( expr1.is_posiliteral() ) {
-      ymuint iid = expr1.varid().val();
+      int iid = expr1.varid().val();
       if ( inode_array[iid].mNode == nullptr ) {
 	inode_array[iid].set(node, i);
       }
@@ -1149,18 +1164,42 @@ TpgNode*
 TpgNetwork::make_prim_node(const string& name,
 			   GateType type,
 			   const vector<TpgNode*>& fanin_list,
-			   ymuint fanout_num)
+			   int fanout_num)
 {
-  TpgNode* node = TpgNode::make_logic(mNodeNum, name, type, fanin_list, fanout_num, mAlloc);
+  TpgNodeFactory factory(mAlloc);
+
+  TpgNode* node = factory.make_logic(mNodeNum, name, type, fanin_list, fanout_num);
   mNodeArray[mNodeNum] = node;
   ++ mNodeNum;
 
-  ymuint id = node->id();
-  ymuint fanin_num = fanin_list.size();
+  int id = node->id();
+  int fanin_num = fanin_list.size();
 
   mAuxInfoArray[id].init(fanin_num, mAlloc);
 
   return node;
+}
+
+// @brief バッファを生成する．
+// @param[in] fanin ファンインのノード
+// @param[in] fanout_num ファンアウト数
+// @return 生成したノードを返す．
+TpgNode*
+TpgNetwork::make_buff_node(TpgNode* fanin,
+			   int fanout_num)
+{
+  return make_prim_node(string(), GateType::BUFF, vector<TpgNode*>(1, fanin), fanout_num);
+}
+
+// @brief インバーターを生成する．
+// @param[in] fanin ファンインのノード
+// @param[in] fanout_num ファンアウト数
+// @return 生成したノードを返す．
+TpgNode*
+TpgNetwork::make_not_node(TpgNode* fanin,
+			  int fanout_num)
+{
+  return make_prim_node(string(), GateType::NOT, vector<TpgNode*>(1, fanin), fanout_num);
 }
 
 // @brief 出力の故障を作る．
@@ -1190,13 +1229,13 @@ TpgNetwork::new_ofault(const char* name,
 // 複合型の場合には異なる．
 void
 TpgNetwork::new_ifault(const char* name,
-		       ymuint ipos,
+		       int ipos,
 		       int val,
 		       const InodeInfo& inode_info,
 		       TpgFault* rep)
 {
   TpgNode* node = inode_info.mNode;
-  ymuint inode_pos = inode_info.mPos;
+  int inode_pos = inode_info.mPos;
   TpgNode* inode = node->fanin(inode_pos);
   void* p = mAlloc.get_memory(sizeof(TpgBranchFault));
   TpgFault* f = new (p) TpgBranchFault(mFaultNum, name, val, ipos, node, inode, inode_pos, rep);
@@ -1215,9 +1254,9 @@ TpgNetwork::set_rep_faults(TpgNode* node)
     TpgNode* onode = node->fanout(0);
     // ファンアウト先が一つならばそのファンイン
     // ブランチの故障と出力の故障は等価
-    ymuint ni = onode->fanin_num();
-    ymuint ipos = ni;
-    for (ymuint i = 0; i < ni; ++ i) {
+    int ni = onode->fanin_num();
+    int ipos = ni;
+    for ( int i = 0; i < ni; ++ i ) {
       if ( onode->fanin(i) == node ) {
 	ipos = i;
 	break;
@@ -1264,8 +1303,8 @@ TpgNetwork::set_rep_faults(TpgNode* node)
     }
   }
 
-  ymuint ni = node->fanin_num();
-  for (ymuint i = 0; i < ni; ++ i) {
+  int ni = node->fanin_num();
+  for ( int i = 0; i < ni; ++ i ) {
     TpgFault* if0 = _node_input_fault(node->id(), 0, i);
     if ( if0 != nullptr ) {
       TpgFault* rep0 = if0->_rep_fault();
@@ -1313,8 +1352,8 @@ TpgNetwork::set_ffr(TpgNode* root,
 
     node->add_to_fault_list(fault_list);
 
-    ymuint ni = node->fanin_num();
-    for (ymuint i = 0; i < ni; ++ i) {
+    int ni = node->fanin_num();
+    for ( int i = 0; i < ni; ++ i ) {
       TpgNode* inode = node->fanin(i);
       if ( inode->ffr_root() != inode ) {
 	node_list.push_back(inode);
@@ -1351,8 +1390,8 @@ TpgNetwork::set_mffc(TpgNode* root,
 
     node->add_to_fault_list(fault_list);
 
-    ymuint ni = node->fanin_num();
-    for (ymuint i = 0; i < ni; ++ i) {
+    int ni = node->fanin_num();
+    for ( int i = 0; i < ni; ++ i ) {
       TpgNode* inode = node->fanin(i);
       if ( !mark[inode->id()] &&
 	   inode->imm_dom() != nullptr ) {
@@ -1366,12 +1405,22 @@ TpgNetwork::set_mffc(TpgNode* root,
   mffc->set(root, ffr_list, fault_list, mAlloc);
 }
 
+// @brief DFF を得る．
+// @param[in] pos 位置番号 ( 0 <= pos < dff_num() )
+const TpgDff*
+TpgNetwork::dff(int pos) const
+{
+  ASSERT_COND( pos >= 0 && pos < dff_num() );
+
+  return &mDffArray[pos];
+}
+
 // @brief MFFC を返す．
 // @param[in] pos 位置番号 ( 0 <= pos < mffc_num() )
 const TpgMFFC*
-TpgNetwork::mffc(ymuint pos) const
+TpgNetwork::mffc(int pos) const
 {
-  ASSERT_COND( pos < mffc_num() );
+  ASSERT_COND( pos >= 0 && pos < mffc_num() );
 
   return &mMffcArray[pos];
 }
@@ -1379,9 +1428,9 @@ TpgNetwork::mffc(ymuint pos) const
 // @brief FFR を返す．
 // @param[in] pos 位置番号 ( 0 <= pos < ffr_num() )
 const TpgFFR*
-TpgNetwork::ffr(ymuint pos) const
+TpgNetwork::ffr(int pos) const
 {
-  ASSERT_COND( pos < ffr_num() );
+  ASSERT_COND( pos >= 0 && pos < ffr_num() );
 
   return &mFfrArray[pos];
 }
@@ -1393,8 +1442,8 @@ void
 print_network(ostream& s,
 	      const TpgNetwork& network)
 {
-  ymuint n = network.node_num();
-  for (ymuint i = 0; i < n; ++ i) {
+  int n = network.node_num();
+  for ( int i = 0; i < n; ++ i ) {
     const TpgNode* node = network.node(i);
     print_node(s, node);
     s << ": ";
@@ -1429,10 +1478,10 @@ print_network(ostream& s,
     }
     else if ( node->is_logic() ) {
       s << node->gate_type();
-      ymuint ni = node->fanin_num();
+      int ni = node->fanin_num();
       if ( ni > 0 ) {
 	s << "(";
-	for (ymuint j = 0; j < ni; ++ j) {
+	for ( int j = 0; j < ni; ++ j ) {
 	  const TpgNode* inode = node->fanin(j);
 	  s << " ";
 	  print_node(s, inode);
@@ -1484,15 +1533,14 @@ AuxNodeInfo::~AuxNodeInfo()
 // @param[in] ni 入力数
 // @param[in] alloc メモリアロケータ
 void
-AuxNodeInfo::init(ymuint ni,
+AuxNodeInfo::init(int ni,
 		  Alloc& alloc)
 {
   mFaninNum = ni;
 
-  ymuint ni2 = ni * 2;
-  void* q = alloc.get_memory(sizeof(TpgFault*) * ni2);
-  mInputFaults = new (q) TpgFault*[ni2];
-  for (ymuint i = 0; i < ni2; ++ i) {
+  int ni2 = ni * 2;
+  mInputFaults = alloc.get_array<TpgFault*>(ni2);
+  for ( int i = 0; i < ni2; ++ i ) {
     mInputFaults[i] = nullptr;
   }
 }
@@ -1514,12 +1562,12 @@ AuxNodeInfo::set_output_fault(int val,
 // @param[in] val 故障値 ( 0 / 1 )
 // @param[in] f 故障
 void
-AuxNodeInfo::set_input_fault(ymuint ipos,
+AuxNodeInfo::set_input_fault(int ipos,
 			     int val,
 			     TpgFault* f)
 {
   ASSERT_COND( val == 0 || val == 1 );
-  ASSERT_COND( ipos < mFaninNum );
+  ASSERT_COND( ipos >= 0 && ipos < mFaninNum );
 
   mInputFaults[(ipos * 2) + val] = f;
 }

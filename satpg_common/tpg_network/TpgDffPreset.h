@@ -5,7 +5,7 @@
 /// @brief TpgDffPreset のヘッダファイル
 /// @author Yusuke Matsunaga (松永 裕介)
 ///
-/// Copyright (C) 2016 Yusuke Matsunaga
+/// Copyright (C) 2016, 2018 Yusuke Matsunaga
 /// All rights reserved.
 
 
@@ -21,17 +21,20 @@ BEGIN_NAMESPACE_YM_SATPG
 class TpgDffPreset :
   public TpgDffControl
 {
-public:
+  friend class TpgNodeFactory;
+
+private:
 
   /// @brief コンストラクタ
   /// @param[in] id ID番号
   /// @param[in] dff 接続しているDFF
   /// @param[in] fanin ファンインのノード
-  TpgDffPreset(ymuint id,
+  TpgDffPreset(int id,
 	       TpgDff* dff,
 	       TpgNode* fanin);
 
   /// @brief デストラクタ
+  virtual
   ~TpgDffPreset();
 
 
@@ -43,7 +46,7 @@ public:
   /// @brief DFF のプリセット端子に接続している出力タイプの時 true を返す．
   virtual
   bool
-  is_dff_preset() const;
+  is_dff_preset() const override;
 
 
 public:

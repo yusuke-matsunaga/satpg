@@ -11,6 +11,7 @@
 #include "TpgStemFault.h"
 #include "TpgBranchFault.h"
 #include "TpgNode.h"
+#include "Val3.h"
 
 
 BEGIN_NAMESPACE_YM_SATPG
@@ -23,13 +24,13 @@ BEGIN_NAMESPACE_YM_SATPG
 // @param[in] id ID番号
 // @param[in] val 故障値
 // @param[in] rep_fault 代表故障
-TpgFault::TpgFault(ymuint id,
+TpgFault::TpgFault(int id,
 		   int val,
 		   TpgFault* rep_fault) :
   mRepFault(rep_fault)
 {
   // val は 0 か 1 のはずだが念の為マスクしておく
-  mIdVal = (id << 1) | static_cast<ymuint>(val & 1);
+  mIdVal = (id << 1) | static_cast<int>(val & 1);
 }
 
 // @brief デストラクタ
@@ -59,6 +60,18 @@ TpgFault::set_mffc(const TpgMFFC* mffc)
   mMFFC = mffc;
 }
 
+// @brief 故障値を3値型で返す．
+Val3
+TpgFault::val3() const
+{
+  if ( val() ) {
+    return Val3::_1;
+  }
+  else {
+    return Val3::_0;
+  }
+}
+
 // @brief ストリーム出力演算子
 // @param[in] s 出力先のストリーム
 // @param[in] f 故障
@@ -80,7 +93,7 @@ operator<<(ostream& s,
 // @param[in] val 故障値
 // @param[in] node 故障位置のノード
 // @param[in] rep_fault 代表故障
-TpgStemFault::TpgStemFault(ymuint id,
+TpgStemFault::TpgStemFault(int id,
 			   const char* name,
 			   int val,
 			   const TpgNode* node,
@@ -121,7 +134,7 @@ TpgStemFault::is_stem_fault() const
 }
 
 // @brief ブランチの入力位置を返す．
-ymuint
+int
 TpgStemFault::fault_pos() const
 {
   ASSERT_NOT_REACHED;
@@ -131,7 +144,7 @@ TpgStemFault::fault_pos() const
 // @brief tpg_inode 上の故障位置を返す．
 //
 // is_input_fault() == true の時のみ意味を持つ．
-ymuint
+int
 TpgStemFault::tpg_pos() const
 {
   ASSERT_NOT_REACHED;
@@ -167,13 +180,13 @@ TpgStemFault::str() const
 // @param[in] inode 入力側の TpgNode
 // @param[in] tpg_pos node 上の故障位置
 // @param[in] rep_fault 代表故障
-TpgBranchFault::TpgBranchFault(ymuint id,
+TpgBranchFault::TpgBranchFault(int id,
 			       const char* name,
 			       int val,
-			       ymuint pos,
+			       int pos,
 			       const TpgNode* onode,
 			       const TpgNode* inode,
-			       ymuint tpg_pos,
+			       int tpg_pos,
 			       TpgFault* rep_fault) :
   TpgFault(id, val, rep_fault),
   mNodeName(name),
@@ -215,7 +228,7 @@ TpgBranchFault::is_stem_fault() const
 // @brief ブランチの入力位置を返す．
 //
 // is_branch_fault() == true の時のみ意味を持つ．
-ymuint
+int
 TpgBranchFault::fault_pos() const
 {
   return mPos;
@@ -224,7 +237,7 @@ TpgBranchFault::fault_pos() const
 // @brief tpg_inode 上の故障位置を返す．
 //
 // is_branch_fault() == true の時のみ意味を持つ．
-ymuint
+int
 TpgBranchFault::tpg_pos() const
 {
   return mTpgPos;

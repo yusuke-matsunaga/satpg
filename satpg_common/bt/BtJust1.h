@@ -26,7 +26,7 @@ public:
   /// @brief コンストラクタ
   /// @param[in] max_id ノード番号の最大値
   /// @param[in] fault_type 故障の型
-  BtJust1(ymuint max_id,
+  BtJust1(int max_id,
 	  FaultType fault_type);
 
   /// @brief デストラクタ

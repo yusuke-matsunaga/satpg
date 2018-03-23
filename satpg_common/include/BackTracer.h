@@ -29,9 +29,9 @@ public:
   /// @param[in] xmode モード
   /// @param[in] fault_type 故障の型
   /// @param[in] max_id ID番号の最大値
-  BackTracer(ymuint xmode,
+  BackTracer(int xmode,
 	     FaultType fault_type,
-	     ymuint max_id);
+	     int max_id);
 
   /// @brief デストラクタ
   ~BackTracer();

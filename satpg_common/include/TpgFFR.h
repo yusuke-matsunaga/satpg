@@ -48,13 +48,13 @@ public:
   root() const;
 
   /// @brief このFFRに含まれる代表故障の数を返す．
-  ymuint
+  int
   fault_num() const;
 
   /// @brief このFFRに含まれる代表故障を返す．
   /// @param[in] pos 位置番号 ( 0 <= pos < fault_num() )
   const TpgFault*
-  fault(ymuint pos) const;
+  fault(int pos) const;
 
 
 public:
@@ -87,7 +87,7 @@ private:
   const TpgNode* mRoot;
 
   // 故障数
-  ymuint mFaultNum;
+  int mFaultNum;
 
   // 故障の配列
   const TpgFault** mFaultList;
@@ -124,7 +124,7 @@ TpgFFR::root() const
 
 // @brief このFFRに含まれる代表故障の数を返す．
 inline
-ymuint
+int
 TpgFFR::fault_num() const
 {
   return mFaultNum;
@@ -134,7 +134,7 @@ TpgFFR::fault_num() const
 // @param[in] pos 位置番号 ( 0 <= pos < fault_num() )
 inline
 const TpgFault*
-TpgFFR::fault(ymuint pos) const
+TpgFFR::fault(int pos) const
 {
   ASSERT_COND( pos < fault_num() );
 

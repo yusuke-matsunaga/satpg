@@ -5,7 +5,7 @@
 /// @brief TpgLogicAND[x] のヘッダファイル
 /// @author Yusuke Matsunaga (松永 裕介)
 ///
-/// Copyright (C) 2016 Yusuke Matsunaga
+/// Copyright (C) 2016, 2018 Yusuke Matsunaga
 /// All rights reserved.
 
 
@@ -21,17 +21,20 @@ BEGIN_NAMESPACE_YM_SATPG
 class TpgLogicAND2 :
   public TpgLogic2
 {
-public:
+  friend class TpgNodeFactory;
+
+private:
 
   /// @brief コンストラクタ
   /// @param[in] id ID番号
   /// @param[in] fanin_list ファンインのリスト
   ///
   /// fanin_list.size() == 2 であることを仮定している．
-  TpgLogicAND2(ymuint id,
+  TpgLogicAND2(int id,
 	       const vector<TpgNode*>& fanin_list);
 
   /// @brief デストラクタ
+  virtual
   ~TpgLogicAND2();
 
 
@@ -45,39 +48,39 @@ public:
   /// is_logic() が false の場合の返り値は不定
   virtual
   GateType
-  gate_type() const;
+  gate_type() const override;
 
   /// @brief controling value を得る．
   ///
   /// is_logic() が false の場合の返り値は不定
-  /// ない場合は kValX を返す．
+  /// ない場合は Val3::_X を返す．
   virtual
   Val3
-  cval() const;
+  cval() const override;
 
   /// @brief noncontroling valueを得る．
   ///
   /// is_logic() が false の場合の返り値は不定
-  /// ない場合は kValX を返す．
+  /// ない場合は Val3::_X を返す．
   virtual
   Val3
-  nval() const;
+  nval() const override;
 
   /// @brief controling output value を得る．
   ///
   /// is_logic() が false の場合の返り値は不定
-  /// ない場合は kValX を返す．
+  /// ない場合は Val3::_X を返す．
   virtual
   Val3
-  coval() const;
+  coval() const override;
 
   /// @brief noncontroling output value を得る．
   ///
   /// is_logic() が false の場合の返り値は不定
-  /// ない場合は kValX を返す．
+  /// ない場合は Val3::_X を返す．
   virtual
   Val3
-  noval() const;
+  noval() const override;
 
 };
 
@@ -89,17 +92,20 @@ public:
 class TpgLogicAND3 :
   public TpgLogic3
 {
-public:
+  friend class TpgNodeFactory;
+
+private:
 
   /// @brief コンストラクタ
   /// @param[in] id ID番号
   /// @param[in] fanin_list ファンインのリスト
   ///
   /// fanin_list.size() == 3 であることを仮定している．
-  TpgLogicAND3(ymuint id,
+  TpgLogicAND3(int id,
 	       const vector<TpgNode*>& fanin_list);
 
   /// @brief デストラクタ
+  virtual
   ~TpgLogicAND3();
 
 
@@ -113,39 +119,39 @@ public:
   /// is_logic() が false の場合の返り値は不定
   virtual
   GateType
-  gate_type() const;
+  gate_type() const override;
 
   /// @brief controling value を得る．
   ///
   /// is_logic() が false の場合の返り値は不定
-  /// ない場合は kValX を返す．
+  /// ない場合は Val3::_X を返す．
   virtual
   Val3
-  cval() const;
+  cval() const override;
 
   /// @brief noncontroling valueを得る．
   ///
   /// is_logic() が false の場合の返り値は不定
-  /// ない場合は kValX を返す．
+  /// ない場合は Val3::_X を返す．
   virtual
   Val3
-  nval() const;
+  nval() const override;
 
   /// @brief controling output value を得る．
   ///
   /// is_logic() が false の場合の返り値は不定
-  /// ない場合は kValX を返す．
+  /// ない場合は Val3::_X を返す．
   virtual
   Val3
-  coval() const;
+  coval() const override;
 
   /// @brief noncontroling output value を得る．
   ///
   /// is_logic() が false の場合の返り値は不定
-  /// ない場合は kValX を返す．
+  /// ない場合は Val3::_X を返す．
   virtual
   Val3
-  noval() const;
+  noval() const override;
 
 };
 
@@ -157,17 +163,20 @@ public:
 class TpgLogicAND4 :
   public TpgLogic4
 {
-public:
+  friend class TpgNodeFactory;
+
+private:
 
   /// @brief コンストラクタ
   /// @param[in] id ID番号
   /// @param[in] fanin_list ファンインのリスト
   ///
   /// fanin_list.size() == 4 であることを仮定している．
-  TpgLogicAND4(ymuint id,
+  TpgLogicAND4(int id,
 	       const vector<TpgNode*>& fanin_list);
 
   /// @brief デストラクタ
+  virtual
   ~TpgLogicAND4();
 
 
@@ -181,39 +190,39 @@ public:
   /// is_logic() が false の場合の返り値は不定
   virtual
   GateType
-  gate_type() const;
+  gate_type() const override;
 
   /// @brief controling value を得る．
   ///
   /// is_logic() が false の場合の返り値は不定
-  /// ない場合は kValX を返す．
+  /// ない場合は Val3::_X を返す．
   virtual
   Val3
-  cval() const;
+  cval() const override;
 
   /// @brief noncontroling valueを得る．
   ///
   /// is_logic() が false の場合の返り値は不定
-  /// ない場合は kValX を返す．
+  /// ない場合は Val3::_X を返す．
   virtual
   Val3
-  nval() const;
+  nval() const override;
 
   /// @brief controling output value を得る．
   ///
   /// is_logic() が false の場合の返り値は不定
-  /// ない場合は kValX を返す．
+  /// ない場合は Val3::_X を返す．
   virtual
   Val3
-  coval() const;
+  coval() const override;
 
   /// @brief noncontroling output value を得る．
   ///
   /// is_logic() が false の場合の返り値は不定
-  /// ない場合は kValX を返す．
+  /// ない場合は Val3::_X を返す．
   virtual
   Val3
-  noval() const;
+  noval() const override;
 
 };
 
@@ -225,13 +234,16 @@ public:
 class TpgLogicANDN :
   public TpgLogicN
 {
-public:
+  friend class TpgNodeFactory;
+
+private:
 
   /// @brief コンストラクタ
   /// @param[in] id ID番号
-  TpgLogicANDN(ymuint id);
+  TpgLogicANDN(int id);
 
   /// @brief デストラクタ
+  virtual
   ~TpgLogicANDN();
 
 
@@ -245,39 +257,39 @@ public:
   /// is_logic() が false の場合の返り値は不定
   virtual
   GateType
-  gate_type() const;
+  gate_type() const override;
 
   /// @brief controling value を得る．
   ///
   /// is_logic() が false の場合の返り値は不定
-  /// ない場合は kValX を返す．
+  /// ない場合は Val3::_X を返す．
   virtual
   Val3
-  cval() const;
+  cval() const override;
 
   /// @brief noncontroling valueを得る．
   ///
   /// is_logic() が false の場合の返り値は不定
-  /// ない場合は kValX を返す．
+  /// ない場合は Val3::_X を返す．
   virtual
   Val3
-  nval() const;
+  nval() const override;
 
   /// @brief controling output value を得る．
   ///
   /// is_logic() が false の場合の返り値は不定
-  /// ない場合は kValX を返す．
+  /// ない場合は Val3::_X を返す．
   virtual
   Val3
-  coval() const;
+  coval() const override;
 
   /// @brief noncontroling output value を得る．
   ///
   /// is_logic() が false の場合の返り値は不定
-  /// ない場合は kValX を返す．
+  /// ない場合は Val3::_X を返す．
   virtual
   Val3
-  noval() const;
+  noval() const override;
 
 
 private:

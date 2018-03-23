@@ -6,16 +6,16 @@
 ///
 /// @author Yusuke Matsunaga (松永 裕介)
 ///
-/// Copyright (C) 2017 Yusuke Matsunaga
+/// Copyright (C) 2017, 2018 Yusuke Matsunaga
 /// All rights reserved.
 
 
-#include "satpg.h"
+#include "structenc_nsdef.h"
 #include "StructEnc.h"
 #include "TpgNode.h"
 
 
-BEGIN_NAMESPACE_YM_SATPG
+BEGIN_NAMESPACE_YM_SATPG_STRUCTENC
 
 //////////////////////////////////////////////////////////////////////
 /// @class PropCone PropCone.h "PropCone.h"
@@ -50,7 +50,7 @@ public:
   //////////////////////////////////////////////////////////////////////
 
   /// @brief ノード番号の最大値を返す．
-  ymuint
+  int
   max_id() const;
 
   /// @brief 関係するノードの変数を作る．
@@ -86,26 +86,26 @@ public:
   root_node() const;
 
   /// @brief TFO ノード数を得る．
-  ymuint
+  int
   tfo_num() const;
 
   /// @brief TFO ノードを得る．
   /// @param[in] pos 位置番号 ( 0 <= pos < tfo_num() )
   const TpgNode*
-  tfo_node(ymuint pos) const;
+  tfo_node(int pos) const;
 
   /// @brief TFO ノードのリストを得る．
   const vector<const TpgNode*>&
   tfo_node_list() const;
 
   /// @brief このコーンに関係する出力数を得る．
-  ymuint
+  int
   output_num() const;
 
   /// @brief このコーンに関係する出力を得る．
   /// @param[in] pos 位置番号 ( 0 <= pos < output_num() )
   const TpgNode*
-  output_node(ymuint pos) const;
+  output_node(int pos) const;
 
   /// @brief このコーンに関係する出力のリストを得る．
   const vector<const TpgNode*>&
@@ -218,7 +218,7 @@ private:
   bool mDetect;
 
   // ノードのIDの最大値
-  ymuint mMaxNodeId;
+  int mMaxNodeId;
 
   // ノードごとのいくつかのフラグをまとめた配列
   vector<ymuint8> mMarkArray;
@@ -244,7 +244,7 @@ private:
 
 // @brief ノード番号の最大値を返す．
 inline
-ymuint
+int
 PropCone::max_id() const
 {
   return mMaxNodeId;
@@ -260,7 +260,7 @@ PropCone::root_node() const
 
 // @brief TFO ノード数を得る．
 inline
-ymuint
+int
 PropCone::tfo_num() const
 {
   return mNodeList.size();
@@ -270,7 +270,7 @@ PropCone::tfo_num() const
 // @param[in] pos 位置番号 ( 0 <= pos < tfo_num() )
 inline
 const TpgNode*
-PropCone::tfo_node(ymuint pos) const
+PropCone::tfo_node(int pos) const
 {
   ASSERT_COND( pos < tfo_num() );
   return mNodeList[pos];
@@ -286,7 +286,7 @@ PropCone::tfo_node_list() const
 
 // @brief このコーンに関係する出力数を得る．
 inline
-ymuint
+int
 PropCone::output_num() const
 {
   return mOutputList.size();
@@ -296,7 +296,7 @@ PropCone::output_num() const
 // @param[in] pos 位置番号 ( 0 <= pos < output_num() )
 inline
 const TpgNode*
-PropCone::output_node(ymuint pos) const
+PropCone::output_node(int pos) const
 {
   ASSERT_COND( pos < output_num() );
   return mOutputList[pos];
@@ -393,14 +393,17 @@ inline
 void
 PropCone::set_tfo_mark(const TpgNode* node)
 {
-  mMarkArray[node->id()] |= 1U;
-  mNodeList.push_back(node);
-  if ( node->is_ppo() ) {
-    set_end_mark(node);
-    mOutputList.push_back(node);
-  }
-  else if ( end_mark(node) ) {
-    mOutputList.push_back(node);
+  int id = node->id();
+  if ( ((mMarkArray[id] >> 0) & 1U) == 0U ) {
+    mMarkArray[id] |= 1U;
+    mNodeList.push_back(node);
+    if ( node->is_ppo() ) {
+      set_end_mark(node);
+      mOutputList.push_back(node);
+    }
+    else if ( end_mark(node) ) {
+      mOutputList.push_back(node);
+    }
   }
 }
 
@@ -438,6 +441,6 @@ PropCone::solver()
   return mStructEnc.solver();
 }
 
-END_NAMESPACE_YM_SATPG
+END_NAMESPACE_YM_SATPG_STRUCTENC
 
 #endif // PROPCONE_H

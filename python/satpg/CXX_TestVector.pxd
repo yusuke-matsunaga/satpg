@@ -8,25 +8,22 @@
 
 from libcpp cimport bool
 from libcpp.string cimport string
-from CXX_Val3 cimport Val3
 from CXX_FaultType cimport FaultType
-
-ctypedef unsigned int ymuint
-
+from CXX_Val3 cimport Val3
 
 cdef extern from "TestVector.h" namespace "nsYm::nsSatpg" :
 
     # TestVector の cython ヴァージョン
     cdef cppclass TestVector :
-        ymuint input_num()
-        ymuint dff_num()
-        ymuint ppi_num()
+        int input_num()
+        int dff_num()
+        int ppi_num()
         FaultType fault_type()
-        Val3 ppi_val(ymuint pos)
-        Val3 input_val(ymuint pos)
-        Val3 dff_val(ymuint pos)
-        Val3 aux_input_val(ymuint pos)
-        ymuint x_count()
+        Val3 ppi_val(int pos)
+        Val3 input_val(int pos)
+        Val3 dff_val(int pos)
+        Val3 aux_input_val(int pos)
+        int x_count()
         @staticmethod
         bool is_conflict(const TestVector& tv1, const TestVector& tv2)
         bool operator==(const TestVector& right)

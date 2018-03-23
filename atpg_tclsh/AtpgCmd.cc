@@ -13,7 +13,7 @@
 #include "TpgNetwork.h"
 #include "TpgNode.h"
 #include "TpgFault.h"
-#include "ym/BnNode.h"
+#include "GateType.h"
 
 
 BEGIN_NAMESPACE_YM_SATPG
@@ -41,45 +41,45 @@ AtpgCmd::after_set_network()
 
   // 諸元を TCL 変数にセットしておく
   const TpgNetwork& network = _network();
-  ymuint nn = network.node_num();
-  ymuint n_buff = 0;
-  ymuint n_not = 0;
-  ymuint n_and = 0;
-  ymuint n_and2 = 0;
-  ymuint n_and3 = 0;
-  ymuint n_and4 = 0;
-  ymuint n_nand = 0;
-  ymuint n_nand2 = 0;
-  ymuint n_nand3 = 0;
-  ymuint n_nand4 = 0;
-  ymuint n_or = 0;
-  ymuint n_or2 = 0;
-  ymuint n_or3 = 0;
-  ymuint n_or4 = 0;
-  ymuint n_nor = 0;
-  ymuint n_nor2 = 0;
-  ymuint n_nor3 = 0;
-  ymuint n_nor4 = 0;
-  ymuint n_xor = 0;
-  ymuint n_xor2 = 0;
-  ymuint n_xnor = 0;
-  ymuint n_xnor2 = 0;
-  ymuint n_cplx = 0;
-  for (ymuint i = 0; i < nn; ++ i) {
+  int nn = network.node_num();
+  int n_buff = 0;
+  int n_not = 0;
+  int n_and = 0;
+  int n_and2 = 0;
+  int n_and3 = 0;
+  int n_and4 = 0;
+  int n_nand = 0;
+  int n_nand2 = 0;
+  int n_nand3 = 0;
+  int n_nand4 = 0;
+  int n_or = 0;
+  int n_or2 = 0;
+  int n_or3 = 0;
+  int n_or4 = 0;
+  int n_nor = 0;
+  int n_nor2 = 0;
+  int n_nor3 = 0;
+  int n_nor4 = 0;
+  int n_xor = 0;
+  int n_xor2 = 0;
+  int n_xnor = 0;
+  int n_xnor2 = 0;
+  int n_cplx = 0;
+  for (int i = 0; i < nn; ++ i) {
     const TpgNode* node = network.node(i);
     if ( !node->is_logic() ) {
       continue;
     }
     switch ( node->gate_type() ) {
-    case kGateBUFF:
+    case GateType::BUFF:
       ++ n_buff;
       break;
 
-    case kGateNOT:
+    case GateType::NOT:
       ++ n_not;
       break;
 
-    case kGateAND:
+    case GateType::AND:
       ++ n_and;
       switch ( node->fanin_num() ) {
       case 2: ++ n_and2; break;
@@ -88,7 +88,7 @@ AtpgCmd::after_set_network()
       }
       break;
 
-    case kGateNAND:
+    case GateType::NAND:
       ++ n_nand;
       switch ( node->fanin_num() ) {
       case 2: ++ n_nand2; break;
@@ -97,7 +97,7 @@ AtpgCmd::after_set_network()
       }
       break;
 
-    case kGateOR:
+    case GateType::OR:
       ++ n_or;
       switch ( node->fanin_num() ) {
       case 2: ++ n_or2; break;
@@ -106,7 +106,7 @@ AtpgCmd::after_set_network()
       }
       break;
 
-    case kGateNOR:
+    case GateType::NOR:
       ++ n_nor;
       switch ( node->fanin_num() ) {
       case 2: ++ n_nor2; break;
@@ -115,14 +115,14 @@ AtpgCmd::after_set_network()
       }
       break;
 
-    case kGateXOR:
+    case GateType::XOR:
       ++ n_xor;
       switch ( node->fanin_num() ) {
       case 2: ++ n_xor2; break;
       }
       break;
 
-    case kGateXNOR:
+    case GateType::XNOR:
       ++ n_xnor;
       switch ( node->fanin_num() ) {
       case 2: ++ n_xnor2; break;
@@ -171,17 +171,17 @@ void
 AtpgCmd::after_update_faults()
 {
   // 諸元を TCL 変数にセットしておく
-  ymuint n_all = _network().max_fault_id();
-  ymuint n_rep = _network().rep_fault_num();
-  ymuint n_remain = 0;
-  ymuint n_untest = 0;
-  ymuint n_det = 0;
-  for (ymuint i = 0; i < n_rep; ++ i) {
+  int n_all = _network().max_fault_id();
+  int n_rep = _network().rep_fault_num();
+  int n_remain = 0;
+  int n_untest = 0;
+  int n_det = 0;
+  for (int i = 0; i < n_rep; ++ i) {
     const TpgFault* fault = _network().rep_fault(i);
     switch ( _sa_fault_mgr().status(fault) ) {
-    case kFsDetected:   ++ n_det; break;
-    case kFsUntestable: ++ n_untest; break;
-    case kFsUndetected: ++ n_remain; break;
+    case FaultStatus::Detected:   ++ n_det; break;
+    case FaultStatus::Untestable: ++ n_untest; break;
+    case FaultStatus::Undetected: ++ n_remain; break;
     default: break;
     }
   }

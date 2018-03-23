@@ -9,6 +9,7 @@
 
 #include "Just2.h"
 #include "TpgDff.h"
+#include "GateType.h"
 
 
 BEGIN_NAMESPACE_YM_SATPG
@@ -24,7 +25,7 @@ END_NONAMESPACE
 // @param[in] max_id ID番号の最大値
 Justifier*
 new_Just2(bool td_mode,
-	  ymuint max_id)
+	  int max_id)
 {
   return new Just2(td_mode, max_id);
 }
@@ -37,7 +38,7 @@ new_Just2(bool td_mode,
 // @param[in] td_mode 遷移故障モードの時 true にするフラグ
 // @param[in] max_id ID番号の最大値
 Just2::Just2(bool td_mode,
-	     ymuint max_id) :
+	     int max_id) :
   JustBase(td_mode, max_id),
   mWeightArray(max_id * 2, 0U),
   mTmpArray(max_id * 2, 0.0)
@@ -72,7 +73,7 @@ Just2::operator()(const NodeValList& assign_list,
 
   mNodeList[0].clear();
   mNodeList[1].clear();
-  for (ymuint i = 0; i < assign_list.size(); ++ i) {
+  for (int i = 0; i < assign_list.size(); ++ i) {
     NodeVal nv = assign_list[i];
     const TpgNode* node = nv.node();
     int time = nv.time();
@@ -87,7 +88,7 @@ Just2::operator()(const NodeValList& assign_list,
     }
   }
 
-  for (ymuint i = 0; i < assign_list.size(); ++ i) {
+  for (int i = 0; i < assign_list.size(); ++ i) {
     NodeVal nv = assign_list[i];
     const TpgNode* node = nv.node();
     int time = nv.time();
@@ -98,7 +99,7 @@ Just2::operator()(const NodeValList& assign_list,
     for (vector<const TpgNode*>::const_iterator p = mNodeList[time].begin();
 	 p != mNodeList[time].end(); ++ p) {
       const TpgNode* node = *p;
-      ymuint index = node->id() * 2 + time;
+      int index = node->id() * 2 + time;
       mWeightArray[index] = 0;
       mTmpArray[index] = 0.0;
     }
@@ -147,58 +148,58 @@ Just2::justify(const TpgNode* node,
   Val3 oval = gval(node, time);
 
   switch ( node->gate_type() ) {
-  case kGateBUFF:
-  case kGateNOT:
+  case GateType::BUFF:
+  case GateType::NOT:
     // 無条件で唯一のファンインをたどる．
     just_all(node, time, pi_assign_list);
     break;
 
-  case kGateAND:
-    if ( oval == kVal1 ) {
+  case GateType::AND:
+    if ( oval == Val3::_1 ) {
       // すべてのファンインノードをたどる．
       just_all(node, time, pi_assign_list);
     }
-    else if ( oval == kVal0 ) {
+    else if ( oval == Val3::_0 ) {
       // 0の値を持つ最初のノードをたどる．
-      just_one(node, kVal0, time, pi_assign_list);
+      just_one(node, Val3::_0, time, pi_assign_list);
     }
     break;
 
-  case kGateNAND:
-    if ( oval == kVal1 ) {
+  case GateType::NAND:
+    if ( oval == Val3::_1 ) {
       // 0の値を持つ最初のノードをたどる．
-      just_one(node, kVal0, time, pi_assign_list);
+      just_one(node, Val3::_0, time, pi_assign_list);
     }
-    else if ( oval == kVal0 ) {
+    else if ( oval == Val3::_0 ) {
       // すべてのファンインノードをたどる．
       just_all(node, time, pi_assign_list);
     }
     break;
 
-  case kGateOR:
-    if ( oval == kVal1 ) {
+  case GateType::OR:
+    if ( oval == Val3::_1 ) {
       // 1の値を持つ最初のノードをたどる．
-      just_one(node, kVal1, time, pi_assign_list);
+      just_one(node, Val3::_1, time, pi_assign_list);
     }
-    else if ( oval == kVal0 ) {
+    else if ( oval == Val3::_0 ) {
       // すべてのファンインノードをたどる．
       just_all(node, time, pi_assign_list);
     }
     break;
 
-  case kGateNOR:
-    if ( oval == kVal1 ) {
+  case GateType::NOR:
+    if ( oval == Val3::_1 ) {
       // すべてのファンインノードをたどる．
       just_all(node, time, pi_assign_list);
     }
-    else if ( oval == kVal0 ) {
+    else if ( oval == Val3::_0 ) {
       // 1の値を持つ最初のノードをたどる．
-      just_one(node, kVal1, time, pi_assign_list);
+      just_one(node, Val3::_1, time, pi_assign_list);
     }
     break;
 
-  case kGateXOR:
-  case kGateXNOR:
+  case GateType::XOR:
+  case GateType::XNOR:
     // すべてのファンインノードをたどる．
     just_all(node, time, pi_assign_list);
     break;
@@ -222,8 +223,8 @@ Just2::just_all(const TpgNode* node,
     cout << "just_all(" << node->name() << "@" << time << " = " << gval(node, time) << ")" << endl;
   }
 
-  ymuint ni = node->fanin_num();
-  for (ymuint i = 0; i < ni; ++ i) {
+  int ni = node->fanin_num();
+  for (int i = 0; i < ni; ++ i) {
     const TpgNode* inode = node->fanin(i);
     justify(inode, time, pi_assign_list);
   }
@@ -244,10 +245,10 @@ Just2::just_one(const TpgNode* node,
     cout << "just_one(" << node->name() << "@" << time << " = " << gval(node, time) << ")" << endl;
   }
 
-  ymuint ni = node->fanin_num();
+  int ni = node->fanin_num();
   double min_val = DBL_MAX;
   const TpgNode* min_node = nullptr;
-  for (ymuint i = 0; i < ni; ++ i) {
+  for (int i = 0; i < ni; ++ i) {
     const TpgNode* inode = node->fanin(i);
     Val3 ival = gval(inode, time);
     if ( ival != val ) {
@@ -271,7 +272,7 @@ void
 Just2::add_weight(const TpgNode* node,
 		  int time)
 {
-  ymuint index = node->id() * 2 + time;
+  int index = node->id() * 2 + time;
 
   ++ mWeightArray[index];
   if ( mWeightArray[index] > 1 ) {
@@ -297,58 +298,58 @@ Just2::add_weight(const TpgNode* node,
     Val3 oval = gval(node, time);
 
     switch ( node->gate_type() ) {
-    case kGateBUFF:
-    case kGateNOT:
+    case GateType::BUFF:
+    case GateType::NOT:
       // 唯一のファンインノードをたどる．
       aw_all(node, time);
       break;
 
-    case kGateAND:
-      if ( oval == kVal1 ) {
+    case GateType::AND:
+      if ( oval == Val3::_1 ) {
 	// すべてのファンインノードをたどる．
 	aw_all(node, time);
       }
-      else if ( oval == kVal0 ) {
+      else if ( oval == Val3::_0 ) {
 	// 0の値を持つノードをたどる．
-	aw_one(node, kVal0, time);
+	aw_one(node, Val3::_0, time);
       }
       break;
 
-    case kGateNAND:
-      if ( oval == kVal1 ) {
+    case GateType::NAND:
+      if ( oval == Val3::_1 ) {
 	// 0の値を持つノードをたどる．
-	aw_one(node, kVal0, time);
+	aw_one(node, Val3::_0, time);
       }
-      else if ( oval == kVal0 ) {
+      else if ( oval == Val3::_0 ) {
 	// すべてのファンインノードをたどる．
 	aw_all(node, time);
       }
       break;
 
-    case kGateOR:
-      if ( oval == kVal1 ) {
+    case GateType::OR:
+      if ( oval == Val3::_1 ) {
 	// 1の値を持つノードをたどる．
-	aw_one(node, kVal1, time);
+	aw_one(node, Val3::_1, time);
       }
-      else if ( oval == kVal0 ) {
+      else if ( oval == Val3::_0 ) {
 	// すべてのファンインノードをたどる．
 	aw_all(node, time);
       }
       break;
 
-    case kGateNOR:
-      if ( oval == kVal1 ) {
+    case GateType::NOR:
+      if ( oval == Val3::_1 ) {
 	// すべてのファンインノードをたどる．
 	aw_all(node, time);
       }
-      else if ( oval == kVal0 ) {
+      else if ( oval == Val3::_0 ) {
 	// 1の値を持つノードをたどる．
-	aw_one(node, kVal1, time);
+	aw_one(node, Val3::_1, time);
       }
       break;
 
-    case kGateXOR:
-    case kGateXNOR:
+    case GateType::XOR:
+    case GateType::XNOR:
       // すべてのファンインノードをたどる．
       aw_all(node, time);
       break;
@@ -370,8 +371,8 @@ void
 Just2::aw_all(const TpgNode* node,
 	      int time)
 {
-  ymuint ni = node->fanin_num();
-  for (ymuint i = 0; i < ni; ++ i) {
+  int ni = node->fanin_num();
+  for (int i = 0; i < ni; ++ i) {
     const TpgNode* inode = node->fanin(i);
     add_weight(inode, time);
   }
@@ -386,8 +387,8 @@ Just2::aw_one(const TpgNode* node,
 	      Val3 val,
 	      int time)
 {
-  ymuint ni = node->fanin_num();
-  for (ymuint i = 0; i < ni; ++ i) {
+  int ni = node->fanin_num();
+  for (int i = 0; i < ni; ++ i) {
     const TpgNode* inode = node->fanin(i);
     Val3 ival = gval(inode, time);
     if ( ival == val ) {
@@ -403,7 +404,7 @@ void
 Just2::calc_value(const TpgNode* node,
 		  int time)
 {
-  ymuint index = node->id() * 2 + time;
+  int index = node->id() * 2 + time;
 
   if ( node->is_primary_input() ) {
     mTmpArray[index] = 1.0;
@@ -425,58 +426,58 @@ Just2::calc_value(const TpgNode* node,
   Val3 oval = gval(node, time);
 
   switch ( node->gate_type() ) {
-  case kGateBUFF:
-  case kGateNOT:
+  case GateType::BUFF:
+  case GateType::NOT:
     // 唯一のファンインノードをたどる．
     cv_all(node, time);
     break;
 
-  case kGateAND:
-    if ( oval == kVal1 ) {
+  case GateType::AND:
+    if ( oval == Val3::_1 ) {
       // すべてのファンインノードをたどる．
       cv_all(node, time);
     }
-    else if ( oval == kVal0 ) {
+    else if ( oval == Val3::_0 ) {
       // 0の値を持つノードをたどる．
-      cv_one(node, kVal0, time);
+      cv_one(node, Val3::_0, time);
     }
     break;
 
-  case kGateNAND:
-    if ( oval == kVal1 ) {
+  case GateType::NAND:
+    if ( oval == Val3::_1 ) {
       // 0の値を持つノードをたどる．
-      cv_one(node, kVal0, time);
+      cv_one(node, Val3::_0, time);
     }
-    else if ( oval == kVal0 ) {
+    else if ( oval == Val3::_0 ) {
       // すべてのファンインノードをたどる．
       cv_all(node, time);
     }
     break;
 
-  case kGateOR:
-    if ( oval == kVal1 ) {
+  case GateType::OR:
+    if ( oval == Val3::_1 ) {
       // 1の値を持つノードをたどる．
-      cv_one(node, kVal1, time);
+      cv_one(node, Val3::_1, time);
     }
-    else if ( oval == kVal0 ) {
+    else if ( oval == Val3::_0 ) {
       // すべてのファンインノードをたどる．
       cv_all(node, time);
     }
     break;
 
-  case kGateNOR:
-    if ( oval == kVal1 ) {
+  case GateType::NOR:
+    if ( oval == Val3::_1 ) {
       // すべてのファンインノードをたどる．
       cv_all(node, time);
     }
-    else if ( oval == kVal0 ) {
+    else if ( oval == Val3::_0 ) {
       // 1の値を持つノードをたどる．
-      cv_one(node, kVal1, time);
+      cv_one(node, Val3::_1, time);
     }
     break;
 
-  case kGateXOR:
-  case kGateXNOR:
+  case GateType::XOR:
+  case GateType::XNOR:
     // すべてのファンインノードをたどる．
     cv_all(node, time);
     break;
@@ -495,8 +496,8 @@ Just2::cv_all(const TpgNode* node,
 	      int time)
 {
   double val = 0.0;
-  ymuint ni = node->fanin_num();
-  for (ymuint i = 0; i < ni; ++ i) {
+  int ni = node->fanin_num();
+  for (int i = 0; i < ni; ++ i) {
     const TpgNode* inode = node->fanin(i);
     calc_value(inode, time);
     val += node_value(inode, time);
@@ -514,8 +515,8 @@ Just2::cv_one(const TpgNode* node,
 	      int time)
 {
   double min_val = DBL_MAX;
-  ymuint ni = node->fanin_num();
-  for (ymuint i = 0; i < ni; ++ i) {
+  int ni = node->fanin_num();
+  for (int i = 0; i < ni; ++ i) {
     const TpgNode* inode = node->fanin(i);
     Val3 ival = gval(inode, time);
     if ( ival != val ) {
@@ -537,7 +538,7 @@ double
 Just2::node_value(const TpgNode* node,
 		  int time) const
 {
-  ymuint index = node->id() * 2 + time;
+  int index = node->id() * 2 + time;
   if ( mWeightArray[index] == 0 ) {
     cout << "Error!: " << node->name() << "@" << time << " has no weight" << endl;
   }

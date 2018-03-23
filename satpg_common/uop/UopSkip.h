@@ -26,8 +26,8 @@ public:
   /// @brief コンストラクタ
   /// @param[in] threshold しきい値
   /// @param[in] max_fault_id 故障番号の最大値
-  UopSkip(ymuint threshold,
-	  ymuint max_fault_id);
+  UopSkip(int threshold,
+	  int max_fault_id);
 
   /// @brief デストラクタ
   virtual
@@ -56,16 +56,16 @@ private:
   //////////////////////////////////////////////////////////////////////
 
   // スキップフラグをセットするしきい値
-  ymuint32 mThreshold;
+  int mThreshold;
 
   // 故障の検出不能回数を保持する配列
-  vector<ymuint> mUntestCountArray;
+  vector<int> mUntestCountArray;
 
   // 検出不能となった故障の番号を保持するリスト
-  vector<ymuint> mUntestList;
+  vector<int> mUntestList;
 
   // スキップフラグがセットされた故障の番号を保持するリスト
-  vector<ymuint> mSkipList;
+  vector<int> mSkipList;
 
 };
 

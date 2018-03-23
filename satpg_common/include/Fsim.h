@@ -126,7 +126,7 @@ public:
   ///
   /// 検出された故障は det_fault() で取得する．
   virtual
-  ymuint
+  int
   sppfp(const TestVector* tv) = 0;
 
   /// @brief ひとつのパタンで故障シミュレーションを行う．
@@ -135,7 +135,7 @@ public:
   ///
   /// 検出された故障は det_fault() で取得する．
   virtual
-  ymuint
+  int
   sppfp(const NodeValList& assign_list) = 0;
 
   /// @brief 複数のパタンで故障シミュレーションを行う．
@@ -144,7 +144,7 @@ public:
   /// 検出された故障は det_fault() で取得する．<br>
   /// 最低1つのパタンが set_pattern() で設定されている必要がある．<br>
   virtual
-  ymuint
+  int
   ppsfp() = 0;
 
 
@@ -162,7 +162,7 @@ public:
   /// - false: ゲートの出力の遷移回数の和
   /// - true : ゲートの出力の遷移回数に(ファンアウト数＋１)を掛けたものの和
   virtual
-  ymuint
+  int
   calc_wsa(const TestVector* tv,
 	   bool weighted) = 0;
 
@@ -185,7 +185,7 @@ public:
   /// @brief 1クロック分のシミュレーションを行い，遷移回数を数える．
   /// @param[in] i_vect 外部入力のビットベクタ
   virtual
-  ymuint
+  int
   calc_wsa(const InputVector& i_vect,
 	   bool weighted) = 0;
 
@@ -205,14 +205,14 @@ public:
   /// @param[in] tv テストベクタ
   virtual
   void
-  set_pattern(ymuint pos,
+  set_pattern(int pos,
 	      const TestVector* tv) = 0;
 
   /// @brief 設定した ppsfp 用のパタンを読み出す．
   /// @param[in] pos 位置番号 ( 0 <= pos < kPvBitLen )
   virtual
   const TestVector*
-  get_pattern(ymuint pos) = 0;
+  get_pattern(int pos) = 0;
 
 
 public:
@@ -222,20 +222,20 @@ public:
 
   /// @brief 直前の sppfp/ppsfp で検出された故障数を返す．
   virtual
-  ymuint
+  int
   det_fault_num() = 0;
 
   /// @brief 直前の sppfp/ppsfp で検出された故障を返す．
   /// @param[in] pos 位置番号 ( 0 <= pos < det_fault_num() )
   virtual
   const TpgFault*
-  det_fault(ymuint pos) = 0;
+  det_fault(int pos) = 0;
 
   /// @brief 直前の ppsfp で検出された故障の検出ビットパタンを返す．
   /// @param[in] pos 位置番号 ( 0 <= pos < det_fault_num() )
   virtual
   PackedVal
-  det_fault_pat(ymuint pos) = 0;
+  det_fault_pat(int pos) = 0;
 
 };
 

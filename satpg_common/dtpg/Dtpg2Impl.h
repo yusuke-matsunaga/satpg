@@ -51,12 +51,12 @@ public:
 
   /// @brief XOR制約のための変数リストを作る．
   /// @return 変数の数を返す．
-  ymuint
+  int
   make_xor_list();
 
   /// @brief XOR制約を追加する．
   void
-  add_xor_constraint(ymuint num,
+  add_xor_constraint(int num,
 		     RandGen& randgen);
 
   /// @brief テスト生成を行なう．
@@ -66,7 +66,7 @@ public:
   /// @return 結果を返す．
   SatBool3
   dtpg_with_xor(const TpgFault* fault,
-		ymuint xor_assign,
+		int xor_assign,
 		NodeValList& nodeval_list,
 		DtpgStats& stats);
 
@@ -79,8 +79,8 @@ private:
   /// XOR制約を作る．
   SatLiteral
   make_xor(const vector<SatVarId>& var_list,
-	   ymuint start,
-	   ymuint end);
+	   int start,
+	   int end);
 
 
 private:
@@ -88,8 +88,8 @@ private:
   // データメンバ
   //////////////////////////////////////////////////////////////////////
 
-  ymuint mXorNum1;
-  ymuint mXorNum2;
+  int mXorNum1;
+  int mXorNum2;
   vector<const TpgNode*> mXorNodeList;
 
   vector<SatLiteral> mXorLitList;

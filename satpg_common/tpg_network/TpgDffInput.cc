@@ -21,8 +21,8 @@ BEGIN_NAMESPACE_YM_SATPG
 // @param[in] output_id 出力番号
 // @param[in] dff 接続しているDFF
 // @param[in] fanin ファンインのノード
-TpgDffInput::TpgDffInput(ymuint id,
-			 ymuint output_id,
+TpgDffInput::TpgDffInput(int id,
+			 int output_id,
 			 TpgDff* dff,
 			 TpgNode* fanin) :
   TpgPPO(id, output_id, fanin),

@@ -48,26 +48,26 @@ public:
 	    const NodeValList& assign_list);
 
   /// @brief 成功回数を得る．
-  ymuint
+  int
   good_count() const;
 
   /// @brief 成功した故障を得る．
   /// @param[in] pos 位置版号 ( 0 <= pos < good_count() )
   const TpgFault*
-  good_fault(ymuint pos) const;
+  good_fault(int pos) const;
 
   /// @brief エラー回数を得る．
-  ymuint
+  int
   error_count() const;
 
   /// @brief エラーの故障を得る．
   /// @param[in] pos 位置版号 ( 0 <= pos < error_count() )
   const TpgFault*
-  error_fault(ymuint pos) const;
+  error_fault(int pos) const;
 
   /// @brief エラーとなった割当を得る．
   const NodeValList&
-  error_assign_list(ymuint pos) const;
+  error_assign_list(int pos) const;
 
 
 private:

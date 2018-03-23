@@ -61,9 +61,9 @@ void
 RtpgImpl::run(TpgFaultMgr& fmgr,
 	      TvMgr& tvmgr,
 	      Fsim& fsim,
-	      ymuint min_f,
-	      ymuint max_i,
-	      ymuint max_pat,
+	      int min_f,
+	      int max_i,
+	      int max_pat,
 	      vector<const TestVector*>& tvlist,
 	      RtpgStats& stats)
 {
@@ -71,13 +71,13 @@ RtpgImpl::run(TpgFaultMgr& fmgr,
 
   local_timer.start();
 
-  ymuint fnum = 0;
-  ymuint undet_i = 0;
-  ymuint epat_num = 0;
-  ymuint total_det_count = 0;
+  int fnum = 0;
+  int undet_i = 0;
+  int epat_num = 0;
+  int total_det_count = 0;
 
   fsim.set_skip_all();
-  for (ymuint i = 0; i < fmgr.max_fault_id(); ++ i) {
+  for (int i = 0; i < fmgr.max_fault_id(); ++ i) {
     const TpgFault* f = fmgr.fault(i);
     if ( f != nullptr && fmgr.status(f) == kFsUndetected ) {
       fsim.clear_skip(f);
@@ -86,13 +86,13 @@ RtpgImpl::run(TpgFaultMgr& fmgr,
   }
 
   TestVector* tv_array[kPvBitLen];
-  for (ymuint i = 0; i < kPvBitLen; ++ i) {
+  for (int i = 0; i < kPvBitLen; ++ i) {
     tv_array[i] = tvmgr.new_vector();
   }
 
   fsim.clear_patterns();
-  ymuint pat_num = 0;
-  ymuint wpos = 0;
+  int pat_num = 0;
+  int wpos = 0;
   for ( ; ; ) {
     if ( pat_num < max_pat ) {
       TestVector* tv = tv_array[wpos];
@@ -108,20 +108,20 @@ RtpgImpl::run(TpgFaultMgr& fmgr,
       break;
     }
 
-    ymuint det_count = fsim.ppsfp();
+    int det_count = fsim.ppsfp();
 
     bool det_flags[kPvBitLen];
-    for (ymuint i = 0; i < kPvBitLen; ++ i) {
+    for (int i = 0; i < kPvBitLen; ++ i) {
       det_flags[i] = false;
     }
-    ymuint num = wpos;
-    for (ymuint i = 0; i < det_count; ++ i) {
+    int num = wpos;
+    for (int i = 0; i < det_count; ++ i) {
       const TpgFault* f = fsim.det_fault(i);
       fmgr.set_status(f, kFsDetected);
       fsim.set_skip(f);
       PackedVal dpat = fsim.det_fault_pat(i);
       // dpat の最初の1のビットを調べる．
-      ymuint first = 0;
+      int first = 0;
       for ( ; first < num; ++ first) {
 	if ( dpat & (1ULL << first) ) {
 	  break;
@@ -130,7 +130,7 @@ RtpgImpl::run(TpgFaultMgr& fmgr,
       ASSERT_COND( first < num );
       det_flags[first] = true;
     }
-    for (ymuint i = 0; i < num; ++ i) {
+    for (int i = 0; i < num; ++ i) {
       if ( det_flags[i] ) {
 	// 検出できたパタンは tvlist に移す．
 	const TestVector* tv = tv_array[i];
@@ -165,7 +165,7 @@ RtpgImpl::run(TpgFaultMgr& fmgr,
     }
   }
 
-  for (ymuint i = 0; i < kPvBitLen; ++ i) {
+  for (int i = 0; i < kPvBitLen; ++ i) {
     tvmgr.delete_vector(tv_array[i]);
   }
 

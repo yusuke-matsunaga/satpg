@@ -10,6 +10,7 @@
 #include "gtest/gtest.h"
 #include "satpg.h"
 #include "SimNode.h"
+#include "GateType.h"
 
 
 BEGIN_NAMESPACE_YM_SATPG_FSIM
@@ -28,7 +29,7 @@ public:
   /// @param[in] gate_type ゲートの種類
   /// @param[in] vals 真理値表ベクタ
   void
-  test_gate(ymuint ni,
+  test_gate(int ni,
 	    GateType gate_type,
 	    int vals[]);
 
@@ -75,13 +76,13 @@ SimNodeTest::test_input()
 // @param[in] gate_type ゲートの種類
 // @param[in] vals 真理値表ベクタ
 void
-SimNodeTest::test_gate(ymuint ni,
+SimNodeTest::test_gate(int ni,
 		       GateType gate_type,
 		       int vals[])
 {
-  ymuint np = 1 << ni;
+  int np = 1 << ni;
   vector<SimNode*> inputs(ni);
-  for (ymuint i = 0; i < ni; ++ i) {
+  for (int i = 0; i < ni; ++ i) {
     inputs[i] = SimNode::new_input(i);
   }
   SimNode* node = SimNode::new_gate(ni, gate_type, inputs);
@@ -96,12 +97,12 @@ SimNodeTest::test_gate(ymuint ni,
 
   // _calc_val() のテスト
   init_val(node, kPvAll0);
-  for (ymuint i = 0; i < ni; ++ i) {
+  for (int i = 0; i < ni; ++ i) {
     init_val(inputs[i], kPvAll0);
   }
 
-  for (ymuint p = 0; p < np; ++ p) {
-    for (ymuint i = 0; i < ni; ++ i) {
+  for (int p = 0; p < np; ++ p) {
+    for (int i = 0; i < ni; ++ i) {
       if ( p & (1 << i) ) {
 	inputs[i]->set_val(kPvAll1);
       }
@@ -119,15 +120,15 @@ SimNodeTest::test_gate(ymuint ni,
   }
 
   // calc_gobs() のテスト
-  for (ymuint ipos = 0; ipos < ni; ++ ipos) {
+  for (int ipos = 0; ipos < ni; ++ ipos) {
     // ここで書き込む値に対して意味はない．
     init_val(node, kPvAll0);
-    for (ymuint i = 0; i < ni; ++ i) {
+    for (int i = 0; i < ni; ++ i) {
       init_val(inputs[i], kPvAll0);
     }
 
-    for (ymuint p = 0; p < np; ++ p) {
-      for (ymuint i = 0; i < ni; ++ i) {
+    for (int p = 0; p < np; ++ p) {
+      for (int i = 0; i < ni; ++ i) {
 	if ( p & (1 << i) ) {
 	  inputs[i]->set_val(kPvAll1);
 	}
@@ -136,7 +137,7 @@ SimNodeTest::test_gate(ymuint ni,
 	}
       }
       PackedVal val = node->_calc_gobs(ipos);
-      ymuint q = p ^ (1 << ipos);
+      int q = p ^ (1 << ipos);
       if ( vals[p] != vals[q] ) {
 	EXPECT_EQ( kPvAll1, val );
       }
@@ -146,7 +147,7 @@ SimNodeTest::test_gate(ymuint ni,
     }
   }
 
-  for (ymuint i = 0; i < ni; ++ i) {
+  for (int i = 0; i < ni; ++ i) {
     delete inputs[i];
   }
   delete node;
@@ -175,7 +176,7 @@ TEST_F(SimNodeTest, BUFF)
     1,
   };
 
-  test_gate(1, kGateBUFF, vals);
+  test_gate(1, GateType::BUFF, vals);
 }
 
 TEST_F(SimNodeTest, NOT)
@@ -185,7 +186,7 @@ TEST_F(SimNodeTest, NOT)
     0,
   };
 
-  test_gate(1, kGateNOT, vals);
+  test_gate(1, GateType::NOT, vals);
 }
 
 TEST_F(SimNodeTest, AND2)
@@ -197,7 +198,7 @@ TEST_F(SimNodeTest, AND2)
     1,
   };
 
-  test_gate(2, kGateAND, vals);
+  test_gate(2, GateType::AND, vals);
 }
 
 TEST_F(SimNodeTest, AND3)
@@ -213,7 +214,7 @@ TEST_F(SimNodeTest, AND3)
     1,
   };
 
-  test_gate(3, kGateAND, vals);
+  test_gate(3, GateType::AND, vals);
 }
 
 TEST_F(SimNodeTest, AND4)
@@ -237,7 +238,7 @@ TEST_F(SimNodeTest, AND4)
     1,
   };
 
-  test_gate(4, kGateAND, vals);
+  test_gate(4, GateType::AND, vals);
 }
 
 TEST_F(SimNodeTest, AND5)
@@ -277,7 +278,7 @@ TEST_F(SimNodeTest, AND5)
     1,
   };
 
-  test_gate(5, kGateAND, vals);
+  test_gate(5, GateType::AND, vals);
 }
 
 TEST_F(SimNodeTest, NAND2)
@@ -289,7 +290,7 @@ TEST_F(SimNodeTest, NAND2)
     0,
   };
 
-  test_gate(2, kGateNAND, vals);
+  test_gate(2, GateType::NAND, vals);
 }
 
 TEST_F(SimNodeTest, NAND3)
@@ -305,7 +306,7 @@ TEST_F(SimNodeTest, NAND3)
     0,
   };
 
-  test_gate(3, kGateNAND, vals);
+  test_gate(3, GateType::NAND, vals);
 }
 
 TEST_F(SimNodeTest, NAND4)
@@ -329,7 +330,7 @@ TEST_F(SimNodeTest, NAND4)
     0,
   };
 
-  test_gate(4, kGateNAND, vals);
+  test_gate(4, GateType::NAND, vals);
 }
 
 TEST_F(SimNodeTest, NAND5)
@@ -369,7 +370,7 @@ TEST_F(SimNodeTest, NAND5)
     0,
   };
 
-  test_gate(5, kGateNAND, vals);
+  test_gate(5, GateType::NAND, vals);
 }
 
 TEST_F(SimNodeTest, OR2)
@@ -381,7 +382,7 @@ TEST_F(SimNodeTest, OR2)
     1,
   };
 
-  test_gate(2, kGateOR, vals);
+  test_gate(2, GateType::OR, vals);
 }
 
 TEST_F(SimNodeTest, OR3)
@@ -397,7 +398,7 @@ TEST_F(SimNodeTest, OR3)
     1,
   };
 
-  test_gate(3, kGateOR, vals);
+  test_gate(3, GateType::OR, vals);
 }
 
 TEST_F(SimNodeTest, OR4)
@@ -421,7 +422,7 @@ TEST_F(SimNodeTest, OR4)
     1,
   };
 
-  test_gate(4, kGateOR, vals);
+  test_gate(4, GateType::OR, vals);
 }
 
 TEST_F(SimNodeTest, OR5)
@@ -461,7 +462,7 @@ TEST_F(SimNodeTest, OR5)
     1,
   };
 
-  test_gate(5, kGateOR, vals);
+  test_gate(5, GateType::OR, vals);
 }
 
 TEST_F(SimNodeTest, NOR2)
@@ -473,7 +474,7 @@ TEST_F(SimNodeTest, NOR2)
     0,
   };
 
-  test_gate(2, kGateNOR, vals);
+  test_gate(2, GateType::NOR, vals);
 }
 
 TEST_F(SimNodeTest, NOR3)
@@ -489,7 +490,7 @@ TEST_F(SimNodeTest, NOR3)
     0,
   };
 
-  test_gate(3, kGateNOR, vals);
+  test_gate(3, GateType::NOR, vals);
 }
 
 TEST_F(SimNodeTest, NOR4)
@@ -513,7 +514,7 @@ TEST_F(SimNodeTest, NOR4)
     0,
   };
 
-  test_gate(4, kGateNOR, vals);
+  test_gate(4, GateType::NOR, vals);
 }
 
 TEST_F(SimNodeTest, NOR5)
@@ -553,7 +554,7 @@ TEST_F(SimNodeTest, NOR5)
     0,
   };
 
-  test_gate(5, kGateNOR, vals);
+  test_gate(5, GateType::NOR, vals);
 }
 
 TEST_F(SimNodeTest, XOR2)
@@ -565,7 +566,7 @@ TEST_F(SimNodeTest, XOR2)
     0,
   };
 
-  test_gate(2, kGateXOR, vals);
+  test_gate(2, GateType::XOR, vals);
 }
 
 TEST_F(SimNodeTest, XOR3)
@@ -581,7 +582,7 @@ TEST_F(SimNodeTest, XOR3)
     1,
   };
 
-  test_gate(3, kGateXOR, vals);
+  test_gate(3, GateType::XOR, vals);
 }
 
 TEST_F(SimNodeTest, XNOR2)
@@ -593,7 +594,7 @@ TEST_F(SimNodeTest, XNOR2)
     1,
   };
 
-  test_gate(2, kGateXNOR, vals);
+  test_gate(2, GateType::XNOR, vals);
 }
 
 TEST_F(SimNodeTest, XNOR3)
@@ -609,7 +610,7 @@ TEST_F(SimNodeTest, XNOR3)
     0,
   };
 
-  test_gate(3, kGateXNOR, vals);
+  test_gate(3, GateType::XNOR, vals);
 }
 
 END_NAMESPACE_YM_SATPG_FSIM

@@ -5,7 +5,7 @@
 /// @brief TpgOutput のヘッダファイル
 /// @author Yusuke Matsunaga (松永 裕介)
 ///
-/// Copyright (C) 2016 Yusuke Matsunaga
+/// Copyright (C) 2016, 2018 Yusuke Matsunaga
 /// All rights reserved.
 
 
@@ -21,14 +21,16 @@ BEGIN_NAMESPACE_YM_SATPG
 class TpgOutput :
   public TpgPPO
 {
-public:
+  friend class TpgNodeFactory;
+
+private:
 
   /// @brief コンストラクタ
   /// @param[in] id ID番号
   /// @param[in] output_id 出力番号
   /// @param[in] fanin ファンインのノード
-  TpgOutput(ymuint id,
-	    ymuint output_id,
+  TpgOutput(int id,
+	    int output_id,
 	    TpgNode* fanin);
 
   /// @brief デストラクタ
@@ -43,7 +45,7 @@ public:
   /// @brief 外部出力タイプの時 true を返す．
   virtual
   bool
-  is_primary_output() const;
+  is_primary_output() const override;
 
 
 public:

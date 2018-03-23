@@ -44,7 +44,7 @@ public:
   /// @param[in] pos 入力の位置番号
   /// @param[in] val 故障値 ( 0 / 1 )
   TpgFault*
-  input_fault(ymuint pos,
+  input_fault(int pos,
 	      int val) const;
 
 
@@ -57,7 +57,7 @@ public:
   /// @param[in] ni ファンイン数
   /// @param[in] alloc メモリアロケータ
   void
-  init(ymuint ni,
+  init(int ni,
        Alloc& alloc);
 
   /// @brief 出力の故障を設定する．
@@ -72,7 +72,7 @@ public:
   /// @param[in] val 故障値 ( 0 / 1 )
   /// @param[in] f 故障
   void
-  set_input_fault(ymuint ipos,
+  set_input_fault(int ipos,
 		  int val,
 		  TpgFault* f);
 
@@ -92,7 +92,7 @@ private:
   TpgFault* mOutputFaults[2];
 
   /// @brief 入力数
-  ymuint mFaninNum;
+  int mFaninNum;
 
   /// @brief 入力の故障の配列
   ///
@@ -122,11 +122,11 @@ AuxNodeInfo::output_fault(int val) const
 // @param[in] val 故障値 ( 0 / 1 )
 inline
 TpgFault*
-AuxNodeInfo::input_fault(ymuint pos,
+AuxNodeInfo::input_fault(int pos,
 			 int val) const
 {
   ASSERT_COND( val == 0 || val == 1 );
-  ASSERT_COND( pos < mFaninNum );
+  ASSERT_COND( pos >= 0 && pos < mFaninNum );
 
   return mInputFaults[(pos * 2) + val];
 }

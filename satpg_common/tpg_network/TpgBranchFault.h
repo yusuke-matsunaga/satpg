@@ -31,13 +31,13 @@ public:
   /// @param[in] inode 入力側の TpgNode
   /// @param[in] tpg_pos onode 上の故障位置
   /// @param[in] rep_fault 代表故障
-  TpgBranchFault(ymuint id,
+  TpgBranchFault(int id,
 		 const char* name,
 		 int val,
-		 ymuint pos,
+		 int pos,
 		 const TpgNode* onode,
 		 const TpgNode* inode,
-		 ymuint tpg_pos,
+		 int tpg_pos,
 		 TpgFault* rep_fault);
 
   /// @brief デストラクタ
@@ -69,14 +69,14 @@ public:
   ///
   /// is_branch_fault() == true の時のみ意味を持つ．
   virtual
-  ymuint
+  int
   fault_pos() const;
 
   /// @brief tpg_inode 上の故障位置を返す．
   ///
   /// is_branch_fault() == true の時のみ意味を持つ．
   virtual
-  ymuint
+  int
   tpg_pos() const;
 
   /// @brief 故障の内容を表す文字列を返す．
@@ -97,13 +97,13 @@ private:
   const TpgNode* mOnode;
 
   // 故障の入力位置
-  ymuint mPos;
+  int mPos;
 
   // 入力側の TpgNode
   const TpgNode* mInode;
 
   // mI_TpgNode 上の入力位置
-  ymuint mTpgPos;
+  int mTpgPos;
 
 };
 

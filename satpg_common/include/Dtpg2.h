@@ -61,7 +61,7 @@ public:
       const TpgNetwork& network,
       bool use_xorsampling,
       double wsa_ratio,
-      ymuint scount_limit,
+      int scount_limit,
       vector<const TestVector*>& tv_list,
       DtpgStats& stats);
 
@@ -82,8 +82,8 @@ public:
        const TpgNetwork& network,
        const TpgFault* fault,
        bool use_xorsampling,
-       ymuint wsa_limit,
-       ymuint scount_limit,
+       int wsa_limit,
+       int scount_limit,
        vector<TestVector*>& tv_list,
        DtpgStats& stats);
 
@@ -96,19 +96,19 @@ private:
   void
   make_input_constraint(TvMgr& tvmgr,
 			Fsim& fsim,
-			ymuint wsa_limit);
+			int wsa_limit);
 
   void
   rtpg(TvMgr& tvmgr,
        TpgFaultMgr& fmgr,
        Fsim& fsim,
-       ymuint wsa_limit,
+       int wsa_limit,
        DetectOp& dop);
 
-  ymuint
+  int
   optimize(TvMgr& tvmgr,
 	   Fsim& fsim,
-	   ymuint wsa_limit,
+	   int wsa_limit,
 	   const NodeValList& nodeval_list,
 	   TestVector* tv);
 
@@ -134,25 +134,25 @@ private:
   RandGen mRandGen;
 
   // 総パタン数
-  ymuint mPatNum;
+  int mPatNum;
 
   // 初期パタンがしきい値を超えたパタン数
-  ymuint mExceedNum;
+  int mExceedNum;
 
   // 総繰り返し数
-  ymuint mTotalCount;
+  int mTotalCount;
 
   // 解の見つかった総数
-  ymuint mTotalFound;
+  int mTotalFound;
 
   // XORサンプリング数
-  ymuint mTotalSampling;
+  int mTotalSampling;
 
   // 値が制限を超えていた層数
-  ymuint mTotalOver;
+  int mTotalOver;
 
   // 結果としてしきい値を超えたパタン数
-  ymuint mFinalExceedNum;
+  int mFinalExceedNum;
 
   // optimize 用の乱数発生器
   RandGen mRandGen2;

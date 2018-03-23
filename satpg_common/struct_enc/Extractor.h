@@ -5,17 +5,17 @@
 /// @brief Extractor のヘッダファイル
 /// @author Yusuke Matsunaga (松永 裕介)
 ///
-/// Copyright (C) 2005-2014, 2017 Yusuke Matsunaga
+/// Copyright (C) 2005-2014, 2017, 2018 Yusuke Matsunaga
 /// All rights reserved.
 
 
-#include "satpg.h"
-#include "ValMap.h"
+#include "structenc_nsdef.h"
+#include "ValMap_model.h"
 #include "ym/HashSet.h"
 #include "ym/HashMap.h"
 
 
-BEGIN_NAMESPACE_YM_SATPG
+BEGIN_NAMESPACE_YM_SATPG_STRUCTENC
 
 //////////////////////////////////////////////////////////////////////
 /// @class Extractor Extractor.h "Extractor.h"
@@ -36,7 +36,12 @@ class Extractor
 public:
 
   /// @brief コンストラクタ
-  Extractor();
+  /// @param[in] gvar_map 正常値の変数番号のマップ
+  /// @param[in] fvar_map 故障値の変数番号のマップ
+  /// @param[in] model SATソルバの作ったモデル
+  Extractor(const VidMap& gvar_map,
+	    const VidMap& fvar_map,
+	    const vector<SatBool3>& model);
 
   /// @brief デストラクタ
   ~Extractor();
@@ -49,11 +54,9 @@ public:
 
   /// @brief 値割当を求める．
   /// @param[in] root 起点となるノード
-  /// @param[in] val_map 値割り当ての結果を保持するオブジェクト
   /// @param[out] assign_list 値の割当リスト
   void
   operator()(const TpgNode* root,
-	     const ValMap& val_map,
 	     NodeValList& assign_list);
 
 
@@ -110,13 +113,13 @@ private:
   //////////////////////////////////////////////////////////////////////
 
   // 値割当を保持するクラス
-  const ValMap* mValMapPtr;
+  ValMap_model mValMap;
 
   // 故障の fanout cone のマーク
-  HashSet<ymuint> mFconeMark;
+  HashSet<int> mFconeMark;
 
   // 記録済みノードを保持するハッシュ表
-  HashSet<ymuint> mRecorded;
+  HashSet<int> mRecorded;
 
   // 故障差の伝搬している外部出力のリスト
   vector<const TpgNode*> mSpoList;
@@ -129,8 +132,7 @@ inline
 Val3
 Extractor::gval(const TpgNode* node)
 {
-  ASSERT_COND( mValMapPtr != nullptr );
-  return mValMapPtr->gval(node);
+  return mValMap.gval(node);
 }
 
 // @brief 故障回路の値を返す．
@@ -139,10 +141,9 @@ inline
 Val3
 Extractor::fval(const TpgNode* node)
 {
-  ASSERT_COND( mValMapPtr != nullptr );
-  return mValMapPtr->fval(node);
+  return mValMap.fval(node);
 }
 
-END_NAMESPACE_YM_SATPG
+END_NAMESPACE_YM_SATPG_STRUCTENC
 
 #endif // EXTRACTOR_H

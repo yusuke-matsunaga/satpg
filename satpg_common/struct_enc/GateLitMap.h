@@ -9,11 +9,11 @@
 /// All rights reserved.
 
 
-#include "satpg.h"
+#include "structenc_nsdef.h"
 #include "ym/SatLiteral.h"
 
 
-BEGIN_NAMESPACE_YM_SATPG
+BEGIN_NAMESPACE_YM_SATPG_STRUCTENC
 
 //////////////////////////////////////////////////////////////////////
 /// @class GateLitMap GateLitMap.h "GateLitMap.h"
@@ -32,14 +32,14 @@ public:
 
   /// @brief 入力数を返す．
   virtual
-  ymuint
+  int
   input_size() const = 0;
 
   /// @brief 入力のリテラルを返す．
   /// @param[in] pos 入力位置 ( 0 <= pos < input_size() )
   virtual
   SatLiteral
-  input(ymuint pos) const = 0;
+  input(int pos) const = 0;
 
   /// @brief 出力のリテラルを返す．
   virtual
@@ -48,6 +48,6 @@ public:
 
 };
 
-END_NAMESPACE_YM_SATPG
+END_NAMESPACE_YM_SATPG_STRUCTENC
 
 #endif // GATELITMAP_H

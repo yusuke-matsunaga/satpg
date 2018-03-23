@@ -9,7 +9,6 @@
 /// All rights reserved.
 
 #include "satpg.h"
-#include "Val3.h"
 #include "FaultType.h"
 #include "InputVector.h"
 #include "DffVector.h"
@@ -51,11 +50,11 @@ public:
   //////////////////////////////////////////////////////////////////////
 
   /// @brief 外部入力数を得る．
-  ymuint
+  int
   input_num() const;
 
   /// @brief DFF数を得る．
-  ymuint
+  int
   dff_num() const;
 
   /// @brief ２時刻目の外部入力を持つ時 true を返す．
@@ -65,7 +64,7 @@ public:
   /// @brief PPI数を得る．
   ///
   /// = input_num() + dff_num()
-  ymuint
+  int
   ppi_num() const;
 
   /// @brief 故障の種類を返す．
@@ -74,15 +73,15 @@ public:
 
   /// @brief ベクタ長を返す．
   ///
-  /// - fault_type() == kFtStuckAt の時は input_num() + dff_num()
-  /// - fault_type() == kFtTransitionDelay の時は input_num() * 2 + dff_num()
-  ymuint
+  /// - fault_type() == FaultType::StuckAt の時は input_num() + dff_num()
+  /// - fault_type() == FaultType::TransitionDelay の時は input_num() * 2 + dff_num()
+  int
   vect_len() const;
 
   /// @brief PPIの値を得る．
   /// @param[in] pos PPI の位置番号 ( 0 <= pos < ppi_num() )
   Val3
-  ppi_val(ymuint pos) const;
+  ppi_val(int pos) const;
 
   /// @brief 1時刻目の外部入力の値を得る．
   /// @param[in] pos 入力の位置番号 ( 0 <= pos < input_num() )
@@ -90,7 +89,7 @@ public:
   /// is_td_mode() == true の時のみ有効<br>
   /// 実は ppi_val(pos) と同じ．
   Val3
-  input_val(ymuint pos) const;
+  input_val(int pos) const;
 
   /// @brief 1時刻目のDFFの値を得る．
   /// @param[in] pos DFFの位置番号 ( 0 <= pos < dff_num() )
@@ -98,17 +97,17 @@ public:
   /// is_td_mode() == true の時のみ有効<br>
   /// 実は ppi_val(pos + input_num()) と同じ．
   Val3
-  dff_val(ymuint pos) const;
+  dff_val(int pos) const;
 
   /// @brief 2時刻目の外部入力の値を得る．
   /// @param[in] pos 入力の位置番号 ( 0 <= pos < input_num() )
   ///
   /// is_td_mode() == true の時のみ有効
   Val3
-  aux_input_val(ymuint pos) const;
+  aux_input_val(int pos) const;
 
   /// @brief X の個数を得る．
-  ymuint
+  int
   x_count() const;
 
   /// @brief 入力のベクタを得る．
@@ -191,7 +190,7 @@ public:
   ///
   /// is_sa_mode() == true の時のみ有効
   void
-  set_ppi_val(ymuint pos,
+  set_ppi_val(int pos,
 	      Val3 val);
 
   /// @breif 1時刻目の外部入力の値を設定する．
@@ -200,7 +199,7 @@ public:
   ///
   /// is_td_mode() == true の時のみ有効
   void
-  set_input_val(ymuint pos,
+  set_input_val(int pos,
 		Val3 val);
 
   /// @breif 1時刻目のDFFの値を設定する．
@@ -209,7 +208,7 @@ public:
   ///
   /// is_td_mode() == true の時のみ有効
   void
-  set_dff_val(ymuint pos,
+  set_dff_val(int pos,
 	      Val3 val);
 
   /// @breif 2時刻目の外部入力の値を設定する．
@@ -218,7 +217,7 @@ public:
   ///
   /// is_td_mode() == true の時のみ意味を持つ．
   void
-  set_aux_input_val(ymuint pos,
+  set_aux_input_val(int pos,
 		    Val3 val);
 
   /// @brief 割当リストから内容を設定する．
@@ -362,7 +361,7 @@ operator<<(ostream& s,
 
 // @brief 入力数を得る．
 inline
-ymuint
+int
 TestVector::input_num() const
 {
   return mInputVector->vect_len();
@@ -370,7 +369,7 @@ TestVector::input_num() const
 
 // @brief DFF数を得る．
 inline
-ymuint
+int
 TestVector::dff_num() const
 {
   if ( mDffVector != nullptr ) {
@@ -383,7 +382,7 @@ TestVector::dff_num() const
 //
 // = input_num() + dff_num()
 inline
-ymuint
+int
 TestVector::ppi_num() const
 {
   return input_num() + dff_num();
@@ -403,19 +402,19 @@ FaultType
 TestVector::fault_type() const
 {
   if ( mAuxInputVector != nullptr ) {
-    return kFtTransitionDelay;
+    return FaultType::TransitionDelay;
   }
   else {
-    return kFtStuckAt;
+    return FaultType::StuckAt;
   }
 }
 
 // @brief ベクタ長を返す．
 inline
-ymuint
+int
 TestVector::vect_len() const
 {
-  ymuint ans = input_num() + dff_num();
+  int ans = input_num() + dff_num();
   if ( mAuxInputVector != nullptr ) {
     ans += mAuxInputVector->vect_len();
   }
@@ -426,9 +425,9 @@ TestVector::vect_len() const
 // @param[in] pos PPI の位置番号 ( 0 <= pos < ppi_num() )
 inline
 Val3
-TestVector::ppi_val(ymuint pos) const
+TestVector::ppi_val(int pos) const
 {
-  ASSERT_COND( pos < ppi_num() );
+  ASSERT_COND( pos >= 0 && pos < ppi_num() );
 
   if ( pos < input_num() ) {
     return mInputVector->val(pos);
@@ -442,10 +441,10 @@ TestVector::ppi_val(ymuint pos) const
 // @param[in] pos 入力の位置番号 ( 0 <= pos < input_num() )
 inline
 Val3
-TestVector::input_val(ymuint pos) const
+TestVector::input_val(int pos) const
 {
-  ASSERT_COND( fault_type() == kFtTransitionDelay );
-  ASSERT_COND( pos < input_num() );
+  ASSERT_COND( fault_type() == FaultType::TransitionDelay );
+  ASSERT_COND( pos >= 0 && pos < input_num() );
 
   return mInputVector->val(pos);
 }
@@ -454,10 +453,10 @@ TestVector::input_val(ymuint pos) const
 // @param[in] pos DFFの位置番号 ( 0 <= pos < dff_num() )
 inline
 Val3
-TestVector::dff_val(ymuint pos) const
+TestVector::dff_val(int pos) const
 {
-  ASSERT_COND( fault_type() == kFtTransitionDelay );
-  ASSERT_COND( pos < dff_num() );
+  ASSERT_COND( fault_type() == FaultType::TransitionDelay );
+  ASSERT_COND( pos >= 0 && pos < dff_num() );
 
   return mDffVector->val(pos);
 }
@@ -466,10 +465,10 @@ TestVector::dff_val(ymuint pos) const
 // @param[in] pos 入力の位置番号 ( 0 <= pos < input_num() )
 inline
 Val3
-TestVector::aux_input_val(ymuint pos) const
+TestVector::aux_input_val(int pos) const
 {
-  ASSERT_COND( fault_type() == kFtTransitionDelay );
-  ASSERT_COND( pos < input_num() );
+  ASSERT_COND( fault_type() == FaultType::TransitionDelay );
+  ASSERT_COND( pos >= 0 && pos < input_num() );
 
   return mAuxInputVector->val(pos);
 }
@@ -509,10 +508,10 @@ TestVector::aux_input_vector() const
 // is_sa_mode() == true の時のみ有効
 inline
 void
-TestVector::set_ppi_val(ymuint pos,
+TestVector::set_ppi_val(int pos,
 			Val3 val)
 {
-  ASSERT_COND( fault_type() == kFtStuckAt );
+  ASSERT_COND( fault_type() == FaultType::StuckAt );
   ASSERT_COND( pos < ppi_num() );
 
   if ( pos < input_num() ) {
@@ -528,10 +527,10 @@ TestVector::set_ppi_val(ymuint pos,
 // @param[in] val 値
 inline
 void
-TestVector::set_input_val(ymuint pos,
+TestVector::set_input_val(int pos,
 			  Val3 val)
 {
-  ASSERT_COND( fault_type() == kFtTransitionDelay );
+  ASSERT_COND( fault_type() == FaultType::TransitionDelay );
   ASSERT_COND( pos < input_num() );
 
   mInputVector->set_val(pos, val);
@@ -542,10 +541,10 @@ TestVector::set_input_val(ymuint pos,
 // @param[in] val 値
 inline
 void
-TestVector::set_dff_val(ymuint pos,
+TestVector::set_dff_val(int pos,
 			Val3 val)
 {
-  ASSERT_COND( fault_type() == kFtTransitionDelay );
+  ASSERT_COND( fault_type() == FaultType::TransitionDelay );
   ASSERT_COND( pos < dff_num() );
 
   mDffVector->set_val(pos, val);
@@ -556,13 +555,13 @@ TestVector::set_dff_val(ymuint pos,
 // @param[in] val 値
 inline
 void
-TestVector::set_aux_input_val(ymuint pos,
+TestVector::set_aux_input_val(int pos,
 			      Val3 val)
 {
-  ASSERT_COND( fault_type() == kFtTransitionDelay );
+  ASSERT_COND( fault_type() == FaultType::TransitionDelay );
   ASSERT_COND( pos < input_num() );
 
-  if ( fault_type() == kFtTransitionDelay ) {
+  if ( fault_type() == FaultType::TransitionDelay ) {
     mAuxInputVector->set_val(pos, val);
   }
 }

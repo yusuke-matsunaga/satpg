@@ -5,7 +5,7 @@
 /// @brief TpgPPO のヘッダファイル
 /// @author Yusuke Matsunaga (松永 裕介)
 ///
-/// Copyright (C) 2016 Yusuke Matsunaga
+/// Copyright (C) 2016, 2018 Yusuke Matsunaga
 /// All rights reserved.
 
 
@@ -21,17 +21,18 @@ BEGIN_NAMESPACE_YM_SATPG
 class TpgPPO :
   public TpgNode
 {
-public:
+protected:
 
   /// @brief コンストラクタ
   /// @param[in] id ID番号
   /// @param[in] output_id 出力番号
   /// @param[in] fanin ファンインのノード
-  TpgPPO(ymuint id,
-	 ymuint output_id,
+  TpgPPO(int id,
+	 int output_id,
 	 TpgNode* fanin);
 
   /// @brief デストラクタ
+  virtual
   ~TpgPPO();
 
 
@@ -45,7 +46,7 @@ public:
   /// 具体的には is_primary_output() || is_dff_input()
   virtual
   bool
-  is_ppo() const;
+  is_ppo() const override;
 
   /// @brief 外部出力タイプの時に出力番号を返す．
   ///
@@ -53,13 +54,13 @@ public:
   /// の関係を満たす．
   /// is_output() が false の場合の返り値は不定
   virtual
-  ymuint
-  output_id() const;
+  int
+  output_id() const override;
 
   /// @brief TFIサイズの昇順に並べた時の出力番号を返す．
   virtual
-  ymuint
-  output_id2() const;
+  int
+  output_id2() const override;
 
   /// @brief ゲートタイプを得る．
   ///
@@ -67,18 +68,18 @@ public:
   /// ただし疑似出力の場合はバッファタイプとみなす．
   virtual
   GateType
-  gate_type() const;
+  gate_type() const override;
 
   /// @brief ファンイン数を得る．
   virtual
-  ymuint
-  fanin_num() const;
+  int
+  fanin_num() const override;
 
   /// @brief ファンインを得る．
   /// @param[in] pos 位置番号 ( 0 <= pos < fanin_num() )
   virtual
   TpgNode*
-  fanin(ymuint pos) const;
+  fanin(int pos) const override;
 
 
 public:
@@ -92,7 +93,7 @@ public:
   /// 出力ノード以外では無効
   virtual
   void
-  set_output_id2(ymuint id);
+  set_output_id2(int id) override;
 
 
 private:
@@ -101,10 +102,10 @@ private:
   //////////////////////////////////////////////////////////////////////
 
   // 出力番号
-  ymuint mOutputId;
+  int mOutputId;
 
   // 出力番号2
-  ymuint mOutputId2;
+  int mOutputId2;
 
   // ファンイン
   TpgNode* mFanin;

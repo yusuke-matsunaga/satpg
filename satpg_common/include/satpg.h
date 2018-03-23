@@ -59,11 +59,13 @@ class UntestOp;
 class BackTracer;
 class Justifier;
 
-class GateLitMap;
 class VidMap;
 class ValMap;
 
 class Fsim;
+
+enum class GateType;
+enum class Val3;
 
 END_NAMESPACE_YM_SATPG
 

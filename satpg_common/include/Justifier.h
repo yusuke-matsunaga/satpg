@@ -52,7 +52,7 @@ public:
 extern
 Justifier*
 new_JustSimple(bool td_mode,
-	       ymuint max_id);
+	       int max_id);
 
 /// @brief Just1 を生成する．
 /// @param[in] td_mode 遷移故障モードの時 true にするフラグ
@@ -60,7 +60,7 @@ new_JustSimple(bool td_mode,
 extern
 Justifier*
 new_Just1(bool td_mode,
-	  ymuint max_id);
+	  int max_id);
 
 /// @brief Just2 を生成する．
 /// @param[in] td_mode 遷移故障モードの時 true にするフラグ
@@ -68,7 +68,7 @@ new_Just1(bool td_mode,
 extern
 Justifier*
 new_Just2(bool td_mode,
-	  ymuint max_id);
+	  int max_id);
 
 END_NAMESPACE_YM_SATPG
 

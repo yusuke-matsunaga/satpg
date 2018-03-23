@@ -31,17 +31,15 @@ TpgMFFC::set(TpgNode* root,
   mRoot = root;
 
   mElemNum = ffr_list.size();
-  void* p = alloc.get_memory(sizeof(const TpgFFR*) * mElemNum);
-  mElemList = new (p) const TpgFFR*[mElemNum];
-  for (ymuint i = 0; i < mElemNum; ++ i) {
+  mElemList = alloc.get_array<const TpgFFR*>(mElemNum);
+  for ( int i = 0; i < mElemNum; ++ i ) {
     const TpgFFR* ffr = ffr_list[i];
     mElemList[i] = ffr;
   }
 
   mFaultNum = fault_list.size();
-  void* q = alloc.get_memory(sizeof(TpgFault*) * mFaultNum);
-  mFaultList = new (q) TpgFault*[mFaultNum];
-  for (ymuint i = 0; i < mFaultNum; ++ i) {
+  mFaultList = alloc.get_array<const TpgFault*>(mFaultNum);
+  for ( int i = 0; i < mFaultNum; ++ i ) {
     TpgFault* fault = fault_list[i];
     mFaultList[i] = fault;
     fault->set_mffc(this);
