@@ -73,6 +73,9 @@ private:
   // print_stats オプションの解析用オブジェクト
   TclPopt* mPoptPrintStats;
 
+  // old オプションの解析用オブジェクト
+  TclPopt* mPoptOld;
+
   // single オプションの解析用オブジェクト
   TclPopt* mPoptSingle;
 

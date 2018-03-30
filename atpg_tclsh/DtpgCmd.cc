@@ -16,6 +16,8 @@
 #include "TpgFaultMgr.h"
 #include "DtpgStats.h"
 #include "Dtpg.h"
+#include "Dtpg_old.h"
+#include "sa/DtpgOld.h"
 #include "Fsim.h"
 #include "NodeValList.h"
 #include "BackTracer.h"
@@ -28,6 +30,36 @@
 
 
 BEGIN_NAMESPACE_YM_SATPG
+
+void
+run_single_old(const string& sat_type,
+	       const string& sat_option,
+	       ostream* sat_outp,
+	       FaultType fault_type,
+	       Justifier& jt,
+	       const TpgNetwork& network,
+	       TpgFaultMgr& fmgr,
+	       DetectOp& dop,
+	       UntestOp& uop,
+	       DtpgStats& stats)
+{
+  int nf = network.rep_fault_num();
+  for (int i = 0; i < nf; ++ i) {
+    const TpgFault* fault = network.rep_fault(i);
+    if ( fmgr.status(fault) == FaultStatus::Undetected ) {
+      const TpgFFR* ffr = fault->ffr();
+      Dtpg_old dtpg(sat_type, sat_option, sat_outp, fault_type, jt, network, ffr->root(), stats);
+      NodeValList nodeval_list;
+      SatBool3 ans = dtpg.dtpg(fault, nodeval_list, stats);
+      if ( ans == SatBool3::True ) {
+	dop(fault, nodeval_list);
+      }
+      else if ( ans == SatBool3::False ) {
+	uop(fault);
+      }
+    }
+  }
+}
 
 void
 run_single(const string& sat_type,
@@ -148,6 +180,8 @@ DtpgCmd::DtpgCmd(AtpgMgr* mgr) :
 				     "transition delay fault mode");
   mPoptPrintStats = new TclPopt(this, "print_stats",
 				"print statistics");
+  mPoptOld = new TclPopt(this, "old",
+			 "old single mode");
   mPoptSingle = new TclPopt(this, "single",
 			    "single mode");
   mPoptFFR = new TclPopt(this, "ffr",
@@ -173,7 +207,7 @@ DtpgCmd::DtpgCmd(AtpgMgr* mgr) :
 
   new_popt_group(mPoptStuckAt, mPoptTransitionDelay);
 
-  TclPoptGroup* g0 = new_popt_group(mPoptSingle, mPoptFFR, mPoptMFFC);
+  TclPoptGroup* g0 = new_popt_group(mPoptOld, mPoptSingle, mPoptFFR, mPoptMFFC);
 
   new_popt_group(mPoptTimer, mPoptNoTimer);
 }
@@ -223,7 +257,10 @@ DtpgCmd::cmd_proc(TclObjVector& objv)
   string engine_type;
   int mode_val = 0;
   int kdet_val = 0;
-  if ( mPoptSingle->is_specified() ) {
+  if ( mPoptOld->is_specified() ) {
+    engine_type = "old";
+  }
+  else if ( mPoptSingle->is_specified() ) {
     if ( mPoptKDet->is_specified() ) {
       engine_type = "single_kdet";
       kdet_val = mPoptKDet->val();
@@ -299,7 +336,11 @@ DtpgCmd::cmd_proc(TclObjVector& objv)
   }
 
   DtpgStats stats;
-  if ( engine_type == "single" ) {
+  if ( engine_type == "old" ) {
+    run_single_old(sat_type, sat_option, outp, fault_type, *jt,
+		   _network(), fault_mgr, dop_list, uop_list, stats);
+  }
+  else if ( engine_type == "single" ) {
     run_single(sat_type, sat_option, outp, fault_type, *jt,
 	       _network(), fault_mgr, dop_list, uop_list, stats);
   }

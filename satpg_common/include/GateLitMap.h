@@ -5,19 +5,19 @@
 /// @brief GateLitMap のヘッダファイル
 /// @author Yusuke Matsunaga (松永 裕介)
 ///
-/// Copyright (C) 2017 Yusuke Matsunaga
+/// Copyright (C) 2017, 2018 Yusuke Matsunaga
 /// All rights reserved.
 
 
-#include "structenc_nsdef.h"
+#include "satpg.h"
 #include "ym/SatLiteral.h"
 
 
-BEGIN_NAMESPACE_YM_SATPG_STRUCTENC
+BEGIN_NAMESPACE_YM_SATPG
 
 //////////////////////////////////////////////////////////////////////
 /// @class GateLitMap GateLitMap.h "GateLitMap.h"
-/// @brief make_gate_cnf で用いられるファンクター
+/// @brief make_cnf で用いられるファンクター
 ///
 /// ゲートの入出力に対応するリテラルを返すファンクターオブジェクト
 /// このクラスはインターフェイスを定義しただけの純粋仮想基底クラス
@@ -48,6 +48,6 @@ public:
 
 };
 
-END_NAMESPACE_YM_SATPG_STRUCTENC
+END_NAMESPACE_YM_SATPG
 
 #endif // GATELITMAP_H

@@ -12,7 +12,7 @@
 #include "TpgNode.h"
 
 
-BEGIN_NAMESPACE_YM_SATPG_STRUCTENC
+BEGIN_NAMESPACE_YM_SATPG
 
 //////////////////////////////////////////////////////////////////////
 // クラス GateLitMap_vid
@@ -53,4 +53,4 @@ GateLitMap_vid::output() const
   return SatLiteral(mVidMap(mNode), false);
 }
 
-END_NAMESPACE_YM_SATPG_STRUCTENC
+END_NAMESPACE_YM_SATPG

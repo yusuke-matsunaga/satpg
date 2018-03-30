@@ -1,8 +1,8 @@
-﻿#ifndef DTPGIMPL_H
-#define DTPGIMPL_H
+﻿#ifndef DTPG_OLD_H
+#define DTPG_OLD_H
 
-/// @file DtpgImpl.h
-/// @brief DtpgImpl のヘッダファイル
+/// @file Dtpg_old.h
+/// @brief Dtpg_old のヘッダファイル
 ///
 /// @author Yusuke Matsunaga (松永 裕介)
 ///
@@ -31,10 +31,10 @@
 BEGIN_NAMESPACE_YM_SATPG
 
 //////////////////////////////////////////////////////////////////////
-/// @class DtpgImpl DtpgImpl.h "DtpgImpl.h"
+/// @class Dtpg_old Dtpg_old.h "Dtpg_old.h"
 /// @brief Dtpg の実装用のクラス
 //////////////////////////////////////////////////////////////////////
-class DtpgImpl
+class Dtpg_old
 {
 public:
 
@@ -46,17 +46,17 @@ public:
   /// @param[in] bt バックトレーサー
   /// @param[in] network 対象のネットワーク
   /// @param[in] root 故障伝搬の起点となるノード
-  DtpgImpl(const string& sat_type,
+  Dtpg_old(const string& sat_type,
 	   const string& sat_option,
 	   ostream* sat_outp,
 	   FaultType fault_type,
-	   BackTracer& bt,
+	   Justifier& jt,
 	   const TpgNetwork& network,
-	   const TpgNode* root);
+	   const TpgNode* root,
+	   DtpgStats& stats);
 
   /// @brief デストラクタ
-  virtual
-  ~DtpgImpl();
+  ~Dtpg_old();
 
 
 public:
@@ -64,21 +64,11 @@ public:
   // 外部インターフェイス
   //////////////////////////////////////////////////////////////////////
 
-  /// @brief 回路の構造を表すCNF式を作る．
-  /// @param[out] stats DTPGの統計情報
-  ///
-  /// このオブジェクトに対しては1回行えばよい．
-  /// というか1回しか行えない．
-  virtual
-  void
-  gen_cnf(DtpgStats& stats);
-
   /// @brief テスト生成を行なう．
   /// @param[in] fault 対象の故障
   /// @param[out] nodeval_list テストパタンの値割り当てを格納するリスト
   /// @param[inout] stats DTPGの統計情報
   /// @return 結果を返す．
-  virtual
   SatBool3
   dtpg(const TpgFault* fault,
        NodeValList& nodeval_list,
@@ -323,7 +313,7 @@ private:
   VidMap mDvarMap;
 
   // バックトレーサー
-  BackTracer& mBackTracer;
+  Justifier& mJustifier;
 
   // 時間計測を行なうかどうかの制御フラグ
   bool mTimerEnable;
@@ -341,7 +331,7 @@ private:
 // @brief SATソルバを返す．
 inline
 SatSolver&
-DtpgImpl::solver()
+Dtpg_old::solver()
 {
   return mSolver;
 }
@@ -349,7 +339,7 @@ DtpgImpl::solver()
 // @brief 対象のネットワークを返す．
 inline
 const TpgNetwork&
-DtpgImpl::network() const
+Dtpg_old::network() const
 {
   return mNetwork;
 }
@@ -357,7 +347,7 @@ DtpgImpl::network() const
 // @brief ノード番号の最大値を返す．
 inline
 int
-DtpgImpl::max_node_id() const
+Dtpg_old::max_node_id() const
 {
   return network().node_num();
 }
@@ -365,7 +355,7 @@ DtpgImpl::max_node_id() const
 // @brief 起点となるノードを返す．
 inline
 const TpgNode*
-DtpgImpl::root_node() const
+Dtpg_old::root_node() const
 {
   return mRoot;
 }
@@ -374,7 +364,7 @@ DtpgImpl::root_node() const
 // @param[in] node 対象のノード
 inline
 SatVarId
-DtpgImpl::hvar(const TpgNode* node)
+Dtpg_old::hvar(const TpgNode* node)
 {
   ASSERT_COND( mHvarMap(node) != kSatVarIdIllegal );
 
@@ -385,7 +375,7 @@ DtpgImpl::hvar(const TpgNode* node)
 // @param[in] node 対象のノード
 inline
 SatVarId
-DtpgImpl::gvar(const TpgNode* node)
+Dtpg_old::gvar(const TpgNode* node)
 {
   return mGvarMap(node);
 }
@@ -394,7 +384,7 @@ DtpgImpl::gvar(const TpgNode* node)
 // @param[in] node 対象のノード
 inline
 SatVarId
-DtpgImpl::fvar(const TpgNode* node)
+Dtpg_old::fvar(const TpgNode* node)
 {
   return mFvarMap(node);
 }
@@ -403,7 +393,7 @@ DtpgImpl::fvar(const TpgNode* node)
 // @param[in] node 対象のノード
 inline
 SatVarId
-DtpgImpl::dvar(const TpgNode* node)
+Dtpg_old::dvar(const TpgNode* node)
 {
   return mDvarMap(node);
 }
@@ -413,7 +403,7 @@ DtpgImpl::dvar(const TpgNode* node)
 // @param[in] var 設定する変数
 inline
 void
-DtpgImpl::set_hvar(const TpgNode* node,
+Dtpg_old::set_hvar(const TpgNode* node,
 		   SatVarId var)
 {
   mHvarMap.set_vid(node, var);
@@ -424,7 +414,7 @@ DtpgImpl::set_hvar(const TpgNode* node,
 // @param[in] var 設定する変数
 inline
 void
-DtpgImpl::set_gvar(const TpgNode* node,
+Dtpg_old::set_gvar(const TpgNode* node,
 		   SatVarId var)
 {
   mGvarMap.set_vid(node, var);
@@ -435,7 +425,7 @@ DtpgImpl::set_gvar(const TpgNode* node,
 // @param[in] var 設定する変数
 inline
 void
-DtpgImpl::set_fvar(const TpgNode* node,
+Dtpg_old::set_fvar(const TpgNode* node,
 		   SatVarId var)
 {
   mFvarMap.set_vid(node, var);
@@ -446,7 +436,7 @@ DtpgImpl::set_fvar(const TpgNode* node,
 // @param[in] var 設定する変数
 inline
 void
-DtpgImpl::set_dvar(const TpgNode* node,
+Dtpg_old::set_dvar(const TpgNode* node,
 		   SatVarId var)
 {
   mDvarMap.set_vid(node, var);
@@ -455,7 +445,7 @@ DtpgImpl::set_dvar(const TpgNode* node,
 // @brief 1時刻前の正常値の変数マップを返す．
 inline
 const VidMap&
-DtpgImpl::hvar_map() const
+Dtpg_old::hvar_map() const
 {
   return mHvarMap;
 }
@@ -463,7 +453,7 @@ DtpgImpl::hvar_map() const
 // @brief 正常値の変数マップを返す．
 inline
 const VidMap&
-DtpgImpl::gvar_map() const
+Dtpg_old::gvar_map() const
 {
   return mGvarMap;
 }
@@ -471,7 +461,7 @@ DtpgImpl::gvar_map() const
 // @brief 故障値の変数マップを返す．
 inline
 const VidMap&
-DtpgImpl::fvar_map() const
+Dtpg_old::fvar_map() const
 {
   return mFvarMap;
 }
@@ -479,7 +469,7 @@ DtpgImpl::fvar_map() const
 // @brief 関係するノードのリストを返す．
 inline
 const vector<const TpgNode*>&
-DtpgImpl::cur_node_list() const
+Dtpg_old::cur_node_list() const
 {
   return mNodeList;
 }
@@ -487,7 +477,7 @@ DtpgImpl::cur_node_list() const
 // @brief 関係する１時刻前のノードのリストを返す．
 inline
 const vector<const TpgNode*>&
-DtpgImpl::prev_node_list() const
+Dtpg_old::prev_node_list() const
 {
   return mNodeList2;
 }
@@ -495,7 +485,7 @@ DtpgImpl::prev_node_list() const
 // @brief TFO マークをつける．
 inline
 void
-DtpgImpl::set_tfo_mark(const TpgNode* node)
+Dtpg_old::set_tfo_mark(const TpgNode* node)
 {
   int id = node->id();
   if ( ((mMarkArray[id] >> 0) & 1U) == 0U ) {
@@ -510,7 +500,7 @@ DtpgImpl::set_tfo_mark(const TpgNode* node)
 // @brief TFI マークをつける．
 inline
 void
-DtpgImpl::set_tfi_mark(const TpgNode* node)
+Dtpg_old::set_tfi_mark(const TpgNode* node)
 {
   int id = node->id();
   if ( (mMarkArray[id] & 3U) == 0U ) {
@@ -525,7 +515,7 @@ DtpgImpl::set_tfi_mark(const TpgNode* node)
 // @brief TFI2 マークをつける．
 inline
 void
-DtpgImpl::set_tfi2_mark(const TpgNode* node)
+Dtpg_old::set_tfi2_mark(const TpgNode* node)
 {
   int id = node->id();
   if ( ((mMarkArray[id] >> 2) & 1U) == 0U ) {
@@ -536,4 +526,4 @@ DtpgImpl::set_tfi2_mark(const TpgNode* node)
 
 END_NAMESPACE_YM_SATPG
 
-#endif // DTPGIMPL_H
+#endif // DTPG_OLD_H

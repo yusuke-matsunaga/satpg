@@ -71,6 +71,7 @@ set (struct_enc_SOURCES
 
 set (dtpg_SOURCES
   dtpg/Dtpg.cc
+  dtpg/Dtpg_old.cc
   )
 
 set (dtpg_old_SOURCES
@@ -115,6 +116,7 @@ set (jt_SOURCES
   )
 
 set (sa_SOURCES
+
   sa/minpat/Verifier.cc
   sa/minpat/MinPatBase.cc
   sa/minpat/MinPatNaive.cc
@@ -156,6 +158,7 @@ ym_add_object_library ( satpg_common
   ${uop_SOURCES}
   ${bt_SOURCES}
   ${jt_SOURCES}
+  sa/dtpg/DtpgOld.cc
 #  ${sa_SOURCES}
 #  ${td_SOURCES}
   )

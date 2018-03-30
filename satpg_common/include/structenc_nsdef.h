@@ -32,8 +32,6 @@ BEGIN_NAMESPACE_YM_SATPG_STRUCTENC
 
 class StructEnc;
 class PropCone;
-class GateLitMap;
-class VidMap;
 
 END_NAMESPACE_YM_SATPG_STRUCTENC
 

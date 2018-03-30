@@ -12,7 +12,7 @@
 #include "GateLitMap_vid.h"
 
 
-BEGIN_NAMESPACE_YM_SATPG_STRUCTENC
+BEGIN_NAMESPACE_YM_SATPG
 
 //////////////////////////////////////////////////////////////////////
 /// @class GateLitMap_vid2 GateLitMap_vid2.h "GateLitMap_vid2.h"
@@ -65,6 +65,6 @@ private:
 
 };
 
-END_NAMESPACE_YM_SATPG_STRUCTENC
+END_NAMESPACE_YM_SATPG
 
 #endif // GATELITMAP_VID2_H

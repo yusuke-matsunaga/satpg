@@ -10,7 +10,7 @@
 #include "GateLitMap_vid2.h"
 
 
-BEGIN_NAMESPACE_YM_SATPG_STRUCTENC
+BEGIN_NAMESPACE_YM_SATPG
 
 //////////////////////////////////////////////////////////////////////
 // クラス GateLitMap_vid2
@@ -37,4 +37,4 @@ GateLitMap_vid2::output() const
   return SatLiteral(mOvar);
 }
 
-END_NAMESPACE_YM_SATPG_STRUCTENC
+END_NAMESPACE_YM_SATPG

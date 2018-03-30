@@ -14,7 +14,7 @@
 #include "ym/SatVarId.h"
 
 
-BEGIN_NAMESPACE_YM_SATPG_STRUCTENC
+BEGIN_NAMESPACE_YM_SATPG
 
 //////////////////////////////////////////////////////////////////////
 /// @class VidMap VidMap.h "VidMap.h"
@@ -125,6 +125,6 @@ VidMap::set_vid(const TpgNode* node,
   mVidArray[node->id()] = vid;
 }
 
-END_NAMESPACE_YM_SATPG_STRUCTENC
+END_NAMESPACE_YM_SATPG
 
 #endif // VIDMAP_H
