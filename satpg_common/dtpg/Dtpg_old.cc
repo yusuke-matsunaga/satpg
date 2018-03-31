@@ -205,7 +205,8 @@ Dtpg_old::gen_cnf_base()
   }
 
   // TFI の部分に変数を割り当てる．
-  for ( auto node: mNodeList ) {
+  for ( int rpos = tfo_num; rpos < mNodeList.size(); ++ rpos ) {
+    const TpgNode* node = mNodeList[rpos];
     SatVarId gvar = mSolver.new_variable();
 
     mGvarMap.set_vid(node, gvar);
