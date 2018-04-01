@@ -171,7 +171,7 @@ Dtpg_old::gen_cnf_base()
       set_tfi_mark(inode);
     }
   }
-#if 0
+
   // TFI に含まれる DFF のさらに TFI を mTfi2List に入れる．
   if ( mFaultType == FaultType::TransitionDelay ) {
     if ( mRoot->is_dff_output() ) {
@@ -191,7 +191,6 @@ Dtpg_old::gen_cnf_base()
       }
     }
   }
-#endif
 
   // TFO の部分に変数を割り当てる．
   for ( auto node: mTfoList ) {
@@ -223,7 +222,6 @@ Dtpg_old::gen_cnf_base()
     }
   }
 
-#if 0
   // TFI2 の部分に変数を割り当てる．
   for ( auto node: mTfi2List ) {
     SatVarId hvar = mSolver.new_variable();
@@ -234,7 +232,7 @@ Dtpg_old::gen_cnf_base()
       DEBUG_OUT << "hvar(Node#" << node->id() << ") = " << hvar << endl;
     }
   }
-#endif
+
 
   //////////////////////////////////////////////////////////////////////
   // 正常回路の CNF を生成
@@ -268,7 +266,6 @@ Dtpg_old::gen_cnf_base()
     }
   }
 
-#if 0
   for ( auto dff: mDffList ) {
     const TpgNode* onode = dff->output();
     const TpgNode* inode = dff->input();
@@ -292,7 +289,7 @@ Dtpg_old::gen_cnf_base()
       DEBUG_OUT << ")" << endl;
     }
   }
-#endif
+
 
   //////////////////////////////////////////////////////////////////////
   // 故障回路の CNF を生成

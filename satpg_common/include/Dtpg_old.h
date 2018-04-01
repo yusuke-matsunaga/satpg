@@ -6,7 +6,7 @@
 ///
 /// @author Yusuke Matsunaga (松永 裕介)
 ///
-/// Copyright (C) 2017 Yusuke Matsunaga
+/// Copyright (C) 2017, 2018 Yusuke Matsunaga
 /// All rights reserved.
 
 
@@ -493,11 +493,9 @@ Dtpg_old::set_tfi_mark(const TpgNode* node)
   if ( (mMarkArray[id] & 3U) == 0U ) {
     mMarkArray[id] |= 2U;
     mTfiList.push_back(node);
-#if 0
     if ( mFaultType == FaultType::TransitionDelay && node->is_dff_output() ) {
       mDffList.push_back(node->dff());
     }
-#endif
   }
 }
 
