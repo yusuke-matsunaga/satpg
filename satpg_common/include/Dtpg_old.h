@@ -24,6 +24,7 @@
 #include "ym/SatSolver.h"
 #include "ym/SatStats.h"
 #include "ym/StopWatch.h"
+#include "ym/HashMap.h"
 
 #include "VidMap.h"
 
@@ -38,7 +39,7 @@ class Dtpg_old
 {
 public:
 
-  /// @brief コンストラクタ
+  /// @brief コンストラクタ(FFRモード)
   /// @param[in] sat_type SATソルバの種類を表す文字列
   /// @param[in] sat_option SATソルバに渡すオプション文字列
   /// @param[in] sat_outp SATソルバ用の出力ストリーム
@@ -52,7 +53,24 @@ public:
 	   FaultType fault_type,
 	   Justifier& jt,
 	   const TpgNetwork& network,
-	   const TpgNode* root,
+	   const TpgFFR* ffr,
+	   DtpgStats& stats);
+
+  /// @brief コンストラクタ(MFFCモード)
+  /// @param[in] sat_type SATソルバの種類を表す文字列
+  /// @param[in] sat_option SATソルバに渡すオプション文字列
+  /// @param[in] sat_outp SATソルバ用の出力ストリーム
+  /// @param[in] fault_type 故障の種類
+  /// @param[in] bt バックトレーサー
+  /// @param[in] network 対象のネットワーク
+  /// @param[in] root 故障伝搬の起点となるノード
+  Dtpg_old(const string& sat_type,
+	   const string& sat_option,
+	   ostream* sat_outp,
+	   FaultType fault_type,
+	   Justifier& jt,
+	   const TpgNetwork& network,
+	   const TpgMFFC* mffc,
 	   DtpgStats& stats);
 
   /// @brief デストラクタ
@@ -184,17 +202,44 @@ protected:
   void
   gen_cnf_base();
 
+  /// @brief mffc 内の影響が root まで伝搬する条件のCNF式を作る．
+  void
+  gen_cnf_mffc();
+
+  /// @brief ノードの入出力の関係を表すCNF式を作る．
+  /// @param[in] node 対象のノード
+  /// @param[in] var_map 変数マップ
+  void
+  make_node_cnf(const TpgNode* node,
+		const VidMap& var_map);
+
+  /// @brief ノードの入出力の関係を表すCNF式を作る．
+  /// @param[in] node 対象のノード
+  /// @param[in] var_map 変数マップ
+  /// @param[in] ovar 出力の変数
+  void
+  make_node_cnf(const TpgNode* node,
+		const VidMap& var_map,
+		SatVarId ovar);
+
   /// @brief ノードの入出力の関係を表すCNF式を作る．
   /// @param[in] node 対象のノード
   /// @param[in] litmap 入出力のリテラル
   void
-  make_node_cnf(const TpgNode* node,
-		const GateLitMap& litmap);
+  _make_node_cnf(const TpgNode* node,
+		 const GateLitMap& litmap);
 
   /// @brief 故障伝搬条件を表すCNF式を生成する．
   /// @param[in] node 対象のノード
   void
   make_dchain_cnf(const TpgNode* node);
+
+  /// @brief 故障挿入回路のCNFを作る．
+  /// @param[in] elem_pos 要素番号
+  /// @param[in] ovar ゲートの出力の変数
+  void
+  inject_fault(int elem_pos,
+	       SatVarId ovar);
 
   /// @brief 故障の影響がFFRの根のノードまで伝搬する条件を作る．
   /// @param[in] fault 対象の故障
@@ -273,17 +318,6 @@ private:
   // 故障伝搬の起点となるノード
   const TpgNode* mRoot;
 
-  // FFR の根のリスト
-  // [0] は MFFC の根でもある．
-  vector<const TpgNode*> mElemArray;
-
-  // 故障番号をキーにしてFFR番号を入れる配列
-  vector<int> mElemPosMap;
-
-  // 各FFRの根に反転イベントを挿入するための変数
-  // サイズは mElemNum
-  vector<SatVarId> mElemVarArray;
-
   // TFOノードを入れておくリスト
   vector<const TpgNode*> mTfoList;
 
@@ -302,6 +336,17 @@ private:
   // 作業用のマークを入れておく配列
   // サイズは mMaxNodeId
   vector<ymuint8> mMarkArray;
+
+  // FFR の根のリスト
+  // [0] は MFFC の根でもある．
+  vector<const TpgNode*> mElemArray;
+
+  // 各FFRの根に反転イベントを挿入するための変数
+  // サイズは mElemArray.size()
+  vector<SatVarId> mElemVarArray;
+
+  // ノード番号をキーにしてFFR番号を入れる連想配列
+  HashMap<int, int> mElemPosMap;
 
   // 1時刻前の正常値を表す変数のマップ
   VidMap mHvarMap;

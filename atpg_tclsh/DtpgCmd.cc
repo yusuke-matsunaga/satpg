@@ -47,7 +47,7 @@ run_single_old(const string& sat_type,
     const TpgFault* fault = network.rep_fault(i);
     if ( fmgr.status(fault) == FaultStatus::Undetected ) {
       const TpgFFR* ffr = fault->ffr();
-      Dtpg_old dtpg(sat_type, sat_option, sat_outp, fault_type, jt, network, ffr->root(), stats);
+      Dtpg_old dtpg(sat_type, sat_option, sat_outp, fault_type, jt, network, ffr, stats);
       NodeValList nodeval_list;
       SatBool3 ans = dtpg.dtpg(fault, nodeval_list, stats);
       if ( ans == SatBool3::True ) {
@@ -55,6 +55,73 @@ run_single_old(const string& sat_type,
       }
       else if ( ans == SatBool3::False ) {
 	uop(fault);
+      }
+    }
+  }
+}
+
+void
+run_ffr_old(const string& sat_type,
+	    const string& sat_option,
+	    ostream* sat_outp,
+	    FaultType fault_type,
+	    Justifier& jt,
+	    const TpgNetwork& network,
+	    TpgFaultMgr& fmgr,
+	    DetectOp& dop,
+	    UntestOp& uop,
+	    DtpgStats& stats)
+{
+  int nffr = network.ffr_num();
+  for (int i = 0; i < nffr; ++ i) {
+    const TpgFFR* ffr = network.ffr(i);
+    Dtpg_old dtpg(sat_type, sat_option, sat_outp, fault_type, jt, network, ffr, stats);
+    int nf = ffr->fault_num();
+    for (int j = 0; j < nf; ++ j) {
+      const TpgFault* fault = ffr->fault(j);
+      if ( fmgr.status(fault) == FaultStatus::Undetected ) {
+	NodeValList nodeval_list;
+	SatBool3 ans = dtpg.dtpg(fault, nodeval_list, stats);
+	if ( ans == SatBool3::True ) {
+	  dop(fault, nodeval_list);
+	}
+	else if ( ans == SatBool3::False ) {
+	  uop(fault);
+	}
+      }
+    }
+  }
+}
+
+void
+run_mffc_old(const string& sat_type,
+	     const string& sat_option,
+	     ostream* sat_outp,
+	     FaultType fault_type,
+	     Justifier& jt,
+	     const TpgNetwork& network,
+	     TpgFaultMgr& fmgr,
+	     DetectOp& dop,
+	     UntestOp& uop,
+	     DtpgStats& stats)
+{
+  int n = network.mffc_num();
+  for (int i = 0; i < n; ++ i) {
+    const TpgMFFC* mffc = network.mffc(i);
+    Dtpg_old dtpg(sat_type, sat_option, sat_outp, fault_type, jt, network, mffc, stats);
+    int nf = mffc->fault_num();
+    for (int j = 0; j < nf; ++ j) {
+      const TpgFault* fault = mffc->fault(j);
+      if ( fmgr.status(fault) == FaultStatus::Undetected ) {
+	// 故障に対するテスト生成を行なう．
+	NodeValList nodeval_list;
+	SatBool3 ans = dtpg.dtpg(fault, nodeval_list, stats);
+	if ( ans == SatBool3::True ) {
+	  dop(fault, nodeval_list);
+	}
+	else if ( ans == SatBool3::False ) {
+	  uop(fault);
+	}
       }
     }
   }
@@ -206,7 +273,7 @@ DtpgCmd::DtpgCmd(AtpgMgr* mgr) :
 
   new_popt_group(mPoptStuckAt, mPoptTransitionDelay);
 
-  TclPoptGroup* g0 = new_popt_group(mPoptOld, mPoptSingle, mPoptFFR, mPoptMFFC);
+  TclPoptGroup* g0 = new_popt_group(mPoptSingle, mPoptFFR, mPoptMFFC);
 
   new_popt_group(mPoptTimer, mPoptNoTimer);
 }
@@ -256,23 +323,35 @@ DtpgCmd::cmd_proc(TclObjVector& objv)
   string engine_type;
   int mode_val = 0;
   int kdet_val = 0;
-  if ( mPoptOld->is_specified() ) {
-    engine_type = "old";
-  }
-  else if ( mPoptSingle->is_specified() ) {
+  if ( mPoptSingle->is_specified() ) {
     if ( mPoptKDet->is_specified() ) {
       engine_type = "single_kdet";
       kdet_val = mPoptKDet->val();
     }
     else {
-      engine_type = "single";
+      if ( mPoptOld->is_specified() ) {
+	engine_type = "single_old";
+      }
+      else {
+	engine_type = "single";
+      }
     }
   }
   else if ( mPoptFFR->is_specified() ) {
-    engine_type = "ffr";
+    if ( mPoptOld->is_specified() ) {
+      engine_type = "ffr_old";
+    }
+    else {
+      engine_type = "ffr";
+    }
   }
   else if ( mPoptMFFC->is_specified() ) {
-    engine_type = "mffc";
+    if ( mPoptOld->is_specified() ) {
+      engine_type = "mffc_old";
+    }
+    else {
+      engine_type = "mffc";
+    }
   }
 
   bool sa_mode = true;
@@ -335,11 +414,7 @@ DtpgCmd::cmd_proc(TclObjVector& objv)
   }
 
   DtpgStats stats;
-  if ( engine_type == "old" ) {
-    run_single_old(sat_type, sat_option, outp, fault_type, *jt,
-		   _network(), fault_mgr, dop_list, uop_list, stats);
-  }
-  else if ( engine_type == "single" ) {
+  if ( engine_type == "single" ) {
     run_single(sat_type, sat_option, outp, fault_type, *jt,
 	       _network(), fault_mgr, dop_list, uop_list, stats);
   }
@@ -350,6 +425,18 @@ DtpgCmd::cmd_proc(TclObjVector& objv)
   else if ( engine_type == "mffc" ) {
     run_mffc(sat_type, sat_option, outp, fault_type, *jt,
 	     _network(), fault_mgr, dop_list, uop_list, stats);
+  }
+  else if ( engine_type == "single_old" ) {
+    run_single_old(sat_type, sat_option, outp, fault_type, *jt,
+		   _network(), fault_mgr, dop_list, uop_list, stats);
+  }
+  else if ( engine_type == "ffr_old" ) {
+    run_ffr_old(sat_type, sat_option, outp, fault_type, *jt,
+		_network(), fault_mgr, dop_list, uop_list, stats);
+  }
+  else if ( engine_type == "mffc_old" ) {
+    run_mffc_old(sat_type, sat_option, outp, fault_type, *jt,
+		 _network(), fault_mgr, dop_list, uop_list, stats);
   }
   else {
     run_single(sat_type, sat_option, outp, fault_type, *jt,
