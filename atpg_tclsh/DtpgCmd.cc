@@ -19,7 +19,6 @@
 #include "Dtpg_new.h"
 #include "Fsim.h"
 #include "NodeValList.h"
-#include "BackTracer.h"
 #include "Justifier.h"
 #include "DetectOp.h"
 #include "DopList.h"

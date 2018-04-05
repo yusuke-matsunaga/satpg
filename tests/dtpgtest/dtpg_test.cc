@@ -15,7 +15,6 @@
 #include "TpgFaultMgr.h"
 #include "Dtpg.h"
 #include "NodeValList.h"
-#include "BackTracer.h"
 #include "Fsim.h"
 #include "DetectOp.h"
 #include "DopVerifyResult.h"
