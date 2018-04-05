@@ -750,8 +750,12 @@ Dtpg_new::solve(const TpgFault* fault,
     const TpgNode* ffr_root = fault->tpg_onode()->ffr_root();
     extract(ffr_root, mGvarMap, mFvarMap, model, assign_list2);
     assign_list2.merge(assign_list);
-    const VidMap& hvar_map = mFaultType == FaultType::TransitionDelay ? mHvarMap : mGvarMap;
-    mJustifier(assign_list2, mGvarMap, hvar_map, model, nodeval_list);
+    if ( mFaultType == FaultType::TransitionDelay ) {
+      mJustifier(assign_list2, mHvarMap, mGvarMap, model, nodeval_list);
+    }
+    else {
+      mJustifier(assign_list2, mGvarMap, model, nodeval_list);
+    }
 
     timer.stop();
     stats.mBackTraceTime += timer.time();

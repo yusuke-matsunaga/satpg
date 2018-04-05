@@ -5,33 +5,28 @@
 /// @brief JustBase のヘッダファイル
 /// @author Yusuke Matsunaga (松永 裕介)
 ///
-/// Copyright (C) 2017 Yusuke Matsunaga
+/// Copyright (C) 2018 Yusuke Matsunaga
 /// All rights reserved.
 
 
 #include "Justifier.h"
-#include "NodeValList.h"
 #include "TpgNode.h"
-#include "Val3.h"
-#include "ValMap.h"
 
 
 BEGIN_NAMESPACE_YM_SATPG
 
 //////////////////////////////////////////////////////////////////////
 /// @class JustBase JustBase.h "JustBase.h"
-/// @brief 正当化に必要な割当を求めるファンクター
+/// @brief Justifier の継承クラスの基底クラス
 //////////////////////////////////////////////////////////////////////
 class JustBase :
   public Justifier
 {
-public:
+protected:
 
   /// @brief コンストラクタ
-  /// @param[in] td_mode 遷移故障モードの時 true にするフラグ
   /// @param[in] max_id ID番号の最大値
-  JustBase(bool td_mode,
-	   int max_id);
+  JustBase(int max_id);
 
   /// @brief デストラクタ
   virtual
@@ -43,68 +38,29 @@ public:
   // 外部インターフェイス
   //////////////////////////////////////////////////////////////////////
 
-
-protected:
-  //////////////////////////////////////////////////////////////////////
-  // 内部で用いられる便利関数
-  //////////////////////////////////////////////////////////////////////
-
-  /// @brief 遷移故障モードの時 true を返す．
-  bool
-  td_mode() const;
-
-  /// @brief ValMap をセットする．
-  /// @param[in] val_map ノードの値を保持するクラス
-  void
-  set_val_map(const ValMap& val_map);
-
   /// @brief justified マークをつけ，mJustifiedNodeList に加える．
   /// @param[in] node 対象のノード
   /// @param[in] time タイムフレーム ( 0 or 1 )
   void
-  set_justified(const TpgNode* node,
-		int time);
+  set_mark(const TpgNode* node,
+	   int time);
 
   /// @brief justified マークを読む．
   /// @param[in] node 対象のノード
   /// @param[in] time タイムフレーム ( 0 or 1 )
   bool
-  justified_mark(const TpgNode* node,
-		 int time) const;
+  mark(const TpgNode* node,
+       int time) const;
 
   /// @brief 全てのマークを消す．
   void
-  clear_justified_mark();
+  clear_mark();
 
-  /// @brief ノードの正常値を返す．
-  /// @param[in] node ノード
-  /// @param[in] time 時刻 ( 0 or 1 )
-  Val3
-  gval(const TpgNode* node,
-       int time) const;
-
-  /// @brief 入力ノードの値を記録する．
-  /// @param[in] node 対象の外部入力ノード
-  /// @param[in] time 時刻 ( 0 or 1 )
-  /// @param[out] assign_list 値の割当リスト
-  void
-  record_value(const TpgNode* node,
-	       int time,
-	       NodeValList& assign_list) const;
 
 private:
   //////////////////////////////////////////////////////////////////////
   // データメンバ
   //////////////////////////////////////////////////////////////////////
-
-  // 遷移故障モード
-  bool mTdMode;
-
-  // ノード番号の最大値
-  int mMaxId;
-
-  // ノードの値を保持するクラス
-  const ValMap* mValMapPtr;
 
   // 個々のノードのマークを表す配列
   vector<ymuint8> mMarkArray;
@@ -116,31 +72,27 @@ private:
 // インライン関数の定義
 //////////////////////////////////////////////////////////////////////
 
-// @brief 遷移故障モードの時 true を返す．
+// @brief コンストラクタ
+// @param[in] max_id ID番号の最大値
 inline
-bool
-JustBase::td_mode() const
+JustBase::JustBase(int max_id) :
+  mMarkArray(max_id, 0U)
 {
-  return mTdMode;
 }
 
-// @brief ValMap をセットする．
-// @param[in] val_map ノードの値を保持するクラス
+// @brief デストラクタ
 inline
-void
-JustBase::set_val_map(const ValMap& val_map)
+JustBase::~JustBase()
 {
-  mValMapPtr = &val_map;
 }
-
 
 // @brief justified マークをつける．
 // @param[in] node 対象のノード
 // @param[in] time タイムフレーム ( 0 or 1 )
 inline
 void
-JustBase::set_justified(const TpgNode* node,
-			int time)
+JustBase::set_mark(const TpgNode* node,
+		   int time)
 {
   // 念のため time の最下位ビットだけ使う．
   time &= 1;
@@ -152,46 +104,21 @@ JustBase::set_justified(const TpgNode* node,
 // @param[in] time タイムフレーム ( 0 or 1 )
 inline
 bool
-JustBase::justified_mark(const TpgNode* node,
-			 int time) const
+JustBase::mark(const TpgNode* node,
+	       int time) const
 {
   // 念のため time の最下位ビットだけ使う．
   time &= 1;
   return static_cast<bool>((mMarkArray[node->id()] >> time) & 1U);
 }
 
-// @brief ノードの正常値を返す．
-// @param[in] node ノード
-// @param[in] time 時刻 ( 0 or 1 )
-inline
-Val3
-JustBase::gval(const TpgNode* node,
-	       int time) const
-{
-  ASSERT_COND( mValMapPtr != nullptr );
-
-  if ( time == 0 ) {
-    return mValMapPtr->hval(node);
-  }
-  else {
-    return mValMapPtr->gval(node);
-  }
-}
-
-// @brief 入力ノードの値を記録する．
-// @param[in] node 対象の外部入力ノード
-// @param[in] time 時刻 (0 or 1)
-// @param[out] assign_list 値の割当リスト
+// @brief 全てのマークを消す．
 inline
 void
-JustBase::record_value(const TpgNode* node,
-		       int time,
-		       NodeValList& assign_list) const
+JustBase::clear_mark()
 {
-  Val3 v = gval(node, time);
-  if ( v != Val3::_X ) {
-    bool bval = (v == Val3::_1);
-    assign_list.add(node, time, bval);
+  for ( vector<ymuint8>::iterator p = mMarkArray.begin(); p != mMarkArray.end(); ++ p ) {
+    *p = 0U;
   }
 }
 

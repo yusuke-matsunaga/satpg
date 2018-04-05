@@ -5,7 +5,7 @@
 /// @brief Just2 のヘッダファイル
 /// @author Yusuke Matsunaga (松永 裕介)
 ///
-/// Copyright (C) 2017 Yusuke Matsunaga
+/// Copyright (C) 2017, 2018 Yusuke Matsunaga
 /// All rights reserved.
 
 
@@ -13,6 +13,8 @@
 
 
 BEGIN_NAMESPACE_YM_SATPG
+
+class JustData;
 
 //////////////////////////////////////////////////////////////////////
 /// @class Just2 Just2.h "td/Just2.h"
@@ -24,10 +26,8 @@ class Just2 :
 public:
 
   /// @brief コンストラクタ
-  /// @param[in] td_mode 遷移故障モードの時 true にするフラグ
-  /// @param[in] max_id ID番号の最大値
-  Just2(bool td_mode,
-	int max_id);
+  /// @param[in] max_id ノード番号の最大値
+  Just2(int max_id);
 
   /// @brief デストラクタ
   virtual
@@ -39,16 +39,31 @@ public:
   // 外部インターフェイス
   //////////////////////////////////////////////////////////////////////
 
-  /// @brief 正当化に必要な割当を求める．
+  /// @brief 正当化に必要な割当を求める(縮退故障用)．
   /// @param[in] assign_list 値の割り当てリスト
-  /// @param[in] val_map ノードの値を保持するクラス
+  /// @param[in] var_map 変数番号のマップ
+  /// @param[in] model SAT問題の解
   /// @param[out] pi_assign_list 外部入力上の値の割当リスト
+  virtual
   void
   operator()(const NodeValList& assign_list,
-	     const VidMap& gvar_map,
-	     const VidMap& hvar_map,
+	     const VidMap& var_map,
 	     const vector<SatBool3>& model,
-	     NodeValList& pi_assign_list);
+	     NodeValList& pi_assign_list) override;
+
+  /// @brief 正当化に必要な割当を求める(遷移故障用)．
+  /// @param[in] assign_list 値の割り当てリスト
+  /// @param[in] var1_map 1時刻目の変数番号のマップ
+  /// @param[in] var2_map 2時刻目の変数番号のマップ
+  /// @param[in] model SAT問題の解
+  /// @param[out] pi_assign_list 外部入力上の値の割当リスト
+  virtual
+  void
+  operator()(const NodeValList& assign_list,
+	     const VidMap& var1_map,
+	     const VidMap& var2_map,
+	     const vector<SatBool3>& model,
+	     NodeValList& pi_assign_list) override;
 
 
 private:
@@ -61,7 +76,8 @@ private:
   /// @param[in] time タイムフレーム ( 0 or 1 )
   /// @param[out] pi_assign_list 外部入力上の値の割当リスト
   void
-  justify(const TpgNode* node,
+  justify(const JustData& jd,
+	  const TpgNode* node,
 	  int time,
 	  NodeValList& pi_assign_list);
 
@@ -70,7 +86,8 @@ private:
   /// @param[in] time タイムフレーム ( 0 or 1 )
   /// @param[out] pi_assign_list 外部入力上の値の割当リスト
   void
-  just_all(const TpgNode* node,
+  just_all(const JustData& jd,
+	   const TpgNode* node,
 	   int time,
 	   NodeValList& pi_assign_list);
 
@@ -80,7 +97,8 @@ private:
   /// @param[in] time タイムフレーム ( 0 or 1 )
   /// @param[out] pi_assign_list 外部入力上の値の割当リスト
   void
-  just_one(const TpgNode* node,
+  just_one(const JustData& jd,
+	   const TpgNode* node,
 	   Val3 val,
 	   int time,
 	   NodeValList& pi_assign_list);
@@ -89,14 +107,16 @@ private:
   /// @param[in] node 対象のノード
   /// @param[in] time タイムフレーム ( 0 or 1 )
   void
-  add_weight(const TpgNode* node,
+  add_weight(const JustData& jd,
+	     const TpgNode* node,
 	     int time);
 
   /// @brief すべてのファンインに対して add_weight() を呼ぶ．
   /// @param[in] node 対象のノード
   /// @param[in] time タイムフレーム ( 0 or 1 )
   void
-  aw_all(const TpgNode* node,
+  aw_all(const JustData& jd,
+	 const TpgNode* node,
 	 int time);
 
   /// @brief 指定した値を持つファンインに対して add_weight() を呼ぶ．
@@ -104,7 +124,8 @@ private:
   /// @param[in] ipos ファンインの位置番号 ( 0 <= ipos < node->fanin_num() )
   /// @param[in] time タイムフレーム ( 0 or 1 )
   void
-  aw_one(const TpgNode* node,
+  aw_one(const JustData& jd,
+	 const TpgNode* node,
 	 Val3 val,
 	 int time);
 
@@ -112,14 +133,16 @@ private:
   /// @param[in] node 対象のノード
   /// @param[in] time タイムフレーム ( 0 or 1 )
   void
-  calc_value(const TpgNode* node,
+  calc_value(const JustData& jd,
+	     const TpgNode* node,
 	     int time);
 
   /// @brief すべてのファンインに対して calc_value() を呼ぶ．
   /// @param[in] node 対象のノード
   /// @param[in] time タイムフレーム ( 0 or 1 )
   void
-  cv_all(const TpgNode* node,
+  cv_all(const JustData& jd,
+	 const TpgNode* node,
 	 int time);
 
   /// @brief 指定した値を持つファンインに対して calc_value() を呼ぶ．
@@ -127,7 +150,8 @@ private:
   /// @param[in] ipos ファンインの位置番号 ( 0 <= ipos < node->fanin_num() )
   /// @param[in] time タイムフレーム ( 0 or 1 )
   void
-  cv_one(const TpgNode* node,
+  cv_one(const JustData& jd,
+	 const TpgNode* node,
 	 Val3 val,
 	 int time);
 

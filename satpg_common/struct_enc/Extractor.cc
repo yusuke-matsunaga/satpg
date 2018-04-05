@@ -11,7 +11,6 @@
 #include "TpgFault.h"
 #include "TpgNode.h"
 #include "NodeValList.h"
-#include "ValMap_model.h"
 
 
 BEGIN_NAMESPACE_YM_SATPG
@@ -47,7 +46,9 @@ END_NONAMESPACE
 Extractor::Extractor(const VidMap& gvar_map,
 		     const VidMap& fvar_map,
 		     const vector<SatBool3>& model) :
-  mValMap(gvar_map, fvar_map, model)
+  mGvarMap(gvar_map),
+  mFvarMap(fvar_map),
+  mSatModel(model)
 {
 }
 

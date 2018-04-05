@@ -103,7 +103,6 @@ set (bt_SOURCES
 set (jt_SOURCES
   jt/Just1.cc
   jt/Just2.cc
-  jt/JustBase.cc
   jt/JustSimple.cc
   )
 

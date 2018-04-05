@@ -10,9 +10,10 @@
 
 
 #include "structenc_nsdef.h"
-#include "ValMap_model.h"
+#include "VidMap.h"
+#include "Val3.h"
 #include "ym/HashSet.h"
-#include "ym/HashMap.h"
+#include "ym/SatBool3.h"
 
 
 BEGIN_NAMESPACE_YM_SATPG_STRUCTENC
@@ -112,8 +113,14 @@ private:
   // データメンバ
   //////////////////////////////////////////////////////////////////////
 
-  // 値割当を保持するクラス
-  ValMap_model mValMap;
+  // 正常値を表す変数のマップ
+  const VidMap& mGvarMap;
+
+  // 故障値を表す変数のマップ
+  const VidMap& mFvarMap;
+
+  // SAT ソルバの解
+  const vector<SatBool3>& mSatModel;
 
   // 故障の fanout cone のマーク
   HashSet<int> mFconeMark;
@@ -132,7 +139,7 @@ inline
 Val3
 Extractor::gval(const TpgNode* node)
 {
-  return mValMap.gval(node);
+  return bool3_to_val3(mSatModel[mGvarMap(node).val()]);
 }
 
 // @brief 故障回路の値を返す．
@@ -141,7 +148,7 @@ inline
 Val3
 Extractor::fval(const TpgNode* node)
 {
-  return mValMap.fval(node);
+  return bool3_to_val3(mSatModel[mFvarMap(node).val()]);
 }
 
 END_NAMESPACE_YM_SATPG_STRUCTENC
