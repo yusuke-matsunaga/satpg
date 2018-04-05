@@ -555,8 +555,7 @@ StructEnc::justify(const vector<SatBool3>& model,
 	 << "StructEnc::justify(" << assign_list << ")" << endl;
   }
 
-  ValMap_model val_map(var_map(0), var_map(1), var_map(1), model);
-  justifier(assign_list, var_map(0), var_map(1), model, pi_assign_list);
+  justifier(assign_list, var_map(1), var_map(0), model, pi_assign_list);
   if ( debug() & debug_justify ) {
     cout << " => " << pi_assign_list << endl;
   }

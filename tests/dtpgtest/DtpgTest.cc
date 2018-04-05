@@ -67,6 +67,8 @@ DtpgTest::single_test()
 
   int detect_num = 0;
   int untest_num = 0;
+
+  try {
   for ( auto fault: mNetwork.rep_fault_list() ) {
     if ( mFaultMgr.status(fault) == FaultStatus::Undetected ) {
       const TpgFFR* ffr = fault->ffr();
@@ -81,6 +83,10 @@ DtpgTest::single_test()
 	++ untest_num;
       }
     }
+  }
+  }
+  catch ( AssertError x ) {
+    cout << x << endl;
   }
 
   mTimer.stop();
