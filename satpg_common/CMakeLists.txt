@@ -66,8 +66,6 @@ set (struct_enc_SOURCES
   struct_enc/StructEnc.cc
 
   struct_enc/Extractor.cc
-
-  struct_enc/ValMap_model.cc
   )
 
 set (dtpg_SOURCES
@@ -90,14 +88,6 @@ set (uop_SOURCES
   uop/UopDummy.cc
   uop/UopList.cc
   uop/UopSkip.cc
-  )
-
-set (bt_SOURCES
-  bt/BackTracer.cc
-  bt/BtImpl.cc
-  bt/BtJust1.cc
-  bt/BtJust2.cc
-  bt/BtSimple.cc
   )
 
 set (jt_SOURCES
@@ -147,7 +137,6 @@ ym_add_object_library ( satpg_common
   ${dtpg_SOURCES}
   ${dop_SOURCES}
   ${uop_SOURCES}
-  ${bt_SOURCES}
   ${jt_SOURCES}
 #  ${sa_SOURCES}
 #  ${td_SOURCES}

@@ -13,7 +13,6 @@
 #include "TpgFFR.h"
 #include "TpgNode.h"
 #include "TpgFault.h"
-#include "ValMap_model.h"
 #include "Extractor.h"
 #include "NodeValList.h"
 #include "GateEnc.h"

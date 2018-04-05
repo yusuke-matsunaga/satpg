@@ -22,7 +22,7 @@
 #include "GateType.h"
 #include "GateEnc.h"
 
-#include "ValMap_model.h"
+#include "Val3.h"
 
 
 BEGIN_NAMESPACE_YM_SATPG_STRUCTENC
