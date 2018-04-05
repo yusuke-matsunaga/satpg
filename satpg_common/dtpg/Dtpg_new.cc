@@ -15,13 +15,12 @@
 #include "TpgFFR.h"
 #include "GateType.h"
 #include "GateEnc.h"
+#include "Val3.h"
 #include "Justifier.h"
 
 #include "ym/SatSolver.h"
 #include "ym/SatStats.h"
 #include "ym/StopWatch.h"
-
-#include "../struct_enc/ValMap_model.h"
 
 //#define DEBUG_DTPG
 
@@ -39,6 +38,14 @@ END_NONAMESPACE
 
 
 BEGIN_NAMESPACE_YM_SATPG
+
+extern
+void
+extract(const TpgNode* root,
+	const VidMap& gvar_map,
+	const VidMap& fvar_map,
+	const vector<SatBool3>& model,
+	NodeValList& assign_list);
 
 // @brief コンストラクタ
 // @param[in] sat_type SATソルバの種類を表す文字列
@@ -711,7 +718,7 @@ Dtpg_new::solve(const TpgFault* fault,
   int n0 = assumptions.size();
   int n = assign_list.size();
   vector<SatLiteral> assumptions1(n + n0);
-  for (int i = 0; i < n; ++ i) {
+  for ( int i = 0; i < n; ++ i ) {
     NodeVal nv = assign_list[i];
     const TpgNode* node = nv.node();
     bool inv = !nv.val();
@@ -739,9 +746,12 @@ Dtpg_new::solve(const TpgFault* fault,
     timer.start();
 
     // バックトレースを行う．
+    NodeValList assign_list2;
+    const TpgNode* ffr_root = fault->tpg_onode()->ffr_root();
+    extract(ffr_root, mGvarMap, mFvarMap, model, assign_list2);
+    assign_list2.merge(assign_list);
     const VidMap& hvar_map = mFaultType == FaultType::TransitionDelay ? mHvarMap : mGvarMap;
-    nsStructEnc::ValMap_model val_map(hvar_map, mGvarMap, mFvarMap, model);
-    mJustifier(assign_list, val_map, nodeval_list);
+    mJustifier(assign_list2, mGvarMap, hvar_map, model, nodeval_list);
 
     timer.stop();
     stats.mBackTraceTime += timer.time();

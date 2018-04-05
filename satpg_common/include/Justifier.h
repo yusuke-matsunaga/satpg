@@ -10,6 +10,7 @@
 
 
 #include "satpg.h"
+#include "ym/SatBool3.h"
 
 
 BEGIN_NAMESPACE_YM_SATPG

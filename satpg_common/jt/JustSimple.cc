@@ -9,6 +9,7 @@
 
 #include "JustSimple.h"
 #include "TpgDff.h"
+#include "../struct_enc/ValMap_model.h"
 
 
 BEGIN_NAMESPACE_YM_SATPG
@@ -48,12 +49,15 @@ JustSimple::~JustSimple()
 // @param[out] pi_assign_list 外部入力上の値の割当リスト
 void
 JustSimple::operator()(const NodeValList& assign_list,
-		       const ValMap& val_map,
+		       const VidMap& gvar_map,
+		       const VidMap& hvar_map,
+		       const vector<SatBool3>& model,
 		       NodeValList& pi_assign_list)
 {
   pi_assign_list.clear();
   clear_justified_mark();
 
+  nsStructEnc::ValMap_model val_map(gvar_map, gvar_map, hvar_map, model);
   set_val_map(val_map);
 
   for ( auto nv: assign_list ) {

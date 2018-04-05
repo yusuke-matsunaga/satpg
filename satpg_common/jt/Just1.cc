@@ -9,6 +9,7 @@
 
 #include "Just1.h"
 #include "GateType.h"
+#include "../struct_enc/ValMap_model.h"
 
 
 BEGIN_NAMESPACE_YM_SATPG
@@ -61,7 +62,7 @@ Just1::operator()(const NodeValList& assign_list,
   pi_assign_list.clear();
   clear_justified_mark();
 
-  ValMap_model val_map(gvar_map, gvar_map, hvar_map, model);
+  nsStructEnc::ValMap_model val_map(gvar_map, gvar_map, hvar_map, model);
   set_val_map(val_map);
 
   for ( auto nv: assign_list ) {

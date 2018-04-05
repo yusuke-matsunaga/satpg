@@ -14,6 +14,21 @@
 #include "ValMap_model.h"
 
 
+BEGIN_NAMESPACE_YM_SATPG
+
+void
+extract(const TpgNode* root,
+	const VidMap& gvar_map,
+	const VidMap& fvar_map,
+	const vector<SatBool3>& model,
+	NodeValList& assign_list)
+{
+  nsStructEnc::Extractor extractor(gvar_map, fvar_map, model);
+  return extractor(root, assign_list);
+}
+
+END_NAMESPACE_YM_SATPG
+
 BEGIN_NAMESPACE_YM_SATPG_STRUCTENC
 
 BEGIN_NONAMESPACE

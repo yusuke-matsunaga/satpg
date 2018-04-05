@@ -152,6 +152,14 @@ public:
   bool
   sanity_check() const;
 
+  /// @brief 先頭の反復子を返す．
+  vector<NodeVal>::const_iterator
+  begin() const;
+
+  /// @brief 末尾の反復子を返す．
+  vector<NodeVal>::const_iterator
+  end() const;
+
 
 private:
   //////////////////////////////////////////////////////////////////////
@@ -350,6 +358,22 @@ NodeValList::elem(int pos) const
   ASSERT_COND( pos >= 0 && pos < size() );
 
   return mAsList[pos];
+}
+
+// @brief 先頭の反復子を返す．
+inline
+vector<NodeVal>::const_iterator
+NodeValList::begin() const
+{
+  return mAsList.begin();
+}
+
+// @brief 末尾の反復子を返す．
+inline
+vector<NodeVal>::const_iterator
+NodeValList::end() const
+{
+  return mAsList.end();
 }
 
 END_NAMESPACE_YM_SATPG
