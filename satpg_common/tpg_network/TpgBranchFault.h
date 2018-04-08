@@ -5,10 +5,10 @@
 /// @brief TpgBranchFault のヘッダファイル
 /// @author Yusuke Matsunaga (松永 裕介)
 ///
-/// Copyright (C) 2005-2007, 2012-2014 Yusuke Matsunaga
+/// Copyright (C) 2005-2007, 2012-2014, 2018 Yusuke Matsunaga
 /// All rights reserved.
 
-#include "TpgFault.h"
+#include "TpgFaultBase.h"
 
 
 BEGIN_NAMESPACE_YM_SATPG
@@ -18,24 +18,24 @@ BEGIN_NAMESPACE_YM_SATPG
 /// @brief 入力の故障を表すクラス
 //////////////////////////////////////////////////////////////////////
 class TpgBranchFault :
-  public TpgFault
+  public TpgFaultBase
 {
 public:
 
   /// @brief コンストラクタ
   /// @param[in] id ID番号
-  /// @param[in] name ノード名
   /// @param[in] val 故障値
-  /// @param[in] pos 故障の入力位置
   /// @param[in] onode 出力側の TpgNode
+  /// @param[in] name ノード名
+  /// @param[in] pos 故障の入力位置
   /// @param[in] inode 入力側の TpgNode
   /// @param[in] tpg_pos onode 上の故障位置
   /// @param[in] rep_fault 代表故障
   TpgBranchFault(int id,
-		 const char* name,
 		 int val,
-		 int pos,
 		 const TpgNode* onode,
+		 const char* name,
+		 int pos,
 		 const TpgNode* inode,
 		 int tpg_pos,
 		 TpgFault* rep_fault);
@@ -53,36 +53,36 @@ public:
   /// @brief 故障の入力側の TpgNode を返す．
   virtual
   const TpgNode*
-  tpg_inode() const;
+  tpg_inode() const override;
 
   /// @brief 故障の出力側の TpgNode を返す．
   virtual
   const TpgNode*
-  tpg_onode() const;
+  tpg_onode() const override;
 
   /// @brief ステムの故障の時 true を返す．
   virtual
   bool
-  is_stem_fault() const;
+  is_stem_fault() const override;
 
   /// @brief ブランチの入力位置を返す．
   ///
   /// is_branch_fault() == true の時のみ意味を持つ．
   virtual
   int
-  fault_pos() const;
+  fault_pos() const override;
 
   /// @brief tpg_inode 上の故障位置を返す．
   ///
   /// is_branch_fault() == true の時のみ意味を持つ．
   virtual
   int
-  tpg_pos() const;
+  tpg_pos() const override;
 
   /// @brief 故障の内容を表す文字列を返す．
   virtual
   string
-  str() const;
+  str() const override;
 
 
 private:
@@ -90,19 +90,14 @@ private:
   // データメンバ
   //////////////////////////////////////////////////////////////////////
 
-  // ノード名
-  const char* mNodeName;
-
-  // 出力側の TpgNode
-  const TpgNode* mOnode;
-
   // 故障の入力位置
+  // もとの BnNode に対するもの
   int mPos;
 
   // 入力側の TpgNode
   const TpgNode* mInode;
 
-  // mI_TpgNode 上の入力位置
+  // mInode 上の入力位置
   int mTpgPos;
 
 };

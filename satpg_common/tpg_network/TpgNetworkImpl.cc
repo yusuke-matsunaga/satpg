@@ -1,17 +1,17 @@
 ﻿
-/// @File TpgNetwork.cc
-/// @brief TpgNetwork の実装ファイル
+/// @File TpgNetworkImpl.cc
+/// @brief TpgNetworkImpl の実装ファイル
 /// @author Yusuke Matsunaga (松永 裕介)
 ///
-/// Copyright (C) 2005-2014, 2016, 2018 Yusuke Matsunaga
+/// Copyright (C) 2018 Yusuke Matsunaga
 /// All rights reserved.
 
 
-#include "TpgNetwork.h"
+#include "TpgNetworkImpl.h"
 #include "TpgNode.h"
 #include "TpgNodeFactory.h"
 #include "TpgGateInfo.h"
-#include "TpgFault.h"
+#include "TpgFaultBase.h"
 #include "TpgDff.h"
 #include "TpgMFFC.h"
 #include "TpgFFR.h"
@@ -93,7 +93,7 @@ struct Lt
 
 
 void
-check_network_connection(const TpgNetwork& network)
+check_network_connection(const TpgNetworkImpl& network)
 {
   // fanin/fanout の sanity check
   bool error = false;
@@ -142,55 +142,176 @@ END_NONAMESPACE
 
 
 //////////////////////////////////////////////////////////////////////
-// クラス TpgNetwork
+// クラス TpgNetworkImpl
 //////////////////////////////////////////////////////////////////////
 
-// @brief blif ファイルを読み込む．
-// @param[in] filename ファイル名
-// @return 読み込みが成功したら true を返す．
-bool
-TpgNetwork::read_blif(const string& filename)
+// @brief コンストラクタ
+TpgNetworkImpl::TpgNetworkImpl() :
+  mAlloc(4096)
 {
-  BnNetwork network;
-  bool stat = nsBnet::read_blif(network, filename);
-  if ( stat ) {
-    set(network);
-  }
-
-  return stat;
+  mInputNum = 0;
+  mOutputNum = 0;
+  mDffNum = 0;
+  mDffArray = nullptr;
+  mNodeNum = 0;
+  mNodeArray = nullptr;
+  mAuxInfoArray = nullptr;
+  mPPIArray = nullptr;
+  mPPOArray = nullptr;
+  mPPOArray2 = nullptr;
+  mMffcNum = 0;
+  mMffcArray = nullptr;
+  mFfrNum = 0;
+  mFfrArray = nullptr;
+  mFaultNum = 0;
+  mRepFaultNum = 0;
+  mRepFaultArray = nullptr;
 }
 
-// @brief blif ファイルを読み込む．
-// @param[in] filename ファイル名
-// @param[in] cell_library セルライブラリ
-// @return 読み込みが成功したら true を返す．
-bool
-TpgNetwork::read_blif(const string& filename,
-		      const ClibCellLibrary& cell_library)
+// @brief デストラクタ
+TpgNetworkImpl::~TpgNetworkImpl()
 {
-  BnNetwork network;
-  bool stat = nsBnet::read_blif(network, filename, cell_library);
-  if ( stat ) {
-    set(network);
-  }
-
-  return stat;
+  clear();
 }
 
-// @brief iscas89 形式のファイルを読み込む．
-// @param[in] filename ファイル名
-// @return 読み込みが成功したら true を返す．
-bool
-TpgNetwork::read_iscas89(const string& filename)
+// @brief 内容をクリアする．
+void
+TpgNetworkImpl::clear()
 {
-  BnNetwork network;
-  bool stat = nsBnet::read_iscas89(network, filename);
-  if ( stat ) {
-    set(network);
-  }
+  // この配列以外は mAlloc で管理しているので
+  // 個別に delete する必要はない．
+  delete [] mDffArray;
+  delete [] mNodeArray;
+  delete [] mAuxInfoArray;
+  delete [] mPPIArray;
+  delete [] mPPOArray;
+  delete [] mPPOArray2;
+  delete [] mMffcArray;
+  delete [] mFfrArray;
+  delete [] mRepFaultArray;
 
-  return stat;
+  mAlloc.destroy();
+
+  mDffArray = nullptr;
+  mNodeArray = nullptr;
+  mAuxInfoArray = nullptr;
+  mPPIArray = nullptr;
+  mPPOArray = nullptr;
+  mPPOArray2 = nullptr;
+  mMffcArray = nullptr;
+  mFfrArray = nullptr;
+  mRepFaultArray = nullptr;
 }
+
+// @brief ノード名を得る．
+// @param[in] id ID番号 ( 0 <= id < node_num() )
+const char*
+TpgNetworkImpl::node_name(int id) const
+{
+  ASSERT_COND( id >= 0 && id < node_num() );
+
+  return mAuxInfoArray[id].name();
+}
+
+// @brief ノードに関係した代表故障数を返す．
+// @param[in] id ID番号 ( 0 <= id < node_num() )
+int
+TpgNetworkImpl::node_rep_fault_num(int id) const
+{
+  ASSERT_COND( id >= 0 && id < node_num() );
+
+  return mAuxInfoArray[id].fault_num();
+}
+
+// @brief ノードに関係した代表故障を返す．
+// @param[in] id ID番号 ( 0 <= id < node_num() )
+// @param[in] pos 位置番号 ( 0 <= pos < node_rep_fault_num(id) )
+const TpgFault*
+TpgNetworkImpl::node_rep_fault(int id,
+			       int pos) const
+{
+  ASSERT_COND( id >= 0 && id < node_num() );
+
+  return mAuxInfoArray[id].fault(pos);
+}
+
+// @brief 出力の故障を得る．
+// @param[in] id ノードID ( 0 <= id < node_num() )
+// @param[in] val 故障値 ( 0 / 1 )
+TpgFaultBase*
+TpgNetworkImpl::_node_output_fault(int id,
+				   int val)
+{
+  ASSERT_COND( id >= 0 && id < mNodeNum );
+
+  return mAuxInfoArray[id].output_fault(val);
+}
+
+// @brief 入力の故障を得る．
+// @param[in] id ノードID ( 0 <= id < node_num() )
+// @param[in] val 故障値 ( 0 / 1 )
+// @param[in] pos 入力の位置番号
+TpgFaultBase*
+TpgNetworkImpl::_node_input_fault(int id,
+				  int val,
+				  int pos)
+{
+  ASSERT_COND( id >= 0 && id < mNodeNum );
+
+  return mAuxInfoArray[id].input_fault(pos, val);
+}
+
+// @brief DFF を得る．
+// @param[in] pos 位置番号 ( 0 <= pos < dff_num() )
+const TpgDff&
+TpgNetworkImpl::dff(int pos) const
+{
+  ASSERT_COND( pos >= 0 && pos < dff_num() );
+
+  return mDffArray[pos];
+}
+
+// @brief DFF のリストを得る．
+Array<const TpgDff>
+TpgNetworkImpl::dff_list() const
+{
+  return Array<const TpgDff>(const_cast<const TpgDff*>(mDffArray), 0, dff_num());
+}
+
+// @brief MFFC を返す．
+// @param[in] pos 位置番号 ( 0 <= pos < mffc_num() )
+const TpgMFFC&
+TpgNetworkImpl::mffc(int pos) const
+{
+  ASSERT_COND( pos >= 0 && pos < mffc_num() );
+
+  return mMffcArray[pos];
+}
+
+// @brief MFFC のリストを得る．
+Array<const TpgMFFC>
+TpgNetworkImpl::mffc_list() const
+{
+  return Array<const TpgMFFC>(const_cast<const TpgMFFC*>(mMffcArray), 0, mffc_num());
+}
+
+// @brief FFR を返す．
+// @param[in] pos 位置番号 ( 0 <= pos < ffr_num() )
+const TpgFFR&
+TpgNetworkImpl::ffr(int pos) const
+{
+  ASSERT_COND( pos >= 0 && pos < ffr_num() );
+
+  return mFfrArray[pos];
+}
+
+// @brief FFR のリストを得る．
+Array<const TpgFFR>
+TpgNetworkImpl::ffr_list() const
+{
+  return Array<const TpgFFR>(const_cast<const TpgFFR*>(mFfrArray), 0, ffr_num());
+}
+
 
 BEGIN_NONAMESPACE
 
@@ -217,7 +338,7 @@ END_NONAMESPACE
 // @brief 内容を設定する．
 // @param[in] network 設定元のネットワーク
 void
-TpgNetwork::set(const BnNetwork& network)
+TpgNetworkImpl::set(const BnNetwork& network)
 {
   // まずクリアしておく．
   clear();
@@ -604,9 +725,9 @@ TpgNetwork::set(const BnNetwork& network)
 // @brief 代表故障を設定する．
 // @param[in] node 対象のノード
 int
-TpgNetwork::set_rep_faults(TpgNode* node)
+TpgNetworkImpl::set_rep_faults(TpgNode* node)
 {
-  vector<TpgFault*> fault_list;
+  vector<TpgFaultBase*> fault_list;
 
   if ( node->fanout_num() == 1 ) {
     const TpgNode* onode = node->fanout_list()[0];
@@ -621,68 +742,68 @@ TpgNetwork::set_rep_faults(TpgNode* node)
     }
     ASSERT_COND( ipos < onode->fanin_num() );
 
-    TpgFault* rep0 = _node_input_fault(onode->id(), 0, ipos);
-    TpgFault* of0 = _node_output_fault(node->id(), 0);
+    TpgFaultBase* rep0 = _node_input_fault(onode->id(), 0, ipos);
+    TpgFaultBase* of0 = _node_output_fault(node->id(), 0);
     if ( of0 != nullptr ) {
       of0->set_rep(rep0);
     }
 
-    TpgFault* rep1 = _node_input_fault(onode->id(), 1, ipos);
-    TpgFault* of1 = _node_output_fault(node->id(), 1);
+    TpgFaultBase* rep1 = _node_input_fault(onode->id(), 1, ipos);
+    TpgFaultBase* of1 = _node_output_fault(node->id(), 1);
     if ( of1 != nullptr ){
       of1->set_rep(rep1);
     }
   }
 
   if ( !node->is_ppo() ) {
-    TpgFault* of0 = _node_output_fault(node->id(), 0);
+    TpgFaultBase* of0 = _node_output_fault(node->id(), 0);
     if ( of0 != nullptr ) {
-      TpgFault* rep0 = of0->_rep_fault();
+      const TpgFault* rep0 = of0->rep_fault();
       if ( rep0 == nullptr ) {
 	of0->set_rep(of0);
 	fault_list.push_back(of0);
       }
       else {
-	of0->set_rep(rep0->_rep_fault());
+	of0->set_rep(rep0->rep_fault());
       }
     }
 
-    TpgFault* of1 = _node_output_fault(node->id(), 1);
+    TpgFaultBase* of1 = _node_output_fault(node->id(), 1);
     if ( of1 != nullptr ) {
-      TpgFault* rep1 = of1->_rep_fault();
+      const TpgFault* rep1 = of1->rep_fault();
       if ( rep1 == nullptr ) {
 	of1->set_rep(of1);
 	fault_list.push_back(of1);
       }
       else {
-	of1->set_rep(rep1->_rep_fault());
+	of1->set_rep(rep1->rep_fault());
       }
     }
   }
 
   int ni = node->fanin_num();
   for ( int i = 0; i < ni; ++ i ) {
-    TpgFault* if0 = _node_input_fault(node->id(), 0, i);
+    TpgFaultBase* if0 = _node_input_fault(node->id(), 0, i);
     if ( if0 != nullptr ) {
-      TpgFault* rep0 = if0->_rep_fault();
+      const TpgFault* rep0 = if0->rep_fault();
       if ( rep0 == nullptr ) {
 	if0->set_rep(if0);
 	fault_list.push_back(if0);
       }
       else {
-	if0->set_rep(rep0->_rep_fault());
+	if0->set_rep(rep0->rep_fault());
       }
     }
 
-    TpgFault* if1 = _node_input_fault(node->id(), 1, i);
+    TpgFaultBase* if1 = _node_input_fault(node->id(), 1, i);
     if ( if1 != nullptr ) {
-      TpgFault* rep1 = if1->_rep_fault();
+      const TpgFault* rep1 = if1->rep_fault();
       if ( rep1 == nullptr ) {
 	if1->set_rep(if1);
 	fault_list.push_back(if1);
       }
       else {
-	if1->set_rep(rep1->_rep_fault());
+	if1->set_rep(rep1->rep_fault());
       }
     }
   }
@@ -697,19 +818,19 @@ TpgNetwork::set_rep_faults(TpgNode* node)
 // @param[in] root FFR の根のノード
 // @param[in] ffr 対象の FFR
 void
-TpgNetwork::set_ffr(const TpgNode* root,
-		    TpgFFR* ffr)
+TpgNetworkImpl::set_ffr(const TpgNode* root,
+			TpgFFR* ffr)
 {
   // root を根とするFFRの故障リストを求める．
-  vector<const TpgNode*> node_list;
-  vector<TpgFault*> fault_list;
+  vector<TpgFaultBase*> fault_list;
 
+  vector<const TpgNode*> node_list;
   node_list.push_back(root);
   while ( !node_list.empty() ) {
     const TpgNode* node = node_list.back();
     node_list.pop_back();
 
-    mAuxInfoArray[node->id()].fault_list(fault_list);
+    mAuxInfoArray[node->id()].add_to_fault_list(fault_list);
 
     for ( auto inode: node->fanin_list() ) {
       if ( inode->ffr_root() != inode ) {
@@ -726,14 +847,14 @@ TpgNetwork::set_ffr(const TpgNode* root,
 // @param[in] root MFFCの根のノード
 // @param[in] mffc 対象のMFFC
 void
-TpgNetwork::set_mffc(const TpgNode* root,
-		     TpgMFFC* mffc)
+TpgNetworkImpl::set_mffc(const TpgNode* root,
+			 TpgMFFC* mffc)
 {
   // root を根とする MFFC の情報を得る．
   vector<bool> mark(node_num());
   vector<const TpgNode*> node_list;
   vector<const TpgFFR*> ffr_list;
-  vector<TpgFault*> fault_list;
+  vector<TpgFaultBase*> fault_list;
 
   node_list.push_back(root);
   mark[root->id()] = true;
@@ -745,7 +866,7 @@ TpgNetwork::set_mffc(const TpgNode* root,
       ffr_list.push_back(mAuxInfoArray[node->id()].ffr());
     }
 
-    mAuxInfoArray[node->id()].fault_list(fault_list);
+    mAuxInfoArray[node->id()].add_to_fault_list(fault_list);
 
     for ( auto inode: node->fanin_list() ) {
       if ( !mark[inode->id()] &&

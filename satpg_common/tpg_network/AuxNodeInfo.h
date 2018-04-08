@@ -10,6 +10,7 @@
 
 
 #include "satpg.h"
+#include "TpgFaultBase.h"
 #include "ym/Alloc.h"
 
 
@@ -62,17 +63,17 @@ public:
 
   /// @brief このノードが持っている代表故障をリストに追加する．
   void
-  fault_list(vector<TpgFault*>& fault_list);
+  add_to_fault_list(vector<TpgFaultBase*>& fault_list);
 
   /// @brief 出力の故障を返す．
   /// @param[in] val 故障値 ( 0 / 1 )
-  TpgFault*
+  TpgFaultBase*
   output_fault(int val) const;
 
   /// @brief 入力の故障を返す．
   /// @param[in] pos 入力の位置番号
   /// @param[in] val 故障値 ( 0 / 1 )
-  TpgFault*
+  TpgFaultBase*
   input_fault(int pos,
 	      int val) const;
 
@@ -103,7 +104,7 @@ public:
 
   /// @brief 故障リストを設定する．
   void
-  set_fault_list(const vector<TpgFault*>& fault_list,
+  set_fault_list(const vector<TpgFaultBase*>& fault_list,
 		 Alloc& alloc);
 
   /// @brief 出力の故障を設定する．
@@ -111,7 +112,7 @@ public:
   /// @param[in] f 故障
   void
   set_output_fault(int val,
-		   TpgFault* f);
+		   TpgFaultBase* f);
 
   /// @brief 入力の故障を設定する．
   /// @param[in] ipos 入力位置
@@ -120,7 +121,7 @@ public:
   void
   set_input_fault(int ipos,
 		  int val,
-		  TpgFault* f);
+		  TpgFaultBase* f);
 
 
 private:
@@ -147,10 +148,10 @@ private:
   int mFaultNum;
 
   /// @brief 代表故障のリスト
-  TpgFault** mFaultList;
+  TpgFaultBase** mFaultList;
 
   /// @brief 出力の故障
-  TpgFault* mOutputFaults[2];
+  TpgFaultBase* mOutputFaults[2];
 
   /// @brief 入力数
   int mFaninNum;
@@ -158,7 +159,7 @@ private:
   /// @brief 入力の故障の配列
   ///
   /// サイズは mFaninNum * 2
-  TpgFault** mInputFaults;
+  TpgFaultBase** mInputFaults;
 
 };
 
@@ -217,7 +218,7 @@ AuxNodeInfo::fault(int pos) const
 // @brief 出力の故障を返す．
 // @param[in] val 故障値 ( 0 / 1 )
 inline
-TpgFault*
+TpgFaultBase*
 AuxNodeInfo::output_fault(int val) const
 {
   ASSERT_COND( val == 0 || val == 1 );
@@ -229,7 +230,7 @@ AuxNodeInfo::output_fault(int val) const
 // @param[in] pos 入力の位置番号
 // @param[in] val 故障値 ( 0 / 1 )
 inline
-TpgFault*
+TpgFaultBase*
 AuxNodeInfo::input_fault(int pos,
 			 int val) const
 {

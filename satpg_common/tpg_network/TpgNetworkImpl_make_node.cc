@@ -1,13 +1,13 @@
 ﻿
-/// @File TpgNetwork.cc
-/// @brief TpgNetwork の実装ファイル
+/// @File TpgNetworkImpl.cc
+/// @brief TpgNetworkImpl の実装ファイル
 /// @author Yusuke Matsunaga (松永 裕介)
 ///
-/// Copyright (C) 2005-2014, 2016, 2018 Yusuke Matsunaga
+/// Copyright (C) 2018 Yusuke Matsunaga
 /// All rights reserved.
 
 
-#include "TpgNetwork.h"
+#include "TpgNetworkImpl.h"
 #include "TpgNode.h"
 #include "TpgNodeFactory.h"
 #include "TpgGateInfo.h"
@@ -25,7 +25,7 @@
 BEGIN_NAMESPACE_YM_SATPG
 
 //////////////////////////////////////////////////////////////////////
-// クラス TpgNetwork
+// クラス TpgNetworkImpl
 //////////////////////////////////////////////////////////////////////
 
 // @brief 入力ノードを生成する．
@@ -34,9 +34,9 @@ BEGIN_NAMESPACE_YM_SATPG
 // @param[in] fanout_num ファンアウト数
 // @return 生成したノードを返す．
 TpgNode*
-TpgNetwork::make_input_node(int iid,
-			    const string& name,
-			    int fanout_num)
+TpgNetworkImpl::make_input_node(int iid,
+				const string& name,
+				int fanout_num)
 {
   TpgNodeFactory factory(mAlloc);
 
@@ -62,9 +62,9 @@ TpgNetwork::make_input_node(int iid,
 // @param[in] fanout_num ファンアウト数
 // @return 生成したノードを返す．
 TpgNode*
-TpgNetwork::make_output_node(int oid,
-			     const string& name,
-			     TpgNode* inode)
+TpgNetworkImpl::make_output_node(int oid,
+				 const string& name,
+				 TpgNode* inode)
 {
   TpgNodeFactory factory(mAlloc);
 
@@ -91,10 +91,10 @@ TpgNetwork::make_output_node(int oid,
 // @param[in] inode 入力のノード
 // @return 生成したノードを返す．
 TpgNode*
-TpgNetwork::make_dff_input_node(int oid,
-				const TpgDff* dff,
-				const string& name,
-				TpgNode* inode)
+TpgNetworkImpl::make_dff_input_node(int oid,
+				    const TpgDff* dff,
+				    const string& name,
+				    TpgNode* inode)
 {
   TpgNodeFactory factory(mAlloc);
 
@@ -121,10 +121,10 @@ TpgNetwork::make_dff_input_node(int oid,
 // @param[in] fanout_num ファンアウト数
 // @return 生成したノードを返す．
 TpgNode*
-TpgNetwork::make_dff_output_node(int iid,
-				 const TpgDff* dff,
-				 const string& name,
-				 int fanout_num)
+TpgNetworkImpl::make_dff_output_node(int iid,
+				     const TpgDff* dff,
+				     const string& name,
+				     int fanout_num)
 {
   TpgNodeFactory factory(mAlloc);
 
@@ -149,9 +149,9 @@ TpgNetwork::make_dff_output_node(int iid,
 // @param[in] inode 入力のノード
 // @return 生成したノードを返す．
 TpgNode*
-TpgNetwork::make_dff_clock_node(const TpgDff* dff,
-				const string& name,
-				TpgNode* inode)
+TpgNetworkImpl::make_dff_clock_node(const TpgDff* dff,
+				    const string& name,
+				    TpgNode* inode)
 {
   TpgNodeFactory factory(mAlloc);
 
@@ -177,9 +177,9 @@ TpgNetwork::make_dff_clock_node(const TpgDff* dff,
 // @param[in] inode 入力のノード
 // @return 生成したノードを返す．
 TpgNode*
-TpgNetwork::make_dff_clear_node(const TpgDff* dff,
-				const string& name,
-				TpgNode* inode)
+TpgNetworkImpl::make_dff_clear_node(const TpgDff* dff,
+				    const string& name,
+				    TpgNode* inode)
 {
   TpgNodeFactory factory(mAlloc);
 
@@ -205,9 +205,9 @@ TpgNetwork::make_dff_clear_node(const TpgDff* dff,
 // @param[in] inode 入力のノード
 // @return 生成したノードを返す．
 TpgNode*
-TpgNetwork::make_dff_preset_node(const TpgDff* dff,
-				 const string& name,
-				 TpgNode* inode)
+TpgNetworkImpl::make_dff_preset_node(const TpgDff* dff,
+				     const string& name,
+				     TpgNode* inode)
 {
   TpgNodeFactory factory(mAlloc);
 
@@ -234,10 +234,10 @@ TpgNetwork::make_dff_preset_node(const TpgDff* dff,
 // @param[in] fanout_num ファンアウト数
 // @return 生成したノードを返す．
 TpgNode*
-TpgNetwork::make_logic_node(const string& src_name,
-			    const TpgGateInfo* node_info,
-			    const vector<TpgNode*>& fanin_list,
-			    int fanout_num)
+TpgNetworkImpl::make_logic_node(const string& src_name,
+				const TpgGateInfo* node_info,
+				const vector<TpgNode*>& fanin_list,
+				int fanout_num)
 {
   int ni = fanin_list.size();
 
@@ -392,11 +392,11 @@ TpgNetwork::make_logic_node(const string& src_name,
 // leaf_nodes は 変数番号 * 2 + (0/1) に
 // 該当する変数の肯定/否定のリテラルが入っている．
 TpgNode*
-TpgNetwork::make_cplx_node(const string& name,
-			   const Expr& expr,
-			   const vector<TpgNode*>& leaf_nodes,
-			   vector<InodeInfo>& inode_array,
-			   int fanout_num)
+TpgNetworkImpl::make_cplx_node(const string& name,
+			       const Expr& expr,
+			       const vector<TpgNode*>& leaf_nodes,
+			       vector<InodeInfo>& inode_array,
+			       int fanout_num)
 {
   if ( expr.is_posiliteral() ) {
     int iid = expr.varid().val();
@@ -457,10 +457,10 @@ TpgNetwork::make_cplx_node(const string& name,
 // @param[in] fanout_num ファンアウト数
 // @return 生成したノードを返す．
 TpgNode*
-TpgNetwork::make_prim_node(const string& name,
-			   GateType type,
-			   const vector<TpgNode*>& fanin_list,
-			   int fanout_num)
+TpgNetworkImpl::make_prim_node(const string& name,
+			       GateType type,
+			       const vector<TpgNode*>& fanin_list,
+			       int fanout_num)
 {
   TpgNodeFactory factory(mAlloc);
 
@@ -482,9 +482,9 @@ TpgNetwork::make_prim_node(const string& name,
 // @param[in] fanout_num ファンアウト数
 // @return 生成したノードを返す．
 TpgNode*
-TpgNetwork::make_buff_node(const string& name,
-			   TpgNode* fanin,
-			   int fanout_num)
+TpgNetworkImpl::make_buff_node(const string& name,
+			       TpgNode* fanin,
+			       int fanout_num)
 {
   return make_prim_node(name, GateType::Buff, vector<TpgNode*>(1, fanin), fanout_num);
 }
@@ -495,9 +495,9 @@ TpgNetwork::make_buff_node(const string& name,
 // @param[in] fanout_num ファンアウト数
 // @return 生成したノードを返す．
 TpgNode*
-TpgNetwork::make_not_node(const string& name,
-			  TpgNode* fanin,
-			  int fanout_num)
+TpgNetworkImpl::make_not_node(const string& name,
+			      TpgNode* fanin,
+			      int fanout_num)
 {
   return make_prim_node(name, GateType::Not, vector<TpgNode*>(1, fanin), fanout_num);
 }
@@ -507,12 +507,12 @@ TpgNetwork::make_not_node(const string& name,
 // @param[in] val 故障値 ( 0 / 1 )
 // @param[in] node 故障位置のノード
 void
-TpgNetwork::new_ofault(const char* name,
-		       int val,
-		       TpgNode* node)
+TpgNetworkImpl::new_ofault(const char* name,
+			   int val,
+			   TpgNode* node)
 {
   void* p = mAlloc.get_memory(sizeof(TpgStemFault));
-  TpgFault* f = new (p) TpgStemFault(mFaultNum, name, val, node, nullptr);
+  TpgFaultBase* f = new (p) TpgStemFault(mFaultNum, val, node, name, nullptr);
   mAuxInfoArray[node->id()].set_output_fault(val, f);
   ++ mFaultNum;
 }
@@ -528,17 +528,17 @@ TpgNetwork::new_ofault(const char* name,
 // プリミティブ型の場合は ipos と inode_pos は同一だが
 // 複合型の場合には異なる．
 void
-TpgNetwork::new_ifault(const char* name,
-		       int ipos,
-		       int val,
-		       const InodeInfo& inode_info,
-		       TpgFault* rep)
+TpgNetworkImpl::new_ifault(const char* name,
+			   int ipos,
+			   int val,
+			   const InodeInfo& inode_info,
+			   TpgFault* rep)
 {
   TpgNode* node = inode_info.mNode;
   int inode_pos = inode_info.mPos;
   const TpgNode* inode = node->fanin_list()[inode_pos];
   void* p = mAlloc.get_memory(sizeof(TpgBranchFault));
-  TpgFault* f = new (p) TpgBranchFault(mFaultNum, name, val, ipos, node, inode, inode_pos, rep);
+  TpgFaultBase* f = new (p) TpgBranchFault(mFaultNum, val, node, name, ipos, inode, inode_pos, rep);
   mAuxInfoArray[node->id()].set_input_fault(inode_pos, val, f);
   ++ mFaultNum;
 }

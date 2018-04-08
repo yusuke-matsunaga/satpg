@@ -49,10 +49,7 @@ MffcPropCone::MffcPropCone(StructEnc& struct_sat,
     const TpgFFR* ffr = mffc.elem(i);
     mElemArray[i] = ffr->root();
     ASSERT_COND( ffr->root() != nullptr );
-    for ( auto f: ffr->fault_list() ) {
-      const TpgNode* node = f->tpg_onode()->ffr_root();
-      mElemPosMap.add(node->id(), i);
-    }
+    mElemPosMap.add(ffr->root()->id(), i);
   }
 }
 

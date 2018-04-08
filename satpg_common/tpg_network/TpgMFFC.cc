@@ -8,7 +8,7 @@
 
 
 #include "TpgMFFC.h"
-#include "TpgFault.h"
+#include "TpgFaultBase.h"
 
 
 BEGIN_NAMESPACE_YM_SATPG
@@ -25,7 +25,7 @@ BEGIN_NAMESPACE_YM_SATPG
 void
 TpgMFFC::set(const TpgNode* root,
 	     const vector<const TpgFFR*>& ffr_list,
-	     const vector<TpgFault*>& fault_list,
+	     const vector<TpgFaultBase*>& fault_list,
 	     Alloc& alloc)
 {
   mRoot = root;
@@ -40,7 +40,7 @@ TpgMFFC::set(const TpgNode* root,
   mFaultNum = fault_list.size();
   mFaultList = alloc.get_array<const TpgFault*>(mFaultNum);
   for ( int i = 0; i < mFaultNum; ++ i ) {
-    TpgFault* fault = fault_list[i];
+    TpgFaultBase* fault = fault_list[i];
     mFaultList[i] = fault;
     fault->set_mffc(this);
   }

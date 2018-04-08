@@ -20,7 +20,7 @@ BEGIN_NAMESPACE_YM_SATPG
 //////////////////////////////////////////////////////////////////////
 class TpgDff
 {
-  friend class TpgNetwork;
+  friend class TpgNetworkImpl;
 
 public:
 

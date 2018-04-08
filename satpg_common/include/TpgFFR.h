@@ -5,7 +5,7 @@
 /// @brief TpgFFR のヘッダファイル
 /// @author Yusuke Matsunaga (松永 裕介)
 ///
-/// Copyright (C) 2017 Yusuke Matsunaga
+/// Copyright (C) 2017, 2018 Yusuke Matsunaga
 /// All rights reserved.
 
 #include "satpg.h"
@@ -14,6 +14,8 @@
 
 
 BEGIN_NAMESPACE_YM_SATPG
+
+class TpgFaultBase;
 
 //////////////////////////////////////////////////////////////////////
 /// @class TpgFFR TpgFFR.h "TpgFFR.h"
@@ -68,7 +70,7 @@ public:
   /// @param[in] alloc メモリアロケータ
   void
   set(const TpgNode* root,
-      vector<TpgFault*>& fault_list,
+      vector<TpgFaultBase*>& fault_list,
       Alloc& alloc);
 
 

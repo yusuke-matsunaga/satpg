@@ -13,8 +13,8 @@ add_subdirectory ( fsim )
 set (tpg_network_SOURCES
   tpg_network/AuxNodeInfo.cc
   tpg_network/TpgNetwork.cc
-  tpg_network/TpgNetwork_make_node.cc
-  tpg_network/TpgNetwork_set.cc
+  tpg_network/TpgNetworkImpl.cc
+  tpg_network/TpgNetworkImpl_make_node.cc
   tpg_network/TpgDff.cc
   tpg_network/TpgGateInfo.cc
   tpg_network/TpgNode.cc

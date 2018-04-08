@@ -5,10 +5,11 @@
 /// @brief TpgFault のヘッダファイル
 /// @author Yusuke Matsunaga (松永 裕介)
 ///
-/// Copyright (C) 2005-2007, 2012-2014, 2018 Yusuke Matsunaga
+/// Copyright (C) 2018 Yusuke Matsunaga
 /// All rights reserved.
 
 #include "satpg.h"
+#include "Val3.h"
 #include "ym/HashFunc.h"
 
 
@@ -22,17 +23,9 @@ class TpgFault
 {
 public:
 
-  /// @brief コンストラクタ
-  /// @param[in] id ID番号
-  /// @param[in] val 故障値
-  /// @param[in] rep_fault 代表故障
-  TpgFault(int id,
-	   int val,
-	   TpgFault* rep_fault);
-
   /// @brief デストラクタ
   virtual
-  ~TpgFault();
+  ~TpgFault() { }
 
 
 public:
@@ -41,8 +34,9 @@ public:
   //////////////////////////////////////////////////////////////////////
 
   /// @brief ID番号を返す．
+  virtual
   int
-  id() const;
+  id() const = 0;
 
   /// @brief 故障の入力側の TpgNode を返す．
   virtual
@@ -82,8 +76,9 @@ public:
 
   /// @brief 故障値を返す．
   /// @note 返す値は 0 か 1
+  virtual
   int
-  val() const;
+  val() const = 0;
 
   /// @brief 故障値を3値型で返す．
   Val3
@@ -101,57 +96,19 @@ public:
   /// @brief 代表故障を返す．
   ///
   /// 代表故障の時は自分自身を返す．
+  virtual
   const TpgFault*
-  rep_fault() const;
+  rep_fault() const = 0;
 
   /// @brief この故障の属しているFFRを返す．
+  virtual
   const TpgFFR&
-  ffr() const;
+  ffr() const = 0;
 
   /// @brief この故障の属しているMFFCを返す．
+  virtual
   const TpgMFFC&
-  mffc() const;
-
-
-public:
-  //////////////////////////////////////////////////////////////////////
-  // 微妙な関数
-  //////////////////////////////////////////////////////////////////////
-
-  /// @brief 代表故障を設定する．
-  /// @param[in] rep 代表故障
-  void
-  set_rep(TpgFault* rep);
-
-  /// @brief 代表故障を返す．
-  TpgFault*
-  _rep_fault();
-
-  /// @brief FFRを設定する．
-  void
-  set_ffr(const TpgFFR* ffr);
-
-  /// @brief MFFCを設定する．
-  void
-  set_mffc(const TpgMFFC* mffc);
-
-
-private:
-  //////////////////////////////////////////////////////////////////////
-  // データメンバ
-  //////////////////////////////////////////////////////////////////////
-
-  // ID番号 + 故障値(最下位ビット)
-  ymuint mIdVal;
-
-  // 代表故障
-  TpgFault* mRepFault;
-
-  // FFR
-  const TpgFFR* mFFR;
-
-  // MFFC
-  const TpgMFFC* mMFFC;
+  mffc() const = 0;
 
 };
 
@@ -168,14 +125,6 @@ operator<<(ostream& s,
 // インライン関数の定義
 //////////////////////////////////////////////////////////////////////
 
-// @brief ID番号を返す．
-inline
-int
-TpgFault::id() const
-{
-  return static_cast<int>(mIdVal >> 1);
-}
-
 // @brief ブランチの故障の時 true を返す．
 inline
 bool
@@ -184,54 +133,36 @@ TpgFault::is_branch_fault() const
   return !is_stem_fault();
 }
 
-// @brief 故障値を返す．
-// @note 返す値は 0 か 1
-inline
-int
-TpgFault::val() const
-{
-  return static_cast<int>(mIdVal & 1UL);
-}
-
 // @brief 代表故障の時 true を返す．
 inline
 bool
 TpgFault::is_rep() const
 {
-  return mRepFault == this;
+  return rep_fault() == this;
 }
 
-// @brief 代表故障を返す．
-// @note 代表故障の時は自分自身を返す．
+// @brief 故障値を3値型で返す．
 inline
-const TpgFault*
-TpgFault::rep_fault() const
+Val3
+TpgFault::val3() const
 {
-  return mRepFault;
+  if ( val() ) {
+    return Val3::_1;
+  }
+  else {
+    return Val3::_0;
+  }
 }
 
-// @brief 代表故障を返す．
+// @brief ストリーム出力演算子
+// @param[in] s 出力先のストリーム
+// @param[in] f 故障
 inline
-TpgFault*
-TpgFault::_rep_fault()
+ostream&
+operator<<(ostream& s,
+	   const TpgFault* f)
 {
-  return mRepFault;
-}
-
-// @brief この故障の属しているFFRを返す．
-inline
-const TpgFFR&
-TpgFault::ffr() const
-{
-  return *mFFR;
-}
-
-// @brief この故障の属しているMFFCを返す．
-inline
-const TpgMFFC&
-TpgFault::mffc() const
-{
-  return *mMFFC;
+  return s << f->str();
 }
 
 END_NAMESPACE_YM_SATPG
@@ -244,7 +175,7 @@ struct HashFunc<nsSatpg::TpgFault*>
   SizeType
   operator()(nsSatpg::TpgFault* fault) const
   {
-    return reinterpret_cast<ympuint>(fault)/sizeof(void*);
+    return fault->id();
   }
 };
 END_NAMESPACE_YM

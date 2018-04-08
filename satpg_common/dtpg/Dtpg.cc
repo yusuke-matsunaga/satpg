@@ -127,10 +127,7 @@ Dtpg::Dtpg(const string& sat_type,
     for ( auto ffr: mffc.elem_list() ) {
       mElemArray[ffr_id] = ffr->root();
       ASSERT_COND( ffr->root() != nullptr );
-      for ( auto f: ffr->fault_list() ) {
-	const TpgNode* node = f->tpg_onode()->ffr_root();
-	mElemPosMap.add(node->id(), ffr_id);
-      }
+      mElemPosMap.add(ffr->root()->id(), ffr_id);
       ++ ffr_id;
     }
   }

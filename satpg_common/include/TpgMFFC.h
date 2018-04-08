@@ -15,6 +15,8 @@
 
 BEGIN_NAMESPACE_YM_SATPG
 
+class TpgFaultBase;
+
 //////////////////////////////////////////////////////////////////////
 /// @class TpgMFFC TpgMFFC.h "TpgMFFC.h"
 /// @brief TpgNetwork の MFFC(Maximal Fanout Free Cone) の情報を表すクラス
@@ -84,7 +86,7 @@ public:
   void
   set(const TpgNode* root,
       const vector<const TpgFFR*>& ffr_list,
-      const vector<TpgFault*>& fault_list,
+      const vector<TpgFaultBase*>& fault_list,
       Alloc& alloc);
 
 

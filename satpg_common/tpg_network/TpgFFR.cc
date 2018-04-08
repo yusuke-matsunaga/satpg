@@ -8,7 +8,7 @@
 
 
 #include "TpgFFR.h"
-#include "TpgFault.h"
+#include "TpgFaultBase.h"
 
 
 BEGIN_NAMESPACE_YM_SATPG
@@ -23,7 +23,7 @@ BEGIN_NAMESPACE_YM_SATPG
 // @param[in] alloc メモリアロケータ
 void
 TpgFFR::set(const TpgNode* root,
-	    vector<TpgFault*>& fault_list,
+	    vector<TpgFaultBase*>& fault_list,
 	    Alloc& alloc)
 {
   mRoot = root;
@@ -31,7 +31,7 @@ TpgFFR::set(const TpgNode* root,
   mFaultNum = fault_list.size();
   mFaultList = alloc.get_array<const TpgFault*>(mFaultNum);
   for ( int i = 0; i < mFaultNum; ++ i ) {
-    TpgFault* fault = fault_list[i];
+    TpgFaultBase* fault = fault_list[i];
     mFaultList[i] = fault;
     fault->set_ffr(this);
   }

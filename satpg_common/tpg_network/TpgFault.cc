@@ -3,11 +3,12 @@
 /// @brief TpgFault の実装ファイル
 /// @author Yusuke Matsunaga (松永 裕介)
 ///
-/// Copyright (C) 2005-2007, 2012-2014 Yusuke Matsunaga
+/// Copyright (C) 2005-2007, 2012-2014, 2018 Yusuke Matsunaga
 /// All rights reserved.
 
 
 #include "TpgFault.h"
+#include "TpgFaultBase.h"
 #include "TpgStemFault.h"
 #include "TpgBranchFault.h"
 #include "TpgNode.h"
@@ -17,69 +18,101 @@
 BEGIN_NAMESPACE_YM_SATPG
 
 //////////////////////////////////////////////////////////////////////
-// クラス TpgFault
+// クラス TpgFaultBase
 //////////////////////////////////////////////////////////////////////
 
 // @brief コンストラクタ
 // @param[in] id ID番号
 // @param[in] val 故障値
+// @param[in] node 故障位置のノード
+// @param[in] name 故障位置のノード名
 // @param[in] rep_fault 代表故障
-TpgFault::TpgFault(int id,
-		   int val,
-		   TpgFault* rep_fault) :
-  mRepFault(rep_fault)
+TpgFaultBase::TpgFaultBase(int id,
+			   int val,
+			   const TpgNode* node,
+			   const char* name,
+			   TpgFault* rep_fault) :
+  mTpgNode(node),
+  mNodeName(name),
+  mRepFault(rep_fault),
+  mFFR(nullptr),
+  mMFFC(nullptr)
 {
   // val は 0 か 1 のはずだが念の為マスクしておく
   mIdVal = (id << 1) | static_cast<int>(val & 1);
 }
 
 // @brief デストラクタ
-TpgFault::~TpgFault()
+TpgFaultBase::~TpgFaultBase()
 {
+}
+
+// @brief ID番号を返す．
+int
+TpgFaultBase::id() const
+{
+  return static_cast<int>(mIdVal >> 1);
+}
+
+// @brief 故障値を返す．
+// @note 返す値は 0 か 1
+int
+TpgFaultBase::val() const
+{
+  return static_cast<int>(mIdVal & 1UL);
+}
+
+// @brief 代表故障を返す．
+// @note 代表故障の時は自分自身を返す．
+const TpgFault*
+TpgFaultBase::rep_fault() const
+{
+  return mRepFault;
+}
+
+#if 0
+// @brief 代表故障を返す．
+TpgFault*
+TpgFaultBase::_rep_fault()
+{
+  return mRepFault;
+}
+#endif
+
+// @brief この故障の属しているFFRを返す．
+const TpgFFR&
+TpgFaultBase::ffr() const
+{
+  return *mFFR;
+}
+
+// @brief この故障の属しているMFFCを返す．
+const TpgMFFC&
+TpgFaultBase::mffc() const
+{
+  return *mMFFC;
 }
 
 // @brief 代表故障を設定する．
 // @param[in] rep 代表故障
 void
-TpgFault::set_rep(TpgFault* rep)
+TpgFaultBase::set_rep(const TpgFault* rep)
 {
   mRepFault = rep;
 }
 
 // @brief FFRを設定する．
 void
-TpgFault::set_ffr(const TpgFFR* ffr)
+TpgFaultBase::set_ffr(const TpgFFR* ffr)
 {
   mFFR = ffr;
 }
 
 // @brief MFFCを設定する．
 void
-TpgFault::set_mffc(const TpgMFFC* mffc)
+TpgFaultBase::set_mffc(const TpgMFFC* mffc)
 {
   mMFFC = mffc;
-}
-
-// @brief 故障値を3値型で返す．
-Val3
-TpgFault::val3() const
-{
-  if ( val() ) {
-    return Val3::_1;
-  }
-  else {
-    return Val3::_0;
-  }
-}
-
-// @brief ストリーム出力演算子
-// @param[in] s 出力先のストリーム
-// @param[in] f 故障
-ostream&
-operator<<(ostream& s,
-	   const TpgFault* f)
-{
-  return s << f->str();
 }
 
 
@@ -89,18 +122,16 @@ operator<<(ostream& s,
 
 // @brief コンストラクタ
 // @param[in] id ID番号
-// @param[in] name 故障位置のノード名
 // @param[in] val 故障値
 // @param[in] node 故障位置のノード
+// @param[in] name 故障位置のノード名
 // @param[in] rep_fault 代表故障
 TpgStemFault::TpgStemFault(int id,
-			   const char* name,
 			   int val,
 			   const TpgNode* node,
+			   const char* name,
 			   TpgFault* rep_fault) :
-  TpgFault(id, val, rep_fault),
-  mNodeName(name),
-  mTpgNode(node)
+  TpgFaultBase(id, val, node, name, rep_fault)
 {
   ASSERT_COND( tpg_inode() != nullptr );
 }
@@ -114,7 +145,7 @@ TpgStemFault::~TpgStemFault()
 const TpgNode*
 TpgStemFault::tpg_inode() const
 {
-  return mTpgNode;
+  return tpg_node();
 }
 
 // @brief 故障の出力側の TpgNode を返す．
@@ -123,7 +154,7 @@ TpgStemFault::tpg_inode() const
 const TpgNode*
 TpgStemFault::tpg_onode() const
 {
-  return mTpgNode;
+  return tpg_node();
 }
 
 // @brief ステムの故障の時 true を返す．
@@ -138,6 +169,7 @@ int
 TpgStemFault::fault_pos() const
 {
   ASSERT_NOT_REACHED;
+
   return 0;
 }
 
@@ -148,6 +180,7 @@ int
 TpgStemFault::tpg_pos() const
 {
   ASSERT_NOT_REACHED;
+
   return 0;
 }
 
@@ -156,12 +189,12 @@ string
 TpgStemFault::str() const
 {
   ostringstream ans;
-  ans << mNodeName << ":O:";
+  ans << node_name() << ":O:";
   if ( val() ) {
-    ans <<"SA1";
+    ans <<"1";
   }
   else {
-    ans <<"SA0";
+    ans <<"0";
   }
   return ans.str();
 }
@@ -173,24 +206,22 @@ TpgStemFault::str() const
 
 // @brief コンストラクタ
 // @param[in] id ID番号
-// @param[in] name ノード名
 // @param[in] val 故障値
-// @param[in] pos 故障の入力位置
 // @param[in] onode 出力側の TpgNode
+// @param[in] name ノード名
+// @param[in] pos 故障の入力位置
 // @param[in] inode 入力側の TpgNode
 // @param[in] tpg_pos node 上の故障位置
 // @param[in] rep_fault 代表故障
 TpgBranchFault::TpgBranchFault(int id,
-			       const char* name,
 			       int val,
-			       int pos,
 			       const TpgNode* onode,
+			       const char* name,
+			       int pos,
 			       const TpgNode* inode,
 			       int tpg_pos,
 			       TpgFault* rep_fault) :
-  TpgFault(id, val, rep_fault),
-  mNodeName(name),
-  mOnode(onode),
+  TpgFaultBase(id, val, onode, name, rep_fault),
   mPos(pos),
   mInode(inode),
   mTpgPos(tpg_pos)
@@ -215,7 +246,7 @@ TpgBranchFault::tpg_inode() const
 const TpgNode*
 TpgBranchFault::tpg_onode() const
 {
-  return mOnode;
+  return tpg_node();
 }
 
 // @brief ステムの故障の時 true を返す．
@@ -248,12 +279,12 @@ string
 TpgBranchFault::str() const
 {
   ostringstream ans;
-  ans << mNodeName << ":I" << fault_pos() << ":";
+  ans << node_name() << ":I" << fault_pos() << ":";
   if ( val() ) {
-    ans <<"SA1";
+    ans <<"1";
   }
   else {
-    ans <<"SA0";
+    ans <<"0";
   }
   return ans.str();
 }
