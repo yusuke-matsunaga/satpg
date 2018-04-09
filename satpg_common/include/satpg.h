@@ -37,7 +37,6 @@ BEGIN_NAMESPACE_YM_SATPG
 
 class TpgNetwork;
 class TpgDff;
-class TpgGateInfo;
 class TpgNode;
 class TpgMFFC;
 class TpgFFR;
@@ -56,7 +55,6 @@ class DetectOp;
 class DopVerifyResult;
 class UntestOp;
 
-class BackTracer;
 class Justifier;
 
 class VidMap;

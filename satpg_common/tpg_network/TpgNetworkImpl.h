@@ -22,6 +22,7 @@ BEGIN_NAMESPACE_YM_SATPG
 
 class TpgNodeInfo;
 class AuxNodeInfo;
+class TpgGateInfo;
 class TpgFaultBase;
 
 //////////////////////////////////////////////////////////////////////
