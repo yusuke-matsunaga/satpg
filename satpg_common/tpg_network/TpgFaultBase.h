@@ -15,7 +15,9 @@ BEGIN_NAMESPACE_YM_SATPG
 
 //////////////////////////////////////////////////////////////////////
 /// @class TpgFaultBase TpgFaultBase.h "TpgFaultBase.h"
-/// @brief 出力の故障を表すクラス
+/// @brief TpgFault の実装クラス
+///
+/// set_rep() を TpgFault のメンバから外すためにこういう構造にしている．
 //////////////////////////////////////////////////////////////////////
 class TpgFaultBase :
   public TpgFault
@@ -62,16 +64,6 @@ public:
   const TpgFault*
   rep_fault() const override;
 
-  /// @brief この故障の属しているFFRを返す．
-  virtual
-  const TpgFFR&
-  ffr() const override;
-
-  /// @brief この故障の属しているMFFCを返す．
-  virtual
-  const TpgMFFC&
-  mffc() const override;
-
 
 public:
   //////////////////////////////////////////////////////////////////////
@@ -82,20 +74,6 @@ public:
   /// @param[in] rep 代表故障
   void
   set_rep(const TpgFault* rep);
-
-#if 0
-  /// @brief 代表故障を返す．
-  TpgFault*
-  _rep_fault();
-#endif
-
-  /// @brief FFRを設定する．
-  void
-  set_ffr(const TpgFFR* ffr);
-
-  /// @brief MFFCを設定する．
-  void
-  set_mffc(const TpgMFFC* mffc);
 
 
 protected:
@@ -128,12 +106,6 @@ private:
 
   // 代表故障
   const TpgFault* mRepFault;
-
-  // FFR
-  const TpgFFR* mFFR;
-
-  // MFFC
-  const TpgMFFC* mMFFC;
 
 };
 

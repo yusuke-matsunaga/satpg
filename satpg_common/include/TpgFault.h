@@ -100,16 +100,6 @@ public:
   const TpgFault*
   rep_fault() const = 0;
 
-  /// @brief この故障の属しているFFRを返す．
-  virtual
-  const TpgFFR&
-  ffr() const = 0;
-
-  /// @brief この故障の属しているMFFCを返す．
-  virtual
-  const TpgMFFC&
-  mffc() const = 0;
-
 };
 
 /// @relates TpgFault

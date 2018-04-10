@@ -43,8 +43,8 @@ run_single_new(const string& sat_type,
 {
   for ( auto fault: network.rep_fault_list() ) {
     if ( fmgr.status(fault) == FaultStatus::Undetected ) {
-      const TpgFFR& ffr = fault->ffr();
-      Dtpg dtpg(sat_type, sat_option, sat_outp, fault_type, jt, network, ffr, stats);
+      const TpgNode* node = fault->tpg_onode();
+      Dtpg dtpg(sat_type, sat_option, sat_outp, fault_type, jt, network, node, stats);
       NodeValList nodeval_list;
       SatBool3 ans = dtpg.dtpg(fault, nodeval_list, stats);
       if ( ans == SatBool3::True ) {
@@ -132,8 +132,8 @@ run_single(const string& sat_type,
 {
   for ( auto fault: network.rep_fault_list() ) {
     if ( fmgr.status(fault) == FaultStatus::Undetected ) {
-      const TpgFFR& ffr = fault->ffr();
-      Dtpg_se dtpg(sat_type, sat_option, sat_outp, fault_type, jt, network, ffr, stats);
+      const TpgNode* node = fault->tpg_onode();
+      Dtpg_se dtpg(sat_type, sat_option, sat_outp, fault_type, jt, network, node, stats);
       NodeValList nodeval_list;
       SatBool3 ans = dtpg.dtpg(fault, nodeval_list, stats);
       if ( ans == SatBool3::True ) {

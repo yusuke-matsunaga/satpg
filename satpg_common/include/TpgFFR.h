@@ -9,7 +9,6 @@
 /// All rights reserved.
 
 #include "satpg.h"
-#include "ym/Alloc.h"
 #include "ym/Array.h"
 
 
@@ -66,12 +65,12 @@ public:
 
   /// @brief 内容を設定する．
   /// @param[in] root 根のノード
-  /// @param[in] fault_list 故障のリスト
-  /// @param[in] alloc メモリアロケータ
+  /// @param[in] fault_num  故障数
+  /// @param[in] fault_list 故障のリスト(配列)
   void
   set(const TpgNode* root,
-      vector<TpgFaultBase*>& fault_list,
-      Alloc& alloc);
+      int fault_num,
+      const TpgFault** fault_list);
 
 
 private:
@@ -138,6 +137,21 @@ Array<const TpgFault*>
 TpgFFR::fault_list() const
 {
   return Array<const TpgFault*>(mFaultList, 0, fault_num());
+}
+
+// @brief 内容を設定する．
+// @param[in] root 根のノード
+// @param[in] fault_num  故障数
+// @param[in] fault_list 故障のリスト(配列)
+inline
+void
+TpgFFR::set(const TpgNode* root,
+	    int fault_num,
+	    const TpgFault** fault_list)
+{
+  mRoot = root;
+  mFaultNum = fault_num;
+  mFaultList = fault_list;
 }
 
 END_NAMESPACE_YM_SATPG

@@ -63,7 +63,7 @@ public:
 
   /// @brief このノードが持っている代表故障をリストに追加する．
   void
-  add_to_fault_list(vector<TpgFaultBase*>& fault_list);
+  add_to_fault_list(vector<const TpgFault*>& fault_list);
 
   /// @brief 出力の故障を返す．
   /// @param[in] val 故障値 ( 0 / 1 )
@@ -104,8 +104,8 @@ public:
 
   /// @brief 故障リストを設定する．
   void
-  set_fault_list(const vector<TpgFaultBase*>& fault_list,
-		 Alloc& alloc);
+  set_fault_list(int fault_num,
+		 const TpgFault** fault_list);
 
   /// @brief 出力の故障を設定する．
   /// @param[in] val 故障値 ( 0 / 1 )
@@ -148,7 +148,7 @@ private:
   int mFaultNum;
 
   /// @brief 代表故障のリスト
-  TpgFaultBase** mFaultList;
+  const TpgFault** mFaultList;
 
   /// @brief 出力の故障
   TpgFaultBase* mOutputFaults[2];

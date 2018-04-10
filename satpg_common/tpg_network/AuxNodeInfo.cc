@@ -68,10 +68,6 @@ void
 AuxNodeInfo::set_ffr(TpgFFR* ffr)
 {
   mFfr = ffr;
-  for ( int i = 0; i < mFaultNum; ++ i ) {
-    TpgFaultBase* fault = mFaultList[i];
-    fault->set_ffr(ffr);
-  }
 }
 
 // @brief MFFC を設定する．
@@ -84,21 +80,16 @@ AuxNodeInfo::set_mffc(const TpgMFFC* mffc)
 
 // @brief 故障リストを設定する．
 void
-AuxNodeInfo::set_fault_list(const vector<TpgFaultBase*>& fault_list,
-			    Alloc& alloc)
+AuxNodeInfo::set_fault_list(int fault_num,
+			    const TpgFault** fault_list)
 {
-  mFaultNum = fault_list.size();
-  if ( mFaultNum > 0 ) {
-    mFaultList = alloc.get_array<TpgFaultBase*>(mFaultNum);
-    for ( int i = 0; i < mFaultNum; ++ i ) {
-      mFaultList[i] = fault_list[i];
-    }
-  }
+  mFaultNum = fault_num;
+  mFaultList = fault_list;
 }
 
 // @brief このノードが持っている代表故障をリストに追加する．
 void
-AuxNodeInfo::add_to_fault_list(vector<TpgFaultBase*>& fault_list)
+AuxNodeInfo::add_to_fault_list(vector<const TpgFault*>& fault_list)
 {
   for ( int i = 0; i < mFaultNum; ++ i ) {
     fault_list.push_back(mFaultList[i]);

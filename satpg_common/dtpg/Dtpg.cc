@@ -47,6 +47,46 @@ extract(const TpgNode* root,
 	const vector<SatBool3>& model,
 	NodeValList& assign_list);
 
+// @brief コンストラクタ(ノードモード)
+// @param[in] sat_type SATソルバの種類を表す文字列
+// @param[in] sat_option SATソルバに渡すオプション文字列
+// @param[in] sat_outp SATソルバ用の出力ストリーム
+// @param[in] fault_type 故障の種類
+// @param[in] bt バックトレーサー
+// @param[in] network 対象のネットワーク
+// @param[in] node 故障のあるノード
+Dtpg::Dtpg(const string& sat_type,
+	   const string& sat_option,
+	   ostream* sat_outp,
+	   FaultType fault_type,
+	   Justifier& jt,
+	   const TpgNetwork& network,
+	   const TpgNode* node,
+	   DtpgStats& stats) :
+  mSolver(sat_type, sat_option, sat_outp),
+  mNetwork(network),
+  mFaultType(fault_type),
+  mRoot(node->ffr_root()),
+  mMarkArray(mNetwork.node_num(), 0U),
+  mHvarMap(network.node_num()),
+  mGvarMap(network.node_num()),
+  mFvarMap(network.node_num()),
+  mDvarMap(network.node_num()),
+  mJustifier(jt),
+  mTimerEnable(true)
+{
+  mTfoList.reserve(network.node_num());
+  mTfiList.reserve(network.node_num());
+  mTfi2List.reserve(network.node_num());
+  mOutputList.reserve(network.ppo_num());
+
+  cnf_begin();
+
+  gen_cnf_base();
+
+  cnf_end(stats);
+}
+
 // @brief コンストラクタ
 // @param[in] sat_type SATソルバの種類を表す文字列
 // @param[in] sat_option SATソルバに渡すオプション文字列
@@ -108,8 +148,8 @@ Dtpg::Dtpg(const string& sat_type,
   mFaultType(fault_type),
   mRoot(mffc.root()),
   mMarkArray(mNetwork.node_num(), 0U),
-  mElemArray(mffc.elem_num()),
-  mElemVarArray(mffc.elem_num()),
+  mElemArray(mffc.ffr_num()),
+  mElemVarArray(mffc.ffr_num()),
   mHvarMap(network.node_num()),
   mGvarMap(network.node_num()),
   mFvarMap(network.node_num()),
@@ -122,9 +162,9 @@ Dtpg::Dtpg(const string& sat_type,
   mTfi2List.reserve(network.node_num());
   mOutputList.reserve(network.ppo_num());
 
-  if ( mffc.elem_num() > 1 ) {
+  if ( mffc.ffr_num() > 1 ) {
     int ffr_id = 0;
-    for ( auto ffr: mffc.elem_list() ) {
+    for ( auto ffr: mffc.ffr_list() ) {
       mElemArray[ffr_id] = ffr->root();
       ASSERT_COND( ffr->root() != nullptr );
       mElemPosMap.add(ffr->root()->id(), ffr_id);
@@ -136,7 +176,7 @@ Dtpg::Dtpg(const string& sat_type,
 
   gen_cnf_base();
 
-  if ( mffc.elem_num() > 1 ) {
+  if ( mffc.ffr_num() > 1 ) {
     gen_cnf_mffc();
   }
 
@@ -426,10 +466,10 @@ Dtpg::gen_cnf_mffc()
   // mElemArray[] に含まれるノードと root の間にあるノードを
   // 求め，同時に変数を割り当てる．
   vector<const TpgNode*> node_list;
-  HashMap<int, int> elem_map;
+  HashMap<int, int> ffr_map;
   for ( int i = 0; i < mElemArray.size(); ++ i ) {
     const TpgNode* node = mElemArray[i];
-    elem_map.add(node->id(), i);
+    ffr_map.add(node->id(), i);
     if ( node == root_node() ) {
       continue;
     }
@@ -484,12 +524,12 @@ Dtpg::gen_cnf_mffc()
   for ( int rpos = 0; rpos < node_list.size(); ++ rpos ) {
     const TpgNode* node = node_list[rpos];
     SatVarId ovar = fvar(node);
-    int elem_pos;
-    if ( elem_map.find(node->id(), elem_pos) ) {
+    int ffr_pos;
+    if ( ffr_map.find(node->id(), ffr_pos) ) {
       // 実際のゲートの出力と ovar の間に XOR ゲートを挿入する．
-      // XORの一方の入力は mElemVarArray[elem_pos]
+      // XORの一方の入力は mElemVarArray[ffr_pos]
       ovar = mSolver.new_variable();
-      inject_fault(elem_pos, ovar);
+      inject_fault(ffr_pos, ovar);
       // ovar が fvar(node) ではない！
       fval_enc.make_node_cnf(node, ovar);
     }
@@ -510,22 +550,22 @@ Dtpg::gen_cnf_mffc()
 }
 
 // @brief 故障挿入回路のCNFを作る．
-// @param[in] elem_pos 要素番号
+// @param[in] ffr_pos 要素番号
 // @param[in] ovar ゲートの出力の変数
 void
-Dtpg::inject_fault(int elem_pos,
+Dtpg::inject_fault(int ffr_pos,
 		       SatVarId ovar)
 {
   SatLiteral lit1(ovar);
-  SatLiteral lit2(mElemVarArray[elem_pos]);
-  const TpgNode* node = mElemArray[elem_pos];
+  SatLiteral lit2(mElemVarArray[ffr_pos]);
+  const TpgNode* node = mElemArray[ffr_pos];
   SatLiteral olit(fvar(node));
 
   mSolver.add_xorgate_rel(lit1, lit2, olit);
 
   if ( debug_mffccone ) {
     DEBUG_OUT << "inject fault: " << ovar << " -> " << fvar(node)
-	      << " with cvar = " << mElemVarArray[elem_pos] << endl;
+	      << " with cvar = " << mElemVarArray[ffr_pos] << endl;
   }
 }
 

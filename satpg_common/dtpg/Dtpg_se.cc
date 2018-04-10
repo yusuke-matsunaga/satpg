@@ -15,6 +15,40 @@
 
 BEGIN_NAMESPACE_YM_SATPG
 
+// @brief コンストラクタ(ノードモード)
+// @param[in] sat_type SATソルバの種類を表す文字列
+// @param[in] sat_option SATソルバに渡すオプション文字列
+// @param[in] sat_outp SATソルバ用の出力ストリーム
+// @param[in] fault_type 故障の種類
+// @param[in] jt 正当化を行うファンクタ
+// @param[in] network 対象のネットワーク
+// @param[in] node 故障のあるノード
+// @param[out] stats DTPGの統計情報
+Dtpg_se::Dtpg_se(const string& sat_type,
+		 const string& sat_option,
+		 ostream* sat_outp,
+		 FaultType fault_type,
+		 Justifier& jt,
+		 const TpgNetwork& network,
+		 const TpgNode* node,
+		 DtpgStats& stats) :
+  mStructEnc(network, fault_type, sat_type, sat_option, sat_outp),
+  mFaultType(fault_type),
+  mJustifier(jt),
+  mTimerEnable(true)
+{
+  cnf_begin();
+
+  mStructEnc.add_simple_cone(node->ffr_root(), true);
+
+  mStructEnc.make_vars();
+
+  mStructEnc.make_cnf();
+
+  cnf_end(stats);
+}
+
+
 // @brief コンストラクタ(ffrモード)
 // @param[in] sat_type SATソルバの種類を表す文字列
 // @param[in] sat_option SATソルバに渡すオプション文字列
@@ -75,7 +109,7 @@ Dtpg_se::Dtpg_se(const string& sat_type,
 {
   cnf_begin();
 
-  if ( mffc.elem_num() > 1 ) {
+  if ( mffc.ffr_num() > 1 ) {
     mStructEnc.add_mffc_cone(mffc, true);
   }
   else {

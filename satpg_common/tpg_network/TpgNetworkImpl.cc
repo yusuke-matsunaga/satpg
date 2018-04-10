@@ -727,7 +727,7 @@ TpgNetworkImpl::set(const BnNetwork& network)
 int
 TpgNetworkImpl::set_rep_faults(TpgNode* node)
 {
-  vector<TpgFaultBase*> fault_list;
+  vector<TpgFault*> fault_list;
 
   if ( node->fanout_num() == 1 ) {
     const TpgNode* onode = node->fanout_list()[0];
@@ -809,7 +809,15 @@ TpgNetworkImpl::set_rep_faults(TpgNode* node)
   }
 
   // node の代表故障をセットする．
-  mAuxInfoArray[node->id()].set_fault_list(fault_list, mAlloc);
+  int fault_num = fault_list.size();
+  const TpgFault** fault_array = nullptr;
+  if ( fault_num > 0 ) {
+    fault_array = mAlloc.get_array<const TpgFault*>(fault_num);
+  }
+  for ( int i = 0; i < fault_num; ++ i ) {
+    fault_array[i] = fault_list[i];
+  }
+  mAuxInfoArray[node->id()].set_fault_list(fault_num, fault_array);
 
   return fault_list.size();
 }
@@ -822,7 +830,7 @@ TpgNetworkImpl::set_ffr(const TpgNode* root,
 			TpgFFR* ffr)
 {
   // root を根とするFFRの故障リストを求める．
-  vector<TpgFaultBase*> fault_list;
+  vector<const TpgFault*> fault_list;
 
   vector<const TpgNode*> node_list;
   node_list.push_back(root);
@@ -840,7 +848,14 @@ TpgNetworkImpl::set_ffr(const TpgNode* root,
   }
 
   mAuxInfoArray[root->id()].set_ffr(ffr);
-  ffr->set(root, fault_list, mAlloc);
+
+  int fault_num = fault_list.size();
+  const TpgFault** fault_array = mAlloc.get_array<const TpgFault*>(fault_num);
+  for ( int i = 0; i < fault_num; ++ i ) {
+    const TpgFault* fault = fault_list[i];
+    fault_array[i] = fault;
+  }
+  ffr->set(root, fault_num, fault_array);
 }
 
 // @brief MFFC の情報を設定する．
@@ -854,7 +869,7 @@ TpgNetworkImpl::set_mffc(const TpgNode* root,
   vector<bool> mark(node_num());
   vector<const TpgNode*> node_list;
   vector<const TpgFFR*> ffr_list;
-  vector<TpgFaultBase*> fault_list;
+  vector<const TpgFault*> fault_list;
 
   node_list.push_back(root);
   mark[root->id()] = true;
@@ -878,7 +893,20 @@ TpgNetworkImpl::set_mffc(const TpgNode* root,
   }
 
   mAuxInfoArray[root->id()].set_mffc(mffc);
-  mffc->set(root, ffr_list, fault_list, mAlloc);
+
+  int ffr_num = ffr_list.size();
+  const TpgFFR** ffr_array = mAlloc.get_array<const TpgFFR*>(ffr_num);
+  for ( int i = 0; i < ffr_num; ++ i ) {
+    ffr_array[i] = ffr_list[i];
+  }
+
+  int fault_num = fault_list.size();
+  const TpgFault** fault_array = mAlloc.get_array<const TpgFault*>(fault_num);
+  for ( int i = 0; i < fault_num; ++ i ) {
+    const TpgFault* fault = fault_list[i];
+    fault_array[i] = fault;
+  }
+  mffc->set(root, ffr_num, ffr_array, fault_num, fault_array);
 }
 
 END_NAMESPACE_YM_SATPG

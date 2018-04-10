@@ -34,9 +34,7 @@ TpgFaultBase::TpgFaultBase(int id,
 			   TpgFault* rep_fault) :
   mTpgNode(node),
   mNodeName(name),
-  mRepFault(rep_fault),
-  mFFR(nullptr),
-  mMFFC(nullptr)
+  mRepFault(rep_fault)
 {
   // val は 0 か 1 のはずだが念の為マスクしておく
   mIdVal = (id << 1) | static_cast<int>(val & 1);
@@ -70,49 +68,12 @@ TpgFaultBase::rep_fault() const
   return mRepFault;
 }
 
-#if 0
-// @brief 代表故障を返す．
-TpgFault*
-TpgFaultBase::_rep_fault()
-{
-  return mRepFault;
-}
-#endif
-
-// @brief この故障の属しているFFRを返す．
-const TpgFFR&
-TpgFaultBase::ffr() const
-{
-  return *mFFR;
-}
-
-// @brief この故障の属しているMFFCを返す．
-const TpgMFFC&
-TpgFaultBase::mffc() const
-{
-  return *mMFFC;
-}
-
 // @brief 代表故障を設定する．
 // @param[in] rep 代表故障
 void
 TpgFaultBase::set_rep(const TpgFault* rep)
 {
   mRepFault = rep;
-}
-
-// @brief FFRを設定する．
-void
-TpgFaultBase::set_ffr(const TpgFFR* ffr)
-{
-  mFFR = ffr;
-}
-
-// @brief MFFCを設定する．
-void
-TpgFaultBase::set_mffc(const TpgMFFC* mffc)
-{
-  mMFFC = mffc;
 }
 
 

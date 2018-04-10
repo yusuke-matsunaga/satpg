@@ -79,10 +79,10 @@ private:
   make_dchain_cnf(const TpgNode* node);
 
   /// @brief 故障挿入回路のCNFを作る．
-  /// @param[in] elem_pos 要素番号
+  /// @param[in] ffr_pos 要素番号
   /// @param[in] ovar ゲートの出力の変数
   void
-  inject_fault(int elem_pos,
+  inject_fault(int ffr_pos,
 	       SatVarId ovar);
 
 

@@ -42,11 +42,11 @@ MffcPropCone::MffcPropCone(StructEnc& struct_sat,
 			   const TpgNode* block_node,
 			   bool detect) :
   PropCone(struct_sat, mffc.root(), block_node, detect),
-  mElemArray(mffc.elem_num()),
-  mElemVarArray(mffc.elem_num())
+  mElemArray(mffc.ffr_num()),
+  mElemVarArray(mffc.ffr_num())
 {
-  for (int i = 0; i < mffc.elem_num(); ++ i ) {
-    const TpgFFR* ffr = mffc.elem(i);
+  for (int i = 0; i < mffc.ffr_num(); ++ i ) {
+    const TpgFFR* ffr = mffc.ffr(i);
     mElemArray[i] = ffr->root();
     ASSERT_COND( ffr->root() != nullptr );
     mElemPosMap.add(ffr->root()->id(), i);
@@ -84,10 +84,10 @@ MffcPropCone::make_cnf()
   // mElemArray[] に含まれるノードと root の間にあるノードを
   // 求め，同時に変数を割り当てる．
   vector<const TpgNode*> node_list;
-  HashMap<int, int> elem_map;
+  HashMap<int, int> ffr_map;
   for ( int i = 0; i < mElemArray.size(); ++ i ) {
     const TpgNode* node = mElemArray[i];
-    elem_map.add(node->id(), i);
+    ffr_map.add(node->id(), i);
     if ( node == root_node() ) {
       continue;
     }
@@ -142,12 +142,12 @@ MffcPropCone::make_cnf()
   for ( int rpos = 0; rpos < node_list.size(); ++ rpos ) {
     const TpgNode* node = node_list[rpos];
     SatVarId ovar = fvar(node);
-    int elem_pos;
-    if ( elem_map.find(node->id(), elem_pos) ) {
+    int ffr_pos;
+    if ( ffr_map.find(node->id(), ffr_pos) ) {
       // 実際のゲートの出力と ovar の間に XOR ゲートを挿入する．
-      // XORの一方の入力は mElemVarArray[elem_pos]
+      // XORの一方の入力は mElemVarArray[ffr_pos]
       ovar = solver().new_variable();
-      inject_fault(elem_pos, ovar);
+      inject_fault(ffr_pos, ovar);
       // ovar が fvar(node) ではない！
       gate_enc.make_node_cnf(node, ovar);
     }
@@ -168,22 +168,22 @@ MffcPropCone::make_cnf()
 }
 
 // @brief 故障挿入回路のCNFを作る．
-// @param[in] elem_pos 要素番号
+// @param[in] ffr_pos 要素番号
 // @param[in] ovar ゲートの出力の変数
 void
-MffcPropCone::inject_fault(int elem_pos,
+MffcPropCone::inject_fault(int ffr_pos,
 			   SatVarId ovar)
 {
   SatLiteral lit1(ovar);
-  SatLiteral lit2(mElemVarArray[elem_pos]);
-  const TpgNode* node = mElemArray[elem_pos];
+  SatLiteral lit2(mElemVarArray[ffr_pos]);
+  const TpgNode* node = mElemArray[ffr_pos];
   SatLiteral olit(fvar(node));
 
   solver().add_xorgate_rel(lit1, lit2, olit);
 
   if ( debug_mffccone ) {
     DEBUG_OUT << "inject fault: " << ovar << " -> " << fvar(node)
-	      << " with cvar = " << mElemVarArray[elem_pos] << endl;
+	      << " with cvar = " << mElemVarArray[ffr_pos] << endl;
   }
 }
 

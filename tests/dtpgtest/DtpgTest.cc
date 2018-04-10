@@ -69,8 +69,8 @@ DtpgTest::single_test()
 
   for ( auto fault: mNetwork.rep_fault_list() ) {
     if ( mFaultMgr.status(fault) == FaultStatus::Undetected ) {
-      const TpgFFR& ffr = fault->ffr();
-      Dtpg_se dtpg(mSatType, mSatOption, mSatOutP, mFaultType, *mJustifier, mNetwork, ffr, mStats);
+      const TpgNode* node = fault->tpg_onode();
+      Dtpg_se dtpg(mSatType, mSatOption, mSatOutP, mFaultType, *mJustifier, mNetwork, node, mStats);
       NodeValList nodeval_list;
       SatBool3 ans = dtpg.dtpg(fault, nodeval_list, mStats);
       if ( ans == SatBool3::True ) {
@@ -165,8 +165,8 @@ DtpgTest::single_new_test()
   int untest_num = 0;
   for ( auto fault: mNetwork.rep_fault_list() ) {
     if ( mFaultMgr.status(fault) == FaultStatus::Undetected ) {
-      const TpgFFR& ffr = fault->ffr();
-      Dtpg dtpg(mSatType, mSatOption, mSatOutP, mFaultType, *mJustifier, mNetwork, ffr, mStats);
+      const TpgNode* node = fault->tpg_onode();
+      Dtpg dtpg(mSatType, mSatOption, mSatOutP, mFaultType, *mJustifier, mNetwork, node, mStats);
       NodeValList nodeval_list;
       SatBool3 ans = dtpg.dtpg(fault, nodeval_list, mStats);
       if ( ans == SatBool3::True ) {

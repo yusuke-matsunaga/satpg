@@ -39,6 +39,23 @@ class Dtpg
 {
 public:
 
+  /// @brief コンストラクタ(ノードモード)
+  /// @param[in] sat_type SATソルバの種類を表す文字列
+  /// @param[in] sat_option SATソルバに渡すオプション文字列
+  /// @param[in] sat_outp SATソルバ用の出力ストリーム
+  /// @param[in] fault_type 故障の種類
+  /// @param[in] bt バックトレーサー
+  /// @param[in] network 対象のネットワーク
+  /// @param[in] node 故障のあるノード
+  Dtpg(const string& sat_type,
+       const string& sat_option,
+       ostream* sat_outp,
+       FaultType fault_type,
+       Justifier& jt,
+       const TpgNetwork& network,
+       const TpgNode* node,
+       DtpgStats& stats);
+
   /// @brief コンストラクタ(FFRモード)
   /// @param[in] sat_type SATソルバの種類を表す文字列
   /// @param[in] sat_option SATソルバに渡すオプション文字列
