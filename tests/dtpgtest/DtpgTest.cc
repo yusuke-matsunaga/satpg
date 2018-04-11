@@ -98,7 +98,7 @@ DtpgTest::ffr_test()
 
   int detect_num = 0;
   int untest_num = 0;
-  for ( auto ffr: mNetwork.ffr_list() ) {
+  for ( auto& ffr: mNetwork.ffr_list() ) {
     Dtpg_se dtpg(mSatType, mSatOption, mSatOutP, mFaultType, *mJustifier, mNetwork, ffr, mStats);
     for ( auto fault: ffr.fault_list() ) {
       if ( mFaultMgr.status(fault) == FaultStatus::Undetected ) {
@@ -130,7 +130,7 @@ DtpgTest::mffc_test()
 
   int detect_num = 0;
   int untest_num = 0;
-  for ( auto mffc: mNetwork.mffc_list() ) {
+  for ( auto& mffc: mNetwork.mffc_list() ) {
     Dtpg_se dtpg(mSatType, mSatOption, mSatOutP, mFaultType, *mJustifier, mNetwork, mffc, mStats);
     for ( auto fault: mffc.fault_list() ) {
       if ( mFaultMgr.status(fault) == FaultStatus::Undetected ) {

@@ -70,7 +70,7 @@ run_ffr_new(const string& sat_type,
 	    DtpgStats& stats)
 {
   int nffr = network.ffr_num();
-  for ( auto ffr: network.ffr_list() ) {
+  for ( auto& ffr: network.ffr_list() ) {
     Dtpg dtpg(sat_type, sat_option, sat_outp, fault_type, jt, network, ffr, stats);
     for ( auto fault: ffr.fault_list() ) {
       if ( fmgr.status(fault) == FaultStatus::Undetected ) {
@@ -100,7 +100,7 @@ run_mffc_new(const string& sat_type,
 	     DtpgStats& stats)
 {
   int n = network.mffc_num();
-  for ( auto mffc: network.mffc_list() ) {
+  for ( auto& mffc: network.mffc_list() ) {
     Dtpg dtpg(sat_type, sat_option, sat_outp, fault_type, jt, network, mffc, stats);
     for ( auto fault: mffc.fault_list() ) {
       if ( fmgr.status(fault) == FaultStatus::Undetected ) {
@@ -158,7 +158,7 @@ run_ffr(const string& sat_type,
 	UntestOp& uop,
 	DtpgStats& stats)
 {
-  for ( auto ffr: network.ffr_list() ) {
+  for ( auto& ffr: network.ffr_list() ) {
     Dtpg_se dtpg(sat_type, sat_option, sat_outp, fault_type, jt, network, ffr, stats);
     for ( auto fault: ffr.fault_list() ) {
       if ( fmgr.status(fault) == FaultStatus::Undetected ) {
@@ -187,7 +187,7 @@ run_mffc(const string& sat_type,
 	 UntestOp& uop,
 	 DtpgStats& stats)
 {
-  for ( auto mffc: network.mffc_list() ) {
+  for ( auto& mffc: network.mffc_list() ) {
     Dtpg_se dtpg(sat_type, sat_option, sat_outp, fault_type, jt, network, mffc, stats);
     for ( auto fault: mffc.fault_list() ) {
       if ( fmgr.status(fault) == FaultStatus::Undetected ) {

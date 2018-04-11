@@ -13,6 +13,7 @@
 #include "satpg.h"
 #include "FaultType.h"
 #include "PackedVal.h"
+#include "ym/Array.h"
 
 
 BEGIN_NAMESPACE_YM_SATPG
@@ -231,11 +232,21 @@ public:
   const TpgFault*
   det_fault(int pos) = 0;
 
+  /// @brief 直前の sppfp/ppsfp で検出された故障のリストを返す．
+  virtual
+  Array<const TpgFault*>
+  det_fault_list() = 0;
+
   /// @brief 直前の ppsfp で検出された故障の検出ビットパタンを返す．
   /// @param[in] pos 位置番号 ( 0 <= pos < det_fault_num() )
   virtual
   PackedVal
   det_fault_pat(int pos) = 0;
+
+  /// @brief 直前の ppsfp で検出された故障に対する検出パタンのリストを返す．
+  virtual
+  Array<PackedVal>
+  det_fault_pat_list() = 0;
 
 };
 

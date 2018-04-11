@@ -88,6 +88,16 @@ new_Fsim(const TpgNetwork& network)
 FSIM_CLASSNAME::FSIM_CLASSNAME(const TpgNetwork& network)
 {
   mPatMap = kPvAll0;
+  mPPIArray = nullptr;
+  mPPOArray = nullptr;
+  mPrevValArray = nullptr;
+  mFFRArray = nullptr;
+  mFFRMap = nullptr;
+  mSimFaults = nullptr;
+  mFaultArray = nullptr;
+  mDetFaultArray = nullptr;
+  mDetPatArray = nullptr;
+
   set_network(network);
 }
 
@@ -115,10 +125,10 @@ FSIM_CLASSNAME::set_network(const TpgNetwork& network)
 
   // 対応付けを行うマップの初期化
   vector<SimNode*> simmap(nn);
-  mPPIArray.resize(ni);
-  mPPOArray.resize(no);
 
-  mPrevValArray.resize(nn);
+  mPPIArray = new SimNode*[ni];
+  mPPOArray = new SimNode*[no];
+  mPrevValArray = new FSIM_VALTYPE[nn];
 
   int nf = 0;
   for ( auto tpgnode: network.node_list() ) {
@@ -197,8 +207,9 @@ FSIM_CLASSNAME::set_network(const TpgNetwork& network)
       ++ ffr_num;
     }
   }
-  mFFRMap.resize(mNodeArray.size());
-  mFFRArray.resize(ffr_num);
+  mFFRNum = ffr_num;
+  mFFRArray = new SimFFR[ffr_num];
+  mFFRMap = new SimFFR*[mNodeArray.size()];
   ffr_num = 0;
   for (int i = node_num; i > 0; ) {
     -- i;
@@ -233,9 +244,11 @@ FSIM_CLASSNAME::set_network(const TpgNetwork& network)
   //////////////////////////////////////////////////////////////////////
 
   // 同時に各 SimFFR 内の故障リストも再構築する．
-  mSimFaults.resize(nf);
-  mDetFaultArray.resize(nf);
-  mFaultArray.resize(network.max_fault_id());
+  mFaultNum = nf;
+  mSimFaults = new SimFault[nf];
+  mFaultArray = new SimFault*[network.max_fault_id()];
+  mDetFaultArray = new const TpgFault*[nf];
+  mDetPatArray = new PackedVal[nf];
   int fid = 0;
   for ( auto tpgnode: network.node_list() ) {
     SimNode* simnode = simmap[tpgnode->id()];
@@ -263,11 +276,18 @@ FSIM_CLASSNAME::set_network(const TpgNetwork& network)
   }
 }
 
+// @brief FFR のリストを返す．
+Array<SimFFR>
+FSIM_CLASSNAME::_ffr_list() const
+{
+  return Array<SimFFR>(mFFRArray, 0, mFFRNum);
+}
+
 // @brief 全ての故障にスキップマークをつける．
 void
 FSIM_CLASSNAME::set_skip_all()
 {
-  for ( auto sim_fault: mSimFaults ) {
+  for ( auto& sim_fault: Array<SimFault>(mSimFaults, 0, mFaultNum) ) {
     sim_fault.mSkip = true;
   }
 }
@@ -284,7 +304,7 @@ FSIM_CLASSNAME::set_skip(const TpgFault* f)
 void
 FSIM_CLASSNAME::clear_skip_all()
 {
-  for ( auto sim_fault: mSimFaults ) {
+  for ( auto& sim_fault: Array<SimFault>(mSimFaults, 0, mFaultNum) ) {
     sim_fault.mSkip = false;
   }
 }
@@ -430,33 +450,6 @@ FSIM_CLASSNAME::get_pattern(int pos)
   }
 }
 
-// @brief 直前の sppfp/ppsfp で検出された故障数を返す．
-int
-FSIM_CLASSNAME::det_fault_num()
-{
-  return mDetNum;
-}
-
-// @brief 直前の sppfp/ppsfp で検出された故障を返す．
-// @param[in] pos 位置番号 ( 0 <= pos < det_fault_num() )
-const TpgFault*
-FSIM_CLASSNAME::det_fault(int pos)
-{
-  ASSERT_COND( pos < det_fault_num() );
-
-  return mDetFaultArray[pos].mFault;
-}
-
-// @brief 直前の ppsfp で検出された故障の検出ビットパタンを返す．
-// @param[in] pos 位置番号 ( 0 <= pos < det_fault_num() )
-PackedVal
-FSIM_CLASSNAME::det_fault_pat(int pos)
-{
-  ASSERT_COND( pos < det_fault_num() );
-
-  return mDetFaultArray[pos].mPat;
-}
-
 // @brief SPSFP故障シミュレーションの本体
 // @param[in] f 対象の故障
 // @retval true 故障の検出が行えた．
@@ -492,14 +485,13 @@ FSIM_CLASSNAME::_sppfp()
   int bitpos = 0;
   const SimFFR* ffr_buff[kPvBitLen];
   // FFR ごとに処理を行う．
-  for ( auto ffr: mFFRArray ) {
+  for ( auto& ffr: _ffr_list() ) {
     // FFR 内の故障伝搬を行う．
     // 結果は SimFault.mObsMask に保存される．
     // FFR 内の全ての obs マスクを ffr_req に入れる．
     PackedVal ffr_req = _foreach_faults(ffr.fault_list());
-
-    // ffr_req が 0 ならその後のシミュレーションを行う必要はない．
     if ( ffr_req == kPvAll0 ) {
+      // ffr_req が 0 ならその後のシミュレーションを行う必要はない．
       continue;
     }
 
@@ -507,32 +499,22 @@ FSIM_CLASSNAME::_sppfp()
     if ( root->is_output() ) {
       // 常に観測可能
       _fault_sweep(ffr.fault_list());
-      continue;
     }
+    else {
+      // キューに積んでおく
+      PackedVal bitmask = 1ULL << bitpos;
+      mEventQ.put_trigger(root, bitmask, false);
+      ffr_buff[bitpos] = &ffr;
+      ++ bitpos;
 
-    // キューに積んでおく
-    PackedVal bitmask = 1ULL << bitpos;
-    mEventQ.put_trigger(root, bitmask, false);
-    ffr_buff[bitpos] = &ffr;
-
-    ++ bitpos;
-    if ( bitpos == kPvBitLen ) {
-      PackedVal obs = mEventQ.simulate();
-      for (int i = 0; i < bitpos; ++ i, obs >>= 1) {
-	if ( obs & 1ULL ) {
-	  _fault_sweep(ffr_buff[i]->fault_list());
-	}
+      if ( bitpos == kPvBitLen ) {
+	_do_simulation(ffr_buff, bitpos);
+	bitpos = 0;
       }
-      bitpos = 0;
     }
   }
   if ( bitpos > 0 ) {
-    PackedVal obs = mEventQ.simulate();
-    for (int i = 0; i < bitpos; ++ i, obs >>= 1) {
-      if ( obs & 1ULL ) {
-	_fault_sweep(ffr_buff[i]->fault_list());
-      }
-    }
+    _do_simulation(ffr_buff, bitpos);
   }
 
   return mDetNum;
@@ -548,7 +530,7 @@ FSIM_CLASSNAME::_ppsfp()
 {
   // FFR ごとに処理を行う．
   mDetNum = 0;
-  for ( auto ffr: mFFRArray ) {
+  for ( auto& ffr: _ffr_list() ) {
     const vector<SimFault*>& fault_list = ffr.fault_list();
     // FFR 内の故障伝搬を行う．
     // 結果は SimFault::mObsMask に保存される．
@@ -576,18 +558,18 @@ void
 FSIM_CLASSNAME::set_state(const InputVector& i_vect,
 			  const DffVector& f_vect)
 {
-  int ni = mInputNum;
-  for (int i = 0; i < ni; ++ i) {
-    SimNode* simnode = mPPIArray[i];
+  int i = 0;
+  for ( auto simnode: input_list() ) {
     Val3 val3 = i_vect.val(i);
     simnode->set_val(val3_to_packedval(val3));
+    ++ i;
   }
 
-  int nf = mDffNum;
-  for (int i = 0; i < nf; ++ i) {
-    SimNode* simnode = mPPIArray[i + ni];
+  i = 0;
+  for ( auto simnode: dff_output_list() ) {
     Val3 val3 = f_vect.val(i);
     simnode->set_val(val3_to_packedval(val3));
+    ++ i;
   }
 
   // 各信号線の値を計算する．
@@ -596,10 +578,7 @@ FSIM_CLASSNAME::set_state(const InputVector& i_vect,
   // 1時刻シフトする．
 
   // mPrevValArray に値をコピーする．
-  for ( auto node: mPPIArray ) {
-    mPrevValArray[node->id()] = node->val();
-  }
-  for ( auto node: mLogicArray ) {
+  for ( auto node: mNodeArray ) {
     mPrevValArray[node->id()] = node->val();
   }
 
@@ -618,18 +597,18 @@ void
 FSIM_CLASSNAME::get_state(InputVector& i_vect,
 			  DffVector& f_vect)
 {
-  int ni = mInputNum;
-  for (int i = 0; i < ni; ++ i) {
-    SimNode* simnode = mPPIArray[i];
-    Val3 val = packedval_to_val3(simnode->val());
+  int i = 0;
+  for ( auto simnode: input_list() ) {
+    auto val = packedval_to_val3(simnode->val());
     i_vect.set_val(i, val);
+    ++ i;
   }
 
-  int nf = mDffNum;
-  for (int i = 0; i < nf; ++ i) {
-    SimNode* simnode = mPPIArray[i + ni];
-    Val3 val = packedval_to_val3(simnode->val());
+  i = 0;
+  for ( auto simnode: dff_output_list() ) {
+    auto val = packedval_to_val3(simnode->val());
     f_vect.set_val(i, val);
+    ++ i;
   }
 }
 
@@ -639,9 +618,8 @@ int
 FSIM_CLASSNAME::calc_wsa(const InputVector& i_vect,
 			 bool weighted)
 {
-  int ni = input_num();
-  for (int i = 0; i < ni; ++ i) {
-    SimNode* simnode = mPPIArray[i];
+  int i = 0;
+  for ( auto simnode: input_list() ) {
     Val3 val3 = i_vect.val(i);
     simnode->set_val(val3_to_packedval(val3));
   }
@@ -651,20 +629,14 @@ FSIM_CLASSNAME::calc_wsa(const InputVector& i_vect,
 
   // 遷移回数を数える．
   int wsa = 0;
-  for ( auto node: mPPIArray ) {
-    wsa += _calc_wsa(node, weighted);
-  }
-  for ( auto node: mLogicArray ) {
+  for ( auto node: mNodeArray ) {
     wsa += _calc_wsa(node, weighted);
   }
 
   // 1時刻シフトする．
 
   // mPrevValArray に値をコピーする．
-  for ( auto node: mPPIArray ) {
-    mPrevValArray[node->id()] = node->val();
-  }
-  for ( auto node: mLogicArray ) {
+  for ( auto node: mNodeArray ) {
     mPrevValArray[node->id()] = node->val();
   }
 
@@ -738,10 +710,7 @@ FSIM_CLASSNAME::_calc_gval(const InputVals& input_vals)
   // 1時刻シフトする．
 
   // mPrevValArray に値をコピーする．
-  for ( auto node: mPPIArray ) {
-    mPrevValArray[node->id()] = node->val();
-  }
-  for ( auto node: mLogicArray ) {
+  for ( auto node: mNodeArray ) {
     mPrevValArray[node->id()] = node->val();
   }
 
@@ -792,6 +761,22 @@ FSIM_CLASSNAME::_foreach_faults(const vector<SimFault*>& fault_list)
   return ffr_req;
 }
 
+// @brief シミュレーションを行って sppfp 用の _fault_sweep() を呼ぶ出す．
+// @param[in] ffr_buf FFR を入れた配列
+// @param[in] ffr_num FFR 数
+void
+FSIM_CLASSNAME::_do_simulation(const SimFFR* ffr_buff[],
+			       int ffr_num)
+{
+  PackedVal obs = mEventQ.simulate();
+  PackedVal mask = 1ULL;
+  for ( int i = 0; i < ffr_num; ++ i, mask <<= 1 ) {
+    if ( obs & mask ) {
+      _fault_sweep(ffr_buff[i]->fault_list());
+    }
+  }
+}
+
 // @brief 故障をスキャンして結果をセットする(sppfp用)
 // @param[in] fault_list 故障のリスト
 void
@@ -802,8 +787,7 @@ FSIM_CLASSNAME::_fault_sweep(const vector<SimFault*>& fault_list)
       continue;
     }
     const TpgFault* f = ff->mOrigF;
-    mDetFaultArray[mDetNum].mFault = f;
-    mDetFaultArray[mDetNum].mPat = kPvAll1; // ダミー
+    mDetFaultArray[mDetNum] = f;
     ++ mDetNum;
   }
 }
@@ -822,8 +806,8 @@ FSIM_CLASSNAME::_fault_sweep(const vector<SimFault*>& fault_list,
     PackedVal pat = ff->mObsMask & mask;
     if ( pat != kPvAll0 ) {
       const TpgFault* f = ff->mOrigF;
-      mDetFaultArray[mDetNum].mFault = f;
-      mDetFaultArray[mDetNum].mPat = pat;
+      mDetFaultArray[mDetNum] = f;
+      mDetPatArray[mDetNum] = pat;
       ++ mDetNum;
     }
   }
@@ -838,17 +822,20 @@ FSIM_CLASSNAME::clear()
     delete node;
   }
   mNodeArray.clear();
-  mPPIArray.clear();
-  mPPOArray.clear();
+
+  delete [] mPPIArray;
+  delete [] mPPOArray;
+  delete [] mPrevValArray;
+
   mLogicArray.clear();
 
-  mPrevValArray.clear();
+  delete [] mFFRArray;
+  delete [] mFFRMap;
 
-  mFFRArray.clear();
-  mFFRMap.clear();
-
-  mSimFaults.clear();
-  mFaultArray.clear();
+  delete [] mSimFaults;
+  delete [] mFaultArray;
+  delete [] mDetFaultArray;
+  delete [] mDetPatArray;
 }
 
 // @brief 外部入力ノードを作る．

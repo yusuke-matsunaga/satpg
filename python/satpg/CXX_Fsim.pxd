@@ -15,7 +15,6 @@ from CXX_NodeValList cimport NodeValList
 from CXX_FaultType cimport FaultType
 from CXX_vector cimport vector
 
-ctypedef unsigned int ymuint
 ctypedef unsigned long PackedVal
 
 
@@ -35,13 +34,13 @@ cdef extern from "Fsim.h" namespace "nsYm::nsSatpg" :
         void clear_skip(const vector[const TpgFault*]& fault_list)
         bool spsfp(const TestVector* tv, const TpgFault* f)
         bool spsfp(const NodeValList& assign_list, const TpgFault* f)
-        ymuint sppfp(const TestVector* tv)
-        ymuint sppfp(const NodeValList& assign_list)
-        ymuint ppsfp()
-        ymuint calc_wsa(const TestVector* tv, bool weighted)
+        int sppfp(const TestVector* tv)
+        int sppfp(const NodeValList& assign_list)
+        int ppsfp()
+        int calc_wsa(const TestVector* tv, bool weighted)
         void clear_patterns()
-        void set_pattern(ymuint pos, const TestVector* tv)
-        const TestVector* get_pattern(ymuint pos)
-        ymuint det_fault_num()
-        const TpgFault* det_fault(ymuint pos)
-        PackedVal det_fault_pat(ymuint pos)
+        void set_pattern(int pos, const TestVector* tv)
+        const TestVector* get_pattern(int pos)
+        int det_fault_num()
+        const TpgFault* det_fault(int pos)
+        PackedVal det_fault_pat(int pos)

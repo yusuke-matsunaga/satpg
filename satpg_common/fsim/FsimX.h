@@ -209,11 +209,21 @@ public:
   const TpgFault*
   det_fault(int pos);
 
-  /// @brief 直前の ppsfp で検出された故障の検出ビットパタンを返す．
+  /// @brief 直前の sppfp/ppsfp で検出された故障のリストを返す．
+  virtual
+  Array<const TpgFault*>
+  det_fault_list();
+
+  /// @brief 直前の ppsfp で検出された故障に対する検出パタンを返す．
   /// @param[in] pos 位置番号 ( 0 <= pos < det_fault_num() )
   virtual
   PackedVal
   det_fault_pat(int pos);
+
+  /// @brief 直前の ppsfp で検出された故障に対する検出パタンのリストを返す．
+  virtual
+  Array<PackedVal>
+  det_fault_pat_list();
 
 
 public:
@@ -235,6 +245,18 @@ public:
   SimNode*
   ppi(int id) const;
 
+  /// @brief 外部入力ノードのリストを返す．
+  Array<SimNode*>
+  input_list() const;
+
+  /// @brief DFFの出力ノードのリストを返す．
+  Array<SimNode*>
+  dff_output_list() const;
+
+  /// @brief PPI のノードのリストを返す．
+  Array<SimNode*>
+  ppi_list() const;
+
 
 private:
   //////////////////////////////////////////////////////////////////////
@@ -247,6 +269,10 @@ private:
   /// 全ての故障のスキップマークはクリアされる．
   void
   set_network(const TpgNetwork& network);
+
+  /// @brief FFR のリストを返す．
+  Array<SimFFR>
+  _ffr_list() const;
 
   /// @brief SPSFP故障シミュレーションの本体
   /// @param[in] f 対象の故障
@@ -320,6 +346,13 @@ private:
   PackedVal
   _fault_prev_cond(SimFault* fault);
 
+  /// @brief シミュレーションを行って sppfp 用の _fault_sweep() を呼ぶ出す．
+  /// @param[in] ffr_buf FFR を入れた配列
+  /// @param[in] ffr_num FFR 数
+  void
+  _do_simulation(const SimFFR* ffr_buff[],
+  int ffr_num);
+
   /// @brief 故障をスキャンして結果をセットする(sppfp用)
   /// @param[in] fault_list 故障のリスト
   void
@@ -355,21 +388,6 @@ private:
 
 private:
   //////////////////////////////////////////////////////////////////////
-  // 内部で用いられるデータ構造
-  //////////////////////////////////////////////////////////////////////
-
-  // ppsfp の結果を格納する構造体
-  struct FaultPat
-  {
-    // 故障
-    const TpgFault* mFault;
-    // 検出したビットパタン
-    PackedVal mPat;
-  };
-
-
-private:
-  //////////////////////////////////////////////////////////////////////
   // データメンバ
   //////////////////////////////////////////////////////////////////////
 
@@ -387,24 +405,28 @@ private:
 
   // PPIに対応する SimNode を納めた配列
   // サイズは mInputNum + mDffNum
-  vector<SimNode*> mPPIArray;
+  SimNode** mPPIArray;
 
   // PPOに対応する SimNode を納めた配列
   // サイズは mOutputNum + mDffNum
-  vector<SimNode*> mPPOArray;
+  SimNode** mPPOArray;
 
   // 入力からのトポロジカル順に並べた logic ノードの配列
   vector<SimNode*> mLogicArray;
 
   // ブロードサイド方式用の１時刻前の値を保持する配列
   // サイズは mNodeArray.size()
-  vector<FSIM_VALTYPE> mPrevValArray;
+  FSIM_VALTYPE* mPrevValArray;
+
+  // FFR 数
+  int mFFRNum;
 
   // FFR を納めた配列
-  vector<SimFFR> mFFRArray;
+  // サイズは mFFRNum
+  SimFFR* mFFRArray;
 
   // SimNode->id() をキーにして所属する FFR を納めた配列
-  vector<SimFFR*> mFFRMap;
+  SimFFR** mFFRMap;
 
   // パタンの設定状況を表すビットベクタ
   PackedVal mPatMap;
@@ -419,15 +441,23 @@ private:
   // イベントキュー
   EventQ mEventQ;
 
+  // 故障数
+  int mFaultNum;
+
   // 故障シミュレーション用の故障の配列
-  vector<SimFault> mSimFaults;
+  // サイズは mFaultNum
+  SimFault* mSimFaults;
 
   // TpgFault::id() をキーとして SimFault を格納する配列
-  vector<SimFault*> mFaultArray;
+  SimFault** mFaultArray;
 
   // 検出された故障を格納する配列
-  // サイズは常に mSimFaults.size();
-  vector<FaultPat> mDetFaultArray;
+  // サイズは常に mFaultNum
+  const TpgFault** mDetFaultArray;
+
+  // 故障を検出するビットパタンを格納する配列
+  // サイズは常に mFaultNum
+  PackedVal* mDetPatArray;
 
   // 検出された故障数
   int mDetNum;
@@ -452,7 +482,7 @@ inline
 int
 FSIM_CLASSNAME::ppi_num() const
 {
-  return mPPIArray.size();
+  return mInputNum + mDffNum;
 }
 
 // @brief PPI のノードを返す．
@@ -461,9 +491,78 @@ inline
 SimNode*
 FSIM_CLASSNAME::ppi(int id) const
 {
-  ASSERT_COND( id < ppi_num() );
+  ASSERT_COND( id >= 0 && id < ppi_num() );
 
   return mPPIArray[id];
+}
+
+// @brief 外部入力ノードのリストを返す．
+inline
+Array<SimNode*>
+FSIM_CLASSNAME::input_list() const
+{
+  return Array<SimNode*>(mPPIArray, 0, input_num());
+}
+
+// @brief DFFの出力ノードのリストを返す．
+inline
+Array<SimNode*>
+FSIM_CLASSNAME::dff_output_list() const
+{
+  return Array<SimNode*>(mPPIArray, input_num(), ppi_num());
+}
+
+// @brief PPI のノードのリストを返す．
+inline
+Array<SimNode*>
+FSIM_CLASSNAME::ppi_list() const
+{
+  return Array<SimNode*>(mPPIArray, 0, ppi_num());
+}
+
+// @brief 直前の sppfp/ppsfp で検出された故障数を返す．
+inline
+int
+FSIM_CLASSNAME::det_fault_num()
+{
+  return mDetNum;
+}
+
+// @brief 直前の sppfp/ppsfp で検出された故障を返す．
+// @param[in] pos 位置番号 ( 0 <= pos < det_fault_num() )
+inline
+const TpgFault*
+FSIM_CLASSNAME::det_fault(int pos)
+{
+  ASSERT_COND( pos >= 0 && pos < det_fault_num() );
+
+  return mDetFaultArray[pos];
+}
+
+// @brief 直前の sppfp/ppsfp で検出された故障のリストを返す．
+inline
+Array<const TpgFault*>
+FSIM_CLASSNAME::det_fault_list()
+{
+  return Array<const TpgFault*>(mDetFaultArray, 0, mDetNum);
+}
+
+// @brief 直前の ppsfp で検出された故障の検出ビットパタンを返す．
+// @param[in] pos 位置番号 ( 0 <= pos < det_fault_num() )
+inline
+PackedVal
+FSIM_CLASSNAME::det_fault_pat(int pos)
+{
+  ASSERT_COND( pos >= 0 && pos < det_fault_num() );
+
+  return mDetPatArray[pos];
+}
+
+inline
+Array<PackedVal>
+FSIM_CLASSNAME::det_fault_pat_list()
+{
+  return Array<PackedVal>(mDetPatArray, 0, mDetNum);
 }
 
 BEGIN_NONAMESPACE

@@ -95,11 +95,11 @@ cdef class Fsim :
         self._thisptr.clear_patterns()
 
     ## @brief パタンをバッファにセットする．
-    def set_pattern(Fsim self, ymuint pos, TestVector tv) :
+    def set_pattern(Fsim self, int pos, TestVector tv) :
         self._thisptr.set_pattern(pos, tv._thisptr)
 
     ## @brief バッファのパタンを取り出す．
-    def get_pattern(Fsim self, ymuint pos) :
+    def get_pattern(Fsim self, int pos) :
         cdef const CXX_TestVector* c_tv = self._thisptr.get_pattern(pos)
         return TestVector()
 
@@ -108,10 +108,10 @@ cdef class Fsim :
         return self._thisptr.det_fault_num()
 
     ## @brief 直前の PPSFP で検出された故障を得る．
-    def det_fault(Fsim self, ymuint pos) :
+    def det_fault(Fsim self, int pos) :
         cdef const CXX_TpgFault* c_fault = self._thisptr.det_fault(pos)
         return to_TpgFault(c_fault)
 
     ## @brief 故障を検出しているパタンのビットベクタを返す．
-    def det_fault_pat(Fsim self, ymuint pos) :
+    def det_fault_pat(Fsim self, int pos) :
         return self._thisptr.det_fault_pat(pos)

@@ -24,7 +24,7 @@ bool verbose = false;
 // 故障を検出したときの出力
 void
 print_fault(const TpgFault* f,
-	    ymuint tv_id)
+	    int tv_id)
 {
   if ( verbose ) {
     cout << setw(7) << tv_id << ": " << f->str() << endl;
@@ -32,17 +32,16 @@ print_fault(const TpgFault* f,
 }
 
 // SPSFP のテスト
-pair<ymuint, ymuint>
+pair<int, int>
 spsfp_test(const TpgNetwork& network,
 	   Fsim& fsim,
 	   const vector<const TestVector*>& tv_list)
 {
   vector<bool> mark(network.max_fault_id(), false);
-  ymuint det_num = 0;
-  ymuint nepat = 0;
-  ymuint nv = tv_list.size();
-  for (ymuint i = 0; i < nv; ++ i) {
-    const TestVector* tv = tv_list[i];
+  int det_num = 0;
+  int nepat = 0;
+  int i = 0;
+  for ( auto tv: tv_list ) {
     bool detect = false;
     for ( auto f: network.rep_fault_list() ) {
       if ( mark[f->id()] ) {
@@ -58,63 +57,62 @@ spsfp_test(const TpgNetwork& network,
     if ( detect ) {
       ++ nepat;
     }
+    ++ i;
   }
 
   return make_pair(det_num, nepat);
 }
 
 // SPPFP のテスト
-pair<ymuint, ymuint>
+pair<int, int>
 sppfp_test(Fsim& fsim,
 	   const vector<const TestVector*>& tv_list)
 {
-  ymuint det_num = 0;
-  ymuint nepat = 0;
-  ymuint nv = tv_list.size();
-  for (ymuint i = 0; i < nv; ++ i) {
-    const TestVector* tv = tv_list[i];
-    ymuint n = fsim.sppfp(tv);
+  int det_num = 0;
+  int nepat = 0;
+  int i = 0;
+  for ( auto tv: tv_list ) {
+    int n = fsim.sppfp(tv);
     if ( n > 0 ) {
       det_num += n;
       ++ nepat;
-      for (ymuint j = 0; j < n; ++ j) {
-	const TpgFault* f = fsim.det_fault(j);
+      for ( auto f: fsim.det_fault_list() ) {
 	fsim.set_skip(f);
 	print_fault(f, i);
       }
     }
+    ++ i;
   }
 
   return make_pair(det_num, nepat);
 }
 
 // PPSFP のテスト
-pair<ymuint, ymuint>
+pair<int, int>
 ppsfp_test(Fsim& fsim,
 	   const vector<const TestVector*>& tv_list)
 {
-  ymuint nv = tv_list.size();
+  int nv = tv_list.size();
 
   fsim.clear_patterns();
-  ymuint wpos = 0;
-  ymuint det_num = 0;
-  ymuint nepat = 0;
-  for (ymuint i = 0; i < nv; ++ i) {
-    const TestVector* tv = tv_list[i];
+  int wpos = 0;
+  int det_num = 0;
+  int nepat = 0;
+  for ( auto tv: tv_list ) {
     fsim.set_pattern(wpos, tv);
     ++ wpos;
     if ( wpos == kPvBitLen ) {
-      ymuint n = fsim.ppsfp();
+      int n = fsim.ppsfp();
 
-      ymuint nb = wpos;
+      int nb = wpos;
       PackedVal dpat_all = 0ULL;
       det_num += n;
-      for (ymuint j = 0; j < n; ++ j) {
+      for ( int j = 0; j < n; ++ j ) {
 	const TpgFault* f = fsim.det_fault(j);
 	PackedVal dpat = fsim.det_fault_pat(j);
 	fsim.set_skip(f);
 	// dpat の最初の1のビットを求める．
-	ymuint first = 0;
+	int first = 0;
 	for ( ; first < nb; ++ first) {
 	  if ( dpat & (1ULL << first) ) {
 	    break;
@@ -122,9 +120,9 @@ ppsfp_test(Fsim& fsim,
 	}
 	ASSERT_COND( first < nb );
 	dpat_all |= (1ULL << first);
-	print_fault(f, i - wpos + first + 1);
+	print_fault(f, j - wpos + first + 1);
       }
-      for (ymuint i = 0; i < nb; ++ i) {
+      for ( int i = 0; i < nb; ++ i ) {
 	if ( dpat_all & (1ULL << i) ) {
 	  ++ nepat;
 	}
@@ -134,17 +132,17 @@ ppsfp_test(Fsim& fsim,
     }
   }
   if ( wpos > 0 ) {
-    ymuint n = fsim.ppsfp();
+    int n = fsim.ppsfp();
 
-    ymuint nb = wpos;
+    int nb = wpos;
     PackedVal dpat_all = 0ULL;
     det_num += n;
-    for (ymuint j = 0; j < n; ++ j) {
+    for ( int j = 0; j < n; ++ j ) {
       const TpgFault* f = fsim.det_fault(j);
       PackedVal dpat = fsim.det_fault_pat(j);
       fsim.set_skip(f);
       // dpat の最初の1のビットを求める．
-      ymuint first = 0;
+      int first = 0;
       for ( ; first < nb; ++ first) {
 	if ( dpat & (1ULL << first) ) {
 	  break;
@@ -154,7 +152,7 @@ ppsfp_test(Fsim& fsim,
       dpat_all |= (1ULL << first);
       print_fault(f, nv - wpos + first + 1);
     }
-    for (ymuint i = 0; i < nb; ++ i) {
+    for ( int i = 0; i < nb; ++ i) {
       if ( dpat_all & (1ULL << i) ) {
 	++ nepat;
       }
@@ -172,12 +170,12 @@ ppsfp_test(Fsim& fsim,
 void
 randgen(RandGen& rg,
 	TvMgr& tvmgr,
-	ymuint nv,
+	int nv,
 	vector<const TestVector*>& tv_list)
 {
   tv_list.clear();
   tv_list.resize(nv);
-  for (ymuint i = 0; i < nv; ++ i) {
+  for ( int i = 0; i < nv; ++ i ) {
     TestVector* tv = tvmgr.new_vector();
     tv->set_from_random(rg);
     tv_list[i] = tv;
@@ -194,7 +192,7 @@ int
 fsim2test(int argc,
 	  char** argv)
 {
-  ymuint npat = 0;
+  int npat = 0;
   bool blif = false;
   bool iscas89 = false;
 
@@ -209,7 +207,7 @@ fsim2test(int argc,
 
   argv0 = argv[0];
 
-  ymuint pos = 1;
+  int pos = 1;
   for ( ; pos < argc; ++ pos) {
     if ( argv[pos][0] == '-' ) {
       if ( strcmp(argv[pos], "-n") == 0 ) {
@@ -364,7 +362,7 @@ fsim2test(int argc,
   StopWatch timer;
   timer.start();
 
-  pair<ymuint, ymuint> dpnum;
+  pair<int, int> dpnum;
   if ( ppsfp ) {
     dpnum = ppsfp_test(*fsim, tv_list);
   }
@@ -378,8 +376,8 @@ fsim2test(int argc,
 
   delete fsim;
 
-  ymuint det_num = dpnum.first;
-  ymuint nepat = dpnum.second;
+  int det_num = dpnum.first;
+  int nepat = dpnum.second;
 
   timer.stop();
   USTime time = timer.time();
