@@ -52,15 +52,15 @@ public:
 };
 
 /// @brief 'base' タイプを生成する．
-/// @param[in] fmgr 故障マネージャ
+/// @param[in] fsmgr 故障マネージャ
 DetectOp*
-new_DopBase(TpgFaultMgr& fmgr);
+new_DopBase(FaultStatusMgr& fmgr);
 
 /// @brief 'drop' タイプを生成する．
-/// @param[in] fmgr 故障マネージャ
+/// @param[in] fsmgr 故障マネージャ
 /// @param[in] fsim 故障シミュレータ
 DetectOp*
-new_DopDrop(TpgFaultMgr& fmgr,
+new_DopDrop(FaultStatusMgr& fmgr,
 	    Fsim& fsim);
 
 /// @brief 'tvlist' タイプを生成する．

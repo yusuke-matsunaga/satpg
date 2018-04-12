@@ -43,7 +43,7 @@ set (tpg_network_SOURCES
   tpg_network/TpgLogicXNOR.cc
 
   tpg_network/TpgFault.cc
-  tpg_network/TpgFaultMgr.cc
+  tpg_network/FaultStatusMgr.cc
 
   tvect/BitVector.cc
   tvect/TestVector.cc

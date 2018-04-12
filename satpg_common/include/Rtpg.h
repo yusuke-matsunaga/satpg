@@ -5,7 +5,7 @@
 /// @brief Rtpg のヘッダファイル
 /// @author Yusuke Matsunaga (松永 裕介)
 ///
-/// Copyright (C) 2017 Yusuke Matsunaga
+/// Copyright (C) 2017, 2018 Yusuke Matsunaga
 /// All rights reserved.
 
 
@@ -24,10 +24,12 @@ class Rtpg
 public:
 
   /// @brief コンストラクタ
+  /// @param[in] network 対象のネットワーク
   /// @param[in] tvmgr TvMgr
-  /// @param[in] td_mode 遷移故障モードの時 true にするフラグ
-  Rtpg(TvMgr& tvmgr,
-       bool td_mode);
+  /// @param[in] fault_type 故障の種類
+  Rtpg(const TpgNetwork& network,
+       TvMgr& tvmgr,
+       FaultType fault_type);
 
   /// @brief デストラクタ
   ~Rtpg();
@@ -38,15 +40,14 @@ public:
   // 外部インターフェイス
   //////////////////////////////////////////////////////////////////////
 
+  /// @brief 故障の種類を返す．
+  FaultType
+  fault_type() const;
+
   /// @brief 乱数生成器を初期化する．
   /// @param[in] seed 乱数の種
   void
   randgen_init(ymuint32 seed);
-
-  /// @brief ネットワークを設定する．
-  /// @param[in] network 対象のネットワーク
-  void
-  set_network(const TpgNetwork& network);
 
   /// @brief 1セット(kPvBitLen個)のパタンで故障シミュレーションを行う．
   /// @return 新たに検出された故障数を返す．
@@ -62,16 +63,6 @@ public:
   pattern_list() const;
 
 
-protected:
-  //////////////////////////////////////////////////////////////////////
-  // 継承クラスから用いられる関数
-  //////////////////////////////////////////////////////////////////////
-
-  /// @brief 遷移故障モードの時 true を返す．
-  bool
-  td_mode() const;
-
-
 private:
   //////////////////////////////////////////////////////////////////////
   // 内部で用いられる関数
@@ -83,8 +74,8 @@ private:
   // データメンバ
   //////////////////////////////////////////////////////////////////////
 
-  // 遷移故障モードの時 true にするフラグ
-  bool mTdMode;
+  // 故障の種類
+  FaultType mFaultType;
 
   // 乱数発生器
   RandGen mRandGen;

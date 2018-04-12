@@ -5,7 +5,7 @@
 /// @brief TestVector のヘッダファイル
 /// @author Yusuke Matsunaga (松永 裕介)
 ///
-/// Copyright (C) 2017 Yusuke Matsunaga
+/// Copyright (C) 2017, 2018 Yusuke Matsunaga
 /// All rights reserved.
 
 #include "satpg.h"
@@ -279,12 +279,12 @@ private:
 
   /// @brief コピーコンストラクタ
   /// @param[in] src コピー元のソース
-  TestVector(const TestVector& src);
+  TestVector(const TestVector& src) = delete;
 
   /// @brief 代入演算子
   /// @param[in] src コピー元のソース
   const TestVector&
-  operator=(const TestVector& src);
+  operator=(const TestVector& src) = delete;
 
 
 private:

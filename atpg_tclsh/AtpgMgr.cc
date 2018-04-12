@@ -10,7 +10,7 @@
 #include "AtpgMgr.h"
 #include "TpgNetwork.h"
 #include "TpgFault.h"
-#include "TpgFaultMgr.h"
+#include "FaultStatusMgr.h"
 
 #include "TvMgr.h"
 #include "Fsim.h"
@@ -102,11 +102,11 @@ AtpgMgr::after_set_network()
 
   mSaFsim2 = Fsim::new_Fsim2(_network(), FaultType::StuckAt);
   mSaFsim3 = Fsim::new_Fsim3(_network(), FaultType::StuckAt);
-  mSaFaultMgr = new TpgFaultMgr(_network());
+  mSaFaultMgr = new FaultStatusMgr(_network());
   mSaTvMgr = new TvMgr(_network(), FaultType::StuckAt);
   mTdFsim2 = Fsim::new_Fsim2(_network(), FaultType::TransitionDelay);
   mTdFsim3 = Fsim::new_Fsim3(_network(), FaultType::TransitionDelay);
-  mTdFaultMgr = new TpgFaultMgr(_network());
+  mTdFaultMgr = new FaultStatusMgr(_network());
   mTdTvMgr = new TvMgr(_network(), FaultType::TransitionDelay);
 }
 

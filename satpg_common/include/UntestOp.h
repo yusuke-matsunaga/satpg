@@ -41,9 +41,9 @@ public:
 };
 
 /// @brief 'base' タイプを生成する．
-// @param[in] fmgr 故障マネージャ
+// @param[in] fsmgr 故障マネージャ
 UntestOp*
-new_UopBase(TpgFaultMgr& fmgr);
+new_UopBase(FaultStatusMgr& fmgr);
 
 /// @brief 'skip' タイプを生成する．
 /// @param[in] threshold しきい値

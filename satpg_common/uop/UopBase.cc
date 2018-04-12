@@ -8,17 +8,17 @@
 
 
 #include "UopBase.h"
-#include "TpgFaultMgr.h"
+#include "FaultStatusMgr.h"
 
 
 BEGIN_NAMESPACE_YM_SATPG
 
 // @brief 'base' タイプを生成する．
-// @param[in] fmgr 故障マネージャ
+// @param[in] fsmgr 故障マネージャ
 UntestOp*
-new_UopBase(TpgFaultMgr& fmgr)
+new_UopBase(FaultStatusMgr& fsmgr)
 {
-  return new UopBase(fmgr);
+  return new UopBase(fsmgr);
 }
 
 
@@ -27,9 +27,9 @@ new_UopBase(TpgFaultMgr& fmgr)
 //////////////////////////////////////////////////////////////////////
 
 // @brief コンストラクタ
-// @param[in] fmgr TpgFaultMgr
-UopBase::UopBase(TpgFaultMgr& fmgr) :
-  mMgr(fmgr)
+// @param[in] fsmgr TpgFaultMgr
+UopBase::UopBase(FaultStatusMgr& fsmgr) :
+  mMgr(fsmgr)
 {
 }
 
@@ -43,7 +43,7 @@ UopBase::~UopBase()
 void
 UopBase::operator()(const TpgFault* f)
 {
-  mMgr.set_status(f, FaultStatus::Untestable);
+  mMgr.set(f, FaultStatus::Untestable);
 }
 
 

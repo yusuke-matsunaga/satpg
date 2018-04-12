@@ -11,7 +11,7 @@
 
 #include "satpg.h"
 #include "TpgNetwork.h"
-#include "TpgFaultMgr.h"
+#include "FaultStatusMgr.h"
 #include "Fsim.h"
 #include "Justifier.h"
 #include "DopList.h"
@@ -118,7 +118,7 @@ private:
   const TpgNetwork& mNetwork;
 
   // 故障マネージャ
-  TpgFaultMgr mFaultMgr;
+  FaultStatusMgr mFaultMgr;
 
   // 故障シミュレータ
   Fsim* mFsim;

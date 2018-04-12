@@ -67,7 +67,7 @@ protected:
   _sa_fsim3();
 
   /// @brief 縮退故障用の FaultMgr を取り出す．
-  TpgFaultMgr&
+  FaultStatusMgr&
   _sa_fault_mgr();
 
   /// @brief 縮退故障用の TvMgr を取り出す．
@@ -87,7 +87,7 @@ protected:
   _td_fsim3();
 
   /// @brief 遷移故障用の FaultMgr を取り出す．
-  TpgFaultMgr&
+  FaultStatusMgr&
   _td_fault_mgr();
 
   /// @brief 遷移故障用の TvMgr を取り出す．

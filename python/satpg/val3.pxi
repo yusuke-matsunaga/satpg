@@ -1,10 +1,10 @@
-#
-# @file val3.pxi
-# @brief val3 の cython インターフェイス
-# @author Yusuke Matsunaga (松永 裕介)
-#
-# Copyright (C) 2017 Yusuke Matsunaga
-# All rights reserved.
+
+### @file val3.pxi
+### @brief val3 の cython インターフェイス
+### @author Yusuke Matsunaga (松永 裕介)
+###
+### Copyright (C) 2017, 2018 Yusuke Matsunaga
+### All rights reserved.
 
 from enum import Enum
 from CXX_Val3 cimport Val3 as CXX_Val3

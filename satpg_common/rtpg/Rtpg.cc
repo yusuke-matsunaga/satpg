@@ -3,7 +3,7 @@
 /// @brief Rtpg の実装ファイル
 /// @author Yusuke Matsunaga (松永 裕介)
 ///
-/// Copyright (C) 2017 Yusuke Matsunaga
+/// Copyright (C) 2017, 2018 Yusuke Matsunaga
 /// All rights reserved.
 
 
@@ -16,25 +16,32 @@ BEGIN_NAMESPACE_YM_SATPG
 // クラス Rtpg
 //////////////////////////////////////////////////////////////////////
 
-/// @brief コンストラクタ
-/// @param[in] tvmgr TvMgr
-/// @param[in] td_mode 遷移故障モードの時 true にするフラグ
-Rtpg::Rtpg(TvMgr& tvmgr,
-	   bool td_mode) :
-  mTdMode(td_mode),
+// @brief コンストラクタ
+// @param[in] network 対象のネットワーク
+// @param[in] tvmgr TvMgr
+// @param[in] fault_type 故障の種類
+Rtpg::Rtpg(const TpgNetwork& network,
+	   TvMgr& tvmgr,
+	   FaultType fault_type) :
+  mFaultType(fault_type),
   mTvMgr(tvmgr)
 {
-  mFsim = Fsim::new_Fsim3();
+  mFsim = Fsim::new_Fsim2(network, fault_type);
 
-  for (int i = 0; i < kPvBitLen; ++ i) {
-    tv_array[i] = mTvMgr.new_vector(!mTdMode);
+  for ( int i = 0; i < kPvBitLen; ++ i ) {
+    tv_array[i] = mTvMgr.new_vector();
   }
+
+  mDetFaultList.clear();
+  mPatternList.clear();
 }
 
 // @brief デストラクタ
 Rtpg::~Rtpg()
 {
-  for (int i = 0; i < kPvBitLen; ++ i) {
+  delete mFsim;
+
+  for ( int i = 0; i < kPvBitLen; ++ i ) {
     mTvMgr.delete_vector(tv_array[i]);
   }
 }
@@ -42,20 +49,9 @@ Rtpg::~Rtpg()
 // @brief 乱数生成器を初期化する．
 // @param[in] seed 乱数の種
 void
-Rtpg::randgen_init(int32 seed)
+Rtpg::randgen_init(ymuint32 seed)
 {
   mRandGen.init(seed);
-}
-
-// @brief ネットワークを設定する．
-// @param[in] network 対象のネットワーク
-void
-Rtpg::set_network(const TpgNetwork& network)
-{
-  mFsim->set_network(network);
-
-  mDetFaultList.clear();
-  mPatternList.clear();
 }
 
 // @brief 1セット(kPvBitLen個)のパタンで故障シミュレーションを行う．

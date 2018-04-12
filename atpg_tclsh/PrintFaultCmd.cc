@@ -10,7 +10,7 @@
 #include "PrintFaultCmd.h"
 #include "AtpgMgr.h"
 #include "TpgFault.h"
-#include "TpgFaultMgr.h"
+#include "FaultStatusMgr.h"
 #include "ym/TclPopt.h"
 
 
@@ -87,11 +87,11 @@ PrintFaultCmd::cmd_proc(TclObjVector& objv)
     }
   }
 
-  TpgFaultMgr& fmgr = mPoptTd->is_specified() ? _td_fault_mgr() : _sa_fault_mgr();
+  FaultStatusMgr& fmgr = mPoptTd->is_specified() ? _td_fault_mgr() : _sa_fault_mgr();
 
   const TpgNetwork& network = _network();
   for ( auto f: network.rep_fault_list() ) {
-    if ( fmgr.status(f) == type ) {
+    if ( fmgr.get(f) == type ) {
       out << f->str() << endl;
     }
   }

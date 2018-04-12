@@ -24,8 +24,8 @@ class DopBase :
 public:
 
   /// @brief コンストラクタ
-  /// @param[in] fmgr TpgFaultMgr
-  DopBase(TpgFaultMgr& fmgr);
+  /// @param[in] fsmgr 故障マネージャ
+  DopBase(FaultStatusMgr& fsmgr);
 
   /// @brief デストラクタ
   virtual
@@ -59,8 +59,8 @@ private:
   // データメンバ
   //////////////////////////////////////////////////////////////////////
 
-  // TpgFaultMgr
-  TpgFaultMgr& mMgr;
+  // 故障マネージャ
+  FaultStatusMgr& mFaultStatusMgr;
 
 };
 

@@ -9,7 +9,7 @@
 
 #include "AtpgCmd.h"
 #include "AtpgMgr.h"
-#include "TpgFaultMgr.h"
+#include "FaultStatusMgr.h"
 #include "TpgNetwork.h"
 #include "TpgNode.h"
 #include "TpgFault.h"
@@ -177,7 +177,7 @@ AtpgCmd::after_update_faults()
   int n_untest = 0;
   int n_det = 0;
   for ( auto fault: _network().rep_fault_list() ) {
-    switch ( _sa_fault_mgr().status(fault) ) {
+    switch ( _sa_fault_mgr().get(fault) ) {
     case FaultStatus::Detected:   ++ n_det; break;
     case FaultStatus::Untestable: ++ n_untest; break;
     case FaultStatus::Undetected: ++ n_remain; break;
@@ -254,7 +254,7 @@ AtpgCmd::_sa_fsim3()
 }
 
 // @brief 縮退故障用の FaultMgr を取り出す．
-TpgFaultMgr&
+FaultStatusMgr&
 AtpgCmd::_sa_fault_mgr()
 {
   return mMgr->_sa_fault_mgr();
@@ -289,7 +289,7 @@ AtpgCmd::_td_fsim3()
 }
 
 // @brief 遷移故障用の FaultMgr を取り出す．
-TpgFaultMgr&
+FaultStatusMgr&
 AtpgCmd::_td_fault_mgr()
 {
   return mMgr->_td_fault_mgr();

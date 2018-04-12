@@ -74,7 +74,7 @@ public:
   _sa_fsim3();
 
   /// @brief 縮退故障用の故障マネージャを取り出す．
-  TpgFaultMgr&
+  FaultStatusMgr&
   _sa_fault_mgr();
 
   /// @brief 縮退故障用の TvMgr を取り出す．
@@ -94,7 +94,7 @@ public:
   _td_fsim3();
 
   /// @brief 遷移故障用の故障マネージャを取り出す．
-  TpgFaultMgr&
+  FaultStatusMgr&
   _td_fault_mgr();
 
   /// @brief 遷移故障用の TvMgr を取り出す．
@@ -173,7 +173,7 @@ private:
   Fsim* mSaFsim3;
 
   // 縮退故障用の故障マネージャ
-  TpgFaultMgr* mSaFaultMgr;
+  FaultStatusMgr* mSaFaultMgr;
 
   // 縮退故障用のテストベクタを管理するオブジェクト
   TvMgr* mSaTvMgr;
@@ -188,7 +188,7 @@ private:
   Fsim* mTdFsim3;
 
   // 遷移故障用の故障マネージャ
-  TpgFaultMgr* mTdFaultMgr;
+  FaultStatusMgr* mTdFaultMgr;
 
   // 遷移故障用のテストベクタを管理するオブジェクト
   TvMgr* mTdTvMgr;
@@ -235,7 +235,7 @@ AtpgMgr::_sa_fsim3()
 
 // @brief 縮退故障用の故障マネージャを取り出す．
 inline
-TpgFaultMgr&
+FaultStatusMgr&
 AtpgMgr::_sa_fault_mgr()
 {
   return *mSaFaultMgr;
@@ -275,7 +275,7 @@ AtpgMgr::_td_fsim3()
 
 // @brief 遷移故障用の故障マネージャを取り出す．
 inline
-TpgFaultMgr&
+FaultStatusMgr&
 AtpgMgr::_td_fault_mgr()
 {
   return *mTdFaultMgr;

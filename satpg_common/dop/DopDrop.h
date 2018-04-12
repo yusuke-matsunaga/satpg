@@ -24,9 +24,9 @@ class DopDrop :
 public:
 
   /// @brief コンストラクタ
-  /// @param[in] fmgr 故障マネージャ
+  /// @param[in] fsmgr 故障の状態を管理するクラス
   /// @param[in] fsim 故障シミュレータ
-  DopDrop(TpgFaultMgr& fmgr,
+  DopDrop(FaultStatusMgr& fsmgr,
 	  Fsim& fsim);
 
   /// @brief デストラクタ
@@ -72,8 +72,8 @@ private:
   // データメンバ
   //////////////////////////////////////////////////////////////////////
 
-  // 故障マネージャ
-  TpgFaultMgr& mMgr;
+  // 故障の状態を管理するクラス
+  FaultStatusMgr& mFaultStatusMgr;
 
   // 故障シミュレータ
   Fsim& mFsim;

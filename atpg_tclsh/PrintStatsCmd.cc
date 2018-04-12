@@ -9,7 +9,7 @@
 
 #include "PrintStatsCmd.h"
 #include "TpgNetwork.h"
-#include "TpgFaultMgr.h"
+#include "FaultStatusMgr.h"
 #include "Fsim.h"
 #include "ym/TclPopt.h"
 
@@ -78,7 +78,7 @@ PrintStatsCmd::cmd_proc(TclObjVector& objv)
   USTime s_time = sat_time();
   USTime m_time = misc_time();
 
-  TpgFaultMgr& fmgr = mPoptTd->is_specified() ? _td_fault_mgr() : _sa_fault_mgr();
+  FaultStatusMgr& fmgr = mPoptTd->is_specified() ? _td_fault_mgr() : _sa_fault_mgr();
 
   int n_all = _network().max_fault_id();
   int n_rep = _network().rep_fault_num();
@@ -86,7 +86,7 @@ PrintStatsCmd::cmd_proc(TclObjVector& objv)
   int n_untest = 0;
   int n_det = 0;
   for ( auto fault: _network().rep_fault_list() ) {
-    switch ( fmgr.status(fault) ) {
+    switch ( fmgr.get(fault) ) {
     case FaultStatus::Detected:   ++ n_det; break;
     case FaultStatus::Untestable: ++ n_untest; break;
     case FaultStatus::Undetected: ++ n_remain; break;

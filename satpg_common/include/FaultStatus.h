@@ -22,22 +22,19 @@ enum class FaultStatus {
   /// @brief 検出
   Detected,
   /// @brief テスト不能 (冗長)
-  Untestable,
-  /// @brief アボート
-  Aborted
+  Untestable
 };
 
 
 /// @brief 内容を表す文字列を返す．
 inline
 const char*
-str(FaultStatus fs)
+str(FaultStatus fault_status)
 {
-  switch ( fs ) {
+  switch ( fault_status ) {
   case FaultStatus::Undetected: return "undetected";
   case FaultStatus::Detected:   return "detected";
   case FaultStatus::Untestable: return "untestable";
-  case FaultStatus::Aborted:    return "aborted";
   default: break;
   }
   ASSERT_NOT_REACHED;

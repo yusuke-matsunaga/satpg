@@ -12,7 +12,7 @@
 #include "TpgMFFC.h"
 #include "TpgFFR.h"
 #include "TpgFault.h"
-#include "TpgFaultMgr.h"
+//#include "FaultMgr.h"
 #include "NodeValList.h"
 #include "Fsim.h"
 #include "DopVerifyResult.h"

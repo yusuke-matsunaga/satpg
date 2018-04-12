@@ -8,20 +8,20 @@
 
 
 #include "DopDrop.h"
-#include "TpgFaultMgr.h"
+#include "FaultStatusMgr.h"
 #include "Fsim.h"
 
 
 BEGIN_NAMESPACE_YM_SATPG
 
 // @brief 'drop' タイプを生成する．
-// @param[in] fmgr 故障マネージャ
+// @param[in] fsmgr 故障マネージャ
 // @param[in] fsim 故障シミュレータ
 DetectOp*
-new_DopDrop(TpgFaultMgr& fmgr,
+new_DopDrop(FaultStatusMgr& fsmgr,
 	    Fsim& fsim)
 {
-  return new DopDrop(fmgr, fsim);
+  return new DopDrop(fsmgr, fsim);
 }
 
 
@@ -30,11 +30,11 @@ new_DopDrop(TpgFaultMgr& fmgr,
 //////////////////////////////////////////////////////////////////////
 
 // @brief コンストラクタ
-// @param[in] fmgr 故障マネージャ
+// @param[in] fsmgr 故障の状態を管理するクラス
 // @param[in] fsim 故障シミュレータ
-DopDrop::DopDrop(TpgFaultMgr& fmgr,
+DopDrop::DopDrop(FaultStatusMgr& fsmgr,
 		 Fsim& fsim) :
-  mMgr(fmgr),
+  mFaultStatusMgr(fsmgr),
   mFsim(fsim)
 {
 }
@@ -71,9 +71,8 @@ DopDrop::operator()(const TpgFault* f,
 void
 DopDrop::common(int n)
 {
-  for (int i = 0; i < n; ++ i) {
-    const TpgFault* f = mFsim.det_fault(i);
-    mMgr.set_status(f, FaultStatus::Detected);
+  for ( auto f: mFsim.det_fault_list() ) {
+    mFaultStatusMgr.set(f, FaultStatus::Detected);
     mFsim.set_skip(f);
   }
 }

@@ -8,17 +8,17 @@
 
 
 #include "DopBase.h"
-#include "TpgFaultMgr.h"
+#include "FaultStatusMgr.h"
 
 
 BEGIN_NAMESPACE_YM_SATPG
 
 // @brief 'base' タイプを生成する．
-// @param[in] fmgr FaultMgr
+// @param[in] fsmgr 故障マネージャ
 DetectOp*
-new_DopBase(TpgFaultMgr& fmgr)
+new_DopBase(FaultStatusMgr& fsmgr)
 {
-  return new DopBase(fmgr);
+  return new DopBase(fsmgr);
 }
 
 
@@ -27,9 +27,9 @@ new_DopBase(TpgFaultMgr& fmgr)
 //////////////////////////////////////////////////////////////////////
 
 // @brief コンストラクタ
-// @param[in] fmgr FaultMgr
-DopBase::DopBase(TpgFaultMgr& fmgr) :
-  mMgr(fmgr)
+// @param[in] fsmgr 故障マネージャ
+DopBase::DopBase(FaultStatusMgr& fsmgr) :
+  mFaultStatusMgr(fsmgr)
 {
 }
 
@@ -46,7 +46,7 @@ DopBase::operator()(const TpgFault* f,
 		    const NodeValList& assign_list)
 
 {
-  mMgr.set_status(f, FaultStatus::Detected);
+  mFaultStatusMgr.set(f, FaultStatus::Detected);
 }
 
 // @brief テストパタンが見つかった時の処理
@@ -56,7 +56,7 @@ void
 DopBase::operator()(const TpgFault* f,
 		    const TestVector* tv)
 {
-  mMgr.set_status(f, FaultStatus::Detected);
+  mFaultStatusMgr.set(f, FaultStatus::Detected);
 }
 
 END_NAMESPACE_YM_SATPG

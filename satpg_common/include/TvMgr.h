@@ -5,7 +5,7 @@
 /// @brief TvMgr のヘッダファイル
 /// @author Yusuke Matsunaga (松永 裕介)
 ///
-/// Copyright (C) 2017 Yusuke Matsunaga
+/// Copyright (C) 2017, 2018 Yusuke Matsunaga
 /// All rights reserved.
 
 #include "satpg.h"
@@ -28,6 +28,13 @@ public:
   /// @param[in] fault_type 故障のタイプ
   TvMgr(const TpgNetwork& network,
 	FaultType fault_type);
+
+  /// @brief コピーコンストラクタは禁止
+  TvMgr(const TvMgr& src) = delete;
+
+  /// @brief 代入演算子は禁止
+  const TvMgr&
+  operator=(const TvMgr& src) = delete;
 
   /// @brief デストラクタ
   ///
@@ -91,23 +98,6 @@ private:
   //////////////////////////////////////////////////////////////////////
   // 内部で用いられる関数
   //////////////////////////////////////////////////////////////////////
-
-
-private:
-  //////////////////////////////////////////////////////////////////////
-  // 使用禁止にするためのプライベート宣言
-  //////////////////////////////////////////////////////////////////////
-
-  /// @brief コピーコンストラクタ
-  ///
-  /// 使用禁止なので実装しない．
-  TvMgr(const TvMgr& src);
-
-  /// @brief 代入演算子
-  ///
-  /// 使用禁止なので実装しない．
-  const TvMgr&
-  operator=(const TvMgr& src);
 
 
 private:
