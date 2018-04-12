@@ -42,6 +42,13 @@ protected:
   /// @param[in] id ID番号
   TpgNode(int id);
 
+  /// @brief コピーコンストラクタは禁止
+  TpgNode(const TpgNode& src) = delete;
+
+  /// @brief 代入演算子も禁止
+  const TpgNode&
+  operator=(const TpgNode& src) = delete;
+
   /// @brief デストラクタ
   virtual
   ~TpgNode();

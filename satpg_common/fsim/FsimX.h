@@ -602,16 +602,16 @@ PackedVal
 FSIM_CLASSNAME::_fault_prop(SimFault* fault)
 {
   // 故障の活性化条件を求める．
-  PackedVal cval = _fault_cond(fault);
+  auto cval = _fault_cond(fault);
 
   // FFR 内の故障伝搬を行う．
-  PackedVal lobs = _ffr_prop(fault);
+  auto lobs = _ffr_prop(fault);
 
 #if FSIM_SA
   return cval & lobs;
 #elif FSIM_TD
   // 1時刻前の条件を求める．
-  PackedVal pval = _fault_prev_cond(fault);
+  auto pval = _fault_prev_cond(fault);
 
   return lobs & cval & pval;
 #else
@@ -625,20 +625,20 @@ inline
 PackedVal
 FSIM_CLASSNAME::_ffr_prop(SimFault* fault)
 {
-  PackedVal lobs = kPvAll1;
+  auto lobs = kPvAll1;
 
-  SimNode* f_node = fault->mNode;
-  for (SimNode* node = f_node; !node->is_ffr_root(); ) {
-    SimNode* onode = node->fanout_top();
-    int pos = node->fanout_ipos();
+  auto f_node = fault->mNode;
+  for ( auto node = f_node; !node->is_ffr_root(); ) {
+    auto onode = node->fanout_top();
+    auto pos = node->fanout_ipos();
     lobs &= onode->_calc_gobs(pos);
     node = onode;
   }
 
-  const TpgFault* f = fault->mOrigF;
+  auto f = fault->mOrigF;
   if ( f->is_branch_fault() ) {
     // 入力の故障
-    int ipos = fault->mIpos;
+    auto ipos = fault->mIpos;
     lobs &= f_node->_calc_gobs(ipos);
   }
 
@@ -652,10 +652,10 @@ PackedVal
 FSIM_CLASSNAME::_fault_cond(SimFault* fault)
 {
   // 故障の入力側のノードの値
-  FSIM_VALTYPE ival = fault->mInode->val();
+  auto ival = fault->mInode->val();
 
   // それが故障値と異なっていることが条件
-  PackedVal valdiff = _fault_diff(fault->mOrigF, ival);
+  auto valdiff = _fault_diff(fault->mOrigF, ival);
 
   return valdiff;
 }
@@ -667,8 +667,8 @@ PackedVal
 FSIM_CLASSNAME::_fault_prev_cond(SimFault* fault)
 {
   // １時刻前の値が故障値と同じである必要がある．
-  FSIM_VALTYPE pval = mPrevValArray[fault->mInode->id()];
-  PackedVal valeq = _fault_eq(fault->mOrigF, pval);
+  auto pval = mPrevValArray[fault->mInode->id()];
+  auto valeq = _fault_eq(fault->mOrigF, pval);
 
   return valeq;
 }
@@ -691,7 +691,7 @@ FSIM_CLASSNAME::_prop_sim(SimNode* root,
 
   // それ以外はイベントドリヴンシミュレーションを行う．
   mEventQ.put_trigger(root, obs_mask, true);
-  PackedVal obs = mEventQ.simulate();
+  auto obs = mEventQ.simulate();
 
   return obs;
 }

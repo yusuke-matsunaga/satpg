@@ -18,7 +18,7 @@ BEGIN_NAMESPACE_YM_SATPG_FSIM
 //////////////////////////////////////////////////////////////////////
 
 // @brief コンストラクタ
-SnBuff::SnBuff(ymuint id,
+SnBuff::SnBuff(int id,
 	       const vector<SimNode*>& inputs) :
   SnGate1(id, inputs)
 {
@@ -40,13 +40,12 @@ SnBuff::gate_type() const
 FSIM_VALTYPE
 SnBuff::_calc_val()
 {
-  FSIM_VALTYPE val = _fanin()->val();
-  return val;
+  return _fanin()->val();
 }
 
 // @brief ゲートの入力から出力までの可観測性を計算する．
 PackedVal
-SnBuff::_calc_gobs(ymuint ipos)
+SnBuff::_calc_gobs(int ipos)
 {
   return kPvAll1;
 }
@@ -57,7 +56,7 @@ SnBuff::_calc_gobs(ymuint ipos)
 //////////////////////////////////////////////////////////////////////
 
 // @brief コンストラクタ
-SnNot::SnNot(ymuint id,
+SnNot::SnNot(int id,
 	     const vector<SimNode*>& inputs) :
   SnBuff(id, inputs)
 {
@@ -79,8 +78,7 @@ SnNot::gate_type() const
 FSIM_VALTYPE
 SnNot::_calc_val()
 {
-  FSIM_VALTYPE val = _fanin()->val();
-  return ~val;
+  return ~_fanin()->val();
 }
 
 END_NAMESPACE_YM_SATPG_FSIM

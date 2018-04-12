@@ -36,6 +36,13 @@ public:
   /// @brief コンストラクタ
   TpgFFR();
 
+  /// @brief コピーコンストラクタは禁止
+  TpgFFR(const TpgFFR& src) = delete;
+
+  /// @brief 代入演算子も禁止
+  const TpgFFR&
+  operator=(const TpgFFR& src) = delete;
+
   /// @brief デストラクタ
   ~TpgFFR();
 

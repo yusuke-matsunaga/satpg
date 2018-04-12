@@ -73,8 +73,7 @@ void
 Fsim::set_skip(const vector<const TpgFault*>& fault_list)
 {
   clear_skip_all();
-  for (ymuint i = 0; i < fault_list.size(); ++ i) {
-    const TpgFault* f = fault_list[i];
+  for ( auto f: fault_list ) {
     set_skip(f);
   }
 }
@@ -87,8 +86,7 @@ void
 Fsim::clear_skip(const vector<const TpgFault*>& fault_list)
 {
   set_skip_all();
-  for (ymuint i = 0; i < fault_list.size(); ++ i) {
-    const TpgFault* f = fault_list[i];
+  for ( auto f: fault_list ) {
     clear_skip(f);
   }
 }

@@ -24,7 +24,7 @@ class SnXor :
 public:
 
   /// @brief コンストラクタ
-  SnXor(ymuint id,
+  SnXor(int id,
 	const vector<SimNode*>& inputs);
 
   /// @brief デストラクタ
@@ -53,7 +53,17 @@ public:
   /// @brief ゲートの入力から出力までの可観測性を計算する．
   virtual
   PackedVal
-  _calc_gobs(ymuint ipos);
+  _calc_gobs(int ipos);
+
+
+protected:
+  //////////////////////////////////////////////////////////////////////
+  // 内部で用いられる関数
+  //////////////////////////////////////////////////////////////////////
+
+  /// @brief ファンインの値のXORを計算する．
+  FSIM_VALTYPE
+  _calc_xor();
 
 };
 
@@ -68,7 +78,7 @@ class SnXor2 :
 public:
 
   /// @brief コンストラクタ
-  SnXor2(ymuint id,
+  SnXor2(int id,
 	 const vector<SimNode*>& inputs);
 
   /// @brief デストラクタ
@@ -97,7 +107,17 @@ public:
   /// @brief ゲートの入力から出力までの可観測性を計算する．
   virtual
   PackedVal
-  _calc_gobs(ymuint ipos);
+  _calc_gobs(int ipos);
+
+
+protected:
+  //////////////////////////////////////////////////////////////////////
+  // 内部で用いられる関数
+  //////////////////////////////////////////////////////////////////////
+
+  /// @brief ファンインの値のXORを計算する．
+  FSIM_VALTYPE
+  _calc_xor();
 
 };
 
@@ -112,7 +132,7 @@ class SnXnor :
 public:
 
   /// @brief コンストラクタ
-  SnXnor(ymuint id,
+  SnXnor(int id,
 	 const vector<SimNode*>& inputs);
 
   /// @brief デストラクタ
@@ -151,7 +171,7 @@ class SnXnor2 :
 public:
 
   /// @brief コンストラクタ
-  SnXnor2(ymuint id,
+  SnXnor2(int id,
 	  const vector<SimNode*>& inputs);
 
   /// @brief デストラクタ

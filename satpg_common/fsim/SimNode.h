@@ -29,13 +29,22 @@ BEGIN_NAMESPACE_YM_SATPG_FSIM
 class SimNode
 {
   friend class EventQ;
+
 protected:
 
   /// @brief コンストラクタ
-  SimNode(ymuint id);
+  /// @param[in] id ノード番号
+  SimNode(int id);
 
 
 public:
+
+  /// @brief コピーコンストラクタは禁止
+  SimNode(const SimNode& src) = delete;
+
+  /// @brief 代入演算子も禁止
+  const SimNode&
+  operator=(const SimNode& src) = delete;
 
   /// @brief デストラクタ
   virtual
@@ -48,14 +57,18 @@ public:
   //////////////////////////////////////////////////////////////////////
 
   /// @brief 入力ノードを生成するクラスメソッド
+  /// @param[in] id ノード番号
   static
   SimNode*
-  new_input(ymuint id);
+  new_input(int id);
 
   /// @brief 論理ノードを生成するクラスメソッド
+  /// @param[in] id ノード番号
+  /// @param[in] type ゲートの種類
+  /// @param[in] inputs ファンインのノードのリスト
   static
   SimNode*
-  new_gate(ymuint id,
+  new_gate(int id,
 	   GateType type,
 	   const vector<SimNode*>& inputs);
 
@@ -66,7 +79,7 @@ public:
   //////////////////////////////////////////////////////////////////////
 
   /// @brief ID番号を返す．
-  ymuint
+  int
   id() const;
 
   /// @brief ゲートタイプを返す．
@@ -76,16 +89,16 @@ public:
 
   /// @brief ファンイン数を得る．
   virtual
-  ymuint
+  int
   fanin_num() const = 0;
 
   /// @brief pos 番めのファンインを得る．
   virtual
   SimNode*
-  fanin(ymuint pos) const = 0;
+  fanin(int pos) const = 0;
 
   /// @brief ファンアウト数を得る．
-  ymuint
+  int
   fanout_num() const;
 
   /// @brief ファンアウトの先頭のノードを得る．
@@ -93,7 +106,7 @@ public:
   fanout_top() const;
 
   /// @brief 最初のファンアウト先の入力位置を得る．
-  ymuint
+  int
   fanout_ipos() const;
 
   /// @brief pos 番目のファンアウトを得る．
@@ -101,7 +114,7 @@ public:
   ///
   /// ただし fanout_num() == 1 の時は使えない．
   SimNode*
-  fanout(ymuint pos) const;
+  fanout(int pos) const;
 
   /// @brief FFR の根のノードの時 true を返す．
   bool
@@ -112,7 +125,7 @@ public:
   ffr_root();
 
   /// @brief レベルを得る．
-  ymuint
+  int
   level() const;
 
   /// @brief 出力ノードの時 true を返す．
@@ -137,7 +150,7 @@ public:
   /// @brief ファンアウトリストを作成する．
   void
   set_fanout_list(const vector<SimNode*>& fo_list,
-		  ymuint ipos);
+		  int ipos);
 
   /// @brief FFR の根の印をつける．
   void
@@ -191,7 +204,7 @@ public:
   /// @brief ゲートの入力から出力までの可観測性を計算する．
   virtual
   PackedVal
-  _calc_gobs(ymuint ipos) = 0;
+  _calc_gobs(int ipos) = 0;
 
 
 protected:
@@ -201,7 +214,7 @@ protected:
 
   /// @brief レベルを設定する．
   void
-  set_level(ymuint level);
+  set_level(int level);
 
 
 private:
@@ -240,7 +253,7 @@ private:
   //////////////////////////////////////////////////////////////////////
 
   // ID 番号
-  ymuint mId;
+  int mId;
 
   // ファンアウトリストの要素数
   // その他以下の情報もパックして持つ．
@@ -250,13 +263,13 @@ private:
   // - 3      : 反転フラグ
   // - 4 - 15 : 最初のファンアウトの入力位置(FFR内のノードのみ意味を持つ)
   // - 16 -   : ファンアウト数
-  ymuint mFanoutNum;
+  unsigned int mFanoutNum;
 
   // ファンアウトの先頭のノード
   SimNode* mFanoutTop;
 
   // レベル
-  ymuint mLevel;
+  int mLevel;
 
   // イベントキューの次の要素
   SimNode* mLink;
@@ -273,7 +286,7 @@ private:
 
 // @brief ID番号を返す．
 inline
-ymuint
+int
 SimNode::id() const
 {
   return mId;
@@ -281,10 +294,10 @@ SimNode::id() const
 
 // @brief ファンアウト数を得る．
 inline
-ymuint
+int
 SimNode::fanout_num() const
 {
-  return mFanoutNum >> 16;
+  return static_cast<int>(mFanoutNum >> 16);
 }
 
 // @brief ファンアウトの先頭のノードを得る．
@@ -298,7 +311,7 @@ SimNode::fanout_top() const
 // @brief pos 番目のファンアウトを得る．
 inline
 SimNode*
-SimNode::fanout(ymuint pos) const
+SimNode::fanout(int pos) const
 {
   SimNode** fanouts = reinterpret_cast<SimNode**>(mFanoutTop);
   return fanouts[pos];
@@ -306,10 +319,10 @@ SimNode::fanout(ymuint pos) const
 
 // @brief 最初のファンアウト先の入力位置を得る．
 inline
-ymuint
+int
 SimNode::fanout_ipos() const
 {
-  return (mFanoutNum >> 4) & 0x0FFFU;
+  return static_cast<int>((mFanoutNum >> 4) & 0x0FFFU);
 }
 
 // @brief FFR の根のノードの時 true を返す．
@@ -335,7 +348,7 @@ SimNode::ffr_root()
 
 // @brief レベルを得る．
 inline
-ymuint
+int
 SimNode::level() const
 {
   return mLevel;

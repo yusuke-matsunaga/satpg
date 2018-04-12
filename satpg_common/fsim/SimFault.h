@@ -5,7 +5,7 @@
 /// @brief SimFault のヘッダファイル
 /// @author Yusuke Matsunaga (松永 裕介)
 ///
-/// Copyright (C) 2016 Yusuke Matsunaga
+/// Copyright (C) 2016, 2018 Yusuke Matsunaga
 /// All rights reserved.
 
 #include "fsim_nsdef.h"
@@ -19,8 +19,26 @@ class SimNode;
 /// @class SimFault SimFault.h "SimFault.h"
 /// @brief 故障シミュレーション用の故障関係のデータ構造
 //////////////////////////////////////////////////////////////////////
-struct SimFault
+class SimFault
 {
+public:
+
+  /// @brief 空のコンストラクタ
+  SimFault() = default;
+
+  /// @brief コピーコンストラクタは禁止
+  SimFault(const SimFault& src) = delete;
+
+  /// @brief 代入演算子も禁止
+  const SimFault&
+  operator=(const SimFault& src) = delete;
+
+  /// @brief デストラクタ
+  ~SimFault() = default;
+
+
+public:
+
   /// @brief 内容を設定する便利関数
   /// @param[in] f オリジナルの故障
   /// @param[in] node 対応する SimNode
@@ -30,7 +48,7 @@ struct SimFault
   void
   set(const TpgFault* f,
       SimNode* node,
-      ymuint ipos,
+      int ipos,
       SimNode* inode)
   {
     mOrigF = f;
@@ -40,6 +58,12 @@ struct SimFault
     mSkip = true;
   }
 
+
+public:
+  //////////////////////////////////////////////////////////////////////
+  // データメンバ
+  //////////////////////////////////////////////////////////////////////
+
   // 元の故障
   const TpgFault* mOrigF;
 
@@ -47,7 +71,7 @@ struct SimFault
   SimNode* mNode;
 
   // 入力の故障の場合の入力位置
-  ymuint mIpos;
+  int mIpos;
 
   // 入力の故障の場合の入力のゲート
   SimNode* mInode;

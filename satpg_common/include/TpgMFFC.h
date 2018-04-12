@@ -35,6 +35,13 @@ public:
   /// @brief コンストラクタ
   TpgMFFC();
 
+  /// @brief コピーコンストラクタは禁止
+  TpgMFFC(const TpgMFFC& src) = delete;
+
+  /// @brief 代入演算子も禁止
+  const TpgMFFC&
+  operator=(const TpgMFFC& src) = delete;
+
   /// @brief デストラクタ
   ~TpgMFFC();
 

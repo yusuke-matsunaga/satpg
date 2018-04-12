@@ -13,8 +13,8 @@
 #include "SnAnd.h"
 #include "SnOr.h"
 #include "SnXor.h"
-
 #include "GateType.h"
+#include "ym/Range.h"
 
 
 BEGIN_NAMESPACE_YM_SATPG_FSIM
@@ -24,7 +24,7 @@ BEGIN_NAMESPACE_YM_SATPG_FSIM
 //////////////////////////////////////////////////////////////////////
 
 // コンストラクタ
-SimNode::SimNode(ymuint id) :
+SimNode::SimNode(int id) :
   mId(id),
   mFanoutNum(0),
   mFanoutTop(nullptr),
@@ -36,34 +36,36 @@ SimNode::SimNode(ymuint id) :
 SimNode::~SimNode()
 {
   if ( fanout_num() > 1 ) {
-    SimNode** fanouts = reinterpret_cast<SimNode**>(mFanoutTop);
+    auto fanouts = reinterpret_cast<SimNode**>(mFanoutTop);
     delete [] fanouts;
   }
 }
 
 // @brief 入力ノードを生成するクラスメソッド
 SimNode*
-SimNode::new_input(ymuint id)
+SimNode::new_input(int id)
 {
   return new SnInput(id);
 }
 
 // @brief ゲートを生成するクラスメソッド
 SimNode*
-SimNode::new_gate(ymuint id,
+SimNode::new_gate(int id,
 		  GateType type,
 		  const vector<SimNode*>& inputs)
 {
   SimNode* node = nullptr;
-  ymuint ni = inputs.size();
+  auto ni = inputs.size();
   switch ( type ) {
   case GateType::Buff:
-    ASSERT_COND(ni == 1 );
+    ASSERT_COND( ni == 1 );
+
     node = new SnBuff(id, inputs);
     break;
 
   case GateType::Not:
-    ASSERT_COND(ni == 1 );
+    ASSERT_COND( ni == 1 );
+
     node = new SnNot(id, inputs);
     break;
 
@@ -125,7 +127,7 @@ SimNode::new_gate(ymuint id,
 
 // @brief レベルを設定する．
 void
-SimNode::set_level(ymuint level)
+SimNode::set_level(int level)
 {
   mLevel = level;
 }
@@ -133,16 +135,16 @@ SimNode::set_level(ymuint level)
 // @brief ファンアウトリストを作成する．
 void
 SimNode::set_fanout_list(const vector<SimNode*>& fo_list,
-			 ymuint ipos)
+			 int ipos)
 {
-  ymuint nfo = fo_list.size();
+  auto nfo = fo_list.size();
   if ( nfo > 0 ) {
     if ( nfo == 1 ) {
       mFanoutTop = fo_list[0];
     }
     else {
       SimNode** fanouts = new SimNode*[nfo];
-      for (ymuint i = 0; i < nfo; ++ i) {
+      for ( auto i: Range(0, nfo) ) {
 	fanouts[i] = fo_list[i];
       }
       mFanoutTop = reinterpret_cast<SimNode*>(fanouts);

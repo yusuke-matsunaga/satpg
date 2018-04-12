@@ -24,7 +24,7 @@ class SnGate :
 protected:
 
   /// @brief コンストラクタ
-  SnGate(ymuint id,
+  SnGate(int id,
 	 const vector<SimNode*>& inputs);
 
   /// @brief デストラクタ
@@ -39,18 +39,18 @@ public:
 
   /// @brief ファンイン数を得る．
   virtual
-  ymuint
-  fanin_num() const;
+  int
+  fanin_num() const override;
 
   /// @brief pos 番めのファンインを得る．
   virtual
   SimNode*
-  fanin(ymuint pos) const;
+  fanin(int pos) const override;
 
   /// @brief 内容をダンプする．
   virtual
   void
-  dump(ostream& s) const;
+  dump(ostream& s) const override;
 
 
 protected:
@@ -59,12 +59,12 @@ protected:
   //////////////////////////////////////////////////////////////////////
 
   /// @brief ファンイン数を得る．
-  ymuint
+  int
   _fanin_num() const;
 
   /// @brief pos 番めのファンインを得る．
   SimNode*
-  _fanin(ymuint pos) const;
+  _fanin(int pos) const;
 
 
 private:
@@ -73,7 +73,7 @@ private:
   //////////////////////////////////////////////////////////////////////
 
   // 入力数
-  ymuint mFaninNum;
+  int mFaninNum;
 
   // ファンインの配列
   SimNode** mFanins;
@@ -91,7 +91,7 @@ class SnGate1 :
 protected:
 
   /// @brief コンストラクタ
-  SnGate1(ymuint id,
+  SnGate1(int id,
 	  const vector<SimNode*>& inputs);
 
   /// @brief デストラクタ
@@ -103,18 +103,18 @@ public:
 
   /// @brief ファンイン数を得る．
   virtual
-  ymuint
-  fanin_num() const;
+  int
+  fanin_num() const override;
 
   /// @brief pos 番めのファンインを得る．
   virtual
   SimNode*
-  fanin(ymuint pos) const;
+  fanin(int pos) const override;
 
   /// @brief 内容をダンプする．
   virtual
   void
-  dump(ostream& s) const;
+  dump(ostream& s) const override;
 
 
 protected:
@@ -148,7 +148,7 @@ class SnGate2 :
 protected:
 
   /// @brief コンストラクタ
-  SnGate2(ymuint id,
+  SnGate2(int id,
 	  const vector<SimNode*>& inputs);
 
   /// @brief デストラクタ
@@ -160,18 +160,18 @@ public:
 
   /// @brief ファンイン数を得る．
   virtual
-  ymuint
-  fanin_num() const;
+  int
+  fanin_num() const override;
 
   /// @brief pos 番めのファンインを得る．
   virtual
   SimNode*
-  fanin(ymuint pos) const;
+  fanin(int pos) const override;
 
   /// @brief 内容をダンプする．
   virtual
   void
-  dump(ostream& s) const;
+  dump(ostream& s) const override;
 
 
 protected:
@@ -181,7 +181,7 @@ protected:
 
   /// @brief pos 番めのファンインを得る．
   SimNode*
-  _fanin(ymuint pos) const;
+  _fanin(int pos) const;
 
 
 private:
@@ -205,7 +205,7 @@ class SnGate3 :
 protected:
 
   /// @brief コンストラクタ
-  SnGate3(ymuint id,
+  SnGate3(int id,
 	  const vector<SimNode*>& inputs);
 
   /// @brief デストラクタ
@@ -217,18 +217,18 @@ public:
 
   /// @brief ファンイン数を得る．
   virtual
-  ymuint
-  fanin_num() const;
+  int
+  fanin_num() const override;
 
   /// @brief pos 番めのファンインを得る．
   virtual
   SimNode*
-  fanin(ymuint pos) const;
+  fanin(int pos) const override;
 
   /// @brief 内容をダンプする．
   virtual
   void
-  dump(ostream& s) const;
+  dump(ostream& s) const override;
 
 
 protected:
@@ -238,7 +238,7 @@ protected:
 
   /// @brief pos 番めのファンインを得る．
   SimNode*
-  _fanin(ymuint pos) const;
+  _fanin(int pos) const;
 
 
 private:
@@ -262,7 +262,7 @@ class SnGate4 :
 protected:
 
   /// @brief コンストラクタ
-  SnGate4(ymuint id,
+  SnGate4(int id,
 	  const vector<SimNode*>& inputs);
 
   /// @brief デストラクタ
@@ -274,18 +274,18 @@ public:
 
   /// @brief ファンイン数を得る．
   virtual
-  ymuint
-  fanin_num() const;
+  int
+  fanin_num() const override;
 
   /// @brief pos 番めのファンインを得る．
   virtual
   SimNode*
-  fanin(ymuint pos) const;
+  fanin(int pos) const override;
 
   /// @brief 内容をダンプする．
   virtual
   void
-  dump(ostream& s) const;
+  dump(ostream& s) const override;
 
 
 protected:
@@ -295,7 +295,7 @@ protected:
 
   /// @brief pos 番めのファンインを得る．
   SimNode*
-  _fanin(ymuint pos) const;
+  _fanin(int pos) const;
 
 
 private:
@@ -315,7 +315,7 @@ private:
 
 // @brief ファンイン数を得る．
 inline
-ymuint
+int
 SnGate::_fanin_num() const
 {
   return mFaninNum;
@@ -324,7 +324,7 @@ SnGate::_fanin_num() const
 // @brief pos 番めのファンインを得る．
 inline
 SimNode*
-SnGate::_fanin(ymuint pos) const
+SnGate::_fanin(int pos) const
 {
   return mFanins[pos];
 }
@@ -340,7 +340,7 @@ SnGate1::_fanin() const
 // @brief pos 番めのファンインを得る．
 inline
 SimNode*
-SnGate2::_fanin(ymuint pos) const
+SnGate2::_fanin(int pos) const
 {
   return mFanins[pos];
 }
@@ -348,7 +348,7 @@ SnGate2::_fanin(ymuint pos) const
 // @brief pos 番めのファンインを得る．
 inline
 SimNode*
-SnGate3::_fanin(ymuint pos) const
+SnGate3::_fanin(int pos) const
 {
   return mFanins[pos];
 }
@@ -356,7 +356,7 @@ SnGate3::_fanin(ymuint pos) const
 // @brief pos 番めのファンインを得る．
 inline
 SimNode*
-SnGate4::_fanin(ymuint pos) const
+SnGate4::_fanin(int pos) const
 {
   return mFanins[pos];
 }

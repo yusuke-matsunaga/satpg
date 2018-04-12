@@ -187,7 +187,7 @@ private:
 
   // mPatMap の最初の1のビット位置
   // 全て０の場合には kPvBitLen が入る．
-  ymuint mPatFirstBit;
+  int mPatFirstBit;
 
   // テストベクタの配列
   const TestVector* mPatArray[kPvBitLen];

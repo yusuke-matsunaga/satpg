@@ -5,12 +5,13 @@
 /// @brief EventQ のヘッダファイル
 /// @author Yusuke Matsunaga (松永 裕介)
 ///
-/// Copyright (C) 2016 Yusuke Matsunaga
+/// Copyright (C) 2016, 2018 Yusuke Matsunaga
 /// All rights reserved.
 
 
 #include "fsim_nsdef.h"
 #include "SimNode.h"
+#include "ym/Range.h"
 
 
 BEGIN_NAMESPACE_YM_SATPG_FSIM
@@ -43,8 +44,8 @@ public:
   /// @param[in] max_level 最大レベル
   /// @param[in] node_num ノード数
   void
-  init(ymuint max_level,
-       ymuint node_num);
+  init(int max_level,
+       int node_num);
 
   /// @brief 初期イベントを追加する．
   /// @param[in] node 対象のノード
@@ -123,25 +124,25 @@ private:
   //////////////////////////////////////////////////////////////////////
 
   // mArray のサイズ
-  ymuint mArraySize;
+  int mArraySize;
 
   // キューの先頭ノードの配列
   SimNode** mArray;
 
   // 現在のレベル．
-  ymuint mCurLevel;
+  int mCurLevel;
 
   // キューに入っているノード数
-  ymuint mNum;
+  int mNum;
 
   // mCearArray のサイズ
-  ymuint mClearArraySize;
+  int mClearArraySize;
 
   // clear 用の情報の配列
   RestoreInfo* mClearArray;
 
   // mCelarArray の最後の要素位置
-  ymuint mClearPos;
+  int mClearPos;
 
   // 反転マスクの配列
   // サイズは mClearArraySize と同じ
@@ -152,7 +153,7 @@ private:
   SimNode* mMaskList[kPvBitLen];
 
   // mMaskList の最後の要素位置
-  ymuint mMaskPos;
+  int mMaskPos;
 
 };
 
@@ -167,12 +168,12 @@ inline
 void
 EventQ::put_fanouts(SimNode* node)
 {
-  ymuint no = node->fanout_num();
+  auto no = node->fanout_num();
   if ( no == 1 ) {
     put(node->fanout_top());
   }
   else {
-    for (ymuint i = 0; i < no; ++ i) {
+    for ( auto i: Range(0, no) ) {
       put(node->fanout(i));
     }
   }
@@ -185,8 +186,8 @@ EventQ::put(SimNode* node)
 {
   if ( !node->in_queue() ) {
     node->set_queue();
-    ymuint level = node->level();
-    SimNode*& w = mArray[level];
+    auto level = node->level();
+    auto& w = mArray[level];
     node->mLink = w;
     w = node;
     if ( mNum == 0 || mCurLevel > level ) {
@@ -204,10 +205,10 @@ EventQ::get()
 {
   if ( mNum > 0 ) {
     // mNum が正しければ mCurLevel がオーバーフローすることはない．
-    for ( ; ; ++ mCurLevel) {
-      SimNode*& w = mArray[mCurLevel];
-      SimNode* node = w;
-      if ( node ) {
+    for ( ; ; ++ mCurLevel ) {
+      auto& w = mArray[mCurLevel];
+      auto node = w;
+      if ( node != nullptr ) {
 	node->clear_queue();
 	w = node->mLink;
 	-- mNum;
@@ -226,7 +227,7 @@ void
 EventQ::add_to_clear_list(SimNode* node,
 			  FSIM_VALTYPE old_val)
 {
-  RestoreInfo& rinfo = mClearArray[mClearPos];
+  auto& rinfo = mClearArray[mClearPos];
   rinfo.mNode = node;
   rinfo.mVal = old_val;
   ++ mClearPos;

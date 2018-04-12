@@ -43,8 +43,8 @@ EventQ::~EventQ()
 // @param[in] max_level 最大レベル
 // @param[in] node_num ノード数
 void
-EventQ::init(ymuint max_level,
-	     ymuint node_num)
+EventQ::init(int max_level,
+	     int node_num)
 {
   if ( max_level >= mArraySize ) {
     delete [] mArray;
@@ -53,14 +53,14 @@ EventQ::init(ymuint max_level,
   }
   if ( node_num > mClearArraySize ) {
     delete [] mClearArray;
+    delete [] mFlipMaskArray;
     mClearArraySize = node_num;
     mClearArray = new RestoreInfo[mClearArraySize];
-    delete [] mFlipMaskArray;
     mFlipMaskArray = new PackedVal[mClearArraySize];
   }
 
   mCurLevel = 0;
-  for (ymuint i = 0; i < mArraySize; i ++) {
+  for ( auto i: Range(0, mArraySize) ) {
     mArray[i] = nullptr;
   }
   mNum = 0;
@@ -79,7 +79,7 @@ EventQ::put_trigger(SimNode* node,
     // 今計算してしまう．
     // もしくは ppsfp のようにイベントが単独であると
     // わかっている場合も即座に計算してしまう．
-    FSIM_VALTYPE old_val = node->val();
+    auto old_val = node->val();
     node->set_val(old_val ^ valmask);
     add_to_clear_list(node, old_val);
     put_fanouts(node);
@@ -103,26 +103,26 @@ PackedVal
 EventQ::simulate(SimNode* target)
 {
   // どこかの外部出力で検出されたことを表すビット
-  PackedVal obs = kPvAll0;
+  auto obs = kPvAll0;
   for ( ; ; ) {
-    SimNode* node = get();
+    auto node = get();
     // イベントが残っていなければ終わる．
     if ( node == nullptr ) break;
 
     // すでに検出済みのビットはマスクしておく
     // これは無駄なイベントの発生を抑える．
-    FSIM_VALTYPE old_val = node->val();
+    auto old_val = node->val();
     node->calc_val(~obs);
-    FSIM_VALTYPE new_val = node->val();
+    auto new_val = node->val();
     if ( node->has_flip_mask() ) {
-      PackedVal flip_mask = mFlipMaskArray[node->id()];
+      auto flip_mask = mFlipMaskArray[node->id()];
       new_val ^= flip_mask;
       node->set_val(new_val);
     }
     if ( new_val != old_val ) {
       add_to_clear_list(node, old_val);
       if ( node->is_output() || node == target ) {
-	PackedVal dbits = diff(new_val, old_val);
+	auto dbits = diff(new_val, old_val);
 	obs |= dbits;
       }
       else {
@@ -132,15 +132,15 @@ EventQ::simulate(SimNode* target)
   }
 
   // 今の故障シミュレーションで値の変わったノードを元にもどしておく
-  for (ymuint i = 0; i < mClearPos; ++ i) {
-    RestoreInfo& rinfo = mClearArray[i];
-    SimNode* node = rinfo.mNode;
+  for ( auto i: Range(0, mClearPos) ) {
+    auto& rinfo = mClearArray[i];
+    auto node = rinfo.mNode;
     node->set_val(rinfo.mVal);
   }
   mClearPos = 0;
 
-  for (ymuint i = 0; i < mMaskPos; ++ i) {
-    SimNode* node = mMaskList[i];
+  for ( auto i: Range(0, mMaskPos) ) {
+    auto node = mMaskList[i];
     node->clear_flip();
   }
   mMaskPos = 0;

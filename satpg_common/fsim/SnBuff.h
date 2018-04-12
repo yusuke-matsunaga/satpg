@@ -24,7 +24,7 @@ class SnBuff :
 public:
 
   /// @brief コンストラクタ
-  SnBuff(ymuint id,
+  SnBuff(int id,
 	 const vector<SimNode*>& inputs);
 
   /// @brief デストラクタ
@@ -37,7 +37,7 @@ public:
   /// @brief ゲートタイプを返す．
   virtual
   GateType
-  gate_type() const;
+  gate_type() const override;
 
 
 public:
@@ -48,12 +48,12 @@ public:
   /// @brief 出力値の計算を行う．
   virtual
   FSIM_VALTYPE
-  _calc_val();
+  _calc_val() override;
 
   /// @brief ゲートの入力から出力までの可観測性を計算する．
   virtual
   PackedVal
-  _calc_gobs(ymuint ipos);
+  _calc_gobs(int ipos) override;
 
 };
 
@@ -68,7 +68,7 @@ class SnNot :
 public:
 
   /// @brief コンストラクタ
-  SnNot(ymuint id,
+  SnNot(int id,
 	const vector<SimNode*>& inputs);
 
   /// @brief デストラクタ
@@ -81,7 +81,7 @@ public:
   /// @brief ゲートタイプを返す．
   virtual
   GateType
-  gate_type() const;
+  gate_type() const override;
 
 
 public:
@@ -92,7 +92,7 @@ public:
   /// @brief 出力値の計算を行う．
   virtual
   FSIM_VALTYPE
-  _calc_val();
+  _calc_val() override;
 
 };
 

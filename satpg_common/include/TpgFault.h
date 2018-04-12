@@ -23,6 +23,16 @@ class TpgFault
 {
 public:
 
+  /// @brief 空のコンストラクタ
+  TpgFault() = default;
+
+  /// @brief コピーコンストラクタは禁止
+  TpgFault(const TpgFault& src) = delete;
+
+  /// @brief 代入演算子も禁止
+  const TpgFault&
+  operator=(const TpgFault& src) = delete;
+
   /// @brief デストラクタ
   virtual
   ~TpgFault() { }

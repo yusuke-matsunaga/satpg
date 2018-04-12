@@ -19,7 +19,7 @@ BEGIN_NAMESPACE_YM_SATPG_FSIM
 //////////////////////////////////////////////////////////////////////
 
 // @brief コンストラクタ
-SnInput::SnInput(ymuint id) :
+SnInput::SnInput(int id) :
   SimNode(id)
 {
   set_level(0);
@@ -40,7 +40,7 @@ SnInput::gate_type() const
 }
 
 // @brief ファンイン数を得る．
-ymuint
+int
 SnInput::fanin_num() const
 {
   return 0;
@@ -48,7 +48,7 @@ SnInput::fanin_num() const
 
 // @brief pos 番めのファンインを得る．
 SimNode*
-SnInput::fanin(ymuint pos) const
+SnInput::fanin(int pos) const
 {
   ASSERT_NOT_REACHED;
   return nullptr;
@@ -71,7 +71,7 @@ SnInput::_calc_val()
 
 // @brief ゲートの入力から出力までの可観測性を計算する．
 PackedVal
-SnInput::_calc_gobs(ymuint ipos)
+SnInput::_calc_gobs(int ipos)
 {
   ASSERT_NOT_REACHED;
   return kPvAll0;

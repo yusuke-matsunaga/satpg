@@ -25,7 +25,7 @@ public:
 
   /// @brief コンストラクタ
   explicit
-  SnInput(ymuint id);
+  SnInput(int id);
 
   /// @brief デストラクタ
   virtual
@@ -39,17 +39,17 @@ public:
   /// ここでは kGateBUFF を返す．
   virtual
   GateType
-  gate_type() const;
+  gate_type() const override;
 
   /// @brief ファンイン数を得る．
   virtual
-  ymuint
-  fanin_num() const;
+  int
+  fanin_num() const override;
 
   /// @brief pos 番めのファンインを得る．
   virtual
   SimNode*
-  fanin(ymuint pos) const;
+  fanin(int pos) const override;
 
 
 public:
@@ -60,12 +60,12 @@ public:
   /// @brief 出力値の計算を行う．
   virtual
   FSIM_VALTYPE
-  _calc_val();
+  _calc_val() override;
 
   /// @brief ゲートの入力から出力までの可観測性を計算する．
   virtual
   PackedVal
-  _calc_gobs(ymuint ipos);
+  _calc_gobs(int ipos) override;
 
 
 public:
@@ -76,7 +76,7 @@ public:
   /// @brief 内容をダンプする．
   virtual
   void
-  dump(ostream& s) const;
+  dump(ostream& s) const override;
 
 };
 

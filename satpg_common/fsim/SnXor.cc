@@ -9,6 +9,7 @@
 
 #include "SnXor.h"
 #include "GateType.h"
+#include "ym/Range.h"
 
 
 BEGIN_NAMESPACE_YM_SATPG_FSIM
@@ -18,7 +19,7 @@ BEGIN_NAMESPACE_YM_SATPG_FSIM
 //////////////////////////////////////////////////////////////////////
 
 // @brief コンストラクタ
-SnXor::SnXor(ymuint id,
+SnXor::SnXor(int id,
 	     const vector<SimNode*>& inputs) :
   SnGate(id, inputs)
 {
@@ -36,21 +37,28 @@ SnXor::gate_type() const
   return GateType::Xor;
 }
 
-// @brief 出力値の計算を行う．(3値版)
+// @brief ファンインの値のXORを計算する．
+inline
 FSIM_VALTYPE
-SnXor::_calc_val()
+SnXor::_calc_xor()
 {
-  ymuint n = _fanin_num();
-  FSIM_VALTYPE val = _fanin(0)->val();
-  for (ymuint i = 1; i < n; ++ i) {
+  auto val = _fanin(0)->val();
+  for ( auto i: Range(1, _fanin_num()) ) {
     val ^= _fanin(i)->val();
   }
   return val;
 }
 
+// @brief 出力値の計算を行う．
+FSIM_VALTYPE
+SnXor::_calc_val()
+{
+  return _calc_xor();
+}
+
 // @brief ゲートの入力から出力までの可観測性を計算する．(3値版)
 PackedVal
-SnXor::_calc_gobs(ymuint ipos)
+SnXor::_calc_gobs(int ipos)
 {
 #if FSIM_VAL2
   // 2値なら常に観測可能
@@ -58,16 +66,13 @@ SnXor::_calc_gobs(ymuint ipos)
 #elif FSIM_VAL3
   // 3値はめんどくさい
   // 条件は ipos 以外が X でないこと
-  PackedVal obs = kPvAll1;
-  for (ymuint i = 0; i < ipos; ++ i) {
-    const SimNode* inode = _fanin(i);
-    FSIM_VALTYPE ival = inode->val();
+  auto obs = kPvAll1;
+  for ( auto i: Range(0, ipos) ) {
+    auto ival = _fanin(i)->val();
     obs &= ival.val01();
   }
-  ymuint n = _fanin_num();
-  for (ymuint i = ipos + 1; i < n; ++ i) {
-    const SimNode* inode = _fanin(i);
-    FSIM_VALTYPE ival = inode->val();
+  for ( auto i: Range(ipos + 1, _fanin_num()) ) {
+    auto ival = _fanin(i)->val();
     obs &= ival.val01();
   }
   return obs;
@@ -80,7 +85,7 @@ SnXor::_calc_gobs(ymuint ipos)
 //////////////////////////////////////////////////////////////////////
 
 // @brief コンストラクタ
-SnXor2::SnXor2(ymuint id,
+SnXor2::SnXor2(int id,
 	       const vector<SimNode*>& inputs) :
   SnGate2(id, inputs)
 {
@@ -98,30 +103,34 @@ SnXor2::gate_type() const
   return GateType::Xor;
 }
 
+// @brief ファンインの値のXORを計算する．
+inline
+FSIM_VALTYPE
+SnXor2::_calc_xor()
+{
+  auto val0 = _fanin(0)->val();
+  auto val1 = _fanin(1)->val();
+  return val0 ^ val1;
+}
+
 // @brief 出力値の計算を行う．
 FSIM_VALTYPE
 SnXor2::_calc_val()
 {
-  SimNode* inode0 = _fanin(0);
-  SimNode* inode1 = _fanin(1);
-  FSIM_VALTYPE val0 = inode0->val();
-  FSIM_VALTYPE val1 = inode1->val();
-  FSIM_VALTYPE val = val0 ^ val1;
-  return val;
+  return _calc_xor();
 }
 
 // @brief ゲートの入力から出力までの可観測性を計算する．
 PackedVal
-SnXor2::_calc_gobs(ymuint ipos)
+SnXor2::_calc_gobs(int ipos)
 {
 #if FSIM_VAL2
   // 2値なら常に観測可能
   return kPvAll1;
 #elif FSIM_VAL3
   // 3値の場合，Xでないことが条件
-  ymuint alt_pos = ipos ^ 1;
-  SimNode* inode = _fanin(alt_pos);
-  FSIM_VALTYPE ival = inode->val();
+  auto alt_pos = ipos ^ 1;
+  auto ival = _fanin(alt_pos)->val();
   return ival.val01();
 #endif
 }
@@ -132,7 +141,7 @@ SnXor2::_calc_gobs(ymuint ipos)
 //////////////////////////////////////////////////////////////////////
 
 // @brief コンストラクタ
-SnXnor::SnXnor(ymuint id,
+SnXnor::SnXnor(int id,
 	       const vector<SimNode*>& inputs) :
   SnXor(id, inputs)
 {
@@ -154,12 +163,7 @@ SnXnor::gate_type() const
 FSIM_VALTYPE
 SnXnor::_calc_val()
 {
-  ymuint n = _fanin_num();
-  FSIM_VALTYPE val = _fanin(0)->val();
-  for (ymuint i = 1; i < n; ++ i) {
-    val ^= _fanin(i)->val();
-  }
-  return ~val;
+  return ~_calc_xor();
 }
 
 
@@ -168,7 +172,7 @@ SnXnor::_calc_val()
 //////////////////////////////////////////////////////////////////////
 
 // @brief コンストラクタ
-SnXnor2::SnXnor2(ymuint id,
+SnXnor2::SnXnor2(int id,
 		 const vector<SimNode*>& inputs) :
   SnXor2(id, inputs)
 {
@@ -190,12 +194,7 @@ SnXnor2::gate_type() const
 FSIM_VALTYPE
 SnXnor2::_calc_val()
 {
-  SimNode* inode0 = _fanin(0);
-  SimNode* inode1 = _fanin(1);
-  FSIM_VALTYPE val0 = inode0->val();
-  FSIM_VALTYPE val1 = inode1->val();
-  FSIM_VALTYPE val = val0 ^ val1;
-  return ~val;
+  return ~_calc_xor();
 }
 
 END_NAMESPACE_YM_SATPG_FSIM

@@ -9,6 +9,7 @@
 
 #include "SnOr.h"
 #include "GateType.h"
+#include "ym/Range.h"
 
 
 BEGIN_NAMESPACE_YM_SATPG_FSIM
@@ -34,7 +35,7 @@ END_NONAMESPACE
 //////////////////////////////////////////////////////////////////////
 
 // @brief コンストラクタ
-SnOr::SnOr(ymuint id,
+SnOr::SnOr(int id,
 	   const vector<SimNode*>& inputs) :
   SnGate(id, inputs)
 {
@@ -52,27 +53,34 @@ SnOr::gate_type() const
   return GateType::Or;
 }
 
-// @brief 出力値の計算を行う．
+// @brief ファンインの値のORを計算する．
+inline
 FSIM_VALTYPE
-SnOr::_calc_val()
+SnOr::_calc_or()
 {
-  ymuint n = _fanin_num();
-  FSIM_VALTYPE val = _fanin(0)->val();
-  for (ymuint i = 1; i < n; ++ i) {
+  auto val = _fanin(0)->val();
+  for ( auto i: Range(1, _fanin_num()) ) {
     val |= _fanin(i)->val();
   }
   return val;
 }
 
+// @brief 出力値の計算を行う．
+FSIM_VALTYPE
+SnOr::_calc_val()
+{
+  return _calc_or();
+}
+
 // @brief ゲートの入力から出力までの可観測性を計算する．
 PackedVal
-SnOr::_calc_gobs(ymuint ipos)
+SnOr::_calc_gobs(int ipos)
 {
-  PackedVal obs = kPvAll1;
-  for (ymuint i = 0; i < ipos; ++ i) {
+  auto obs = kPvAll1;
+  for ( auto i: Range(0, ipos) ) {
     obs &= _obs_val(_fanin(i)->val());
   }
-  for (ymuint i = ipos + 1; i < _fanin_num(); ++ i) {
+  for ( auto i: Range(ipos + 1, _fanin_num()) ) {
     obs &= _obs_val(_fanin(i)->val());
   }
   return obs;
@@ -84,7 +92,7 @@ SnOr::_calc_gobs(ymuint ipos)
 //////////////////////////////////////////////////////////////////////
 
 // @brief コンストラクタ
-SnOr2::SnOr2(ymuint id,
+SnOr2::SnOr2(int id,
 	     const vector<SimNode*>& inputs) :
   SnGate2(id, inputs)
 {
@@ -102,23 +110,28 @@ SnOr2::gate_type() const
   return GateType::Or;
 }
 
+// @brief ファンインの値のORを計算する．
+inline
+FSIM_VALTYPE
+SnOr2::_calc_or()
+{
+  auto val0 = _fanin(0)->val();
+  auto val1 = _fanin(1)->val();
+  return val0 | val1;
+}
+
 // @brief 出力値の計算を行う．
 FSIM_VALTYPE
 SnOr2::_calc_val()
 {
-  SimNode* inode0 = _fanin(0);
-  SimNode* inode1 = _fanin(1);
-  FSIM_VALTYPE val0 = inode0->val();
-  FSIM_VALTYPE val1 = inode1->val();
-  FSIM_VALTYPE val = val0 | val1;
-  return val;
+  return _calc_or();
 }
 
 // @brief ゲートの入力から出力までの可観測性を計算する．
 PackedVal
-SnOr2::_calc_gobs(ymuint ipos)
+SnOr2::_calc_gobs(int ipos)
 {
-  ymuint alt_pos = ipos ^ 1;
+  auto alt_pos = ipos ^ 1;
   return _obs_val(_fanin(alt_pos)->val());
 }
 
@@ -128,7 +141,7 @@ SnOr2::_calc_gobs(ymuint ipos)
 //////////////////////////////////////////////////////////////////////
 
 // @brief コンストラクタ
-SnOr3::SnOr3(ymuint id,
+SnOr3::SnOr3(int id,
 	     const vector<SimNode*>& inputs) :
   SnGate3(id, inputs)
 {
@@ -146,32 +159,38 @@ SnOr3::gate_type() const
   return GateType::Or;
 }
 
+// @brief ファンインの値のORを計算する．
+inline
+FSIM_VALTYPE
+SnOr3::_calc_or()
+{
+  auto val0 = _fanin(0)->val();
+  auto val1 = _fanin(1)->val();
+  auto val2 = _fanin(2)->val();
+  return val0 | val1 | val2;
+}
+
 // @brief 出力値の計算を行う．
 FSIM_VALTYPE
 SnOr3::_calc_val()
 {
-  SimNode* inode0 = _fanin(0);
-  SimNode* inode1 = _fanin(1);
-  SimNode* inode2 = _fanin(2);
-  FSIM_VALTYPE val0 = inode0->val();
-  FSIM_VALTYPE val1 = inode1->val();
-  FSIM_VALTYPE val2 = inode2->val();
-  FSIM_VALTYPE val = val0 | val1 | val2;
-  return val;
+  return _calc_or();
 }
 
 // @brief ゲートの入力から出力までの可観測性を計算する．
 PackedVal
-SnOr3::_calc_gobs(ymuint ipos)
+SnOr3::_calc_gobs(int ipos)
 {
-  FSIM_VALTYPE val0;
-  FSIM_VALTYPE val1;
+  int pos0;
+  int pos1;
   switch ( ipos ) {
-  case 0: val0 = _fanin(1)->val(); val1 = _fanin(2)->val(); break;
-  case 1: val0 = _fanin(0)->val(); val1 = _fanin(2)->val(); break;
-  case 2: val0 = _fanin(0)->val(); val1 = _fanin(1)->val(); break;
+  case 0: pos0 = 1; pos1 = 2; break;
+  case 1: pos0 = 0; pos1 = 2; break;
+  case 2: pos0 = 0; pos1 = 1; break;
   default: ASSERT_NOT_REACHED;
   }
+  auto val0 = _fanin(pos0)->val();
+  auto val1 = _fanin(pos1)->val();
   return _obs_val(val0) & _obs_val(val1);
 }
 
@@ -181,7 +200,7 @@ SnOr3::_calc_gobs(ymuint ipos)
 //////////////////////////////////////////////////////////////////////
 
 // @brief コンストラクタ
-SnOr4::SnOr4(ymuint id,
+SnOr4::SnOr4(int id,
 	     const vector<SimNode*>& inputs) :
   SnGate4(id, inputs)
 {
@@ -199,36 +218,42 @@ SnOr4::gate_type() const
   return GateType::Or;
 }
 
+// @brief ファンインの値のORを計算する．
+inline
+FSIM_VALTYPE
+SnOr4::_calc_or()
+{
+  auto val0 = _fanin(0)->val();
+  auto val1 = _fanin(1)->val();
+  auto val2 = _fanin(2)->val();
+  auto val3 = _fanin(3)->val();
+  return val0 | val1 | val2 | val3;
+}
+
 // @brief 出力値の計算を行う．
 FSIM_VALTYPE
 SnOr4::_calc_val()
 {
-  SimNode* inode0 = _fanin(0);
-  SimNode* inode1 = _fanin(1);
-  SimNode* inode2 = _fanin(2);
-  SimNode* inode3 = _fanin(3);
-  FSIM_VALTYPE val0 = inode0->val();
-  FSIM_VALTYPE val1 = inode1->val();
-  FSIM_VALTYPE val2 = inode2->val();
-  FSIM_VALTYPE val3 = inode3->val();
-  FSIM_VALTYPE val = val0 | val1 | val2 | val3;
-  return val;
+  return _calc_or();
 }
 
 // @brief ゲートの入力から出力までの可観測性を計算する．
 PackedVal
-SnOr4::_calc_gobs(ymuint ipos)
+SnOr4::_calc_gobs(int ipos)
 {
-  FSIM_VALTYPE val0;
-  FSIM_VALTYPE val1;
-  FSIM_VALTYPE val2;
+  int pos0;
+  int pos1;
+  int pos2;
   switch ( ipos ) {
-  case 0: val0 = _fanin(1)->val(); val1 = _fanin(2)->val(); val2 = _fanin(3)->val(); break;
-  case 1: val0 = _fanin(0)->val(); val1 = _fanin(2)->val(); val2 = _fanin(3)->val(); break;
-  case 2: val0 = _fanin(0)->val(); val1 = _fanin(1)->val(); val2 = _fanin(3)->val(); break;
-  case 3: val0 = _fanin(0)->val(); val1 = _fanin(1)->val(); val2 = _fanin(2)->val(); break;
+  case 0: pos0 = 1; pos1 = 2; pos2 = 3; break;
+  case 1: pos0 = 0; pos1 = 2; pos2 = 3; break;
+  case 2: pos0 = 0; pos1 = 1; pos2 = 3; break;
+  case 3: pos0 = 0; pos1 = 1; pos2 = 2; break;
   default: ASSERT_NOT_REACHED;
   }
+  auto val0 = _fanin(pos0)->val();
+  auto val1 = _fanin(pos1)->val();
+  auto val2 = _fanin(pos2)->val();
   return _obs_val(val0) & _obs_val(val1) & _obs_val(val2);
 }
 
@@ -238,7 +263,7 @@ SnOr4::_calc_gobs(ymuint ipos)
 //////////////////////////////////////////////////////////////////////
 
 // @brief コンストラクタ
-SnNor::SnNor(ymuint id,
+SnNor::SnNor(int id,
 	     const vector<SimNode*>& inputs) :
   SnOr(id, inputs)
 {
@@ -260,12 +285,7 @@ SnNor::gate_type() const
 FSIM_VALTYPE
 SnNor::_calc_val()
 {
-  ymuint n = _fanin_num();
-  FSIM_VALTYPE val = _fanin(0)->val();
-  for (ymuint i = 1; i < n; ++ i) {
-    val |= _fanin(i)->val();
-  }
-  return ~val;
+  return ~_calc_or();
 }
 
 
@@ -274,7 +294,7 @@ SnNor::_calc_val()
 //////////////////////////////////////////////////////////////////////
 
 // @brief コンストラクタ
-SnNor2::SnNor2(ymuint id,
+SnNor2::SnNor2(int id,
 	       const vector<SimNode*>& inputs) :
   SnOr2(id, inputs)
 {
@@ -296,12 +316,7 @@ SnNor2::gate_type() const
 FSIM_VALTYPE
 SnNor2::_calc_val()
 {
-  SimNode* inode0 = _fanin(0);
-  SimNode* inode1 = _fanin(1);
-  FSIM_VALTYPE val0 = inode0->val();
-  FSIM_VALTYPE val1 = inode1->val();
-  FSIM_VALTYPE val = val0 | val1;
-  return ~val;
+  return ~_calc_or();
 }
 
 
@@ -310,7 +325,7 @@ SnNor2::_calc_val()
 //////////////////////////////////////////////////////////////////////
 
 // @brief コンストラクタ
-SnNor3::SnNor3(ymuint id,
+SnNor3::SnNor3(int id,
 	       const vector<SimNode*>& inputs) :
   SnOr3(id, inputs)
 {
@@ -332,14 +347,7 @@ SnNor3::gate_type() const
 FSIM_VALTYPE
 SnNor3::_calc_val()
 {
-  SimNode* inode0 = _fanin(0);
-  SimNode* inode1 = _fanin(1);
-  SimNode* inode2 = _fanin(2);
-  FSIM_VALTYPE val0 = inode0->val();
-  FSIM_VALTYPE val1 = inode1->val();
-  FSIM_VALTYPE val2 = inode2->val();
-  FSIM_VALTYPE val = val0 | val1 | val2;
-  return ~val;
+  return ~_calc_or();
 }
 
 
@@ -348,7 +356,7 @@ SnNor3::_calc_val()
 //////////////////////////////////////////////////////////////////////
 
 // @brief コンストラクタ
-SnNor4::SnNor4(ymuint id,
+SnNor4::SnNor4(int id,
 	       const vector<SimNode*>& inputs) :
   SnOr4(id, inputs)
 {
@@ -370,16 +378,7 @@ SnNor4::gate_type() const
 FSIM_VALTYPE
 SnNor4::_calc_val()
 {
-  SimNode* inode0 = _fanin(0);
-  SimNode* inode1 = _fanin(1);
-  SimNode* inode2 = _fanin(2);
-  SimNode* inode3 = _fanin(3);
-  FSIM_VALTYPE val0 = inode0->val();
-  FSIM_VALTYPE val1 = inode1->val();
-  FSIM_VALTYPE val2 = inode2->val();
-  FSIM_VALTYPE val3 = inode3->val();
-  FSIM_VALTYPE val = val0 | val1 | val2 | val3;
-  return ~val;
+  return ~_calc_or();
 }
 
 END_NAMESPACE_YM_SATPG_FSIM

@@ -24,7 +24,7 @@ class SnOr :
 public:
 
   /// @brief コンストラクタ
-  SnOr(ymuint id,
+  SnOr(int id,
        const vector<SimNode*>& inputs);
 
   /// @brief デストラクタ
@@ -37,7 +37,7 @@ public:
   /// @brief ゲートタイプを返す．
   virtual
   GateType
-  gate_type() const;
+  gate_type() const override;
 
 
 public:
@@ -48,12 +48,22 @@ public:
   /// @brief 出力値の計算を行う．
   virtual
   FSIM_VALTYPE
-  _calc_val();
+  _calc_val() override;
 
   /// @brief ゲートの入力から出力までの可観測性を計算する．
   virtual
   PackedVal
-  _calc_gobs(ymuint ipos);
+  _calc_gobs(int ipos) override;
+
+
+protected:
+  //////////////////////////////////////////////////////////////////////
+  // 内部で用いられる関数
+  //////////////////////////////////////////////////////////////////////
+
+  /// @brief ファンインの値のORを計算する．
+  FSIM_VALTYPE
+  _calc_or();
 
 };
 
@@ -68,7 +78,7 @@ class SnOr2 :
 public:
 
   /// @brief コンストラクタ
-  SnOr2(ymuint id,
+  SnOr2(int id,
 	const vector<SimNode*>& inputs);
 
   /// @brief デストラクタ
@@ -81,7 +91,7 @@ public:
   /// @brief ゲートタイプを返す．
   virtual
   GateType
-  gate_type() const;
+  gate_type() const override;
 
 
 public:
@@ -92,12 +102,22 @@ public:
   /// @brief 出力値の計算を行う．
   virtual
   FSIM_VALTYPE
-  _calc_val();
+  _calc_val() override;
 
   /// @brief ゲートの入力から出力までの可観測性を計算する．
   virtual
   PackedVal
-  _calc_gobs(ymuint ipos);
+  _calc_gobs(int ipos) override;
+
+
+protected:
+  //////////////////////////////////////////////////////////////////////
+  // 内部で用いられる関数
+  //////////////////////////////////////////////////////////////////////
+
+  /// @brief ファンインの値のORを計算する．
+  FSIM_VALTYPE
+  _calc_or();
 
 };
 
@@ -112,7 +132,7 @@ class SnOr3 :
 public:
 
   /// @brief コンストラクタ
-  SnOr3(ymuint id,
+  SnOr3(int id,
 	const vector<SimNode*>& inputs);
 
   /// @brief デストラクタ
@@ -125,7 +145,7 @@ public:
   /// @brief ゲートタイプを返す．
   virtual
   GateType
-  gate_type() const;
+  gate_type() const override;
 
 
 public:
@@ -136,12 +156,22 @@ public:
   /// @brief 出力値の計算を行う．
   virtual
   FSIM_VALTYPE
-  _calc_val();
+  _calc_val() override;
 
   /// @brief ゲートの入力から出力までの可観測性を計算する．
   virtual
   PackedVal
-  _calc_gobs(ymuint ipos);
+  _calc_gobs(int ipos) override;
+
+
+protected:
+  //////////////////////////////////////////////////////////////////////
+  // 内部で用いられる関数
+  //////////////////////////////////////////////////////////////////////
+
+  /// @brief ファンインの値のORを計算する．
+  FSIM_VALTYPE
+  _calc_or();
 
 };
 
@@ -156,7 +186,7 @@ class SnOr4 :
 public:
 
   /// @brief コンストラクタ
-  SnOr4(ymuint id,
+  SnOr4(int id,
 	const vector<SimNode*>& inputs);
 
   /// @brief デストラクタ
@@ -169,7 +199,7 @@ public:
   /// @brief ゲートタイプを返す．
   virtual
   GateType
-  gate_type() const;
+  gate_type() const override;
 
 
 public:
@@ -180,12 +210,22 @@ public:
   /// @brief 出力値の計算を行う．
   virtual
   FSIM_VALTYPE
-  _calc_val();
+  _calc_val() override;
 
   /// @brief ゲートの入力から出力までの可観測性を計算する．
   virtual
   PackedVal
-  _calc_gobs(ymuint ipos);
+  _calc_gobs(int ipos) override;
+
+
+protected:
+  //////////////////////////////////////////////////////////////////////
+  // 内部で用いられる関数
+  //////////////////////////////////////////////////////////////////////
+
+  /// @brief ファンインの値のORを計算する．
+  FSIM_VALTYPE
+  _calc_or();
 
 };
 
@@ -200,7 +240,7 @@ class SnNor :
 public:
 
   /// @brief コンストラクタ
-  SnNor(ymuint id,
+  SnNor(int id,
 	const vector<SimNode*>& inputs);
 
   /// @brief デストラクタ
@@ -213,7 +253,7 @@ public:
   /// @brief ゲートタイプを返す．
   virtual
   GateType
-  gate_type() const;
+  gate_type() const override;
 
 
 public:
@@ -224,7 +264,7 @@ public:
   /// @brief 出力値の計算を行う．
   virtual
   FSIM_VALTYPE
-  _calc_val();
+  _calc_val() override;
 
 };
 
@@ -239,7 +279,7 @@ class SnNor2 :
 public:
 
   /// @brief コンストラクタ
-  SnNor2(ymuint id,
+  SnNor2(int id,
 	 const vector<SimNode*>& inputs);
 
   /// @brief デストラクタ
@@ -252,7 +292,7 @@ public:
   /// @brief ゲートタイプを返す．
   virtual
   GateType
-  gate_type() const;
+  gate_type() const override;
 
 
 public:
@@ -263,7 +303,7 @@ public:
   /// @brief 出力値の計算を行う．
   virtual
   FSIM_VALTYPE
-  _calc_val();
+  _calc_val() override;
 
 };
 
@@ -278,7 +318,7 @@ class SnNor3 :
 public:
 
   /// @brief コンストラクタ
-  SnNor3(ymuint id,
+  SnNor3(int id,
 	 const vector<SimNode*>& inputs);
 
   /// @brief デストラクタ
@@ -291,7 +331,7 @@ public:
   /// @brief ゲートタイプを返す．
   virtual
   GateType
-  gate_type() const;
+  gate_type() const override;
 
 
 public:
@@ -302,7 +342,7 @@ public:
   /// @brief 出力値の計算を行う．
   virtual
   FSIM_VALTYPE
-  _calc_val();
+  _calc_val() override;
 
 };
 
@@ -317,7 +357,7 @@ class SnNor4 :
 public:
 
   /// @brief コンストラクタ
-  SnNor4(ymuint id,
+  SnNor4(int id,
 	 const vector<SimNode*>& inputs);
 
   /// @brief デストラクタ
@@ -330,7 +370,7 @@ public:
   /// @brief ゲートタイプを返す．
   virtual
   GateType
-  gate_type() const;
+  gate_type() const override;
 
 
 public:
@@ -341,7 +381,7 @@ public:
   /// @brief 出力値の計算を行う．
   virtual
   FSIM_VALTYPE
-  _calc_val();
+  _calc_val() override;
 
 };
 

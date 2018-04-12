@@ -9,6 +9,7 @@
 
 #include "SnAnd.h"
 #include "GateType.h"
+#include "ym/Range.h"
 
 
 BEGIN_NAMESPACE_YM_SATPG_FSIM
@@ -33,7 +34,7 @@ END_NONAMESPACE
 //////////////////////////////////////////////////////////////////////
 
 // @brief コンストラクタ
-SnAnd::SnAnd(ymuint id,
+SnAnd::SnAnd(int id,
 	     const vector<SimNode*>& inputs) :
   SnGate(id, inputs)
 {
@@ -51,27 +52,34 @@ SnAnd::gate_type() const
   return GateType::And;
 }
 
-// @brief 故障値の計算を行う．
+// @brief ファンインの値のANDを計算する．
+inline
 FSIM_VALTYPE
-SnAnd::_calc_val()
+SnAnd::_calc_and()
 {
-  ymuint n = _fanin_num();
-  FSIM_VALTYPE val = _fanin(0)->val();
-  for (ymuint i = 1; i < n; ++ i) {
+  auto val = _fanin(0)->val();
+  for ( auto i: Range(1, _fanin_num()) ) {
     val &= _fanin(i)->val();
   }
   return val;
 }
 
+// @brief 故障値の計算を行う．
+FSIM_VALTYPE
+SnAnd::_calc_val()
+{
+  return _calc_and();
+}
+
 // @brief ゲートの入力から出力までの可観測性を計算する．
 PackedVal
-SnAnd::_calc_gobs(ymuint ipos)
+SnAnd::_calc_gobs(int ipos)
 {
-  PackedVal obs = kPvAll1;
-  for (ymuint i = 0; i < ipos; ++ i) {
+  auto obs = kPvAll1;
+  for ( auto i: Range(0, ipos) ) {
     obs &= _obs_val(_fanin(i)->val());
   }
-  for (ymuint i = ipos + 1; i < _fanin_num(); ++ i) {
+  for ( auto i: Range(ipos + 1, _fanin_num()) ) {
     obs &= _obs_val(_fanin(i)->val());
   }
   return obs;
@@ -83,7 +91,7 @@ SnAnd::_calc_gobs(ymuint ipos)
 //////////////////////////////////////////////////////////////////////
 
 // @brief コンストラクタ
-SnAnd2::SnAnd2(ymuint id,
+SnAnd2::SnAnd2(int id,
 	       const vector<SimNode*>& inputs) :
   SnGate2(id, inputs)
 {
@@ -101,23 +109,28 @@ SnAnd2::gate_type() const
   return GateType::And;
 }
 
+// @brief ファンインの値のANDを計算する．
+inline
+FSIM_VALTYPE
+SnAnd2::_calc_and()
+{
+  auto val0 = _fanin(0)->val();
+  auto val1 = _fanin(1)->val();
+  return val0 & val1;
+}
+
 // @brief 出力値の計算を行う．
 FSIM_VALTYPE
 SnAnd2::_calc_val()
 {
-  SimNode* inode0 = _fanin(0);
-  SimNode* inode1 = _fanin(1);
-  FSIM_VALTYPE val0 = inode0->val();
-  FSIM_VALTYPE val1 = inode1->val();
-  FSIM_VALTYPE val = val0 & val1;
-  return val;
+  return _calc_and();
 }
 
 // @brief ゲートの入力から出力までの可観測性を計算する．
 PackedVal
-SnAnd2::_calc_gobs(ymuint ipos)
+SnAnd2::_calc_gobs(int ipos)
 {
-  ymuint alt_pos = ipos ^ 1;
+  auto alt_pos = ipos ^ 1;
   return _obs_val(_fanin(alt_pos)->val());
 }
 
@@ -127,7 +140,7 @@ SnAnd2::_calc_gobs(ymuint ipos)
 //////////////////////////////////////////////////////////////////////
 
 // @brief コンストラクタ
-SnAnd3::SnAnd3(ymuint id,
+SnAnd3::SnAnd3(int id,
 	       const vector<SimNode*>& inputs) :
   SnGate3(id, inputs)
 {
@@ -145,32 +158,38 @@ SnAnd3::gate_type() const
   return GateType::And;
 }
 
+// @brief ファンインの値のANDを計算する．
+inline
+FSIM_VALTYPE
+SnAnd3::_calc_and()
+{
+  auto val0 = _fanin(0)->val();
+  auto val1 = _fanin(1)->val();
+  auto val2 = _fanin(2)->val();
+  return val0 & val1 & val2;
+}
+
 // @brief 出力値の計算を行う．
 FSIM_VALTYPE
 SnAnd3::_calc_val()
 {
-  SimNode* inode0 = _fanin(0);
-  SimNode* inode1 = _fanin(1);
-  SimNode* inode2 = _fanin(2);
-  FSIM_VALTYPE val0 = inode0->val();
-  FSIM_VALTYPE val1 = inode1->val();
-  FSIM_VALTYPE val2 = inode2->val();
-  FSIM_VALTYPE val = val0 & val1 & val2;
-  return val;
+  return _calc_and();
 }
 
 // @brief ゲートの入力から出力までの可観測性を計算する．
 PackedVal
-SnAnd3::_calc_gobs(ymuint ipos)
+SnAnd3::_calc_gobs(int ipos)
 {
-  FSIM_VALTYPE val0;
-  FSIM_VALTYPE val1;
+  int pos0;
+  int pos1;
   switch ( ipos ) {
-  case 0: val0 = _fanin(1)->val(); val1 = _fanin(2)->val(); break;
-  case 1: val0 = _fanin(0)->val(); val1 = _fanin(2)->val(); break;
-  case 2: val0 = _fanin(0)->val(); val1 = _fanin(1)->val(); break;
+  case 0: pos0 = 1; pos1 = 2; break;
+  case 1: pos0 = 0; pos1 = 2; break;
+  case 2: pos0 = 0; pos1 = 1; break;
   default: ASSERT_NOT_REACHED; break;
   }
+  auto val0 = _fanin(pos0)->val();
+  auto val1 = _fanin(pos1)->val();
   return _obs_val(val0) & _obs_val(val1);
 }
 
@@ -180,7 +199,7 @@ SnAnd3::_calc_gobs(ymuint ipos)
 //////////////////////////////////////////////////////////////////////
 
 // @brief コンストラクタ
-SnAnd4::SnAnd4(ymuint id,
+SnAnd4::SnAnd4(int id,
 	       const vector<SimNode*>& inputs) :
   SnGate4(id, inputs)
 {
@@ -198,36 +217,42 @@ SnAnd4::gate_type() const
   return GateType::And;
 }
 
+// @brief ファンインの値のANDを計算する．
+inline
+FSIM_VALTYPE
+SnAnd4::_calc_and()
+{
+  auto val0 = _fanin(0)->val();
+  auto val1 = _fanin(1)->val();
+  auto val2 = _fanin(2)->val();
+  auto val3 = _fanin(3)->val();
+  return val0 & val1 & val2 & val3;
+}
+
 // @brief 出力値の計算を行う．
 FSIM_VALTYPE
 SnAnd4::_calc_val()
 {
-  SimNode* inode0 = _fanin(0);
-  SimNode* inode1 = _fanin(1);
-  SimNode* inode2 = _fanin(2);
-  SimNode* inode3 = _fanin(3);
-  FSIM_VALTYPE val0 = inode0->val();
-  FSIM_VALTYPE val1 = inode1->val();
-  FSIM_VALTYPE val2 = inode2->val();
-  FSIM_VALTYPE val3 = inode3->val();
-  FSIM_VALTYPE val = val0 & val1 & val2 & val3;
-  return val;
+  return _calc_and();
 }
 
 // @brief ゲートの入力から出力までの可観測性を計算する．
 PackedVal
-SnAnd4::_calc_gobs(ymuint ipos)
+SnAnd4::_calc_gobs(int ipos)
 {
-  FSIM_VALTYPE val0;
-  FSIM_VALTYPE val1;
-  FSIM_VALTYPE val2;
+  int pos0;
+  int pos1;
+  int pos2;
   switch ( ipos ) {
-  case 0: val0 = _fanin(1)->val(); val1 = _fanin(2)->val(); val2 = _fanin(3)->val(); break;
-  case 1: val0 = _fanin(0)->val(); val1 = _fanin(2)->val(); val2 = _fanin(3)->val(); break;
-  case 2: val0 = _fanin(0)->val(); val1 = _fanin(1)->val(); val2 = _fanin(3)->val(); break;
-  case 3: val0 = _fanin(0)->val(); val1 = _fanin(1)->val(); val2 = _fanin(2)->val(); break;
+  case 0: pos0 = 1; pos1 = 2; pos2 = 3; break;
+  case 1: pos0 = 0; pos1 = 2; pos2 = 3; break;
+  case 2: pos0 = 0; pos1 = 1; pos2 = 3; break;
+  case 3: pos0 = 0; pos1 = 1; pos2 = 2; break;
   default: ASSERT_NOT_REACHED; break;
   }
+  auto val0 = _fanin(pos0)->val();
+  auto val1 = _fanin(pos1)->val();
+  auto val2 = _fanin(pos2)->val();
   return _obs_val(val0) & _obs_val(val1) & _obs_val(val2);
 }
 
@@ -237,7 +262,7 @@ SnAnd4::_calc_gobs(ymuint ipos)
 //////////////////////////////////////////////////////////////////////
 
 // @brief コンストラクタ
-SnNand::SnNand(ymuint id,
+SnNand::SnNand(int id,
 	       const vector<SimNode*>& inputs) :
   SnAnd(id, inputs)
 {
@@ -259,12 +284,7 @@ SnNand::gate_type() const
 FSIM_VALTYPE
 SnNand::_calc_val()
 {
-  ymuint n = _fanin_num();
-  FSIM_VALTYPE val = _fanin(0)->val();
-  for (ymuint i = 1; i < n; ++ i) {
-    val &= _fanin(i)->val();
-  }
-  return ~val;
+  return ~_calc_and();
 }
 
 
@@ -273,7 +293,7 @@ SnNand::_calc_val()
 //////////////////////////////////////////////////////////////////////
 
 // @brief コンストラクタ
-SnNand2::SnNand2(ymuint id,
+SnNand2::SnNand2(int id,
 		 const vector<SimNode*>& inputs) :
   SnAnd2(id, inputs)
 {
@@ -295,12 +315,7 @@ SnNand2::gate_type() const
 FSIM_VALTYPE
 SnNand2::_calc_val()
 {
-  SimNode* inode0 = _fanin(0);
-  SimNode* inode1 = _fanin(1);
-  FSIM_VALTYPE val0 = inode0->val();
-  FSIM_VALTYPE val1 = inode1->val();
-  FSIM_VALTYPE val = val0 & val1;
-  return ~val;
+  return ~_calc_and();
 }
 
 
@@ -309,7 +324,7 @@ SnNand2::_calc_val()
 //////////////////////////////////////////////////////////////////////
 
 // @brief コンストラクタ
-SnNand3::SnNand3(ymuint id,
+SnNand3::SnNand3(int id,
 		 const vector<SimNode*>& inputs) :
   SnAnd3(id, inputs)
 {
@@ -331,14 +346,7 @@ SnNand3::gate_type() const
 FSIM_VALTYPE
 SnNand3::_calc_val()
 {
-  SimNode* inode0 = _fanin(0);
-  SimNode* inode1 = _fanin(1);
-  SimNode* inode2 = _fanin(2);
-  FSIM_VALTYPE val0 = inode0->val();
-  FSIM_VALTYPE val1 = inode1->val();
-  FSIM_VALTYPE val2 = inode2->val();
-  FSIM_VALTYPE val = val0 & val1 & val2;
-  return ~val;
+  return ~_calc_and();
 }
 
 
@@ -347,7 +355,7 @@ SnNand3::_calc_val()
 //////////////////////////////////////////////////////////////////////
 
 // @brief コンストラクタ
-SnNand4::SnNand4(ymuint id,
+SnNand4::SnNand4(int id,
 		 const vector<SimNode*>& inputs) :
   SnAnd4(id, inputs)
 {
@@ -369,16 +377,7 @@ SnNand4::gate_type() const
 FSIM_VALTYPE
 SnNand4::_calc_val()
 {
-  SimNode* inode0 = _fanin(0);
-  SimNode* inode1 = _fanin(1);
-  SimNode* inode2 = _fanin(2);
-  SimNode* inode3 = _fanin(3);
-  FSIM_VALTYPE val0 = inode0->val();
-  FSIM_VALTYPE val1 = inode1->val();
-  FSIM_VALTYPE val2 = inode2->val();
-  FSIM_VALTYPE val3 = inode3->val();
-  FSIM_VALTYPE val = val0 & val1 & val2 & val3;
-  return ~val;
+  return ~_calc_and();
 }
 
 END_NAMESPACE_YM_SATPG_FSIM

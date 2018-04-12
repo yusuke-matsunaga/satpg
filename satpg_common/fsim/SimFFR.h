@@ -28,6 +28,13 @@ public:
   /// @brief コンストラクタ
   SimFFR();
 
+  /// @brief コピーコンストラクタは禁止
+  SimFFR(const SimFFR& src) = delete;
+
+  /// @brief 代入演算子も禁止
+  const SimFFR&
+  operator=(const SimFFR& src) = delete;
+
   /// @brief デストラクタ
   ~SimFFR();
 

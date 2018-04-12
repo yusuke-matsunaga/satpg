@@ -9,6 +9,7 @@
 
 #include "SnGate.h"
 #include "GateType.h"
+#include "ym/Range.h"
 
 
 BEGIN_NAMESPACE_YM_SATPG_FSIM
@@ -19,23 +20,25 @@ BEGIN_NAMESPACE_YM_SATPG_FSIM
 //////////////////////////////////////////////////////////////////////
 
 // @brief コンストラクタ
-SnGate::SnGate(ymuint id,
+SnGate::SnGate(int id,
 	       const vector<SimNode*>& inputs) :
   SimNode(id),
   mFaninNum(inputs.size()),
   mFanins(new SimNode*[mFaninNum])
 {
-  ymuint max_level = 0;
-  for (ymuint i = 0; i < mFaninNum; ++ i) {
+  // ファンインをセットしつつ
+  // ファンインのレベルの最大値を求める．
+  int max_level = 0;
+  for ( auto i: Range(0, mFaninNum) ) {
     SimNode* input = inputs[i];
-    ASSERT_COND(input );
+    ASSERT_COND( input != nullptr );
     mFanins[i] = input;
-    ymuint level = input->level() + 1;
+    int level = input->level();
     if ( max_level < level ) {
       max_level = level;
     }
   }
-  set_level(max_level);
+  set_level(max_level + 1);
 }
 
 // @brief デストラクタ
@@ -45,7 +48,7 @@ SnGate::~SnGate()
 }
 
 // @brief ファンイン数を得る．
-ymuint
+int
 SnGate::fanin_num() const
 {
   return _fanin_num();
@@ -53,9 +56,10 @@ SnGate::fanin_num() const
 
 // @brief pos 番めのファンインを得る．
 SimNode*
-SnGate::fanin(ymuint pos) const
+SnGate::fanin(int pos) const
 {
-  ASSERT_COND( pos < _fanin_num() );
+  ASSERT_COND( pos >= 0 && pos < _fanin_num() );
+
   return _fanin(pos);
 }
 
@@ -65,8 +69,7 @@ SnGate::dump(ostream& s) const
 {
   s <<  gate_type()
     << "(" << _fanin(0)->id();
-  int n = _fanin_num();
-  for ( int i = 1; i < n; ++ i ) {
+  for ( auto i: Range(1, _fanin_num()) ) {
     s << ", " << _fanin(i)->id();
   }
   s << ")" << endl;
@@ -79,12 +82,13 @@ SnGate::dump(ostream& s) const
 //////////////////////////////////////////////////////////////////////
 
 // @brief コンストラクタ
-SnGate1::SnGate1(ymuint id,
+SnGate1::SnGate1(int id,
 		 const vector<SimNode*>& inputs) :
   SimNode(id)
 {
-  ASSERT_COND(inputs.size() == 1 );
-  ASSERT_COND(inputs[0] );
+  ASSERT_COND( inputs.size() == 1 );
+  ASSERT_COND( inputs[0] != nullptr );
+
   mFanin = inputs[0];
   set_level(mFanin->level() + 1);
 }
@@ -95,7 +99,7 @@ SnGate1::~SnGate1()
 }
 
 // @brief ファンイン数を得る．
-ymuint
+int
 SnGate1::fanin_num() const
 {
   return 1;
@@ -103,7 +107,7 @@ SnGate1::fanin_num() const
 
 // @brief pos 番めのファンインを得る．
 SimNode*
-SnGate1::fanin(ymuint pos) const
+SnGate1::fanin(int pos) const
 {
   return mFanin;
 }
@@ -123,16 +127,17 @@ SnGate1::dump(ostream& s) const
 //////////////////////////////////////////////////////////////////////
 
 // @brief コンストラクタ
-SnGate2::SnGate2(ymuint id,
+SnGate2::SnGate2(int id,
 		 const vector<SimNode*>& inputs) :
   SimNode(id)
 {
-  ASSERT_COND(inputs.size() == 2 );
-  ASSERT_COND(inputs[0] );
-  ASSERT_COND(inputs[1] );
+  ASSERT_COND( inputs.size() == 2 );
+  ASSERT_COND( inputs[0] != nullptr );
+  ASSERT_COND( inputs[1] != nullptr );
+
   mFanins[0] = inputs[0];
   mFanins[1] = inputs[1];
-  ymuint level = mFanins[0]->level();
+  auto level = mFanins[0]->level();
   if ( level < mFanins[1]->level() ) {
     level = mFanins[1]->level();
   }
@@ -145,7 +150,7 @@ SnGate2::~SnGate2()
 }
 
 // @brief ファンイン数を得る．
-ymuint
+int
 SnGate2::fanin_num() const
 {
   return 2;
@@ -153,7 +158,7 @@ SnGate2::fanin_num() const
 
 // @brief pos 番めのファンインを得る．
 SimNode*
-SnGate2::fanin(ymuint pos) const
+SnGate2::fanin(int pos) const
 {
   return mFanins[pos];
 }
@@ -175,18 +180,19 @@ SnGate2::dump(ostream& s) const
 //////////////////////////////////////////////////////////////////////
 
 // @brief コンストラクタ
-SnGate3::SnGate3(ymuint id,
+SnGate3::SnGate3(int id,
 		 const vector<SimNode*>& inputs) :
   SimNode(id)
 {
-  ASSERT_COND(inputs.size() == 3 );
-  ASSERT_COND(inputs[0] );
-  ASSERT_COND(inputs[1] );
-  ASSERT_COND(inputs[2] );
+  ASSERT_COND( inputs.size() == 3 );
+  ASSERT_COND( inputs[0] != nullptr );
+  ASSERT_COND( inputs[1] != nullptr );
+  ASSERT_COND( inputs[2] != nullptr );
+
   mFanins[0] = inputs[0];
   mFanins[1] = inputs[1];
   mFanins[2] = inputs[2];
-  ymuint level = mFanins[0]->level();
+  auto level = mFanins[0]->level();
   if ( level < mFanins[1]->level() ) {
     level = mFanins[1]->level();
   }
@@ -202,7 +208,7 @@ SnGate3::~SnGate3()
 }
 
 // @brief ファンイン数を得る．
-ymuint
+int
 SnGate3::fanin_num() const
 {
   return 3;
@@ -210,7 +216,7 @@ SnGate3::fanin_num() const
 
 // @brief pos 番めのファンインを得る．
 SimNode*
-SnGate3::fanin(ymuint pos) const
+SnGate3::fanin(int pos) const
 {
   return mFanins[pos];
 }
@@ -233,20 +239,21 @@ SnGate3::dump(ostream& s) const
 //////////////////////////////////////////////////////////////////////
 
 // @brief コンストラクタ
-SnGate4::SnGate4(ymuint id,
+SnGate4::SnGate4(int id,
 		 const vector<SimNode*>& inputs) :
   SimNode(id)
 {
-  ASSERT_COND(inputs.size() == 4 );
-  ASSERT_COND(inputs[0] );
-  ASSERT_COND(inputs[1] );
-  ASSERT_COND(inputs[2] );
-  ASSERT_COND(inputs[3] );
+  ASSERT_COND( inputs.size() == 4 );
+  ASSERT_COND( inputs[0] != nullptr );
+  ASSERT_COND( inputs[1] != nullptr );
+  ASSERT_COND( inputs[2] != nullptr );
+  ASSERT_COND( inputs[3] != nullptr );
+
   mFanins[0] = inputs[0];
   mFanins[1] = inputs[1];
   mFanins[2] = inputs[2];
   mFanins[3] = inputs[3];
-  ymuint level = mFanins[0]->level();
+  auto level = mFanins[0]->level();
   if ( level < mFanins[1]->level() ) {
     level = mFanins[1]->level();
   }
@@ -265,7 +272,7 @@ SnGate4::~SnGate4()
 }
 
 // @brief ファンイン数を得る．
-ymuint
+int
 SnGate4::fanin_num() const
 {
   return 4;
@@ -273,7 +280,7 @@ SnGate4::fanin_num() const
 
 // @brief pos 番めのファンインを得る．
 SimNode*
-SnGate4::fanin(ymuint pos) const
+SnGate4::fanin(int pos) const
 {
   return mFanins[pos];
 }

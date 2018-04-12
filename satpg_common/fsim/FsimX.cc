@@ -116,9 +116,9 @@ FSIM_CLASSNAME::set_network(const TpgNetwork& network)
   mOutputNum = network.output_num();
   mDffNum = network.dff_num();
 
-  int nn = network.node_num();
-  int ni = network.ppi_num();
-  int no = network.ppo_num();
+  auto nn = network.node_num();
+  auto ni = network.ppi_num();
+  auto no = network.ppo_num();
 
   ASSERT_COND( ni == mInputNum + mDffNum );
   ASSERT_COND( no == mOutputNum + mDffNum );
@@ -130,7 +130,7 @@ FSIM_CLASSNAME::set_network(const TpgNetwork& network)
   mPPOArray = new SimNode*[no];
   mPrevValArray = new FSIM_VALTYPE[nn];
 
-  int nf = 0;
+  auto nf = 0;
   for ( auto tpgnode: network.node_list() ) {
     nf += network.node_rep_fault_num(tpgnode->id());
 
@@ -143,7 +143,7 @@ FSIM_CLASSNAME::set_network(const TpgNetwork& network)
     }
     else if ( tpgnode->is_ppo() ) {
       // 外部出力に対応する SimNode の生成
-      SimNode* inode = simmap[tpgnode->fanin_list()[0]->id()];
+      auto inode = simmap[tpgnode->fanin_list()[0]->id()];
       // 実際にはバッファタイプのノードに出力の印をつけるだけ．
       node = make_gate(GateType::Buff, vector<SimNode*>(1, inode));
       node->set_output();
@@ -153,26 +153,27 @@ FSIM_CLASSNAME::set_network(const TpgNetwork& network)
 	      tpgnode->is_dff_clear() ||
 	      tpgnode->is_dff_preset() ) {
       // DFFの制御端子に対応する SimNode の生成
-      SimNode* inode = simmap[tpgnode->fanin_list()[0]->id()];
+      auto inode = simmap[tpgnode->fanin_list()[0]->id()];
       // 実際にはバッファタイプのノードに出力の印をつけるだけ．
       node = make_gate(GateType::Buff, vector<SimNode*>(1, inode));
       node->set_output();
     }
     else if ( tpgnode->is_logic() ) {
       // 論理ノードに対する SimNode の作成
-      int ni = tpgnode->fanin_num();
+      auto ni = tpgnode->fanin_num();
 
       // ファンインに対応する SimNode を探す．
       vector<SimNode*> inputs;
       inputs.reserve(ni);
       for ( auto itpgnode: tpgnode->fanin_list() ) {
-	SimNode* inode = simmap[itpgnode->id()];
-	ASSERT_COND(inode );
+	auto inode = simmap[itpgnode->id()];
+	ASSERT_COND( inode != nullptr);
+
 	inputs.push_back(inode);
       }
 
       // 出力の論理を表す SimNode を作る．
-      GateType type = tpgnode->gate_type();
+      auto type = tpgnode->gate_type();
       node = make_gate(type, inputs);
     }
     // 対応表に登録しておく．
@@ -180,58 +181,55 @@ FSIM_CLASSNAME::set_network(const TpgNetwork& network)
   }
 
   // 各ノードのファンアウトリストの設定
-  int node_num = mNodeArray.size();
+  auto node_num = mNodeArray.size();
   {
     vector<vector<SimNode*> > fanout_lists(node_num);
     vector<int> ipos(node_num);
     for ( auto node: mNodeArray ) {
-      int ni = node->fanin_num();
-      for ( int i = 0; i < ni; ++ i) {
-	SimNode* inode = node->fanin(i);
+      auto ni = node->fanin_num();
+      for ( auto i: Range(0, ni) ) {
+	auto inode = node->fanin(i);
 	fanout_lists[inode->id()].push_back(node);
 	ipos[inode->id()] = i;
       }
     }
     for ( auto i: Range(node_num) ) {
-      SimNode* node = mNodeArray[i];
+      auto node = mNodeArray[i];
       node->set_fanout_list(fanout_lists[i], ipos[i]);
     }
   }
 
   // FFR の設定
-  int ffr_num = 0;
-  for (int i = node_num; i > 0; ) {
-    -- i;
-    SimNode* node = mNodeArray[i];
+  auto ffr_num = 0;
+  for ( auto node: mNodeArray ) {
     if ( node->is_output() || node->fanout_num() != 1 ) {
       ++ ffr_num;
     }
   }
+
   mFFRNum = ffr_num;
   mFFRArray = new SimFFR[ffr_num];
   mFFRMap = new SimFFR*[mNodeArray.size()];
   ffr_num = 0;
-  for (int i = node_num; i > 0; ) {
-    -- i;
-    SimNode* node = mNodeArray[i];
+  for ( int i = node_num; -- i >= 0; ) {
+    auto node = mNodeArray[i];
     if ( node->is_output() || node->fanout_num() != 1 ) {
-      SimFFR* ffr = &mFFRArray[ffr_num];
+      auto ffr = &mFFRArray[ffr_num];
       node->set_ffr_root();
       mFFRMap[node->id()] = ffr;
       ffr->set_root(node);
       ++ ffr_num;
     }
     else {
-      SimNode* fo_node = node->fanout_top();
-      SimFFR* ffr = mFFRMap[fo_node->id()];
+      auto fo_node = node->fanout_top();
+      auto ffr = mFFRMap[fo_node->id()];
       mFFRMap[node->id()] = ffr;
     }
   }
 
   // 最大レベルを求め，イベントキューを初期化する．
-  int max_level = 0;
-  for (int i = 0; i < no; ++ i) {
-    SimNode* inode = mPPOArray[i];
+  auto max_level = 0;
+  for ( auto inode: Array<SimNode*>(mPPOArray, 0, no) ) {
     if ( max_level < inode->level() ) {
       max_level = inode->level();
     }
@@ -249,25 +247,25 @@ FSIM_CLASSNAME::set_network(const TpgNetwork& network)
   mFaultArray = new SimFault*[network.max_fault_id()];
   mDetFaultArray = new const TpgFault*[nf];
   mDetPatArray = new PackedVal[nf];
-  int fid = 0;
+  auto fid = 0;
   for ( auto tpgnode: network.node_list() ) {
-    SimNode* simnode = simmap[tpgnode->id()];
-    SimFFR* ffr = mFFRMap[simnode->id()];
-    int nf1 = network.node_rep_fault_num(tpgnode->id());
-    for (int j = 0; j < nf1; ++ j) {
-      const TpgFault* fault = network.node_rep_fault(tpgnode->id(), j);
+    auto simnode = simmap[tpgnode->id()];
+    auto ffr = mFFRMap[simnode->id()];
+    auto nf1 = network.node_rep_fault_num(tpgnode->id());
+    for ( auto j: Range(0, nf1) ) {
+      auto fault = network.node_rep_fault(tpgnode->id(), j);
       SimNode* isimnode = nullptr;
       int ipos = 0;
       if ( fault->is_branch_fault() ) {
 	ipos = fault->tpg_pos();
-	const TpgNode* inode = tpgnode->fanin_list()[ipos];
+	auto inode = tpgnode->fanin_list()[ipos];
 	isimnode = simmap[inode->id()];
       }
       else {
 	isimnode = simnode;
       }
       mSimFaults[fid].set(fault, simnode, ipos, isimnode);
-      SimFault* ff = &mSimFaults[fid];
+      auto ff = &mSimFaults[fid];
       mFaultArray[fault->id()] = ff;
       ff->mSkip = false;
       ffr->add_fault(ff);
@@ -425,7 +423,7 @@ void
 FSIM_CLASSNAME::set_pattern(int pos,
 			    const TestVector* tv)
 {
-  ASSERT_COND( pos < kPvBitLen );
+  ASSERT_COND( pos >= 0 && pos < kPvBitLen );
 
   mPatBuff[pos] = tv;
   mPatMap |= (1ULL << pos);
@@ -440,7 +438,7 @@ FSIM_CLASSNAME::set_pattern(int pos,
 const TestVector*
 FSIM_CLASSNAME::get_pattern(int pos)
 {
-  ASSERT_COND( pos < kPvBitLen );
+  ASSERT_COND( pos >= 0 && pos < kPvBitLen );
 
   if ( mPatMap & (1ULL << pos) ) {
     return mPatBuff[pos];
@@ -457,10 +455,10 @@ FSIM_CLASSNAME::get_pattern(int pos)
 bool
 FSIM_CLASSNAME::_spsfp(const TpgFault* f)
 {
-  SimFault* ff = mFaultArray[f->id()];
+  auto ff = mFaultArray[f->id()];
 
   // FFR の根までの伝搬条件を求める．
-  PackedVal obs = _fault_prop(ff);
+  auto obs = _fault_prop(ff);
 
   // obs が 0 ならその後のシミュレーションを行う必要はない．
   if ( obs == kPvAll0 ) {
@@ -468,7 +466,7 @@ FSIM_CLASSNAME::_spsfp(const TpgFault* f)
   }
 
   // FFR の根のノードを求める．
-  SimNode* root = ff->mNode->ffr_root();
+  auto root = ff->mNode->ffr_root();
 
   // root からの故障伝搬シミュレーションを行う．
   obs = _prop_sim(root, kPvAll1);
@@ -481,21 +479,22 @@ FSIM_CLASSNAME::_spsfp(const TpgFault* f)
 int
 FSIM_CLASSNAME::_sppfp()
 {
-  mDetNum = 0;
-  int bitpos = 0;
   const SimFFR* ffr_buff[kPvBitLen];
+
+  mDetNum = 0;
+  auto bitpos = 0;
   // FFR ごとに処理を行う．
   for ( auto& ffr: _ffr_list() ) {
     // FFR 内の故障伝搬を行う．
     // 結果は SimFault.mObsMask に保存される．
     // FFR 内の全ての obs マスクを ffr_req に入れる．
-    PackedVal ffr_req = _foreach_faults(ffr.fault_list());
+    auto ffr_req = _foreach_faults(ffr.fault_list());
     if ( ffr_req == kPvAll0 ) {
       // ffr_req が 0 ならその後のシミュレーションを行う必要はない．
       continue;
     }
 
-    SimNode* root = ffr.root();
+    auto root = ffr.root();
     if ( root->is_output() ) {
       // 常に観測可能
       _fault_sweep(ffr.fault_list());
@@ -531,11 +530,11 @@ FSIM_CLASSNAME::_ppsfp()
   // FFR ごとに処理を行う．
   mDetNum = 0;
   for ( auto& ffr: _ffr_list() ) {
-    const vector<SimFault*>& fault_list = ffr.fault_list();
+    auto& fault_list = ffr.fault_list();
     // FFR 内の故障伝搬を行う．
     // 結果は SimFault::mObsMask に保存される．
     // FFR 内の全ての obs マスクを ffr_req に入れる．
-    PackedVal ffr_req = _foreach_faults(fault_list) & mPatMap;
+    auto ffr_req = _foreach_faults(fault_list) & mPatMap;
 
     // ffr_req が 0 ならその後のシミュレーションを行う必要はない．
     if ( ffr_req == kPvAll0 ) {
@@ -543,7 +542,7 @@ FSIM_CLASSNAME::_ppsfp()
     }
 
     // FFR の出力の故障伝搬を行う．
-    PackedVal obs = _prop_sim(ffr.root(), ffr_req);
+    auto obs = _prop_sim(ffr.root(), ffr_req);
 
     _fault_sweep(fault_list, obs);
   }
@@ -560,14 +559,14 @@ FSIM_CLASSNAME::set_state(const InputVector& i_vect,
 {
   int i = 0;
   for ( auto simnode: input_list() ) {
-    Val3 val3 = i_vect.val(i);
+    auto val3 = i_vect.val(i);
     simnode->set_val(val3_to_packedval(val3));
     ++ i;
   }
 
   i = 0;
   for ( auto simnode: dff_output_list() ) {
-    Val3 val3 = f_vect.val(i);
+    auto val3 = f_vect.val(i);
     simnode->set_val(val3_to_packedval(val3));
     ++ i;
   }
@@ -584,8 +583,8 @@ FSIM_CLASSNAME::set_state(const InputVector& i_vect,
 
   // DFF の出力の値を入力にコピーする．
   for ( auto i: Range(mDffNum) ) {
-    SimNode* onode = mPPOArray[i + mOutputNum];
-    SimNode* inode = mPPIArray[i + mInputNum];
+    auto onode = mPPOArray[i + mOutputNum];
+    auto inode = mPPIArray[i + mInputNum];
     inode->set_val(onode->val());
   }
 }
@@ -620,7 +619,7 @@ FSIM_CLASSNAME::calc_wsa(const InputVector& i_vect,
 {
   int i = 0;
   for ( auto simnode: input_list() ) {
-    Val3 val3 = i_vect.val(i);
+    auto val3 = i_vect.val(i);
     simnode->set_val(val3_to_packedval(val3));
   }
 
@@ -642,8 +641,8 @@ FSIM_CLASSNAME::calc_wsa(const InputVector& i_vect,
 
   // DFF の出力の値を入力にコピーする．
   for ( auto i: Range(mDffNum) ) {
-    SimNode* onode = mPPOArray[i + mOutputNum];
-    SimNode* inode = mPPIArray[i + mInputNum];
+    auto onode = mPPOArray[i + mOutputNum];
+    auto inode = mPPIArray[i + mInputNum];
     inode->set_val(onode->val());
   }
 
@@ -716,8 +715,8 @@ FSIM_CLASSNAME::_calc_gval(const InputVals& input_vals)
 
   // DFF の出力の値を入力にコピーする．
   for ( auto i: Range(mDffNum) ) {
-    SimNode* onode = mPPOArray[i + mOutputNum];
-    SimNode* inode = mPPIArray[i + mInputNum];
+    auto onode = mPPOArray[i + mOutputNum];
+    auto inode = mPPIArray[i + mInputNum];
     inode->set_val(onode->val());
   }
 
@@ -746,13 +745,13 @@ FSIM_CLASSNAME::_calc_val()
 PackedVal
 FSIM_CLASSNAME::_foreach_faults(const vector<SimFault*>& fault_list)
 {
-  PackedVal ffr_req = kPvAll0;
+  auto ffr_req = kPvAll0;
   for ( auto ff: fault_list ) {
     if ( ff->mSkip ) {
       continue;
     }
 
-    PackedVal obs = _fault_prop(ff);
+    auto obs = _fault_prop(ff);
 
     ff->mObsMask = obs;
     ffr_req |= obs;
@@ -768,9 +767,9 @@ void
 FSIM_CLASSNAME::_do_simulation(const SimFFR* ffr_buff[],
 			       int ffr_num)
 {
-  PackedVal obs = mEventQ.simulate();
+  auto obs = mEventQ.simulate();
   PackedVal mask = 1ULL;
-  for ( int i = 0; i < ffr_num; ++ i, mask <<= 1 ) {
+  for ( auto i = 0; i < ffr_num; ++ i, mask <<= 1 ) {
     if ( obs & mask ) {
       _fault_sweep(ffr_buff[i]->fault_list());
     }
@@ -786,7 +785,7 @@ FSIM_CLASSNAME::_fault_sweep(const vector<SimFault*>& fault_list)
     if ( ff->mSkip || ff->mObsMask == kPvAll0 ) {
       continue;
     }
-    const TpgFault* f = ff->mOrigF;
+    auto f = ff->mOrigF;
     mDetFaultArray[mDetNum] = f;
     ++ mDetNum;
   }
@@ -803,9 +802,9 @@ FSIM_CLASSNAME::_fault_sweep(const vector<SimFault*>& fault_list,
     if ( ff->mSkip ) {
       continue;
     }
-    PackedVal pat = ff->mObsMask & mask;
+    auto pat = ff->mObsMask & mask;
     if ( pat != kPvAll0 ) {
-      const TpgFault* f = ff->mOrigF;
+      auto f = ff->mOrigF;
       mDetFaultArray[mDetNum] = f;
       mDetPatArray[mDetNum] = pat;
       ++ mDetNum;
@@ -842,8 +841,8 @@ FSIM_CLASSNAME::clear()
 SimNode*
 FSIM_CLASSNAME::make_input()
 {
-  int id = mNodeArray.size();
-  SimNode* node = SimNode::new_input(id);
+  auto id = mNodeArray.size();
+  auto node = SimNode::new_input(id);
   mNodeArray.push_back(node);
   return node;
 }
@@ -853,8 +852,8 @@ SimNode*
 FSIM_CLASSNAME::make_gate(GateType type,
 			  const vector<SimNode*>& inputs)
 {
-  int id = mNodeArray.size();
-  SimNode* node = SimNode::new_gate(id, type, inputs);
+  auto id = mNodeArray.size();
+  auto node = SimNode::new_gate(id, type, inputs);
   mNodeArray.push_back(node);
   mLogicArray.push_back(node);
   return node;

@@ -51,6 +51,13 @@ public:
   /// @brief コンストラクタ
   TpgNetwork();
 
+  /// @brief コピーコンストラクタは禁止
+  TpgNetwork(const TpgNetwork& src) = delete;
+
+  /// @brief 代入演算子も禁止
+  const TpgNetwork&
+  operator=(const TpgNetwork& src) = delete;
+
   /// @brief デストラクタ
   ~TpgNetwork();
 
@@ -276,15 +283,8 @@ public:
 
 private:
   //////////////////////////////////////////////////////////////////////
-  // オブジェクトの生成はクラスメソッドのみが行なう．
+  // 内部で用いられる関数
   //////////////////////////////////////////////////////////////////////
-
-  /// @brief コピーコンストラクタは実装しない．
-  TpgNetwork(const TpgNetwork& src);
-
-  /// @brief 代入演算子も実装しない．
-  const TpgNetwork&
-  operator=(const TpgNetwork& src);
 
 
 private:
