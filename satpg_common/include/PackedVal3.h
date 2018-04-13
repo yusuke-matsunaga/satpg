@@ -27,15 +27,21 @@ public:
   /// 不定値になる．
   PackedVal3();
 
-  /// @brief 2値のコンストラクタ
+  /// @brief コピーコンストラクタ
+  PackedVal3(const PackedVal3& src) = default;
+
+  /// @brief コンストラクタ
+  /// @param[in] val0 0を表すビットベクタ
+  /// @param[in] val1 1を表すビットベクタ
+  ///
+  /// val0 と val1 の両方のビットが1になったら不正
+  PackedVal3(PackedVal val0,
+	     PackedVal val1);
+
+  /// @brief 2値の PackedVal からの変換コンストラクタ
   /// @param[in] val 値
   explicit
   PackedVal3(PackedVal val);
-
-  /// @brief コンストラクタ
-  /// @param[in] val0, val1 値
-  PackedVal3(PackedVal val0,
-	     PackedVal val1);
 
   /// @brief デストラクタ
   ~PackedVal3();
@@ -69,8 +75,8 @@ public:
   /// @brief 普通の代入演算子
   /// @param[in] val 値
   /// @return 代入後の自身への参照を返す．
-  const PackedVal3&
-  operator=(PackedVal3 val);
+  PackedVal3&
+  operator=(const PackedVal3& val) = default;
 
   /// @brief 値をセットする．
   /// @param[in] val0, val1 値
@@ -235,10 +241,9 @@ PackedVal3::PackedVal3(PackedVal val) :
 // @param[in] val0, val1 値
 inline
 PackedVal3::PackedVal3(PackedVal val0,
-		       PackedVal val1) :
-  mVal0(val0),
-  mVal1(val1)
+		       PackedVal val1)
 {
+  set(val0, val1);
 }
 
 // @brief デストラクタ
@@ -285,18 +290,6 @@ PackedVal3::operator=(PackedVal val)
   return *this;
 }
 
-// @brief 普通の代入演算子
-// @param[in] val 値
-// @return 代入後の自身への参照を返す．
-inline
-const PackedVal3&
-PackedVal3::operator=(PackedVal3 val)
-{
-  mVal0 = val.mVal0;
-  mVal1 = val.mVal1;
-  return *this;
-}
-
 // @brief 値をセットする．
 // @param[in] val0, val1 値
 inline
@@ -304,8 +297,9 @@ void
 PackedVal3::set(PackedVal val0,
 		PackedVal val1)
 {
-  mVal0 = val0;
-  mVal1 = val1;
+  // 両方が1のビットは不定値(X)にする．
+  mVal0 = val0 & ~val1;
+  mVal1 = val1 & ~val0;
 }
 
 // @brief マスク付きで値をセットする．
