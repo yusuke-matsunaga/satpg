@@ -23,7 +23,7 @@ include_directories (
 # ===================================================================
 
 set ( CYTHON_SOURCES
-  satpg.pyx
+  satpg_core.pyx
   )
 
 set_source_files_properties (
@@ -36,7 +36,7 @@ set_source_files_properties (
 #  module ターゲットの設定
 # ===================================================================
 
-cython_add_module ( satpg
+cython_add_module ( satpg_core
   ${CYTHON_SOURCES}
   $<TARGET_OBJECTS:satpg_common>
   $<TARGET_OBJECTS:satpg_fsimsa2>
@@ -52,19 +52,19 @@ cython_add_module ( satpg
   $<TARGET_OBJECTS:ym_sat>
   )
 
-target_compile_options ( satpg
+target_compile_options ( satpg_core
   PRIVATE "-O3"
   )
 
-target_compile_definitions ( satpg
+target_compile_definitions ( satpg_core
   PRIVATE "-DNDEBUG"
   )
 
-target_link_libraries ( satpg
+target_link_libraries ( satpg_core
   ${YM_LIB_DEPENDS}
   )
 
 install (TARGETS
-  satpg
+  satpg_core
   DESTINATION lib/python/site-packages
   )

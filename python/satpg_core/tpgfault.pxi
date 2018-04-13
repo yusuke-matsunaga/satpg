@@ -3,7 +3,7 @@
 ### @brief tpgfault の cython インターフェイス
 ### @author Yusuke Matsunaga (松永 裕介)
 ###
-### Copyright (C) 2017 Yusuke Matsunaga
+### Copyright (C) 2017, 2018 Yusuke Matsunaga
 ### All rights reserved.
 
 from CXX_TpgFault cimport TpgFault as CXX_TpgFault
@@ -110,6 +110,11 @@ cdef class TpgFault :
             return None
         c_fault = self._thisptr.rep_fault()
         return to_TpgFault(c_fault)
+
+
+### @brief CXX_TpgFault への変換
+cdef const CXX_TpgFault* from_TpgFault(TpgFault fault) :
+    return fault._thisptr
 
 
 ### @brief CXX_TpgFault からの変換
