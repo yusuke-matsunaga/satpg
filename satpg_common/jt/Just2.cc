@@ -20,15 +20,6 @@ int debug = 0;
 
 END_NONAMESPACE
 
-// @brief Just2 を生成する．
-// @param[in] max_id ノード番号の最大値
-Justifier*
-new_Just2(int max_id)
-{
-  return new Just2(max_id);
-}
-
-
 //////////////////////////////////////////////////////////////////////
 // クラス Just2
 //////////////////////////////////////////////////////////////////////
@@ -36,7 +27,7 @@ new_Just2(int max_id)
 // @brief コンストラクタ
 // @param[in] max_id ノード番号の最大値
 Just2::Just2(int max_id) :
-  Justifier(max_id),
+  JustImpl(max_id),
   mWeightArray(max_id * 2, 0U),
   mTmpArray(max_id * 2, 0.0)
 {

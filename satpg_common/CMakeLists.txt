@@ -92,6 +92,7 @@ set (ex_SOURCES
 
 set (jt_SOURCES
   jt/Justifier.cc
+  jt/JustImpl.cc
   jt/Just1.cc
   jt/Just2.cc
   )

@@ -51,14 +51,14 @@ extract(const TpgNode* root,
 // @param[in] sat_option SATソルバに渡すオプション文字列
 // @param[in] sat_outp SATソルバ用の出力ストリーム
 // @param[in] fault_type 故障の種類
-// @param[in] bt バックトレーサー
+// @param[in] just_type Justifier の種類を表す文字列
 // @param[in] network 対象のネットワーク
 // @param[in] node 故障のあるノード
 Dtpg::Dtpg(const string& sat_type,
 	   const string& sat_option,
 	   ostream* sat_outp,
 	   FaultType fault_type,
-	   Justifier& jt,
+	   const string& just_type,
 	   const TpgNetwork& network,
 	   const TpgNode* node) :
   mSolver(sat_type, sat_option, sat_outp),
@@ -70,7 +70,7 @@ Dtpg::Dtpg(const string& sat_type,
   mGvarMap(network.node_num()),
   mFvarMap(network.node_num()),
   mDvarMap(network.node_num()),
-  mJustifier(jt),
+  mJustifier(just_type, network.node_num()),
   mTimerEnable(true)
 {
   mTfoList.reserve(network.node_num());
@@ -97,7 +97,7 @@ Dtpg::Dtpg(const string& sat_type,
 	   const string& sat_option,
 	   ostream* sat_outp,
 	   FaultType fault_type,
-	   Justifier& jt,
+	   const string& just_type,
 	   const TpgNetwork& network,
 	   const TpgFFR& ffr) :
   mSolver(sat_type, sat_option, sat_outp),
@@ -109,7 +109,7 @@ Dtpg::Dtpg(const string& sat_type,
   mGvarMap(network.node_num()),
   mFvarMap(network.node_num()),
   mDvarMap(network.node_num()),
-  mJustifier(jt),
+  mJustifier(just_type, network.node_num()),
   mTimerEnable(true)
 {
   mTfoList.reserve(network.node_num());
@@ -129,14 +129,14 @@ Dtpg::Dtpg(const string& sat_type,
 // @param[in] sat_option SATソルバに渡すオプション文字列
 // @param[in] sat_outp SATソルバ用の出力ストリーム
 // @param[in] fault_type 故障の種類
-// @param[in] bt バックトレーサー
+// @param[in] just_type Justifier の種類を表す文字列
 // @param[in] network 対象のネットワーク
 // @param[in] root 故障伝搬の起点となるノード
 Dtpg::Dtpg(const string& sat_type,
 	   const string& sat_option,
 	   ostream* sat_outp,
 	   FaultType fault_type,
-	   Justifier& jt,
+	   const string& just_type,
 	   const TpgNetwork& network,
 	   const TpgMFFC& mffc) :
   mSolver(sat_type, sat_option, sat_outp),
@@ -150,7 +150,7 @@ Dtpg::Dtpg(const string& sat_type,
   mGvarMap(network.node_num()),
   mFvarMap(network.node_num()),
   mDvarMap(network.node_num()),
-  mJustifier(jt),
+  mJustifier(just_type, network.node_num()),
   mTimerEnable(true)
 {
   mTfoList.reserve(network.node_num());

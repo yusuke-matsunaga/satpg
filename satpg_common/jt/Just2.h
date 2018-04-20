@@ -9,7 +9,7 @@
 /// All rights reserved.
 
 
-#include "Justifier.h"
+#include "JustImpl.h"
 #include "TpgNode.h"
 
 
@@ -22,7 +22,7 @@ class JustData;
 /// @brief 正当化に必要な割当を求めるファンクター
 //////////////////////////////////////////////////////////////////////
 class Just2 :
-  public Justifier
+  public JustImpl
 {
 public:
 
@@ -37,7 +37,7 @@ public:
 
 private:
   //////////////////////////////////////////////////////////////////////
-  // Justifier の仮想関数
+  // JustImpl の仮想関数
   //////////////////////////////////////////////////////////////////////
 
   /// @brief 初期化処理

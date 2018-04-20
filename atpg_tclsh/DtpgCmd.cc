@@ -20,7 +20,6 @@
 #include "Dtpg.h"
 #include "Fsim.h"
 #include "NodeValList.h"
-#include "Justifier.h"
 #include "DetectOp.h"
 #include "DopList.h"
 #include "DopVerifyResult.h"
@@ -35,7 +34,7 @@ run_single_new(const string& sat_type,
 	       const string& sat_option,
 	       ostream* sat_outp,
 	       FaultType fault_type,
-	       Justifier& jt,
+	       const string& just_type,
 	       const TpgNetwork& network,
 	       FaultStatusMgr& fmgr,
 	       DetectOp& dop,
@@ -45,7 +44,7 @@ run_single_new(const string& sat_type,
   for ( auto fault: network.rep_fault_list() ) {
     if ( fmgr.get(fault) == FaultStatus::Undetected ) {
       const TpgNode* node = fault->tpg_onode();
-      Dtpg dtpg(sat_type, sat_option, sat_outp, fault_type, jt, network, node);
+      Dtpg dtpg(sat_type, sat_option, sat_outp, fault_type, just_type, network, node);
       NodeValList nodeval_list;
       SatBool3 ans = dtpg.dtpg(fault, nodeval_list);
       if ( ans == SatBool3::True ) {
@@ -64,7 +63,7 @@ run_ffr_new(const string& sat_type,
 	    const string& sat_option,
 	    ostream* sat_outp,
 	    FaultType fault_type,
-	    Justifier& jt,
+	    const string& just_type,
 	    const TpgNetwork& network,
 	    FaultStatusMgr& fmgr,
 	    DetectOp& dop,
@@ -73,7 +72,7 @@ run_ffr_new(const string& sat_type,
 {
   int nffr = network.ffr_num();
   for ( auto& ffr: network.ffr_list() ) {
-    Dtpg dtpg(sat_type, sat_option, sat_outp, fault_type, jt, network, ffr);
+    Dtpg dtpg(sat_type, sat_option, sat_outp, fault_type, just_type, network, ffr);
     for ( auto fault: ffr.fault_list() ) {
       if ( fmgr.get(fault) == FaultStatus::Undetected ) {
 	NodeValList nodeval_list;
@@ -95,7 +94,7 @@ run_mffc_new(const string& sat_type,
 	     const string& sat_option,
 	     ostream* sat_outp,
 	     FaultType fault_type,
-	     Justifier& jt,
+	     const string& just_type,
 	     const TpgNetwork& network,
 	     FaultStatusMgr& fmgr,
 	     DetectOp& dop,
@@ -104,7 +103,7 @@ run_mffc_new(const string& sat_type,
 {
   int n = network.mffc_num();
   for ( auto& mffc: network.mffc_list() ) {
-    Dtpg dtpg(sat_type, sat_option, sat_outp, fault_type, jt, network, mffc);
+    Dtpg dtpg(sat_type, sat_option, sat_outp, fault_type, just_type, network, mffc);
     for ( auto fault: mffc.fault_list() ) {
       if ( fmgr.get(fault) == FaultStatus::Undetected ) {
 	// 故障に対するテスト生成を行なう．
@@ -127,7 +126,7 @@ run_single(const string& sat_type,
 	   const string& sat_option,
 	   ostream* sat_outp,
 	   FaultType fault_type,
-	   Justifier& jt,
+	   const string& just_type,
 	   const TpgNetwork& network,
 	   FaultStatusMgr& fmgr,
 	   DetectOp& dop,
@@ -137,7 +136,7 @@ run_single(const string& sat_type,
   for ( auto fault: network.rep_fault_list() ) {
     if ( fmgr.get(fault) == FaultStatus::Undetected ) {
       const TpgNode* node = fault->tpg_onode();
-      Dtpg_se dtpg(sat_type, sat_option, sat_outp, fault_type, jt, network, node);
+      Dtpg_se dtpg(sat_type, sat_option, sat_outp, fault_type, just_type, network, node);
       NodeValList nodeval_list;
       SatBool3 ans = dtpg.dtpg(fault, nodeval_list);
       if ( ans == SatBool3::True ) {
@@ -156,7 +155,7 @@ run_ffr(const string& sat_type,
 	const string& sat_option,
 	ostream* sat_outp,
 	FaultType fault_type,
-	Justifier& jt,
+	const string& just_type,
 	const TpgNetwork& network,
 	FaultStatusMgr& fmgr,
 	DetectOp& dop,
@@ -164,7 +163,7 @@ run_ffr(const string& sat_type,
 	DtpgStats& stats)
 {
   for ( auto& ffr: network.ffr_list() ) {
-    Dtpg_se dtpg(sat_type, sat_option, sat_outp, fault_type, jt, network, ffr);
+    Dtpg_se dtpg(sat_type, sat_option, sat_outp, fault_type, just_type, network, ffr);
     for ( auto fault: ffr.fault_list() ) {
       if ( fmgr.get(fault) == FaultStatus::Undetected ) {
 	NodeValList nodeval_list;
@@ -186,7 +185,7 @@ run_mffc(const string& sat_type,
 	 const string& sat_option,
 	 ostream* sat_outp,
 	 FaultType fault_type,
-	 Justifier& jt,
+	 const string& just_type,
 	 const TpgNetwork& network,
 	 FaultStatusMgr& fmgr,
 	 DetectOp& dop,
@@ -194,7 +193,7 @@ run_mffc(const string& sat_type,
 	 DtpgStats& stats)
 {
   for ( auto& mffc: network.mffc_list() ) {
-    Dtpg_se dtpg(sat_type, sat_option, sat_outp, fault_type, jt, network, mffc);
+    Dtpg_se dtpg(sat_type, sat_option, sat_outp, fault_type, just_type, network, mffc);
     for ( auto fault: mffc.fault_list() ) {
       if ( fmgr.get(fault) == FaultStatus::Undetected ) {
 	// 故障に対するテスト生成を行なう．
@@ -373,11 +372,11 @@ DtpgCmd::cmd_proc(TclObjVector& objv)
   }
 
   bool td_mode = (fault_type == FaultType::TransitionDelay);
-  Justifier* jt = nullptr;
+  string just_type = "";
   switch ( xmode ) {
-  case 1: jt = new_Just1(_network().node_num()); break;
-  case 2: jt = new_Just2(_network().node_num()); break;
-  default: jt = new_Just2(_network().node_num()); break;
+  case 1: just_type = "just1"; break;
+  case 2: just_type = "just2"; break;
+  default: break;
   }
 
   if ( mPoptDrop->is_specified() ) {
@@ -403,31 +402,31 @@ DtpgCmd::cmd_proc(TclObjVector& objv)
 
   DtpgStats stats;
   if ( engine_type == "single" ) {
-    run_single(sat_type, sat_option, outp, fault_type, *jt,
+    run_single(sat_type, sat_option, outp, fault_type, just_type,
 	       _network(), fault_mgr, dop_list, uop_list, stats);
   }
   else if ( engine_type == "ffr" ) {
-    run_ffr(sat_type, sat_option, outp, fault_type, *jt,
+    run_ffr(sat_type, sat_option, outp, fault_type, just_type,
 	    _network(), fault_mgr, dop_list, uop_list, stats);
   }
   else if ( engine_type == "mffc" ) {
-    run_mffc(sat_type, sat_option, outp, fault_type, *jt,
+    run_mffc(sat_type, sat_option, outp, fault_type, just_type,
 	     _network(), fault_mgr, dop_list, uop_list, stats);
   }
   else if ( engine_type == "single_new" ) {
-    run_single_new(sat_type, sat_option, outp, fault_type, *jt,
+    run_single_new(sat_type, sat_option, outp, fault_type, just_type,
 		   _network(), fault_mgr, dop_list, uop_list, stats);
   }
   else if ( engine_type == "ffr_new" ) {
-    run_ffr_new(sat_type, sat_option, outp, fault_type, *jt,
+    run_ffr_new(sat_type, sat_option, outp, fault_type, just_type,
 		_network(), fault_mgr, dop_list, uop_list, stats);
   }
   else if ( engine_type == "mffc_new" ) {
-    run_mffc_new(sat_type, sat_option, outp, fault_type, *jt,
+    run_mffc_new(sat_type, sat_option, outp, fault_type, just_type,
 		 _network(), fault_mgr, dop_list, uop_list, stats);
   }
   else {
-    run_single(sat_type, sat_option, outp, fault_type, *jt,
+    run_single(sat_type, sat_option, outp, fault_type, just_type,
 	       _network(), fault_mgr, dop_list, uop_list, stats);
   }
 
@@ -443,8 +442,6 @@ DtpgCmd::cmd_proc(TclObjVector& objv)
 	   << assign_list << endl;
     }
   }
-
-  delete jt;
 
   // -print_stats オプションの処理
   if ( print_stats ) {

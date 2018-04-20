@@ -12,7 +12,6 @@
 #include "TpgMFFC.h"
 #include "TpgFFR.h"
 #include "TpgFault.h"
-//#include "FaultMgr.h"
 #include "NodeValList.h"
 #include "Fsim.h"
 #include "DopVerifyResult.h"
@@ -51,7 +50,7 @@ dtpg_test(int argc,
 
   bool verbose = false;
 
-  int bt_mode = -1;
+  string just_type;
 
   argv0 = argv[0];
 
@@ -107,26 +106,19 @@ dtpg_test(int argc,
 	}
 	td_mode = true;
       }
-      else if ( strcmp(argv[pos], "--bt0") == 0 ) {
-	if ( bt_mode != -1 ) {
-	  cerr << "--bt0, --bt1, and --bt2 are mutually exclusive" << endl;
-	  return -1;
-	}
-	bt_mode = 0;
-      }
       else if ( strcmp(argv[pos], "--bt1") == 0 ) {
-	if ( bt_mode != -1 ) {
+	if ( just_type != "" ) {
 	  cerr << "--bt0, --bt1, and --bt2 are mutually exclusive" << endl;
 	  return -1;
 	}
-	bt_mode = 1;
+	just_type = "just1";
       }
       else if ( strcmp(argv[pos], "--bt2") == 0 ) {
-	if ( bt_mode != -1 ) {
+	if ( just_type != "" ) {
 	  cerr << "--bt0, --bt1, and --bt2 are mutually exclusive" << endl;
 	  return -1;
 	}
-	bt_mode = 2;
+	just_type = "just2";
       }
       else if ( strcmp(argv[pos], "--dump") == 0 ) {
 	dump = true;
@@ -165,11 +157,6 @@ dtpg_test(int argc,
     blif = true;
   }
 
-  if ( bt_mode == -1 ) {
-    // bt0 をデフォルトにする．
-    bt_mode = 0;
-  }
-
   string filename = argv[pos];
   TpgNetwork network;
   if ( blif ) {
@@ -199,7 +186,7 @@ dtpg_test(int argc,
     print_network(cout, network);
   }
 
-  DtpgTest dtpgtest(sat_type, sat_option, sat_outp, fault_type, bt_mode, network);
+  DtpgTest dtpgtest(sat_type, sat_option, sat_outp, fault_type, just_type, network);
 
   pair<int, int> num_pair;
   if ( single ) {

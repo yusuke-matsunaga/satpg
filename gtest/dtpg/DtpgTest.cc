@@ -71,7 +71,7 @@ TestData mydata[] = {
 };
 
 class DtpgTestWithParam :
-public ::testing::TestWithParam<std::tuple<TestData, string, FaultType, int> >
+public ::testing::TestWithParam<std::tuple<TestData, string, FaultType, string> >
 {
 public:
 
@@ -120,9 +120,9 @@ private:
   FaultType
   fault_type();
 
-  /// @brief テストパラメータから bt_mode を取り出す．
-  int
-  bt_mode();
+  /// @brief テストパラメータから just_type を取り出す．
+  string
+  just_type();
 
 
 private:
@@ -158,7 +158,7 @@ DtpgTestWithParam::SetUp()
   bool stat = mNetwork.read_blif(filename());
   ASSERT_COND( stat );
 
-  mDtpgTest = new DtpgTest(mSatType, mSatOption, mSatOutp, fault_type(), bt_mode(), mNetwork);
+  mDtpgTest = new DtpgTest(mSatType, mSatOption, mSatOutp, fault_type(), just_type(), mNetwork);
 }
 
 // @brief 終了処理を行う．
@@ -260,9 +260,9 @@ DtpgTestWithParam::fault_type()
   return std::get<2>(GetParam());
 }
 
-// @brief テストパラメータから bt_mode を取り出す．
-int
-DtpgTestWithParam::bt_mode()
+// @brief テストパラメータから just_type を取り出す．
+string
+DtpgTestWithParam::just_type()
 {
   return std::get<3>(GetParam());
 }
@@ -278,6 +278,6 @@ INSTANTIATE_TEST_CASE_P(DtpgTest, DtpgTestWithParam,
 							     "ffr",    "ffr_new",
 							     "mffc",   "mffc_new"),
 					   ::testing::Values(FaultType::StuckAt, FaultType::TransitionDelay),
-					   ::testing::Range(1, 3)));
+					   ::testing::Values("just1", "just2")));
 
 END_NAMESPACE_YM_SATPG

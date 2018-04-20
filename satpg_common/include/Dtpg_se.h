@@ -13,6 +13,7 @@
 #include "satpg.h"
 
 #include "FaultType.h"
+#include "Justifier.h"
 #include "DtpgStats.h"
 #include "FaultStatus.h"
 #include "StructEnc.h"
@@ -35,14 +36,14 @@ public:
   /// @param[in] sat_option SATソルバに渡すオプション文字列
   /// @param[in] sat_outp SATソルバ用の出力ストリーム
   /// @param[in] fault_type 故障の種類
-  /// @param[in] jt 正当化を行うファンクタ
+  /// @param[in] just_type Justifier の種類を表す文字列
   /// @param[in] network 対象のネットワーク
   /// @param[in] node 故障のあるノード
   Dtpg_se(const string& sat_type,
 	  const string& sat_option,
 	  ostream* sat_outp,
 	  FaultType fault_type,
-	  Justifier& jt,
+	  const string& just_type,
 	  const TpgNetwork& network,
 	  const TpgNode* node);
 
@@ -51,14 +52,14 @@ public:
   /// @param[in] sat_option SATソルバに渡すオプション文字列
   /// @param[in] sat_outp SATソルバ用の出力ストリーム
   /// @param[in] fault_type 故障の種類
-  /// @param[in] jt 正当化を行うファンクタ
+  /// @param[in] just_type Justifier の種類を表す文字列
   /// @param[in] network 対象のネットワーク
   /// @param[in] ffr 故障伝搬の起点となる FFR
   Dtpg_se(const string& sat_type,
 	  const string& sat_option,
 	  ostream* sat_outp,
 	  FaultType fault_type,
-	  Justifier& jt,
+	  const string& just_type,
 	  const TpgNetwork& network,
 	  const TpgFFR& ffr);
 
@@ -67,7 +68,7 @@ public:
   /// @param[in] sat_option SATソルバに渡すオプション文字列
   /// @param[in] sat_outp SATソルバ用の出力ストリーム
   /// @param[in] fault_type 故障の種類
-  /// @param[in] jt 正当化を行うファンクタ
+  /// @param[in] just_type Justifier の種類を表す文字列
   /// @param[in] network 対象のネットワーク
   /// @param[in] mffc 故障伝搬の起点となる MFFC
   ///
@@ -77,7 +78,7 @@ public:
 	  const string& sat_option,
 	  ostream* sat_outp,
 	  FaultType fault_type,
-	  Justifier& jt,
+	  const string& just_type,
 	  const TpgNetwork& network,
 	  const TpgMFFC& mffc);
 
@@ -140,7 +141,7 @@ private:
   FaultType mFaultType;
 
   // バックトレーサー
-  Justifier& mJustifier;
+  Justifier mJustifier;
 
   // 時間計測を行なうかどうかの制御フラグ
   bool mTimerEnable;

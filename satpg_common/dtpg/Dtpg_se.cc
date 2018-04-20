@@ -20,19 +20,19 @@ BEGIN_NAMESPACE_YM_SATPG
 // @param[in] sat_option SATソルバに渡すオプション文字列
 // @param[in] sat_outp SATソルバ用の出力ストリーム
 // @param[in] fault_type 故障の種類
-// @param[in] jt 正当化を行うファンクタ
+// @param[in] just_type Justifier の種類を表す文字列
 // @param[in] network 対象のネットワーク
 // @param[in] node 故障のあるノード
 Dtpg_se::Dtpg_se(const string& sat_type,
 		 const string& sat_option,
 		 ostream* sat_outp,
 		 FaultType fault_type,
-		 Justifier& jt,
+		 const string& just_type,
 		 const TpgNetwork& network,
 		 const TpgNode* node) :
   mStructEnc(network, fault_type, sat_type, sat_option, sat_outp),
   mFaultType(fault_type),
-  mJustifier(jt),
+  mJustifier(just_type, network.node_num()),
   mTimerEnable(true)
 {
   cnf_begin();
@@ -52,19 +52,19 @@ Dtpg_se::Dtpg_se(const string& sat_type,
 // @param[in] sat_option SATソルバに渡すオプション文字列
 // @param[in] sat_outp SATソルバ用の出力ストリーム
 // @param[in] fault_type 故障の種類
-// @param[in] jt 正当化を行うファンクタ
+// @param[in] just_type Justifier の種類を表す文字列
 // @param[in] network 対象のネットワーク
 // @param[in] ffr 故障伝搬の起点となる FFR
 Dtpg_se::Dtpg_se(const string& sat_type,
 		 const string& sat_option,
 		 ostream* sat_outp,
 		 FaultType fault_type,
-		 Justifier& jt,
+		 const string& just_type,
 		 const TpgNetwork& network,
 		 const TpgFFR& ffr) :
   mStructEnc(network, fault_type, sat_type, sat_option, sat_outp),
   mFaultType(fault_type),
-  mJustifier(jt),
+  mJustifier(just_type, network.node_num()),
   mTimerEnable(true)
 {
   cnf_begin();
@@ -83,7 +83,7 @@ Dtpg_se::Dtpg_se(const string& sat_type,
 // @param[in] sat_option SATソルバに渡すオプション文字列
 // @param[in] sat_outp SATソルバ用の出力ストリーム
 // @param[in] fault_type 故障の種類
-// @param[in] jt 正当化を行うファンクタ
+// @param[in] just_type Justifier の種類を表す文字列
 // @param[in] network 対象のネットワーク
 // @param[in] mffc 故障伝搬の起点となる MFFC
 //
@@ -93,12 +93,12 @@ Dtpg_se::Dtpg_se(const string& sat_type,
 		 const string& sat_option,
 		 ostream* sat_outp,
 		 FaultType fault_type,
-		 Justifier& jt,
+		 const string& just_type,
 		 const TpgNetwork& network,
 		 const TpgMFFC& mffc) :
   mStructEnc(network, fault_type, sat_type, sat_option, sat_outp),
   mFaultType(fault_type),
-  mJustifier(jt),
+  mJustifier(just_type, network.node_num()),
   mTimerEnable(true)
 {
   cnf_begin();

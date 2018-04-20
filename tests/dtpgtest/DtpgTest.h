@@ -35,11 +35,12 @@ public:
   /// @param[in] sat_option SATオプション
   /// @param[in] sat_outp SATソルバ用の出力ストリーム
   /// @param[in] fault_type 故障の種類
+  /// @param[in] just_type Justifier の種類を表す文字列
   DtpgTest(const string& sat_type,
 	   const string& sat_option,
 	   ostream* sat_outp,
 	   FaultType fault_type,
-	   int bt_mode,
+	   const string& just_type,
 	   const TpgNetwork& network);
 
   /// @brief デストラクタ
@@ -113,6 +114,9 @@ private:
 
   // 故障の種類
   FaultType mFaultType;
+
+  // Justifier の種類
+  string mJustType;
 
   // 対象のネットワーク
   const TpgNetwork& mNetwork;

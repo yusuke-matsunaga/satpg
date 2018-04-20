@@ -9,7 +9,7 @@
 /// All rights reserved.
 
 
-#include "Justifier.h"
+#include "JustImpl.h"
 
 
 BEGIN_NAMESPACE_YM_SATPG
@@ -21,7 +21,7 @@ class JustData;
 /// @brief 正当化に必要な割当を求めるファンクター
 //////////////////////////////////////////////////////////////////////
 class Just1 :
-  public Justifier
+  public JustImpl
 {
 public:
 
@@ -30,19 +30,17 @@ public:
   Just1(int max_id);
 
   /// @brief デストラクタ
-  virtual
   ~Just1();
 
 
 private:
   //////////////////////////////////////////////////////////////////////
-  // Justifier の仮想関数
+  // JustImpl の仮想関数
   //////////////////////////////////////////////////////////////////////
 
   /// @brief 初期化処理
   /// @param[in] assign_list 割当リスト
   /// @param[in] jd justify 用のデータ
-  virtual
   void
   just_init(const NodeValList& assign_list,
 	    const JustData& jd) override;
@@ -52,14 +50,12 @@ private:
   /// @param[in] node 対象のノード
   /// @param[in] time 時刻 ( 0 or 1 )
   /// @return 選んだファンインのノードを返す．
-  virtual
   const TpgNode*
   select_cval_node(const JustData& jd,
 		   const TpgNode* node,
 		   int time) override;
 
   /// @brief 終了処理
-  virtual
   void
   just_end() override;
 
