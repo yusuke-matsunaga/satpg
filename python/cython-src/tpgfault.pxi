@@ -48,7 +48,7 @@ cdef class TpgFault :
     @property
     def onode(self) :
         cdef const CXX_TpgNode* c_node
-        if not self._is_valid :
+        if not self.is_valid :
             return None
         c_node = self._thisptr.tpg_onode()
         return to_TpgNode(c_node)

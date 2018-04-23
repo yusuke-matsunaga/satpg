@@ -30,9 +30,9 @@ cdef to_FaultType(CXX_FaultType c_val) :
 cdef CXX_FaultType from_FaultType(val) :
     cdef int c_int
     if val == FaultType.StuckAt :
-        c_int = 0
-    elif val == FaultType.TransitionDelay :
         c_int = 1
-    else :
+    elif val == FaultType.TransitionDelay :
         c_int = 2
+    else :
+        c_int = 0
     return __int_to_fault_type(c_int)

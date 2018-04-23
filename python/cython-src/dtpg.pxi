@@ -23,8 +23,8 @@ cdef class Dtpg :
         cdef string c_sat_option = sat_option.encode('UTF-8')
         cdef CXX_FaultType c_ftype = from_FaultType(fault_type)
         cdef string c_jt = just_type.encode('UTF-8')
-        _thisptr = new CXX_Dtpg(c_sat_type, c_sat_option, NULL, c_ftype, c_jt,
-                                network._this, root._thisptr)
+        self._thisptr = new CXX_Dtpg(c_sat_type, c_sat_option, NULL, c_ftype, c_jt,
+                                     network._this, root._thisptr)
 
     ### @brief 終了処理
     def __dealloc__(Dtpg self) :

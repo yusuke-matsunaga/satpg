@@ -27,6 +27,7 @@ add_subdirectory ( cython-src )
 
 set ( CYTHON_SOURCES
   cython-src/satpg_core.pyx
+  cython-src/satpg_core_d.pyx
   )
 
 set_source_files_properties (
@@ -40,7 +41,7 @@ set_source_files_properties (
 # ===================================================================
 
 cython_add_module ( satpg_core
-  ${CYTHON_SOURCES}
+  cython-src/satpg_core.pyx
   $<TARGET_OBJECTS:satpg_common>
   $<TARGET_OBJECTS:satpg_fsimsa2>
   $<TARGET_OBJECTS:satpg_fsimsa3>
@@ -64,6 +65,30 @@ target_compile_definitions ( satpg_core
   )
 
 target_link_libraries ( satpg_core
+  ${YM_LIB_DEPENDS}
+  )
+
+cython_add_module ( satpg_core_d
+  cython-src/satpg_core_d.pyx
+  $<TARGET_OBJECTS:satpg_common_dd>
+  $<TARGET_OBJECTS:satpg_fsimsa2_dd>
+  $<TARGET_OBJECTS:satpg_fsimsa3_dd>
+  $<TARGET_OBJECTS:satpg_fsimtd2_dd>
+  $<TARGET_OBJECTS:satpg_fsimtd3_dd>
+  $<TARGET_OBJECTS:ym_base_dd>
+  $<TARGET_OBJECTS:ym_logic_dd>
+  $<TARGET_OBJECTS:ym_cell_dd>
+  $<TARGET_OBJECTS:ym_bnet_dd>
+  $<TARGET_OBJECTS:ym_udgraph_dd>
+  $<TARGET_OBJECTS:ym_mincov_dd>
+  $<TARGET_OBJECTS:ym_sat_dd>
+  )
+
+target_compile_options ( satpg_core_d
+  PRIVATE "-g"
+  )
+
+target_link_libraries ( satpg_core_d
   ${YM_LIB_DEPENDS}
   )
 
