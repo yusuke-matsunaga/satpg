@@ -1,17 +1,17 @@
 #! /usr/bin/env python3
-#
-## @file rtpg.py
-# @brief RTPG(random test pattern generation)のスクリプト
-# @author Yusuke Matsunaga (松永 裕介)
-#
-# Copyright (C) 2017 Yusuke Matsunaga
-# All rights reserved.
 
-import satpg
+### @file rtpg.py
+### @brief RTPG(random test pattern generation)のスクリプト
+### @author Yusuke Matsunaga (松永 裕介)
+###
+### Copyright (C) 2017 Yusuke Matsunaga
+### All rights reserved.
+
+import satpg_core
 
 class Rtpg :
 
-    ## @brief 初期化
+    ### @brief 初期化
     def __init__(self, fmgr, tvmgr, fsim) :
         self._FaultMgr = fmgr
         self._TvMgr = tvmgr
@@ -21,7 +21,7 @@ class Rtpg :
         self._max_undet = 4
         self._max_pat = 1024
 
-    ## @brief パタン生成を行う．
+    ### @brief パタン生成を行う．
     def run(self) :
         fmgr = self._FaultMgr
         tvmgr = self._TvMgr
