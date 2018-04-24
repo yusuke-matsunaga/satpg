@@ -29,8 +29,6 @@ BEGIN_NAMESPACE_YM_SATPG
 //////////////////////////////////////////////////////////////////////
 class BitVector
 {
-  friend class TvMgr;
-
 public:
   //////////////////////////////////////////////////////////////////////
   // 値を取り出す関数
@@ -193,12 +191,21 @@ private:
 
   /// @brief コピーコンストラクタ
   /// @param[in] src コピー元のソース
-  BitVector(const BitVector& src);
+  BitVector(const BitVector& src) = delete;
 
-  /// @brief 代入演算子
+  /// @brief ムーブコンストラクタ
+  /// @param[in] src ムーブ元のソース
+  BitVector(BitVector&& src) = delete;
+
+  /// @brief コピー代入演算子
   /// @param[in] src コピー元のソース
-  const BitVector&
-  operator=(const BitVector& src);
+  BitVector&
+  operator=(const BitVector& src) = delete;
+
+  /// @brief ムーブ代入演算子
+  /// @param[in] src ムーブ元のソース
+  BitVector&
+  operator=(BitVector&& src) = delete;
 
 
 private:

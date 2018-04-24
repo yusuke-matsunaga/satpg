@@ -321,7 +321,7 @@ FSIM_CLASSNAME::clear_skip(const TpgFault* f)
 // @retval true 故障の検出が行えた．
 // @retval false 故障の検出が行えなかった．
 bool
-FSIM_CLASSNAME::spsfp(const TestVector* tv,
+FSIM_CLASSNAME::spsfp(const TestVector& tv,
 		      const TpgFault* f)
 {
   TvInputVals iv(tv);
@@ -357,7 +357,7 @@ FSIM_CLASSNAME::spsfp(const NodeValList& assign_list,
 //
 // 検出された故障は det_fault() で取得する．
 int
-FSIM_CLASSNAME::sppfp(const TestVector* tv)
+FSIM_CLASSNAME::sppfp(const TestVector& tv)
 {
   TvInputVals iv(tv);
 
@@ -414,6 +414,10 @@ FSIM_CLASSNAME::clear_patterns()
 {
   mPatMap = kPvAll0;
   mPatFirstBit = kPvBitLen;
+  for ( int i = 0; i < kPvBitLen; ++ i ) {
+    delete mPatBuff[i];
+    mPatBuff[i] = nullptr;
+  }
 }
 
 // @brief ppsfp 用のパタンを設定する．
@@ -421,11 +425,11 @@ FSIM_CLASSNAME::clear_patterns()
 // @param[in] tv テストベクタ
 void
 FSIM_CLASSNAME::set_pattern(int pos,
-			    const TestVector* tv)
+			    const TestVector& tv)
 {
   ASSERT_COND( pos >= 0 && pos < kPvBitLen );
 
-  mPatBuff[pos] = tv;
+  mPatBuff[pos] = new TestVector(tv);
   mPatMap |= (1ULL << pos);
 
   if ( mPatFirstBit > pos ) {
@@ -435,17 +439,13 @@ FSIM_CLASSNAME::set_pattern(int pos,
 
 // @brief 設定した ppsfp 用のパタンを読み出す．
 // @param[in] pos 位置番号 ( 0 <= pos < kPvBitLen )
-const TestVector*
+const TestVector&
 FSIM_CLASSNAME::get_pattern(int pos)
 {
   ASSERT_COND( pos >= 0 && pos < kPvBitLen );
+  ASSERT_COND ( mPatMap & (1ULL << pos) );
 
-  if ( mPatMap & (1ULL << pos) ) {
-    return mPatBuff[pos];
-  }
-  else {
-    return nullptr;
-  }
+  return *mPatBuff[pos];
 }
 
 // @brief SPSFP故障シミュレーションの本体
@@ -658,11 +658,11 @@ FSIM_CLASSNAME::calc_wsa(const InputVector& i_vect,
 // - false: ゲートの出力の遷移回数の和
 // - true : ゲートの出力の遷移回数に(ファンアウト数＋１)を掛けたものの和
 int
-FSIM_CLASSNAME::calc_wsa(const TestVector* tv,
+FSIM_CLASSNAME::calc_wsa(const TestVector& tv,
 			 bool weighted)
 {
-  set_state(tv->input_vector(), tv->dff_vector());
-  return calc_wsa(tv->aux_input_vector(), weighted);
+  set_state(tv.input_vector(), tv.dff_vector());
+  return calc_wsa(tv.aux_input_vector(), weighted);
 }
 
 // @brief ノードの出力の(重み付き)信号遷移回数を求める．

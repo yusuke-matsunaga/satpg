@@ -10,7 +10,6 @@
 #include "TpgNetwork.h"
 #include "TpgFault.h"
 #include "TestVector.h"
-#include "TvMgr.h"
 #include "Fsim.h"
 #include "ym/RandGen.h"
 #include "ym/StopWatch.h"
@@ -35,7 +34,7 @@ print_fault(const TpgFault* f,
 pair<int, int>
 spsfp_test(const TpgNetwork& network,
 	   Fsim& fsim,
-	   const vector<const TestVector*>& tv_list)
+	   const vector<TestVector>& tv_list)
 {
   vector<bool> mark(network.max_fault_id(), false);
   int det_num = 0;
@@ -66,7 +65,7 @@ spsfp_test(const TpgNetwork& network,
 // SPPFP のテスト
 pair<int, int>
 sppfp_test(Fsim& fsim,
-	   const vector<const TestVector*>& tv_list)
+	   const vector<TestVector>& tv_list)
 {
   int det_num = 0;
   int nepat = 0;
@@ -90,7 +89,7 @@ sppfp_test(Fsim& fsim,
 // PPSFP のテスト
 pair<int, int>
 ppsfp_test(Fsim& fsim,
-	   const vector<const TestVector*>& tv_list)
+	   const vector<TestVector>& tv_list)
 {
   int nv = tv_list.size();
 
@@ -169,16 +168,18 @@ ppsfp_test(Fsim& fsim,
 // @param[out] tv_list 生成されたパタンを格納するベクタ
 void
 randgen(RandGen& rg,
-	TvMgr& tvmgr,
+	int input_num,
+	int dff_num,
+	FaultType fault_type,
 	int nv,
-	vector<const TestVector*>& tv_list)
+	vector<TestVector>& tv_list)
 {
   tv_list.clear();
-  tv_list.resize(nv);
+  tv_list.reserve(nv);
   for ( int i = 0; i < nv; ++ i ) {
-    TestVector* tv = tvmgr.new_vector();
-    tv->set_from_random(rg);
-    tv_list[i] = tv;
+    TestVector tv(input_num, dff_num, fault_type);
+    tv.set_from_random(rg);
+    tv_list.push_back(std::move(tv));
   }
 }
 
@@ -352,12 +353,12 @@ fsim2test(int argc,
     ASSERT_NOT_REACHED;
   }
 
-  TvMgr tvmgr(network, fault_type);
-
   RandGen rg;
-  vector<const TestVector*> tv_list;
+  vector<TestVector> tv_list;
 
-  randgen(rg, tvmgr, npat, tv_list);
+  int input_num = network.input_num();
+  int dff_num = network.dff_num();
+  randgen(rg, input_num, dff_num, fault_type, npat, tv_list);
 
   StopWatch timer;
   timer.start();

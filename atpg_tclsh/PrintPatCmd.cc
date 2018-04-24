@@ -66,18 +66,18 @@ PrintPatCmd::cmd_proc(TclObjVector& objv)
   bool num_flag = mPoptNum->is_specified();
 
 #warning "TODO: sa 決め打ちでいいの？"
-  vector<const TestVector*>& tvlist = _sa_tv_list();
+  vector<TestVector>& tvlist = _sa_tv_list();
   int i = 1;
-  for ( auto tv: tvlist ) {
+  for ( const auto& tv: tvlist ) {
     if ( num_flag ) {
       out << setw(5) << setfill('0') << (i + 1) << ": ";
       ++ i;
     }
     if ( hex_flag ) {
-      out << tv->hex_str();
+      out << tv.hex_str();
     }
     else {
-      out << tv->bin_str();
+      out << tv.bin_str();
     }
     out << endl;
   }

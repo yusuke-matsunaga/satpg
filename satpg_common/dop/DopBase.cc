@@ -54,7 +54,7 @@ DopBase::operator()(const TpgFault* f,
 // @param[in] tv テストベクタ
 void
 DopBase::operator()(const TpgFault* f,
-		    const TestVector* tv)
+		    const TestVector& tv)
 {
   mFaultStatusMgr.set(f, FaultStatus::Detected);
 }

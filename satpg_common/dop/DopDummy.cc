@@ -48,7 +48,7 @@ DopDummy::operator()(const TpgFault* f,
 // @param[in] tv テストベクタ
 void
 DopDummy::operator()(const TpgFault* f,
-		     const TestVector* tv)
+		     const TestVector& tv)
 {
 }
 

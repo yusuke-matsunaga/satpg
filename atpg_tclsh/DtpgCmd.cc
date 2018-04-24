@@ -355,13 +355,14 @@ DtpgCmd::cmd_proc(TclObjVector& objv)
   DopList dop_list;
   UopList uop_list;
 
-  TvMgr& tv_mgr = sa_mode ? _sa_tv_mgr() : _td_tv_mgr();
-  vector<const TestVector*>& tv_list = sa_mode ? _sa_tv_list() : _td_tv_list();
+  vector<TestVector>& tv_list = sa_mode ? _sa_tv_list() : _td_tv_list();
   Fsim& fsim3 = sa_mode ? _sa_fsim3() : _td_fsim3();
   FaultStatusMgr& fault_mgr = sa_mode ? _sa_fault_mgr() : _td_fault_mgr();
 
   if ( !mPoptNoPat->is_specified() ) {
-    dop_list.add(new_DopTvList(tv_mgr, tv_list));
+    int input_num = _network().input_num();
+    int dff_num = _network().dff_num();
+    dop_list.add(new_DopTvList(input_num, dff_num, fault_type, tv_list));
   }
   dop_list.add(new_DopBase(fault_mgr));
   uop_list.add(new_UopBase(fault_mgr));

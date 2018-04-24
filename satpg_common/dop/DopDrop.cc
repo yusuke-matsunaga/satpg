@@ -60,7 +60,7 @@ DopDrop::operator()(const TpgFault* f,
 // @param[in] tv テストベクタ
 void
 DopDrop::operator()(const TpgFault* f,
-		    const TestVector* tv)
+		    const TestVector& tv)
 {
   int n = mFsim.sppfp(tv);
   common(n);

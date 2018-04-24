@@ -62,16 +62,16 @@ PrintPatStatsCmd::cmd_proc(TclObjVector& objv)
 
   bool hist_mode = mPoptHist->is_specified();
 
-  vector<const TestVector*>& tvlist = _sa_tv_list();
+  vector<TestVector>& tvlist = _sa_tv_list();
   int n = tvlist.size();
   if ( tvlist.empty() ) {
     out << "No patterns" << endl;
   }
   else {
-    int ni = tvlist[0]->input_num();
+    int ni = tvlist[0].ppi_num();
     vector<int> hist(ni + 1, 0);
-    for ( auto tv: tvlist ) {
-      int nx = tv->x_count();
+    for ( const auto& tv: tvlist ) {
+      int nx = tv.x_count();
       ASSERT_COND( nx <= ni );
       ++ hist[nx];
     }

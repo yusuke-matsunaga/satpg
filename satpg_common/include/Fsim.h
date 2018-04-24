@@ -108,7 +108,7 @@ public:
   /// @retval false 故障の検出が行えなかった．
   virtual
   bool
-  spsfp(const TestVector* tv,
+  spsfp(const TestVector& tv,
 	const TpgFault* f) = 0;
 
   /// @brief SPSFP故障シミュレーションを行う．
@@ -128,7 +128,7 @@ public:
   /// 検出された故障は det_fault() で取得する．
   virtual
   int
-  sppfp(const TestVector* tv) = 0;
+  sppfp(const TestVector& tv) = 0;
 
   /// @brief ひとつのパタンで故障シミュレーションを行う．
   /// @param[in] assign_list 値の割当リスト
@@ -164,7 +164,7 @@ public:
   /// - true : ゲートの出力の遷移回数に(ファンアウト数＋１)を掛けたものの和
   virtual
   int
-  calc_wsa(const TestVector* tv,
+  calc_wsa(const TestVector& tv,
 	   bool weighted) = 0;
 
   /// @brief 状態を設定する．
@@ -207,12 +207,12 @@ public:
   virtual
   void
   set_pattern(int pos,
-	      const TestVector* tv) = 0;
+	      const TestVector& tv) = 0;
 
   /// @brief 設定した ppsfp 用のパタンを読み出す．
   /// @param[in] pos 位置番号 ( 0 <= pos < kPvBitLen )
   virtual
-  const TestVector*
+  const TestVector&
   get_pattern(int pos) = 0;
 
 

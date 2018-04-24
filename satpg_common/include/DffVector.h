@@ -5,7 +5,7 @@
 /// @brief DffVector のヘッダファイル
 /// @author Yusuke Matsunaga (松永 裕介)
 ///
-/// Copyright (C) 2017 Yusuke Matsunaga
+/// Copyright (C) 2017, 2018 Yusuke Matsunaga
 /// All rights reserved.
 
 
@@ -23,7 +23,7 @@ BEGIN_NAMESPACE_YM_SATPG
 class DffVector :
   public BitVector
 {
-  friend class TvMgr;
+  friend class TestVector;
 
 private:
 
@@ -32,21 +32,34 @@ private:
   explicit
   DffVector(int vect_len);
 
-  /// @brief デストラクタ
-  ~DffVector();
-
   /// @brief コピーコンストラクタ
   /// @param[in] src コピー元のソース
   ///
   /// この関数は実装しない．
-  DffVector(const DffVector& src);
+  DffVector(const DffVector& src) = delete;
 
-  /// @brief 代入演算子
+  /// @brief コピー代入演算子
   /// @param[in] src コピー元のソース
   ///
   /// この関数は実装しない．
-  const DffVector&
-  operator=(const DffVector& src);
+  DffVector&
+  operator=(const DffVector& src) = delete;
+
+  /// @brief ムーブコンストラクタ
+  /// @param[in] src ムーブ元のソース
+  ///
+  /// この関数は実装しない．
+  DffVector(DffVector&& src) = delete;
+
+  /// @brief ムーブ代入演算子
+  /// @param[in] src ムーブ元のソース
+  ///
+  /// この関数は実装しない．
+  DffVector&
+  operator=(DffVector&& src) = delete;
+
+  /// @brief デストラクタ
+  ~DffVector();
 
 
 public:

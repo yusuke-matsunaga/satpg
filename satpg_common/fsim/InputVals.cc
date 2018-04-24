@@ -87,7 +87,7 @@ END_NONAMESPACE
 
 // @brief コンストラクタ
 // @param[in] testvector テストベクタ
-TvInputVals::TvInputVals(const TestVector* testvector) :
+TvInputVals::TvInputVals(const TestVector& testvector) :
   mTestVector(testvector)
 {
 }
@@ -104,7 +104,7 @@ TvInputVals::set_val(FSIM_CLASSNAME& fsim) const
 {
   int iid = 0;
   for ( auto simnode: fsim.ppi_list() ) {
-    Val3 val3 = mTestVector->ppi_val(iid);
+    Val3 val3 = mTestVector.ppi_val(iid);
     simnode->set_val(val3_to_packedval(val3));
     ++ iid;
   }
@@ -117,7 +117,7 @@ TvInputVals::set_val1(FSIM_CLASSNAME& fsim) const
 {
   int iid = 0;
   for ( auto simnode: fsim.ppi_list() ) {
-    Val3 val3 = mTestVector->ppi_val(iid);
+    Val3 val3 = mTestVector.ppi_val(iid);
     simnode->set_val(val3_to_packedval(val3));
     ++ iid;
   }
@@ -130,7 +130,7 @@ TvInputVals::set_val2(FSIM_CLASSNAME& fsim) const
 {
   int iid = 0;
   for ( auto simnode: fsim.input_list() ) {
-    Val3 val3 = mTestVector->aux_input_val(iid);
+    Val3 val3 = mTestVector.aux_input_val(iid);
     simnode->set_val(val3_to_packedval(val3));
     ++ iid;
   }

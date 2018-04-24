@@ -48,7 +48,6 @@ class NodeValList;
 class InputVector;
 class DffVector;
 class TestVector;
-class TvMgr;
 
 class Dtpg;
 class DetectOp;

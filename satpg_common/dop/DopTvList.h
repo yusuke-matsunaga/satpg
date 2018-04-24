@@ -24,10 +24,14 @@ class DopTvList :
 public:
 
   /// @brief コンストラクタ
-  /// @param[in] tvmgr テストベクタのマネージャ
+  /// @param[in] input_num 入力数
+  /// @param[in] dff_numr DFF数
+  /// @param[in] fault_type 故障の種類
   /// @param[in] tvlist テストベクタのリスト
-  DopTvList(TvMgr& tvmgr,
-	    vector<const TestVector*>& tvlist);
+  DopTvList(int input_num,
+	    int dff_num,
+	    FaultType fault_type,
+	    vector<TestVector>& tvlist);
 
   /// @brief デストラクタ
   virtual
@@ -53,7 +57,7 @@ public:
   virtual
   void
   operator()(const TpgFault* f,
-	     const TestVector* tv);
+	     const TestVector& tv);
 
 
 private:
@@ -61,11 +65,17 @@ private:
   // データメンバ
   //////////////////////////////////////////////////////////////////////
 
-  // テストベクタのマネージャ
-  TvMgr& mTvMgr;
+  // 入力数
+  int mInputNum;
+
+  // DFF数
+  int mDffNum;
+
+  // 故障の種類
+  FaultType mFaultType;
 
   // テストベクタのリスト
-  vector<const TestVector*>& mTvList;
+  vector<TestVector>& mTvList;
 
 };
 

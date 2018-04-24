@@ -8,20 +8,23 @@
 
 
 #include "DopTvList.h"
-#include "TvMgr.h"
 #include "TestVector.h"
 
 
 BEGIN_NAMESPACE_YM_SATPG
 
 // @brief 'tvlist' タイプを生成する．
-// @param[in] tvmgr テストベクタのマネージャ
+// @param[in] input_num 入力数
+// @param[in] dff_numr DFF数
+// @param[in] fault_type 故障の種類
 // @param[in] tvlist テストベクタのリスト
 DetectOp*
-new_DopTvList(TvMgr& tvmgr,
-	      vector<const TestVector*>& tvlist)
+new_DopTvList(int input_num,
+	      int dff_num,
+	      FaultType fault_type,
+	      vector<TestVector>& tvlist)
 {
-  return new DopTvList(tvmgr, tvlist);
+  return new DopTvList(input_num, dff_num, fault_type, tvlist);
 }
 
 
@@ -30,11 +33,17 @@ new_DopTvList(TvMgr& tvmgr,
 //////////////////////////////////////////////////////////////////////
 
 // @brief コンストラクタ
-// @param[in] tvmgr テストベクタのマネージャ
+// @param[in] input_num 入力数
+// @param[in] dff_numr DFF数
+// @param[in] fault_type 故障の種類
 // @param[in] tvlist テストベクタのリスト
-DopTvList::DopTvList(TvMgr& tvmgr,
-		     vector<const TestVector*>& tvlist) :
-  mTvMgr(tvmgr),
+DopTvList::DopTvList(int input_num,
+		     int dff_num,
+		     FaultType fault_type,
+		     vector<TestVector>& tvlist) :
+  mInputNum(input_num),
+  mDffNum(dff_num),
+  mFaultType(fault_type),
   mTvList(tvlist)
 {
 }
@@ -51,9 +60,9 @@ void
 DopTvList::operator()(const TpgFault* f,
 		      const NodeValList& assign_list)
 {
-  TestVector* tv = mTvMgr.new_vector();
-  tv->set_from_assign_list(assign_list);
-  mTvList.push_back(tv);
+  TestVector tv(mInputNum, mDffNum, mFaultType);
+  tv.set_from_assign_list(assign_list);
+  mTvList.push_back(std::move(tv));
 }
 
 // @brief テストパタンが見つかった時の処理
@@ -61,11 +70,9 @@ DopTvList::operator()(const TpgFault* f,
 // @param[in] tv テストベクタ
 void
 DopTvList::operator()(const TpgFault* f,
-		      const TestVector* tv)
+		      const TestVector& tv)
 {
-  TestVector* tv1 = mTvMgr.new_vector();
-  tv1->copy(*tv);
-  mTvList.push_back(tv1);
+  mTvList.push_back(tv);
 }
 
 END_NAMESPACE_YM_SATPG

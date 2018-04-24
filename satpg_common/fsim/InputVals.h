@@ -79,7 +79,7 @@ public:
 
   /// @brief コンストラクタ
   /// @param[in] testvector テストベクタ
-  TvInputVals(const TestVector* testvector);
+  TvInputVals(const TestVector& testvector);
 
   /// @brief デストラクタ
   virtual
@@ -122,7 +122,7 @@ private:
   //////////////////////////////////////////////////////////////////////
 
   // テストベクタ
-  const TestVector* mTestVector;
+  const TestVector& mTestVector;
 
 };
 

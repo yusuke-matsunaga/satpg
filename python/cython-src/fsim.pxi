@@ -68,7 +68,7 @@ cdef class Fsim :
 
     ### @brief SPSFP シミュレーションを行う．
     def spsfp(Fsim self, TestVector tv, TpgFault f) :
-        return self._thisptr.spsfp(tv._thisptr, f._thisptr)
+        return self._thisptr.spsfp(tv._this, f._thisptr)
 
     ### @brief SPSFP シミュレーションを行う．
     def spsfp(Fsim self, NodeValList assign_list, TpgFault f) :
@@ -76,7 +76,7 @@ cdef class Fsim :
 
     ### @brief SPPFP シミュレーションを行う．
     def sppfp(Fsim self, TestVector tv) :
-        cdef int n_det = self._thisptr.sppfp(tv._thisptr)
+        cdef int n_det = self._thisptr.sppfp(tv._this)
         cdef const CXX_TpgFault* c_fault
         fault_list = []
         for i in range(n_det) :
@@ -103,7 +103,7 @@ cdef class Fsim :
         self._thisptr.clear_patterns()
         pos = 0
         for tv in tv_list :
-            self._thisptr.set_pattern(pos, tv._thisptr)
+            self._thisptr.set_pattern(pos, tv._this)
             pos += 1
         n_det = self._thisptr.ppsfp()
         fault_pat_list = []
@@ -115,4 +115,4 @@ cdef class Fsim :
 
     ### @brief 遷移故障モードで信号遷移回数を数える．
     def calc_wsa(Fsim self, TestVector tv, bool weighted = False) :
-        return self._thisptr.calc_wsa(tv._thisptr, weighted)
+        return self._thisptr.calc_wsa(tv._this, weighted)

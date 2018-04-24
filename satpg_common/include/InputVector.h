@@ -5,7 +5,7 @@
 /// @brief InputVector のヘッダファイル
 /// @author Yusuke Matsunaga (松永 裕介)
 ///
-/// Copyright (C) 2017 Yusuke Matsunaga
+/// Copyright (C) 2017, 2018 Yusuke Matsunaga
 /// All rights reserved.
 
 
@@ -23,7 +23,7 @@ BEGIN_NAMESPACE_YM_SATPG
 class InputVector :
   public BitVector
 {
-  friend class TvMgr;
+  friend class TestVector;
 
 private:
 
@@ -32,21 +32,27 @@ private:
   explicit
   InputVector(int vect_len);
 
-  /// @brief デストラクタ
-  ~InputVector();
-
   /// @brief コピーコンストラクタ
   /// @param[in] src コピー元のソース
   ///
   /// この関数は実装しない．
-  InputVector(const InputVector& src);
+  InputVector(const InputVector& src) = delete;
 
-  /// @brief 代入演算子
-  /// @param[in] src コピー元のソース
+  /// @brief ムーブコンストラクタ
+  /// @param[in] src ムーブ元のソース
   ///
   /// この関数は実装しない．
-  const InputVector&
-  operator=(const InputVector& src);
+  InputVector(InputVector&& src) = delete;
+
+  /// @brief ムーブ代入演算子
+  /// @param[in] src ムーブ元のソース
+  ///
+  /// この関数は実装しない．
+  InputVector&
+  operator=(InputVector&& src) = delete;
+
+  /// @brief デストラクタ
+  ~InputVector();
 
 
 public:

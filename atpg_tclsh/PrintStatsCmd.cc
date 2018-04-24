@@ -11,6 +11,7 @@
 #include "TpgNetwork.h"
 #include "FaultStatusMgr.h"
 #include "Fsim.h"
+#include "TestVector.h"
 #include "ym/TclPopt.h"
 
 
@@ -94,7 +95,7 @@ PrintStatsCmd::cmd_proc(TclObjVector& objv)
     }
   }
 
-  const vector<const TestVector*>& tv_list = mPoptTd->is_specified() ? _td_tv_list() : _sa_tv_list();
+  const vector<TestVector>& tv_list = mPoptTd->is_specified() ? _td_tv_list() : _sa_tv_list();
 
   fprintf(stdout, "#A: # of total faults       = %7lu\n", n_rep);
   fprintf(stdout, "#B: # of detected faults    = %7lu\n", n_det);
@@ -120,9 +121,7 @@ PrintStatsCmd::cmd_proc(TclObjVector& objv)
     Fsim& fsim = _td_fsim2();
     double wsa_total = 0.0;
     double wsa_max = 0.0;
-    for (vector<const TestVector*>::const_iterator p = tv_list.begin();
-	 p != tv_list.end(); ++ p) {
-      const TestVector* tv = *p;
+    for ( const auto& tv: tv_list ) {
       int wsa = fsim.calc_wsa(tv, false);
       wsa_total += wsa;
       if ( wsa_max < wsa ) {

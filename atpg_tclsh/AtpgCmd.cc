@@ -260,15 +260,8 @@ AtpgCmd::_sa_fault_mgr()
   return mMgr->_sa_fault_mgr();
 }
 
-// @brief 縮退故障用の TvMgr を取り出す．
-TvMgr&
-AtpgCmd::_sa_tv_mgr()
-{
-  return mMgr->_sa_tv_mgr();
-}
-
 // @brief 縮退故障用のテストベクタのリストを取り出す．
-vector<const TestVector*>&
+vector<TestVector>&
 AtpgCmd::_sa_tv_list()
 {
   return mMgr->_sa_tv_list();
@@ -295,15 +288,8 @@ AtpgCmd::_td_fault_mgr()
   return mMgr->_td_fault_mgr();
 }
 
-// @brief 遷移故障用の TvMgr を取り出す．
-TvMgr&
-AtpgCmd::_td_tv_mgr()
-{
-  return mMgr->_td_tv_mgr();
-}
-
 // @brief 遷移故障用のテストベクタのリストを取り出す．
-vector<const TestVector*>&
+vector<TestVector>&
 AtpgCmd::_td_tv_list()
 {
   return mMgr->_td_tv_list();

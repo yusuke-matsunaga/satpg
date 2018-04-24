@@ -67,7 +67,7 @@ DopVerify::operator()(const TpgFault* f,
 // @param[in] tv テストベクタ
 void
 DopVerify::operator()(const TpgFault* f,
-		      const TestVector* tv)
+		      const TestVector& tv)
 {
   bool detect = mFsim.spsfp(tv, f);
   if ( detect ) {

@@ -47,7 +47,6 @@ set (tpg_network_SOURCES
 
   tvect/BitVector.cc
   tvect/TestVector.cc
-  tvect/TvMgr.cc
 
   tpg_network/NodeValList.cc
   )

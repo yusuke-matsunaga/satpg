@@ -47,7 +47,7 @@ public:
   virtual
   void
   operator()(const TpgFault* f,
-	     const TestVector* tv) = 0;
+	     const TestVector& tv) = 0;
 
 };
 
@@ -64,11 +64,12 @@ new_DopDrop(FaultStatusMgr& fmgr,
 	    Fsim& fsim);
 
 /// @brief 'tvlist' タイプを生成する．
-/// @param[in] tvmgr テストベクタのマネージャ
 /// @param[in] tvlist テストベクタのリスト
 DetectOp*
-new_DopTvList(TvMgr& tvmgr,
-	      vector<const TestVector*>& tvlist);
+new_DopTvList(int input_num,
+	      int dff_num,
+	      FaultType fault_type,
+	      vector<TestVector>& tvlist);
 
 /// @brief 'verify' タイプを生成する．
 /// @param[in] fsim 故障シミュレータ

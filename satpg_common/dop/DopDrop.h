@@ -53,7 +53,7 @@ public:
   virtual
   void
   operator()(const TpgFault* f,
-	     const TestVector* tv);
+	     const TestVector& tv);
 
 
 private:

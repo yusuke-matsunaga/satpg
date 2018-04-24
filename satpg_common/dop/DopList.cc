@@ -54,7 +54,7 @@ DopList::operator()(const TpgFault* f,
 // @param[in] tv テストベクタ
 void
 DopList::operator()(const TpgFault* f,
-		    const TestVector* tv)
+		    const TestVector& tv)
 {
   for ( auto dop_p: mDopList ) {
     DetectOp& dop = *dop_p;

@@ -77,12 +77,8 @@ public:
   FaultStatusMgr&
   _sa_fault_mgr();
 
-  /// @brief 縮退故障用の TvMgr を取り出す．
-  TvMgr&
-  _sa_tv_mgr();
-
   /// @brief 縮退故障用のテストベクタのリストを取り出す．
-  vector<const TestVector*>&
+  vector<TestVector>&
   _sa_tv_list();
 
   /// @brief 遷移故障用の2値の故障シミュレータを取り出す．
@@ -97,12 +93,8 @@ public:
   FaultStatusMgr&
   _td_fault_mgr();
 
-  /// @brief 遷移故障用の TvMgr を取り出す．
-  TvMgr&
-  _td_tv_mgr();
-
   /// @brief 遷移故障用のテストベクタのリストを取り出す．
-  vector<const TestVector*>&
+  vector<TestVector>&
   _td_tv_list();
 
 
@@ -175,11 +167,8 @@ private:
   // 縮退故障用の故障マネージャ
   FaultStatusMgr* mSaFaultMgr;
 
-  // 縮退故障用のテストベクタを管理するオブジェクト
-  TvMgr* mSaTvMgr;
-
   // 縮退故障用のテストベクタのリスト
-  vector<const TestVector*> mSaTvList;
+  vector<TestVector> mSaTvList;
 
   // 遷移故障用の2値の故障シミュレータ
   Fsim* mTdFsim2;
@@ -190,11 +179,8 @@ private:
   // 遷移故障用の故障マネージャ
   FaultStatusMgr* mTdFaultMgr;
 
-  // 遷移故障用のテストベクタを管理するオブジェクト
-  TvMgr* mTdTvMgr;
-
   // 遷移故障用のテストベクタのリスト
-  vector<const TestVector*> mTdTvList;
+  vector<TestVector> mTdTvList;
 
   // ネットワークが変更された時に呼ばれるイベントハンドラ
   T1BindMgr<const TpgNetwork&> mNtwkBindMgr;
@@ -241,17 +227,9 @@ AtpgMgr::_sa_fault_mgr()
   return *mSaFaultMgr;
 }
 
-// @brief 縮退故障用の TvMgr を取り出す．
-inline
-TvMgr&
-AtpgMgr::_sa_tv_mgr()
-{
-  return *mSaTvMgr;
-}
-
 // @brief 縮退故障用のテストベクタのリストを取り出す．
 inline
-vector<const TestVector*>&
+vector<TestVector>&
 AtpgMgr::_sa_tv_list()
 {
   return mSaTvList;
@@ -281,17 +259,9 @@ AtpgMgr::_td_fault_mgr()
   return *mTdFaultMgr;
 }
 
-// @brief 遷移故障用の TvMgr を取り出す．
-inline
-TvMgr&
-AtpgMgr::_td_tv_mgr()
-{
-  return *mTdTvMgr;
-}
-
 // @brief 遷移故障用のテストベクタのリストを取り出す．
 inline
-vector<const TestVector*>&
+vector<TestVector>&
 AtpgMgr::_td_tv_list()
 {
   return mTdTvList;

@@ -3,7 +3,7 @@
 /// @brief TestVector の実装ファイル
 /// @author Yusuke Matsunaga (松永 裕介)
 ///
-/// Copyright (C) 2017 Yusuke Matsunaga
+/// Copyright (C) 2017, 2018 Yusuke Matsunaga
 /// All rights reserved.
 
 
@@ -15,22 +15,164 @@
 
 BEGIN_NAMESPACE_YM_SATPG
 
-// @brief コンストラクタ
-// @param[in] input_vector入力のベクタ
-// @param[in] dff_vector DFFのベクタ
-// @param[in] aux_input_vector ２時刻目の入力のベクタ
-TestVector::TestVector(InputVector* input_vector,
-		       DffVector* dff_vector,
-		       InputVector* aux_input_vector) :
-  mInputVector(input_vector),
-  mDffVector(dff_vector),
-  mAuxInputVector(aux_input_vector)
+BEGIN_NONAMESPACE
+
+// @brief ベクタ長からバイトサイズを計算する．
+// @param[in] vectlen ベクタ長
+inline
+SizeType
+calc_size(int vectlen)
 {
+  if ( vectlen == 0 ) {
+    vectlen = 1;
+  }
+  return sizeof(BitVector) + kPvBitLen * (BitVector::block_num(vectlen) - 1);
+}
+
+END_NONAMESPACE
+
+
+//////////////////////////////////////////////////////////////////////
+// クラス TestVector
+//////////////////////////////////////////////////////////////////////
+
+// @brief 空のコンストラクタ
+TestVector::TestVector()
+{
+  mInputVector = nullptr;
+  mDffVector = nullptr;
+  mAuxInputVector = nullptr;
+}
+
+// @brief コンストラクタ
+// @param[in] input_num 入力数
+// @param[in] dff_numr DFF数
+// @param[in] fault_type 故障の種類
+TestVector::TestVector(int input_num,
+		       int dff_num,
+		       FaultType fault_type) :
+  mInputVector(new_input_vector(input_num)),
+  mDffVector(new_dff_vector(dff_num))
+{
+  if ( fault_type == FaultType::StuckAt ) {
+    mAuxInputVector = nullptr;
+  }
+  else {
+    mAuxInputVector = new_input_vector(input_num);
+  }
+}
+
+// @brief コピーコンストラクタ
+// @param[in] src コピー元のソース
+TestVector::TestVector(const TestVector& src) :
+  mInputVector(new_input_vector(src.input_num())),
+  mDffVector(new_dff_vector(src.dff_num()))
+{
+  if ( src.has_aux_input() ) {
+    mAuxInputVector = new_input_vector(src.input_num());
+  }
+  else {
+    mAuxInputVector = nullptr;
+  }
+
+  _copy(src);
+}
+
+// @brief コピー代入演算子
+// @param[in] src コピー元のソース
+TestVector&
+TestVector::operator=(const TestVector& src)
+{
+  if ( input_num() != src.input_num() ) {
+    delete mInputVector;
+    mInputVector = new_input_vector(src.input_num());
+    if ( src.has_aux_input() ) {
+      delete mAuxInputVector;
+      mAuxInputVector = new_input_vector(src.input_num());
+    }
+    else if ( has_aux_input() ) {
+      delete mAuxInputVector;
+      mAuxInputVector = nullptr;
+    }
+  }
+  else {
+    if ( has_aux_input() != src.has_aux_input() ) {
+      if ( has_aux_input() ) {
+	delete mAuxInputVector;
+	mAuxInputVector = nullptr;
+      }
+      else {
+	mAuxInputVector = new_input_vector(src.input_num());
+      }
+    }
+  }
+  if ( dff_num() != src.dff_num() ) {
+    delete mDffVector;
+    mDffVector = new_dff_vector(src.dff_num());
+  }
+
+  _copy(src);
+
+  return *this;
+}
+
+// @brief ムーブコンストラクタ
+// @param[in] src ムーブ元のソース
+TestVector::TestVector(TestVector&& src) :
+  mInputVector(src.mInputVector),
+  mDffVector(src.mDffVector),
+  mAuxInputVector(src.mAuxInputVector)
+{
+  src.mInputVector = nullptr;
+  src.mDffVector = nullptr;
+  src.mAuxInputVector = nullptr;
+}
+
+// @brief ムーブ代入演算子
+// @param[in] src ムーブ元のソース
+TestVector&
+TestVector::operator=(TestVector&& src)
+{
+  mInputVector = src.mInputVector;
+  mDffVector = src.mDffVector;
+  mAuxInputVector = src.mAuxInputVector;
+
+  src.mInputVector = nullptr;
+  src.mDffVector = nullptr;
+  src.mAuxInputVector = nullptr;
+
+  return *this;
 }
 
 // @brief デストラクタ
 TestVector::~TestVector()
 {
+  delete mInputVector;
+  delete mDffVector;
+  delete mAuxInputVector;
+}
+
+// @brief InputVector を作る．
+inline
+InputVector*
+TestVector::new_input_vector(int input_num)
+{
+  void* p = new char[calc_size(input_num)];
+  return new (p) InputVector(input_num);
+}
+
+// @brief DffVector を作る．
+inline
+DffVector*
+TestVector::new_dff_vector(int dff_num)
+{
+  if ( dff_num > 0 ) {
+    void* p = new char[calc_size(dff_num)];
+    return new (p) DffVector(dff_num);
+  }
+  else {
+    return nullptr;
+  }
 }
 
 // @brief X の個数を得る．
@@ -153,6 +295,28 @@ TestVector::operator<=(const TestVector& right) const
   return true;
 }
 
+// @brief サイズを(再)設定する．
+// @param[in] input_num 入力数
+// @param[in] dff_numr DFF数
+// @param[in] fault_type 故障の種類
+void
+TestVector::resize(int input_num,
+		   int dff_num,
+		   FaultType fault_type)
+{
+  delete mInputVector;
+  delete mDffVector;
+  delete mAuxInputVector;
+  mInputVector = new_input_vector(input_num);
+  mDffVector = new_dff_vector(dff_num);
+  if ( fault_type == FaultType::StuckAt ) {
+    mAuxInputVector = nullptr;
+  }
+  else {
+    mAuxInputVector = new_input_vector(input_num);
+  }
+}
+
 // @brief すべて未定(X) で初期化する．
 void
 TestVector::init()
@@ -166,21 +330,6 @@ TestVector::init()
   }
 }
 
-// @brief InputVector とDffVector から値を設定する．
-// @param[in] input_vector入力のベクタ
-// @param[in] dff_vector DFFのベクタ
-// @param[in] aux_input_vector ２時刻目の入力のベクタ
-void
-TestVector::set(const InputVector& input_vector,
-		const DffVector& dff_vector,
-		const InputVector& aux_input_vector)
-{
-
-  mInputVector->copy(input_vector);
-  mDffVector->copy(dff_vector);
-  mAuxInputVector->copy(aux_input_vector);
-}
-
 // @brief 割当リストから内容を設定する．
 // @param[in] assign_list 割当リスト
 //
@@ -188,9 +337,7 @@ TestVector::set(const InputVector& input_vector,
 void
 TestVector::set_from_assign_list(const NodeValList& assign_list)
 {
-  int n = assign_list.size();
-  for (int i = 0; i < n; ++ i) {
-    NodeVal nv = assign_list[i];
+  for ( auto nv: assign_list ) {
     Val3 val = nv.val() ? Val3::_1 : Val3::_0;
     const TpgNode* node = nv.node();
     ASSERT_COND( node->is_ppi() );
@@ -291,7 +438,7 @@ TestVector::fix_x_from_random(RandGen& randgen)
 // @param[in] src コピー元のテストベクタ
 // @note X の部分はコピーしない．
 void
-TestVector::copy(const TestVector& src)
+TestVector::_copy(const TestVector& src)
 {
   ASSERT_COND( input_num() == src.input_num() );
   ASSERT_COND( dff_num() == src.dff_num() );

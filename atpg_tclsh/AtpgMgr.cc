@@ -11,8 +11,7 @@
 #include "TpgNetwork.h"
 #include "TpgFault.h"
 #include "FaultStatusMgr.h"
-
-#include "TvMgr.h"
+#include "TestVector.h"
 #include "Fsim.h"
 
 
@@ -29,11 +28,9 @@ AtpgMgr::AtpgMgr() :
   mSaFsim2 = nullptr;
   mSaFsim3 = nullptr;
   mSaFaultMgr = nullptr;
-  mSaTvMgr = nullptr;
   mTdFsim2 = nullptr;
   mTdFsim3 = nullptr;
   mTdFaultMgr = nullptr;
-  mTdTvMgr = nullptr;
 }
 
 // @brief デストラクタ
@@ -42,11 +39,9 @@ AtpgMgr::~AtpgMgr()
   delete mSaFsim2;
   delete mSaFsim3;
   delete mSaFaultMgr;
-  delete mSaTvMgr;
   delete mTdFsim2;
   delete mTdFsim3;
   delete mTdFaultMgr;
-  delete mTdTvMgr;
 }
 
 // @brief ファイル読み込みに関わる時間を得る．
@@ -91,11 +86,9 @@ AtpgMgr::after_set_network()
   delete mSaFsim2;
   delete mSaFsim3;
   delete mSaFaultMgr;
-  delete mSaTvMgr;
   delete mTdFsim2;
   delete mTdFsim3;
   delete mTdFaultMgr;
-  delete mTdTvMgr;
 
   mSaTvList.clear();
   mTdTvList.clear();
@@ -103,11 +96,9 @@ AtpgMgr::after_set_network()
   mSaFsim2 = Fsim::new_Fsim2(_network(), FaultType::StuckAt);
   mSaFsim3 = Fsim::new_Fsim3(_network(), FaultType::StuckAt);
   mSaFaultMgr = new FaultStatusMgr(_network());
-  mSaTvMgr = new TvMgr(_network(), FaultType::StuckAt);
   mTdFsim2 = Fsim::new_Fsim2(_network(), FaultType::TransitionDelay);
   mTdFsim3 = Fsim::new_Fsim3(_network(), FaultType::TransitionDelay);
   mTdFaultMgr = new FaultStatusMgr(_network());
-  mTdTvMgr = new TvMgr(_network(), FaultType::TransitionDelay);
 }
 
 END_NAMESPACE_YM_SATPG

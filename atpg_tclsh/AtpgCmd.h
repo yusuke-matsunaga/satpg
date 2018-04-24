@@ -70,12 +70,8 @@ protected:
   FaultStatusMgr&
   _sa_fault_mgr();
 
-  /// @brief 縮退故障用の TvMgr を取り出す．
-  TvMgr&
-  _sa_tv_mgr();
-
   /// @brief 縮退故障用のテストベクタのリストを取り出す．
-  vector<const TestVector*>&
+  vector<TestVector>&
   _sa_tv_list();
 
   /// @brief 遷移故障用の2値の故障シミュレータを取り出す．
@@ -90,12 +86,8 @@ protected:
   FaultStatusMgr&
   _td_fault_mgr();
 
-  /// @brief 遷移故障用の TvMgr を取り出す．
-  TvMgr&
-  _td_tv_mgr();
-
   /// @brief 遷移故障用のテストベクタのリストを取り出す．
-  vector<const TestVector*>&
+  vector<TestVector>&
   _td_tv_list();
 
   /// @brief ファイル読み込みに関わる時間を得る．

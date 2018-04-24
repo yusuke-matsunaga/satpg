@@ -13,7 +13,6 @@ from satpg_core_d import *
 fault_type = FaultType.StuckAt
 network = TpgNetwork.read_blif('/home/yusuke/data/public/MCNC.blifdata/C432.blif')
 
-tvmgr = TvMgr(network, fault_type)
 fsim2 = Fsim('Fsim2', network, fault_type)
 
 ndet = 0

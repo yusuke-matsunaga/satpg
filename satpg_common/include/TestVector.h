@@ -22,8 +22,6 @@ BEGIN_NAMESPACE_YM_SATPG
 /// @brief テストベクタを表すクラス
 ///
 /// 基本的には3値(0, 1, X)のベクタを表している．
-/// 生成/破壊は TvMgr のみが行う．
-/// 同じ TvMgr が扱うテストベクタのサイズはすべて同じ．
 ///
 /// スキャン方式の縮退故障用ベクタと
 /// ブロードサイド方式の遷移故障用ベクタの共用となる．
@@ -42,7 +40,40 @@ BEGIN_NAMESPACE_YM_SATPG
 //////////////////////////////////////////////////////////////////////
 class TestVector
 {
-  friend class TvMgr;
+public:
+
+  /// @brief 空のコンストラクタ
+  TestVector();
+
+  /// @brief コンストラクタ
+  /// @param[in] input_num 入力数
+  /// @param[in] dff_numr DFF数
+  /// @param[in] fault_type 故障の種類
+  TestVector(int input_num,
+	     int dff_num,
+	     FaultType fault_type);
+
+  /// @brief コピーコンストラクタ
+  /// @param[in] src コピー元のソース
+  TestVector(const TestVector& src);
+
+  /// @brief コピー代入演算子
+  /// @param[in] src コピー元のソース
+  TestVector&
+  operator=(const TestVector& src);
+
+  /// @brief ムーブコンストラクタ
+  /// @param[in] src ムーブ元のソース
+  TestVector(TestVector&& src);
+
+  /// @brief ムーブ代入演算子
+  /// @param[in] src ムーブ元のソース
+  TestVector&
+  operator=(TestVector&& src);
+
+  /// @brief デストラクタ
+  ~TestVector();
+
 
 public:
   //////////////////////////////////////////////////////////////////////
@@ -171,18 +202,18 @@ public:
   // 値を設定する関数
   //////////////////////////////////////////////////////////////////////
 
+  /// @brief サイズを(再)設定する．
+  /// @param[in] input_num 入力数
+  /// @param[in] dff_numr DFF数
+  /// @param[in] fault_type 故障の種類
+  void
+  resize(int input_num,
+	 int dff_num,
+	 FaultType fault_type);
+
   /// @brief すべて未定(X) で初期化する．
   void
   init();
-
-  /// @brief InputVector とDffVector から値を設定する．
-  /// @param[in] input_vector入力のベクタ
-  /// @param[in] dff_vector DFFのベクタ
-  /// @param[in] aux_input_vector ２時刻目の入力のベクタ
-  void
-  set(const InputVector& input_vector,
-      const DffVector& dff_vector,
-      const InputVector& aux_input_vector);
 
   /// @brief PPIの値を設定する．
   /// @param[in] pos PPIの位置番号 ( 0 <= pos < ppi_num() )
@@ -248,12 +279,6 @@ public:
   void
   fix_x_from_random(RandGen& randgen);
 
-  /// @brief テストベクタをコピーする．
-  /// @param[in] src コピー元のテストベクタ
-  /// @note X の部分はコピーしない．
-  void
-  copy(const TestVector& src);
-
   /// @breif テストベクタをマージする．
   /// @note X 以外で相異なるビットがあったら false を返す．
   bool
@@ -262,29 +287,26 @@ public:
 
 private:
   //////////////////////////////////////////////////////////////////////
-  // 特殊なアロケーションをしているのでコンストラクタ関係は
-  // プライベートにしている．
+  // 下請け関数
   //////////////////////////////////////////////////////////////////////
 
-  /// @brief コンストラクタ
-  /// @param[in] input_vector入力のベクタ
-  /// @param[in] dff_vector DFFのベクタ
-  /// @param[in] aux_input_vector ２時刻目の入力のベクタ
-  TestVector(InputVector* input_vector,
-	     DffVector* dff_vector,
-	     InputVector* aux_input_vector);
+  /// @brief テストベクタをコピーする．
+  /// @param[in] src コピー元のテストベクタ
+  /// @note X の部分はコピーしない．
+  void
+  _copy(const TestVector& src);
 
-  /// @brief デストラクタ
-  ~TestVector();
+  /// @brief InputVector を作る．
+  /// @param[in] input_num 入力数
+  static
+  InputVector*
+  new_input_vector(int input_num);
 
-  /// @brief コピーコンストラクタ
-  /// @param[in] src コピー元のソース
-  TestVector(const TestVector& src) = delete;
-
-  /// @brief 代入演算子
-  /// @param[in] src コピー元のソース
-  const TestVector&
-  operator=(const TestVector& src) = delete;
+  /// @brief DffVector を作る．
+  /// @param[in] dff_num DFF数
+  static
+  DffVector*
+  new_dff_vector(int dff_num);
 
 
 private:
@@ -364,7 +386,12 @@ inline
 int
 TestVector::input_num() const
 {
-  return mInputVector->vect_len();
+  if ( mInputVector != nullptr ) {
+    return mInputVector->vect_len();
+  }
+  else {
+    return 0;
+  }
 }
 
 // @brief DFF数を得る．
