@@ -38,35 +38,35 @@ TpgDff::id() const
 }
 
 // @brief 入力端子のノードを返す．
-TpgNode*
+const TpgNode*
 TpgDff::input() const
 {
   return mInput;
 }
 
 // @brief 出力端子のノードを返す．
-TpgNode*
+const TpgNode*
 TpgDff::output() const
 {
   return mOutput;
 }
 
 // @brief クロック端子のノードを返す．
-TpgNode*
+const TpgNode*
 TpgDff::clock() const
 {
   return mClock;
 }
 
 // @brief クリア端子のノードを返す．
-TpgNode*
+const TpgNode*
 TpgDff::clear() const
 {
   return mClear;
 }
 
 // @brief プリセット端子のノードを返す．
-TpgNode*
+const TpgNode*
 TpgDff::preset() const
 {
   return mPreset;

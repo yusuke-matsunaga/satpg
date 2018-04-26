@@ -45,9 +45,16 @@ protected:
   /// @brief コピーコンストラクタは禁止
   TpgNode(const TpgNode& src) = delete;
 
-  /// @brief 代入演算子も禁止
-  const TpgNode&
+  /// @brief コピー代入演算子も禁止
+  TpgNode&
   operator=(const TpgNode& src) = delete;
+
+  /// @brief ムーブコンストラクタは禁止
+  TpgNode(TpgNode&& src) = delete;
+
+  /// @brief ムーブ代入演算子も禁止
+  TpgNode&
+  operator=(TpgNode&& src) = delete;
 
   /// @brief デストラクタ
   virtual
@@ -148,6 +155,7 @@ public:
   ///
   /// is_dff_input() | is_dff_output() | is_dff_clock() | is_dff_clear() | is_dff_preset()
   /// の時に意味を持つ．
+  /// それ以外では nullptr を返す．
   virtual
   const TpgDff*
   dff() const;

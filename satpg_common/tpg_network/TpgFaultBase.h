@@ -37,7 +37,6 @@ public:
 	       TpgFault* rep_fault);
 
   /// @brief デストラクタ
-  virtual
   ~TpgFaultBase();
 
 
@@ -47,20 +46,17 @@ public:
   //////////////////////////////////////////////////////////////////////
 
   /// @brief ID番号を返す．
-  virtual
   int
   id() const override;
 
   /// @brief 故障値を返す．
   /// @note 返す値は 0 か 1
-  virtual
   int
   val() const override;
 
   /// @brief 代表故障を返す．
   ///
   /// 代表故障の時は自分自身を返す．
-  virtual
   const TpgFault*
   rep_fault() const override;
 

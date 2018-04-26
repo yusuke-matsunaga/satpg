@@ -35,7 +35,6 @@ public:
 	       TpgFault* rep_fault);
 
   /// @brief デストラクタ
-  virtual
   ~TpgStemFault();
 
 
@@ -45,38 +44,32 @@ public:
   //////////////////////////////////////////////////////////////////////
 
   /// @brief 故障の入力側の TpgNode を返す．
-  virtual
   const TpgNode*
   tpg_inode() const override;
 
   /// @brief 故障の出力側の TpgNode を返す．
   ///
   /// is_branch_fault() == true の時のみ意味を持つ．
-  virtual
   const TpgNode*
   tpg_onode() const override;
 
   /// @brief ステムの故障の時 true を返す．
-  virtual
   bool
   is_stem_fault() const override;
 
   /// @brief ブランチの入力位置を返す．
   ///
   /// is_branch_fault() == true の時のみ意味を持つ．
-  virtual
   int
   fault_pos() const override;
 
   /// @brief tpg_onode 上の故障位置を返す．
   ///
   /// is_branch_fault() == true の時のみ意味を持つ．
-  virtual
   int
   tpg_pos() const override;
 
   /// @brief 故障の内容を表す文字列を返す．
-  virtual
   string
   str() const override;
 

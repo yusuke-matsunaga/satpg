@@ -41,23 +41,23 @@ public:
   id() const;
 
   /// @brief 入力端子のノードを返す．
-  TpgNode*
+  const TpgNode*
   input() const;
 
   /// @brief 出力端子のノードを返す．
-  TpgNode*
+  const TpgNode*
   output() const;
 
   /// @brief クロック端子のノードを返す．
-  TpgNode*
+  const TpgNode*
   clock() const;
 
   /// @brief クリア端子のノードを返す．
-  TpgNode*
+  const TpgNode*
   clear() const;
 
   /// @brief プリセット端子のノードを返す．
-  TpgNode*
+  const TpgNode*
   preset() const;
 
 

@@ -29,9 +29,16 @@ public:
   /// @brief コピーコンストラクタは禁止
   TpgFault(const TpgFault& src) = delete;
 
-  /// @brief 代入演算子も禁止
-  const TpgFault&
+  /// @brief コピー代入演算子も禁止
+  TpgFault&
   operator=(const TpgFault& src) = delete;
+
+  /// @brief ムーブコンストラクタは禁止
+  TpgFault(TpgFault&& src) = delete;
+
+  /// @brief ムーブ代入演算子も禁止
+  TpgFault&
+  operator=(TpgFault&& src) = delete;
 
   /// @brief デストラクタ
   virtual

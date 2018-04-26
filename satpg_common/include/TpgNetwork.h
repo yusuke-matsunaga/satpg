@@ -54,9 +54,16 @@ public:
   /// @brief コピーコンストラクタは禁止
   TpgNetwork(const TpgNetwork& src) = delete;
 
-  /// @brief 代入演算子も禁止
-  const TpgNetwork&
+  /// @brief コピー代入演算子も禁止
+  TpgNetwork&
   operator=(const TpgNetwork& src) = delete;
+
+  /// @brief ムーブコンストラクタは禁止
+  TpgNetwork(TpgNetwork&& src) = delete;
+
+  /// @brief ムーブ代入演算子も禁止
+  TpgNetwork&
+  operator=(TpgNetwork&& src) = delete;
 
   /// @brief デストラクタ
   ~TpgNetwork();

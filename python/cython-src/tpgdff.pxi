@@ -13,11 +13,11 @@ from CXX_TpgNode cimport TpgNode as CXX_TpgNode
 ## @brief TpgDff の Python バージョン
 cdef class TpgDff :
     cdef int _id
-    cdef CXX_TpgNode* _input
-    cdef CXX_TpgNode* _output
-    cdef CXX_TpgNode* _clock
-    cdef CXX_TpgNode* _clear
-    cdef CXX_TpgNode* _preset
+    cdef const CXX_TpgNode* _input
+    cdef const CXX_TpgNode* _output
+    cdef const CXX_TpgNode* _clock
+    cdef const CXX_TpgNode* _clear
+    cdef const CXX_TpgNode* _preset
 
     ## @brief 初期化
     def __cinit__(self) :
