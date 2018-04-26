@@ -58,6 +58,9 @@ private:
   DffVector&
   operator=(DffVector&& src) = delete;
 
+
+public:
+
   /// @brief デストラクタ
   ~DffVector();
 

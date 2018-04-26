@@ -51,6 +51,9 @@ private:
   InputVector&
   operator=(InputVector&& src) = delete;
 
+
+public:
+
   /// @brief デストラクタ
   ~InputVector();
 

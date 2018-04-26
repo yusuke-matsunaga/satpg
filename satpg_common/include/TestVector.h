@@ -299,14 +299,24 @@ private:
   /// @brief InputVector を作る．
   /// @param[in] input_num 入力数
   static
-  InputVector*
+  std::unique_ptr<InputVector>
   new_input_vector(int input_num);
 
   /// @brief DffVector を作る．
   /// @param[in] dff_num DFF数
   static
-  DffVector*
+  std::unique_ptr<DffVector>
   new_dff_vector(int dff_num);
+
+  /// @brief InputVector を作る．
+  /// @param[in] input_num 入力数
+  /// @param[in] fault_type 故障のタイプ
+  ///
+  /// fault_type == StuckAt の時は nullptr を返す．
+  static
+  std::unique_ptr<InputVector>
+  new_aux_input_vector(int input_num,
+		       FaultType fault_type);
 
 
 private:
@@ -315,13 +325,13 @@ private:
   //////////////////////////////////////////////////////////////////////
 
   // 入力用ベクタ
-  InputVector* mInputVector;
+  std::unique_ptr<InputVector> mInputVector;
 
   // DFF用ベクタ
-  DffVector* mDffVector;
+  std::unique_ptr<DffVector> mDffVector;
 
   // ２時刻目の入力用ベクタ
-  InputVector* mAuxInputVector;
+  std::unique_ptr<InputVector> mAuxInputVector;
 
 };
 

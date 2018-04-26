@@ -37,11 +37,11 @@ END_NONAMESPACE
 //////////////////////////////////////////////////////////////////////
 
 // @brief 空のコンストラクタ
-TestVector::TestVector()
+TestVector::TestVector() :
+  mInputVector(nullptr),
+  mDffVector(nullptr),
+  mAuxInputVector(nullptr)
 {
-  mInputVector = nullptr;
-  mDffVector = nullptr;
-  mAuxInputVector = nullptr;
 }
 
 // @brief コンストラクタ
@@ -52,29 +52,18 @@ TestVector::TestVector(int input_num,
 		       int dff_num,
 		       FaultType fault_type) :
   mInputVector(new_input_vector(input_num)),
-  mDffVector(new_dff_vector(dff_num))
+  mDffVector(new_dff_vector(dff_num)),
+  mAuxInputVector(new_aux_input_vector(input_num, fault_type))
 {
-  if ( fault_type == FaultType::StuckAt ) {
-    mAuxInputVector = nullptr;
-  }
-  else {
-    mAuxInputVector = new_input_vector(input_num);
-  }
 }
 
 // @brief コピーコンストラクタ
 // @param[in] src コピー元のソース
 TestVector::TestVector(const TestVector& src) :
   mInputVector(new_input_vector(src.input_num())),
-  mDffVector(new_dff_vector(src.dff_num()))
+  mDffVector(new_dff_vector(src.dff_num())),
+  mAuxInputVector(new_aux_input_vector(src.input_num(), src.fault_type()))
 {
-  if ( src.has_aux_input() ) {
-    mAuxInputVector = new_input_vector(src.input_num());
-  }
-  else {
-    mAuxInputVector = nullptr;
-  }
-
   _copy(src);
 }
 
@@ -83,33 +72,7 @@ TestVector::TestVector(const TestVector& src) :
 TestVector&
 TestVector::operator=(const TestVector& src)
 {
-  if ( input_num() != src.input_num() ) {
-    delete mInputVector;
-    mInputVector = new_input_vector(src.input_num());
-    if ( src.has_aux_input() ) {
-      delete mAuxInputVector;
-      mAuxInputVector = new_input_vector(src.input_num());
-    }
-    else if ( has_aux_input() ) {
-      delete mAuxInputVector;
-      mAuxInputVector = nullptr;
-    }
-  }
-  else {
-    if ( has_aux_input() != src.has_aux_input() ) {
-      if ( has_aux_input() ) {
-	delete mAuxInputVector;
-	mAuxInputVector = nullptr;
-      }
-      else {
-	mAuxInputVector = new_input_vector(src.input_num());
-      }
-    }
-  }
-  if ( dff_num() != src.dff_num() ) {
-    delete mDffVector;
-    mDffVector = new_dff_vector(src.dff_num());
-  }
+  resize(src.input_num(), src.dff_num(), src.fault_type());
 
   _copy(src);
 
@@ -119,13 +82,10 @@ TestVector::operator=(const TestVector& src)
 // @brief ムーブコンストラクタ
 // @param[in] src ムーブ元のソース
 TestVector::TestVector(TestVector&& src) :
-  mInputVector(src.mInputVector),
-  mDffVector(src.mDffVector),
-  mAuxInputVector(src.mAuxInputVector)
+  mInputVector(std::move(src.mInputVector)),
+  mDffVector(std::move(src.mDffVector)),
+  mAuxInputVector(std::move(src.mAuxInputVector))
 {
-  src.mInputVector = nullptr;
-  src.mDffVector = nullptr;
-  src.mAuxInputVector = nullptr;
 }
 
 // @brief ムーブ代入演算子
@@ -133,13 +93,9 @@ TestVector::TestVector(TestVector&& src) :
 TestVector&
 TestVector::operator=(TestVector&& src)
 {
-  mInputVector = src.mInputVector;
-  mDffVector = src.mDffVector;
-  mAuxInputVector = src.mAuxInputVector;
-
-  src.mInputVector = nullptr;
-  src.mDffVector = nullptr;
-  src.mAuxInputVector = nullptr;
+  mInputVector = std::move(src.mInputVector);
+  mDffVector = std::move(src.mDffVector);
+  mAuxInputVector = std::move(src.mAuxInputVector);
 
   return *this;
 }
@@ -147,28 +103,39 @@ TestVector::operator=(TestVector&& src)
 // @brief デストラクタ
 TestVector::~TestVector()
 {
-  delete mInputVector;
-  delete mDffVector;
-  delete mAuxInputVector;
 }
 
 // @brief InputVector を作る．
 inline
-InputVector*
+std::unique_ptr<InputVector>
 TestVector::new_input_vector(int input_num)
 {
   void* p = new char[calc_size(input_num)];
-  return new (p) InputVector(input_num);
+  return std::unique_ptr<InputVector>(new (p) InputVector(input_num));
 }
 
 // @brief DffVector を作る．
 inline
-DffVector*
+std::unique_ptr<DffVector>
 TestVector::new_dff_vector(int dff_num)
 {
   if ( dff_num > 0 ) {
     void* p = new char[calc_size(dff_num)];
-    return new (p) DffVector(dff_num);
+    return std::unique_ptr<DffVector>(new (p) DffVector(dff_num));
+  }
+  else {
+    return nullptr;
+  }
+}
+
+// @brief InputVector を作る．
+inline
+std::unique_ptr<InputVector>
+TestVector::new_aux_input_vector(int input_num,
+				 FaultType fault_type)
+{
+  if ( fault_type == FaultType::TransitionDelay ) {
+    return new_input_vector(input_num);
   }
   else {
     return nullptr;
@@ -304,17 +271,9 @@ TestVector::resize(int input_num,
 		   int dff_num,
 		   FaultType fault_type)
 {
-  delete mInputVector;
-  delete mDffVector;
-  delete mAuxInputVector;
   mInputVector = new_input_vector(input_num);
   mDffVector = new_dff_vector(dff_num);
-  if ( fault_type == FaultType::StuckAt ) {
-    mAuxInputVector = nullptr;
-  }
-  else {
-    mAuxInputVector = new_input_vector(input_num);
-  }
+  mAuxInputVector = new_aux_input_vector(input_num, fault_type);
 }
 
 // @brief すべて未定(X) で初期化する．
