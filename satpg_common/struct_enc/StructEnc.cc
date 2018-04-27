@@ -391,7 +391,7 @@ StructEnc::make_cnf()
     const TpgNode* node = mCurNodeList[i];
     if ( !cnf_mark(node, 1) ) {
       set_cnf_mark(node, 1);
-      gate_enc1.make_node_cnf(node);
+      gate_enc1.make_cnf(node);
     }
   }
 
@@ -400,7 +400,7 @@ StructEnc::make_cnf()
     const TpgNode* node = mPrevNodeList[i];
     if ( !cnf_mark(node, 0) ) {
       set_cnf_mark(node, 0);
-      gate_enc0.make_node_cnf(node);
+      gate_enc0.make_cnf(node);
     }
   }
 
@@ -455,7 +455,7 @@ StructEnc::make_tfi_cnf(const TpgNode* node,
 
   // node の入出力の関係を表す節を作る．
   GateEnc gate_enc(mSolver, var_map(time));
-  gate_enc.make_node_cnf(node);
+  gate_enc.make_cnf(node);
 
   // TFI のノードの節を作る．
   for ( auto inode: node->fanin_list() ) {

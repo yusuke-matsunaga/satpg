@@ -165,7 +165,7 @@ PropCone::make_cnf()
     const TpgNode* node = mNodeList[i];
     if ( i > 0 ) {
       // 故障回路のゲートの入出力関係を表すCNFを作る．
-      gate_enc.make_node_cnf(node);
+      gate_enc.make_cnf(node);
     }
 
     if ( mDetect ) {

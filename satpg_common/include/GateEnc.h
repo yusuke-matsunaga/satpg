@@ -40,7 +40,7 @@ public:
   /// @brief ノードの入出力の関係を表すCNF式を作る．
   /// @param[in] node 対象のノード
   void
-  make_node_cnf(const TpgNode* node);
+  make_cnf(const TpgNode* node);
 
   /// @brief ノードの入出力の関係を表すCNF式を作る．
   /// @param[in] node 対象のノード
@@ -48,8 +48,8 @@ public:
   ///
   /// 出力の変数番号のみ指定するバージョン
   void
-  make_node_cnf(const TpgNode* node,
-		SatVarId ovar);
+  make_cnf(const TpgNode* node,
+	   SatVarId ovar);
 
 
 private:

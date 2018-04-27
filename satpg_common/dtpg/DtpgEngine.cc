@@ -351,7 +351,7 @@ DtpgEngine::gen_cnf_base()
   //////////////////////////////////////////////////////////////////////
   GateEnc gval_enc(mSolver, mGvarMap);
   for ( auto node: mTfoList ) {
-    gval_enc.make_node_cnf(node);
+    gval_enc.make_cnf(node);
 
     if ( debug_dtpg ) {
       DEBUG_OUT << "Node#" << node->id() << ": gvar("
@@ -364,7 +364,7 @@ DtpgEngine::gen_cnf_base()
     }
   }
   for ( auto node: mTfiList ) {
-    gval_enc.make_node_cnf(node);
+    gval_enc.make_cnf(node);
 
     if ( debug_dtpg ) {
       DEBUG_OUT << "Node#" << node->id() << ": gvar("
@@ -388,7 +388,7 @@ DtpgEngine::gen_cnf_base()
 
   GateEnc hval_enc(mSolver, mHvarMap);
   for ( auto node: mTfi2List ) {
-    hval_enc.make_node_cnf(node);
+    hval_enc.make_cnf(node);
 
     if ( debug_dtpg ) {
       DEBUG_OUT << "Node#" << node->id() << ": hvar("
@@ -408,7 +408,7 @@ DtpgEngine::gen_cnf_base()
   GateEnc fval_enc(mSolver, mFvarMap);
   for ( auto node: mTfoList ) {
     if ( node != mRoot ) {
-      fval_enc.make_node_cnf(node);
+      fval_enc.make_cnf(node);
 
       if ( debug_dtpg ) {
 	DEBUG_OUT << "Node#" << node->id() << ": fvar("
@@ -525,10 +525,10 @@ DtpgEngine::gen_cnf_mffc()
       ovar = mSolver.new_variable();
       inject_fault(ffr_pos, ovar);
       // ovar が fvar(node) ではない！
-      fval_enc.make_node_cnf(node, ovar);
+      fval_enc.make_cnf(node, ovar);
     }
     else {
-      fval_enc.make_node_cnf(node);
+      fval_enc.make_cnf(node);
     }
 
     if ( debug_mffccone ) {

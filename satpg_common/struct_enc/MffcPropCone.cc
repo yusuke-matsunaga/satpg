@@ -149,10 +149,10 @@ MffcPropCone::make_cnf()
       ovar = solver().new_variable();
       inject_fault(ffr_pos, ovar);
       // ovar が fvar(node) ではない！
-      gate_enc.make_node_cnf(node, ovar);
+      gate_enc.make_cnf(node, ovar);
     }
     else {
-      gate_enc.make_node_cnf(node);
+      gate_enc.make_cnf(node);
     }
 
     if ( debug_mffccone ) {
