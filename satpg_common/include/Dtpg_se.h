@@ -93,11 +93,11 @@ public:
 
   /// @brief テスト生成を行なう．
   /// @param[in] fault 対象の故障
-  /// @param[out] nodeval_list テストパタンの値割り当てを格納するリスト
+  /// @param[out] testvect テストパタンを格納する変数
   /// @return 結果を返す．
   SatBool3
   dtpg(const TpgFault* fault,
-       NodeValList& nodeval_list);
+       TestVector& testvect);
 
   /// @brief DTPG の統計情報を返す．
   const DtpgStats&

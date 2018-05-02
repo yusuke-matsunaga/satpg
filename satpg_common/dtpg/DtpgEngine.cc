@@ -16,7 +16,9 @@
 #include "GateType.h"
 #include "GateEnc.h"
 #include "Val3.h"
+#include "NodeValList.h"
 #include "Justifier.h"
+#include "TestVector.h"
 
 #include "ym/SatSolver.h"
 #include "ym/SatStats.h"
@@ -186,11 +188,11 @@ DtpgEngine::~DtpgEngine()
 
 // @brief テスト生成を行なう．
 // @param[in] fault 対象の故障
-// @param[out] nodeval_list テストパタンの値割り当てを格納するリスト
+// @param[out] testvect テストパタンを格納する変数
 // @return 結果を返す．
 SatBool3
 DtpgEngine::dtpg(const TpgFault* fault,
-		 NodeValList& nodeval_list)
+		 TestVector& testvect)
 {
   vector<SatLiteral> assumptions;
 
@@ -217,7 +219,7 @@ DtpgEngine::dtpg(const TpgFault* fault,
     }
   }
 
-  SatBool3 ans = solve(fault, assumptions, nodeval_list);
+  SatBool3 ans = solve(fault, assumptions, testvect);
 
   return ans;
 }
@@ -729,13 +731,13 @@ DtpgEngine::add_assign(NodeValList& assign_list,
 // @brief 一つの SAT問題を解く．
 // @param[in] fault 対象の故障
 // @param[in] assumptions 値の決まっている変数のリスト
-// @param[out] nodeval_list 結果の値割り当てリスト
+// @param[out] testvect テストパタンを格納する変数
 // @param[inout] stats DTPGの統計情報
 // @return 結果を返す．
 SatBool3
 DtpgEngine::solve(const TpgFault* fault,
 		  const vector<SatLiteral>& assumptions,
-		  NodeValList& nodeval_list)
+		  TestVector& testvect)
 {
   StopWatch timer;
   timer.start();
@@ -781,12 +783,14 @@ DtpgEngine::solve(const TpgFault* fault,
     const TpgNode* ffr_root = fault->tpg_onode()->ffr_root();
     NodeValList assign_list2 = extract(ffr_root, mGvarMap, mFvarMap, model);
     assign_list2.merge(assign_list);
+    NodeValList nodeval_list;
     if ( mFaultType == FaultType::TransitionDelay ) {
       nodeval_list = mJustifier(assign_list2, mHvarMap, mGvarMap, model);
     }
     else {
       nodeval_list = mJustifier(assign_list2, mGvarMap, model);
     }
+    testvect.set_from_assign_list(nodeval_list);
 
     timer.stop();
     mStats.mBackTraceTime += timer.time();

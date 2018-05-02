@@ -11,6 +11,7 @@
 #include "TpgNetwork.h"
 #include "TpgMFFC.h"
 #include "TpgFFR.h"
+#include "TestVector.h"
 
 
 BEGIN_NAMESPACE_YM_SATPG
@@ -124,14 +125,14 @@ Dtpg_se::~Dtpg_se()
 
 // @brief テスト生成を行なう．
 // @param[in] fault 対象の故障
-// @param[out] nodeval_list テストパタンの値割り当てを格納するリスト
+// @param[out] testvect テストパタンを格納する変数
 // @return 結果を返す．
 //
 // 直前にどちらのモードでCNFを作っていたかで動作は異なる．<br>
 // どちらの関数も呼んでいなければなにもしないで SatBool3::X を返す．
 SatBool3
 Dtpg_se::dtpg(const TpgFault* fault,
-	      NodeValList& nodeval_list)
+	      TestVector& testvect)
 {
   StopWatch timer;
   timer.start();
@@ -160,8 +161,8 @@ Dtpg_se::dtpg(const TpgFault* fault,
 
     // バックトレースを行う．
     NodeValList assign_list = mStructEnc.extract(model, fault, 0);
-
-    nodeval_list = mStructEnc.justify(model, assign_list, mJustifier);
+    NodeValList nodeval_list = mStructEnc.justify(model, assign_list, mJustifier);
+    testvect.set_from_assign_list(nodeval_list);
 
     timer.stop();
     mStats.mBackTraceTime += timer.time();

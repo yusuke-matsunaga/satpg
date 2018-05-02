@@ -18,7 +18,7 @@ from CXX_TpgMFFC cimport TpgMFFC
 from CXX_TpgFault cimport TpgFault
 from CXX_DtpgStats cimport DtpgStats
 from CXX_SatBool3 cimport SatBool3
-from CXX_NodeValList cimport NodeValList
+from CXX_TestVector cimport TestVector
 
 cdef extern from "DtpgEngine.h" namespace "nsYm::nsSatpg" :
 
@@ -30,5 +30,5 @@ cdef extern from "DtpgEngine.h" namespace "nsYm::nsSatpg" :
                    const TpgNetwork&, const TpgFFR&)
         DtpgEngine(const string&, const string&, ostream*, FaultType, const string&,
                    const TpgNetwork&, const TpgMFFC&)
-        SatBool3 dtpg(const TpgFault*, NodeValList&)
+        SatBool3 dtpg(const TpgFault*, TestVector&)
         const DtpgStats& stats()

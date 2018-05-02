@@ -34,9 +34,11 @@ cdef class DtpgEngine :
     ### @brief パタン生成を行う．
     def __call__(DtpgEngine self, TpgFault fault) :
         cdef const CXX_TpgFault* c_fault = from_TpgFault(fault)
-        cdef CXX_NodeValList c_nodeval_list
-        cdef CXX_SatBool3 c_bool3 = self._thisptr.dtpg(c_fault, c_nodeval_list)
-        return (to_SatBool3(c_bool3), to_NodeValList(c_nodeval_list))
+        cdef CXX_TestVector c_testvect
+        cdef CXX_SatBool3 c_bool3 = self._thisptr.dtpg(c_fault, c_testvect)
+        testvect = TestVector()
+        testvect._this = c_testvect
+        return (to_SatBool3(c_bool3), testvect)
 
     ### @brief 統計情報を得る．
     @property
@@ -46,7 +48,7 @@ cdef class DtpgEngine :
 
 
 ### @brief DtpgEngine の Python バージョン(FFRモード用)
-cdef class DtpgFFR :
+cdef class DtpgEngineFFR :
     cdef CXX_DtpgEngine* _thisptr
 
     ### @brief 初期化
@@ -67,9 +69,11 @@ cdef class DtpgFFR :
     ### @brief パタン生成を行う．
     def __call__(DtpgEngine self, TpgFault fault) :
         cdef const CXX_TpgFault* c_fault = from_TpgFault(fault)
-        cdef CXX_NodeValList c_nodeval_list
-        cdef CXX_SatBool3 c_bool3 = self._thisptr.dtpg(c_fault, c_nodeval_list)
-        return (to_SatBool3(c_bool3), to_NodeValList(c_nodeval_list))
+        cdef CXX_TestVector c_testvect
+        cdef CXX_SatBool3 c_bool3 = self._thisptr.dtpg(c_fault, c_testvect)
+        testvect = TestVector()
+        testvect._this = c_testvect
+        return (to_SatBool3(c_bool3), testvect)
 
     ### @brief 統計情報を得る．
     @property
@@ -79,7 +83,7 @@ cdef class DtpgFFR :
 
 
 ### @brief DtpgEngine の Python バージョン(MFFCモード用)
-cdef class DtpgMFFC :
+cdef class DtpgEngineMFFC :
     cdef CXX_DtpgEngine* _thisptr
 
     ### @brief 初期化
@@ -100,9 +104,11 @@ cdef class DtpgMFFC :
     ### @brief パタン生成を行う．
     def __call__(DtpgEngine self, TpgFault fault) :
         cdef const CXX_TpgFault* c_fault = from_TpgFault(fault)
-        cdef CXX_NodeValList c_nodeval_list
-        cdef CXX_SatBool3 c_bool3 = self._thisptr.dtpg(c_fault, c_nodeval_list)
-        return (to_SatBool3(c_bool3), to_NodeValList(c_nodeval_list))
+        cdef CXX_TestVector c_testvect
+        cdef CXX_SatBool3 c_bool3 = self._thisptr.dtpg(c_fault, c_testvect)
+        testvect = TestVector()
+        testvect._this = c_testvect
+        return (to_SatBool3(c_bool3), testvect)
 
     ### @brief 統計情報を得る．
     @property
