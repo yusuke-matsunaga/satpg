@@ -37,11 +37,9 @@ cdef class DtpgEngine :
     def __call__(DtpgEngine self, TpgFault fault) :
         cdef const CXX_TpgFault* c_fault = from_TpgFault(fault)
         cdef CXX_DtpgResult c_result = self._thisptr.dtpg(c_fault)
-        cdef CXX_SatBool3 c_stat = c_result.stat()
-        cdef const CXX_TestVector* c_tvptr = &c_result.testvector()
-        testvect = TestVector()
-        testvect._this = deref(c_tvptr)
-        return to_SatBool3(c_stat), testvect
+        cdef TestVector testvect = TestVector()
+        testvect._this = c_result._move_testvector()
+        return to_SatBool3(c_result.stat()), testvect
 
     ### @brief 統計情報を得る．
     @property
@@ -73,11 +71,9 @@ cdef class DtpgEngineFFR :
     def __call__(DtpgEngine self, TpgFault fault) :
         cdef const CXX_TpgFault* c_fault = from_TpgFault(fault)
         cdef CXX_DtpgResult c_result = self._thisptr.dtpg(c_fault)
-        cdef CXX_SatBool3 c_stat = c_result.stat()
-        cdef const CXX_TestVector* c_tvptr = &c_result.testvector()
-        testvect = TestVector()
-        testvect._this = deref(c_tvptr)
-        return to_SatBool3(c_stat), testvect
+        cdef TestVector testvect = TestVector()
+        testvect._this = c_result._move_testvector()
+        return to_SatBool3(c_result.stat()), testvect
 
     ### @brief 統計情報を得る．
     @property
@@ -109,11 +105,9 @@ cdef class DtpgEngineMFFC :
     def __call__(DtpgEngine self, TpgFault fault) :
         cdef const CXX_TpgFault* c_fault = from_TpgFault(fault)
         cdef CXX_DtpgResult c_result = self._thisptr.dtpg(c_fault)
-        cdef CXX_SatBool3 c_stat = c_result.stat()
-        cdef const CXX_TestVector* c_tvptr = &c_result.testvector()
-        testvect = TestVector()
-        testvect._this = deref(c_tvptr)
-        return to_SatBool3(c_stat), testvect
+        cdef TestVector testvect = TestVector()
+        testvect._this = c_result._move_testvector()
+        return to_SatBool3(c_result.stat()), testvect
 
     ### @brief 統計情報を得る．
     @property

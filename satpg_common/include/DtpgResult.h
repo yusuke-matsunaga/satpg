@@ -79,9 +79,9 @@ public:
   const TestVector&
   testvector() const;
 
-  /// @brief テストベクタの右辺参照を返す．
-  TestVector&&
-  testvector_rvalue();
+  /// @brief テストベクタを返す．
+  TestVector
+  _move_testvector();
 
 
 private:
@@ -161,8 +161,8 @@ DtpgResult::testvector() const
 
 // @brief テストベクタの右辺参照を返す．
 inline
-TestVector&&
-DtpgResult::testvector_rvalue()
+TestVector
+DtpgResult::_move_testvector()
 {
   return std::move(mTestVector);
 }
