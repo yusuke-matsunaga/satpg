@@ -190,9 +190,8 @@ DtpgEngine::~DtpgEngine()
 // @param[in] fault 対象の故障
 // @param[out] testvect テストパタンを格納する変数
 // @return 結果を返す．
-SatBool3
-DtpgEngine::dtpg(const TpgFault* fault,
-		 TestVector& testvect)
+pair<SatBool3, TestVector>
+DtpgEngine::dtpg(const TpgFault* fault)
 {
   vector<SatLiteral> assumptions;
 
@@ -204,7 +203,7 @@ DtpgEngine::dtpg(const TpgFault* fault,
     if ( !stat ) {
       cerr << "Error[DtpgEngine::dtpg()]: "
 	   << ffr_root->id() << " is not within the MFFC" << endl;
-      return SatBool3::X;
+      return make_pair(SatBool3::X, TestVector());
     }
 
     int ffr_num = mElemArray.size();
@@ -219,9 +218,7 @@ DtpgEngine::dtpg(const TpgFault* fault,
     }
   }
 
-  SatBool3 ans = solve(fault, assumptions, testvect);
-
-  return ans;
+  return solve(fault, assumptions);
 }
 
 // @brief タイマーをスタートする．
@@ -734,10 +731,9 @@ DtpgEngine::add_assign(NodeValList& assign_list,
 // @param[out] testvect テストパタンを格納する変数
 // @param[inout] stats DTPGの統計情報
 // @return 結果を返す．
-SatBool3
+pair<SatBool3, TestVector>
 DtpgEngine::solve(const TpgFault* fault,
-		  const vector<SatLiteral>& assumptions,
-		  TestVector& testvect)
+		  const vector<SatLiteral>& assumptions)
 {
   StopWatch timer;
   timer.start();
@@ -773,6 +769,7 @@ DtpgEngine::solve(const TpgFault* fault,
   mSolver.get_stats(sat_stats);
   //sat_stats -= prev_stats;
 
+  TestVector testvect;
   if ( ans == SatBool3::True ) {
     // パタンが求まった．
 
@@ -803,7 +800,7 @@ DtpgEngine::solve(const TpgFault* fault,
     mStats.update_abort(sat_stats, time);
   }
 
-  return ans;
+  return make_pair(ans, testvect);
 }
 
 END_NAMESPACE_YM_SATPG

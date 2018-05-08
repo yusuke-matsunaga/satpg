@@ -8,6 +8,7 @@
 
 
 from libcpp cimport bool
+from libcpp.pair cimport pair
 from libcpp.string cimport string
 from CXX_iostream cimport ostream
 from CXX_FaultType cimport FaultType
@@ -30,5 +31,5 @@ cdef extern from "DtpgEngine.h" namespace "nsYm::nsSatpg" :
                    const TpgNetwork&, const TpgFFR&)
         DtpgEngine(const string&, const string&, ostream*, FaultType, const string&,
                    const TpgNetwork&, const TpgMFFC&)
-        SatBool3 dtpg(const TpgFault*, TestVector&)
+        pair[SatBool3, TestVector] dtpg(const TpgFault*)
         const DtpgStats& stats()

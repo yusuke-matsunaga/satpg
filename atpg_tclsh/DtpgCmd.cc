@@ -45,12 +45,11 @@ run_single_new(const string& sat_type,
     if ( fmgr.get(fault) == FaultStatus::Undetected ) {
       const TpgNode* node = fault->tpg_onode();
       DtpgEngine dtpg(sat_type, sat_option, sat_outp, fault_type, just_type, network, node);
-      TestVector testvect(network.input_num(), network.dff_num(), fault_type);
-      SatBool3 ans = dtpg.dtpg(fault, testvect);
-      if ( ans == SatBool3::True ) {
-	dop(fault, testvect);
+      auto ans = dtpg.dtpg(fault);
+      if ( ans.first == SatBool3::True ) {
+	dop(fault, ans.second);
       }
-      else if ( ans == SatBool3::False ) {
+      else if ( ans.first == SatBool3::False ) {
 	uop(fault);
       }
       stats.merge(dtpg.stats());
@@ -76,12 +75,11 @@ run_ffr_new(const string& sat_type,
     DtpgEngine dtpg(sat_type, sat_option, sat_outp, fault_type, just_type, network, root);
     for ( auto fault: ffr.fault_list() ) {
       if ( fmgr.get(fault) == FaultStatus::Undetected ) {
-	TestVector testvect(network.input_num(), network.dff_num(), fault_type);
-	SatBool3 ans = dtpg.dtpg(fault, testvect);
-	if ( ans == SatBool3::True ) {
-	  dop(fault, testvect);
+	auto ans = dtpg.dtpg(fault);
+	if ( ans.first == SatBool3::True ) {
+	  dop(fault, ans.second);
 	}
-	else if ( ans == SatBool3::False ) {
+	else if ( ans.first == SatBool3::False ) {
 	  uop(fault);
 	}
       }
@@ -108,12 +106,11 @@ run_mffc_new(const string& sat_type,
     for ( auto fault: mffc.fault_list() ) {
       if ( fmgr.get(fault) == FaultStatus::Undetected ) {
 	// 故障に対するテスト生成を行なう．
-	TestVector testvect(network.input_num(), network.dff_num(), fault_type);
-	SatBool3 ans = dtpg.dtpg(fault, testvect);
-	if ( ans == SatBool3::True ) {
-	  dop(fault, testvect);
+	auto ans = dtpg.dtpg(fault);
+	if ( ans.first == SatBool3::True ) {
+	  dop(fault, ans.second);
 	}
-	else if ( ans == SatBool3::False ) {
+	else if ( ans.first == SatBool3::False ) {
 	  uop(fault);
 	}
       }

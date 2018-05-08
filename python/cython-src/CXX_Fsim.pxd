@@ -8,12 +8,12 @@
 
 
 from libcpp cimport bool
+from libcpp.vector cimport vector
 from CXX_TpgNetwork cimport TpgNetwork
 from CXX_TpgFault cimport TpgFault
 from CXX_TestVector cimport TestVector
 from CXX_NodeValList cimport NodeValList
 from CXX_FaultType cimport FaultType
-from CXX_vector cimport vector
 
 ctypedef unsigned long PackedVal
 

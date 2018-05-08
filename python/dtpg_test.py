@@ -7,12 +7,14 @@
 # Copyright (C) 2018 Yusuke Matsunaga
 # All rights reserved.
 
+from satpg_core import FaultType
+from satpg_core import TpgNetwork
 from dtpg import Dtpg
 
 fault_type = FaultType.StuckAt
 network = TpgNetwork.read_blif('/home/yusuke/data/public/MCNC.blifdata/C432.blif')
 
-fsim2 = Fsim('Fsim2', network, fault_type)
+#fsim2 = Fsim('Fsim2', network, fault_type)
 
 dtpg = Dtpg(network, fault_type)
 

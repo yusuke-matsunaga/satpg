@@ -6,6 +6,7 @@
 ### Copyright (C) 2018 Yusuke Matsunaga
 ### All rights reserved.
 
+from libcpp.pair cimport pair
 from CXX_DtpgEngine cimport DtpgEngine as CXX_DtpgEngine
 from CXX_TpgFault cimport TpgFault as CXX_TpgFault
 from CXX_NodeValList cimport NodeValList as CXX_NodeValList
@@ -34,9 +35,10 @@ cdef class DtpgEngine :
     ### @brief パタン生成を行う．
     def __call__(DtpgEngine self, TpgFault fault) :
         cdef const CXX_TpgFault* c_fault = from_TpgFault(fault)
-        cdef TestVector testvect = TestVector()
-        cdef CXX_SatBool3 c_bool3 = self._thisptr.dtpg(c_fault, testvect._this)
-        return (to_SatBool3(c_bool3), testvect)
+        cdef pair[CXX_SatBool3, CXX_TestVector] c_ans = self._thisptr.dtpg(c_fault)
+        testvect = TestVector()
+        testvect._this = c_ans.second
+        return (to_SatBool3(c_ans.first), testvect)
 
     ### @brief 統計情報を得る．
     @property
@@ -67,9 +69,10 @@ cdef class DtpgEngineFFR :
     ### @brief パタン生成を行う．
     def __call__(DtpgEngine self, TpgFault fault) :
         cdef const CXX_TpgFault* c_fault = from_TpgFault(fault)
-        cdef TestVector testvect = TestVector()
-        cdef CXX_SatBool3 c_bool3 = self._thisptr.dtpg(c_fault, testvect._this)
-        return (to_SatBool3(c_bool3), testvect)
+        cdef pair[CXX_SatBool3, CXX_TestVector] c_ans = self._thisptr.dtpg(c_fault)
+        testvect = TestVector()
+        testvect._this = c_ans.second
+        return (to_SatBool3(c_ans.first), testvect)
 
     ### @brief 統計情報を得る．
     @property
@@ -100,9 +103,10 @@ cdef class DtpgEngineMFFC :
     ### @brief パタン生成を行う．
     def __call__(DtpgEngine self, TpgFault fault) :
         cdef const CXX_TpgFault* c_fault = from_TpgFault(fault)
-        cdef TestVector testvect = TestVector()
-        cdef CXX_SatBool3 c_bool3 = self._thisptr.dtpg(c_fault, testvect._this)
-        return (to_SatBool3(c_bool3), testvect)
+        cdef pair[CXX_SatBool3, CXX_TestVector] c_ans = self._thisptr.dtpg(c_fault)
+        testvect = TestVector()
+        testvect._this = c_ans.second
+        return (to_SatBool3(c_ans.first), testvect)
 
     ### @brief 統計情報を得る．
     @property

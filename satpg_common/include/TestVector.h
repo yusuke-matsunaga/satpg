@@ -239,6 +239,7 @@ public:
   // 値を設定する関数
   //////////////////////////////////////////////////////////////////////
 
+#if 0
   /// @brief サイズを(再)設定する．
   /// @param[in] input_num 入力数
   /// @param[in] dff_numr DFF数
@@ -247,6 +248,7 @@ public:
   resize(int input_num,
 	 int dff_num,
 	 FaultType fault_type);
+#endif
 
   /// @brief すべて未定(X) で初期化する．
   void

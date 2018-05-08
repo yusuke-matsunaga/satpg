@@ -14,10 +14,10 @@ from CXX_FaultType cimport FaultType as CXX_FaultType
 cdef class TestVector :
     cdef CXX_TestVector _this
 
-    ### @brief 初期化
-    def __init__(TestVector self, int input_num, int dff_num, fault_type) :
+    ### @brief サイズの設定
+    def resize(TestVector self, int input_num, int dff_num, fault_type) :
         cdef CXX_FaultType c_fault_type = from_FaultType(fault_type)
-        self._this.resize(input_num, dff_num, c_fault_type)
+        self._this = CXX_TestVector(input_num, dff_num, c_fault_type)
 
     ### @brief 入力数を返す．
     @property

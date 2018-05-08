@@ -16,6 +16,7 @@ cdef extern from "TestVector.h" namespace "nsYm::nsSatpg" :
     # TestVector の cython ヴァージョン
     cdef cppclass TestVector :
         TestVector()
+        TestVector(int, int, FaultType)
         int input_num()
         int dff_num()
         int ppi_num()
@@ -32,5 +33,5 @@ cdef extern from "TestVector.h" namespace "nsYm::nsSatpg" :
         bool operator<=(const TestVector& right)
         string bin_str()
         string hex_str()
-        void resize(int, int, FaultType)
+#        void resize(int, int, FaultType)
         void init()

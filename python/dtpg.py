@@ -16,14 +16,14 @@ from satpg_core import SatBool3
 class Dtpg :
 
     ### @brief 初期化
-    def init(self, network, fault_type) :
+    def __init__(self, network, fault_type) :
         self.__network = network
         self.__fault_type = fault_type
         self.__fsmgr = FaultStatusMgr(network)
         self.__tvlist = []
 
     ### @brief single mode でパタン生成を行う．
-    def single_mode(self)
+    def single_mode(self) :
         self.__ndet = 0
         self.__nunt = 0
         self.__nabt = 0
@@ -31,6 +31,7 @@ class Dtpg :
             onode = fault.onode
             dtpg = DtpgEngine(self.__network, self.__fault_type, onode)
             self.__call_dtpg(dtpg, fault)
+        return self.__ndet, self.__nunt, self.__nabt
 
     ### @brief FFR mode でパタン生成を行う．
     def ffr_mode(self) :
@@ -41,6 +42,7 @@ class Dtpg :
             dtpg = DtpgEngineFFR(self.__network, self.__fault_type, ffr)
             for fault in ffr.fault_list() :
                 self.__call_dtpg(dtpg, fault)
+        return self.__ndet, self.__nunt, self.__nabt
 
     ### @brief MFFC mode でパタン生成を行う．
     def mffc_mode(self) :
@@ -51,6 +53,7 @@ class Dtpg :
             dtpg = DtpgEngineMFFC(self.__network, self.__fault_type, mffc)
             for fault in mffc.fault_list() :
                 self.__call_dtpg(dtpg, fault)
+        return self.__ndet, self.__nunt, self.__nabt
 
     ### @brief 全モードで共通な処理
     def __call_dtpg(self, dtpg, fault) :
@@ -65,7 +68,7 @@ class Dtpg :
             self.__nunt += 1
             # fault をテスト不能故障と記録
             self.__fsmgr.set(fault, FaultStatus.Untestable)
-        else stat == SatBool3._X :
+        elif stat == SatBool3._X :
             self.__nabt += 1
         else :
             assert False
