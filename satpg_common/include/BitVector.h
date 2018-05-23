@@ -75,32 +75,9 @@ public:
   is_conflict(const BitVector& bv1,
 	      const BitVector& bv2);
 
-  /// @brief 等価関係の比較を行なう．
-  /// @param[in] right オペランド
-  /// @return 自分自身と right が等しいとき true を返す．
-  bool
-  operator==(const BitVector& right) const;
-
   /// @brief マージして代入する．
   BitVector&
   operator&=(const BitVector& right);
-
-  /// @brief 包含関係の比較を行なう
-  /// @param[in] right オペランド
-  /// @return minterm の集合として right が自分自身を含んでいたら true を返す．
-  ///
-  /// - false だからといって逆に自分自身が right を含むとは限らない．
-  bool
-  operator<(const BitVector& right) const;
-
-  /// @brief 包含関係の比較を行なう
-  /// @param[in] right オペランド
-  /// @return minterm の集合として right が自分自身を含んでいたら true を返す．
-  ///
-  /// - こちらは等しい場合も含む．
-  /// - false だからといって逆に自分自身が right を含むとは限らない．
-  bool
-  operator<=(const BitVector& right) const;
 
   /// @brief 内容を BIN 形式で表す．
   string
@@ -151,6 +128,41 @@ public:
   fix_x_from_random(RandGen& randgen);
 
 
+public:
+  //////////////////////////////////////////////////////////////////////
+  // friend 関数の定義(publicに意味はない)
+  //////////////////////////////////////////////////////////////////////
+
+  /// @brief 等価関係の比較を行なう．
+  /// @param[in] left, right オペランド
+  /// @return left と right が等しいとき true を返す．
+  friend
+  bool
+  operator==(const BitVector& left,
+	     const BitVector& right);
+
+  /// @brief 包含関係の比較を行なう
+  /// @param[in] left, right オペランド
+  /// @return minterm の集合として right が left を含んでいたら true を返す．
+  ///
+  /// - false だからといって逆に left が right を含むとは限らない．
+  friend
+  bool
+  operator>(const BitVector& left,
+	    const BitVector& right);
+
+  /// @brief 包含関係の比較を行なう
+  /// @param[in] left, right オペランド
+  /// @return minterm の集合として right が left を含んでいたら true を返す．
+  ///
+  /// - こちらは等しい場合も含む．
+  /// - false だからといって逆に left が right を含むとは限らない．
+  friend
+  bool
+  operator>=(const BitVector& left,
+	     const BitVector& right);
+
+
 private:
   //////////////////////////////////////////////////////////////////////
   // 内部で用いられる関数
@@ -167,6 +179,20 @@ private:
 
 };
 
+
+//////////////////////////////////////////////////////////////////////
+// BitVector の演算
+//////////////////////////////////////////////////////////////////////
+
+/// @relates BitVector
+/// @brief 等価関係の比較を行なう．
+/// @param[in] left, right オペランド
+/// @return left と right が等しいとき true を返す．
+bool
+operator==(const BitVector& left,
+	   const BitVector& right);
+
+/// @relates BitVector
 /// @brief 等価関係の比較を行なう．
 /// @param[in] left, right オペランド
 /// @return left と right が等しくないとき true を返す．
@@ -174,23 +200,49 @@ bool
 operator!=(const BitVector& left,
 	   const BitVector& right);
 
+/// @relates BitVector
 /// @brief 包含関係の比較を行なう．
 /// @param[in] left, right オペランド
 /// @return minterm の集合として left が right を含んでいたら true を返す．
-/// @note false だからといって逆に right が left を含むとは限らない．
+///
+/// - false だからといって逆に right が left を含むとは限らない．
 bool
 operator>(const BitVector& left,
 	  const BitVector& right);
 
+/// @relates BitVector
+/// @brief 包含関係の比較を行なう
+/// @param[in] left, right オペランド
+/// @return minterm の集合として right が left を含んでいたら true を返す．
+///
+/// - false だからといって逆に left が right を含むとは限らない．
+bool
+operator<(const BitVector& left,
+	  const BitVector& right);
+
+/// @relates BitVector
 /// @brief 包含関係の比較を行なう
 /// @param[in] left, right オペランド
 /// @return minterm の集合として left が right を含んでいたら true を返す．
-/// @note こちらは等しい場合も含む．
-/// @note false だからといって逆に right が left を含むとは限らない．
+///
+/// - こちらは等しい場合も含む．
+/// - false だからといって逆に right が left を含むとは限らない．
 bool
 operator>=(const BitVector& left,
 	   const BitVector& right);
 
+/// @relates BitVector
+/// @brief 包含関係の比較を行なう
+/// @param[in] left, right オペランド
+/// @return minterm の集合として right が left を含んでいたら true を返す．
+///
+/// - こちらは等しい場合も含む．
+/// - false だからといって逆に left が right を含むとは限らない．
+bool
+operator<=(const BitVector& left,
+	   const BitVector& right);
+
+/// @relates BitVector
 /// @brief マージする．
 /// @param[in] left, right オペランド
 /// @return マージ結果を返す．
@@ -284,38 +336,79 @@ BitVector::is_conflict(const BitVector& bv1,
 }
 
 // @brief 等価関係の比較を行なう．
-// @param[in] right オペランド
-// @return 自分自身と right が等しいとき true を返す．
+// @param[in] left, right オペランド
+// @return left と right が等しいとき true を返す．
 inline
 bool
-BitVector::operator==(const BitVector& right) const
+operator==(const BitVector& left,
+	   const BitVector& right)
 {
-  return mPtr->operator==(*right.mPtr);
+  return operator==(*left.mPtr, *right.mPtr);
 }
 
-// @brief 包含関係の比較を行なう
-// @param[in] right オペランド
-// @return minterm の集合として right が自分自身を含んでいたら true を返す．
+// @brief 等価関係の比較を行なう．
+// @param[in] left, right オペランド
+// @return left と right が等しくないとき true を返す．
+inline
+bool
+operator!=(const BitVector& left,
+	   const BitVector& right)
+{
+  return !operator==(left, right);
+}
+
+// @brief 包含関係の比較を行なう．
+// @param[in] left, right オペランド
+// @return minterm の集合として left が right を含んでいたら true を返す．
 //
-// - false だからといって逆に自分自身が right を含むとは限らない．
+// - false だからといって逆に right が left を含むとは限らない．
 inline
 bool
-BitVector::operator<(const BitVector& right) const
+operator>(const BitVector& left,
+	  const BitVector& right)
 {
-  return mPtr->operator<(*right.mPtr);
+  return operator>(*left.mPtr, *right.mPtr);
 }
 
 // @brief 包含関係の比較を行なう
-// @param[in] right オペランド
-// @return minterm の集合として right が自分自身を含んでいたら true を返す．
+// @param[in] left, right オペランド
+// @return minterm の集合として right が left を含んでいたら true を返す．
+//
+// - false だからといって逆に left が right を含むとは限らない．
+inline
+bool
+operator<(const BitVector& left,
+	  const BitVector& right)
+{
+  return operator<(right, left);
+}
+
+// @brief 包含関係の比較を行なう
+// @param[in] left, right オペランド
+// @return minterm の集合として left が right を含んでいたら true を返す．
 //
 // - こちらは等しい場合も含む．
-// - false だからといって逆に自分自身が right を含むとは限らない．
+// - false だからといって逆に right が left を含むとは限らない．
 inline
 bool
-BitVector::operator<=(const BitVector& right) const
+operator>=(const BitVector& left,
+	   const BitVector& right)
 {
-  return mPtr->operator<=(*right.mPtr);
+  return operator>=(*left.mPtr, *right.mPtr);
+}
+
+// @brief 包含関係の比較を行なう
+// @param[in] left, right オペランド
+// @return minterm の集合として right が left を含んでいたら true を返す．
+//
+// - こちらは等しい場合も含む．
+// - false だからといって逆に left が right を含むとは限らない．
+inline
+bool
+operator<=(const BitVector& left,
+	   const BitVector& right)
+{
+  return operator>=(right, left);
 }
 
 // @brief 内容を BIN 形式で表す．

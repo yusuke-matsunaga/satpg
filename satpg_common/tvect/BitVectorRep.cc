@@ -96,16 +96,17 @@ BitVectorRep::is_conflict(const BitVectorRep& bv1,
 }
 
 // @brief 等価関係の比較を行なう．
-// @param[in] right オペランド
-// @return 自分自身と right が等しいとき true を返す．
+// @param[in] left, right オペランド
+// @return leftと right が等しいとき true を返す．
 bool
-BitVectorRep::operator==(const BitVectorRep& right) const
+operator==(const BitVectorRep& left,
+	   const BitVectorRep& right)
 {
-  ASSERT_COND( vect_len() == right.vect_len() );
+  ASSERT_COND( left.vect_len() == right.vect_len() );
 
-  int nb = block_num(vect_len());
+  int nb = BitVectorRep::block_num(left.vect_len());
   for ( int i = 0; i < nb; ++ i ) {
-    if ( mPat[i] != right.mPat[i] ) {
+    if ( left.mPat[i] != right.mPat[i] ) {
       return false;
     }
   }
@@ -113,22 +114,23 @@ BitVectorRep::operator==(const BitVectorRep& right) const
 }
 
 // @brief 包含関係の比較を行なう
-// @param[in] right オペランド
-// @return minterm の集合として right が自分自身を含んでいたら true を返す．
+// @param[in] left, right オペランド
+// @return minterm の集合として right が left を含んでいたら true を返す．
 //
-// - false だからといって逆に自分自身が right を含むとは限らない．
+// - false だからといって逆に left が right を含むとは限らない．
 bool
-BitVectorRep::operator<(const BitVectorRep& right) const
+operator<(const BitVectorRep& left,
+	  const BitVectorRep& right)
 {
-  ASSERT_COND( vect_len() == right.vect_len() );
+  ASSERT_COND( left.vect_len() == right.vect_len() );
 
-  int nb = block_num(vect_len());
+  int nb = BitVectorRep::block_num(left.vect_len());
   bool diff = false;
   for ( int i = 0; i < nb; i += 2 ) {
     int i0 = i;
     int i1 = i + 1;
-    PackedVal val1_0 = mPat[i0];
-    PackedVal val1_1 = mPat[i1];
+    PackedVal val1_0 = left.mPat[i0];
+    PackedVal val1_1 = left.mPat[i1];
     PackedVal val2_0 = right.mPat[i0];
     PackedVal val2_1 = right.mPat[i1];
     if ( (val1_0 & ~val2_0) != kPvAll0 ||
@@ -143,22 +145,23 @@ BitVectorRep::operator<(const BitVectorRep& right) const
 }
 
 // @brief 包含関係の比較を行なう
-// @param[in] right オペランド
+// @param[in] left, right オペランド
 // @return minterm の集合として right が自分自身を含んでいたら true を返す．
 //
 // - こちらは等しい場合も含む．
 // - false だからといって逆に自分自身が right を含むとは限らない．
 bool
-BitVectorRep::operator<=(const BitVectorRep& right) const
+operator<=(const BitVectorRep& left,
+	   const BitVectorRep& right)
 {
-  ASSERT_COND( vect_len() == right.vect_len() );
+  ASSERT_COND( left.vect_len() == right.vect_len() );
 
-  int nb = block_num(vect_len());
+  int nb = BitVectorRep::block_num(left.vect_len());
   for ( int i = 0; i < nb; ++ i ) {
     int i0 = i;
     int i1 = i + 1;
-    PackedVal val1_0 = mPat[i0];
-    PackedVal val1_1 = mPat[i1];
+    PackedVal val1_0 = left.mPat[i0];
+    PackedVal val1_1 = left.mPat[i1];
     PackedVal val2_0 = right.mPat[i0];
     PackedVal val2_1 = right.mPat[i1];
     if ( (val1_0 & ~val2_0) != kPvAll0 ||

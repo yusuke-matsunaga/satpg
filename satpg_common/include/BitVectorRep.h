@@ -75,29 +75,6 @@ public:
   is_conflict(const BitVectorRep& bv1,
 	      const BitVectorRep& bv2);
 
-  /// @brief 等価関係の比較を行なう．
-  /// @param[in] right オペランド
-  /// @return 自分自身と right が等しいとき true を返す．
-  bool
-  operator==(const BitVectorRep& right) const;
-
-  /// @brief 包含関係の比較を行なう
-  /// @param[in] right オペランド
-  /// @return minterm の集合として right が自分自身を含んでいたら true を返す．
-  ///
-  /// - false だからといって逆に自分自身が right を含むとは限らない．
-  bool
-  operator<(const BitVectorRep& right) const;
-
-  /// @brief 包含関係の比較を行なう
-  /// @param[in] right オペランド
-  /// @return minterm の集合として right が自分自身を含んでいたら true を返す．
-  ///
-  /// - こちらは等しい場合も含む．
-  /// - false だからといって逆に自分自身が right を含むとは限らない．
-  bool
-  operator<=(const BitVectorRep& right) const;
-
   /// @brief 内容を BIN 形式で表す．
   string
   bin_str() const;
@@ -159,6 +136,41 @@ public:
   merge(const BitVectorRep& src);
 
 
+public:
+  //////////////////////////////////////////////////////////////////////
+  // BitVectorRep の演算
+  //////////////////////////////////////////////////////////////////////
+
+  /// @brief 等価関係の比較を行なう．
+  /// @param[in] left, right オペランド
+  /// @return left と right が等しいとき true を返す．
+  friend
+  bool
+  operator==(const BitVectorRep& left,
+	     const BitVectorRep& right);
+
+  /// @brief 包含関係の比較を行なう
+  /// @param[in] left, right オペランド
+  /// @return minterm の集合として right が left を含んでいたら true を返す．
+  ///
+  /// - false だからといって逆に left が right を含むとは限らない．
+  friend
+  bool
+  operator<(const BitVectorRep& left,
+	    const BitVectorRep& right);
+
+  /// @brief 包含関係の比較を行なう
+  /// @param[in] left, right オペランド
+  /// @return minterm の集合として right が left を含んでいたら true を返す．
+  ///
+  /// - こちらは等しい場合も含む．
+  /// - false だからといって逆に left が right を含むとは限らない．
+  friend
+  bool
+  operator<=(const BitVectorRep& left,
+	     const BitVectorRep& right);
+
+
 private:
   //////////////////////////////////////////////////////////////////////
   // 内部で用いられる便利関数
@@ -215,6 +227,20 @@ private:
 
 };
 
+
+//////////////////////////////////////////////////////////////////////
+// BitVectorRep の演算
+//////////////////////////////////////////////////////////////////////
+
+/// @relates BitVectorRep
+/// @brief 等価関係の比較を行なう．
+/// @param[in] left, right オペランド
+/// @return left 自分自身と right が等しいとき true を返す．
+bool
+operator==(const BitVectorRep& left,
+	   const BitVectorRep& right);
+
+/// @relates BitVectorRep
 /// @brief 等価関係の比較を行なう．
 /// @param[in] left, right オペランド
 /// @return left と right が等しくないとき true を返す．
@@ -222,23 +248,49 @@ bool
 operator!=(const BitVectorRep& left,
 	   const BitVectorRep& right);
 
+/// @relates BitVectorRep
+/// @brief 包含関係の比較を行なう
+/// @param[in] left, right オペランド
+/// @return minterm の集合として right が left を含んでいたら true を返す．
+///
+/// - false だからといって逆に left が right を含むとは限らない．
+bool
+operator<(const BitVectorRep& left,
+	  const BitVectorRep& right);
+
+/// @relates BitVectorRep
 /// @brief 包含関係の比較を行なう．
 /// @param[in] left, right オペランド
 /// @return minterm の集合として left が right を含んでいたら true を返す．
-/// @note false だからといって逆に right が left を含むとは限らない．
+///
+/// - false だからといって逆に right が left を含むとは限らない．
 bool
 operator>(const BitVectorRep& left,
 	  const BitVectorRep& right);
 
+/// @relates BitVectorRep
+/// @brief 包含関係の比較を行なう
+/// @param[in] left, right オペランド
+/// @return minterm の集合として right が left  を含んでいたら true を返す．
+///
+/// - こちらは等しい場合も含む．
+/// - false だからといって逆に left が right を含むとは限らない．
+bool
+operator<=(const BitVectorRep& left,
+	   const BitVectorRep& right);
+
+/// @relates BitVectorRep
 /// @brief 包含関係の比較を行なう
 /// @param[in] left, right オペランド
 /// @return minterm の集合として left が right を含んでいたら true を返す．
-/// @note こちらは等しい場合も含む．
-/// @note false だからといって逆に right が left を含むとは限らない．
+///
+/// - こちらは等しい場合も含む．
+/// - false だからといって逆に right が left を含むとは限らない．
 bool
 operator>=(const BitVectorRep& left,
 	   const BitVectorRep& right);
 
+/// @relates BitVectorRep
 /// @brief 内容を出力する．
 /// @param[in] s 出力先のストリーム
 /// @param[in] bv ビットベクタ
@@ -357,7 +409,7 @@ bool
 operator!=(const BitVectorRep& left,
 	   const BitVectorRep& right)
 {
-  return !left.operator==(right);
+  return !operator==(left, right);
 }
 
 /// @brief 包含関係の比較を行なう．
@@ -369,7 +421,7 @@ bool
 operator>(const BitVectorRep& left,
 	  const BitVectorRep& right)
 {
-  return right.operator<(left);
+  return operator<(right, left);
 }
 
 /// @brief 包含関係の比較を行なう
@@ -382,7 +434,7 @@ bool
 operator>=(const BitVectorRep& left,
 	   const BitVectorRep& right)
 {
-  return right.operator<=(left);
+  return operator<=(right, left);
 }
 
 // @brief 内容を出力する．
