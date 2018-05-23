@@ -70,34 +70,39 @@ RandWsaCmd::cmd_proc(TclObjVector& objv)
 
   int input_num = _network().input_num();
   int dff_num = _network().dff_num();
-  TestVector tv1(input_num, dff_num, FaultType::TransitionDelay);
+  InputVector iv(input_num);
+  DffVector dv(dff_num);
+  InputVector av(input_num);
   Fsim& fsim = _td_fsim2();
 
   double total_wsa = 0.0;
   RandGen rg;
   if ( fsm ) {
     // FSM モード
-    tv1.set_from_random(rg);
-    fsim.set_state(tv1.input_vector(), tv1.dff_vector());
+    iv.set_from_random(rg);
+    dv.set_from_random(rg);
+    fsim.set_state(iv, dv);
 
     for ( int i = 0; i < warmup; ++ i ) {
       // このシミュレーション結果は捨てる．
       // 状態を遷移させることが目的
-      tv1.set_from_random(rg);
-      fsim.calc_wsa(tv1.input_vector(), weighted);
+      iv.set_from_random(rg);
+      fsim.calc_wsa(iv, weighted);
     }
     for ( int i = 0; i < count; ++ i ) {
-      tv1.set_from_random(rg);
-      int wsa1 = fsim.calc_wsa(tv1.input_vector(), weighted);
+      iv.set_from_random(rg);
+      int wsa1 = fsim.calc_wsa(iv, weighted);
       total_wsa += wsa1;
     }
   }
   else {
     // BS モード
     for ( int i = 0; i < count; ++ i ) {
-      tv1.set_from_random(rg);
-      fsim.set_state(tv1.input_vector(), tv1.dff_vector());
-      int wsa1 = fsim.calc_wsa(tv1.aux_input_vector(), weighted);
+      iv.set_from_random(rg);
+      dv.set_from_random(rg);
+      av.set_from_random(rg);
+      fsim.set_state(iv, dv);
+      int wsa1 = fsim.calc_wsa(av, weighted);
       total_wsa += wsa1;
     }
   }

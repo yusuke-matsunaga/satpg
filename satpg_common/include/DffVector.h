@@ -30,23 +30,18 @@ public:
   explicit
   DffVector(int vect_len);
 
+  /// @brief BitVectorRep を引数にとるコンストラクタ
+  /// @param[in] rep 本体
+  DffVector(BitVectorRep* rep);
+
   /// @brief コピーコンストラクタ
   /// @param[in] src コピー元のソース
   DffVector(const DffVector& src);
-
-  /// @brief ムーブコンストラクタ
-  /// @param[in] src ムーブ元のソース
-  DffVector(DffVector&& src);
 
   /// @brief コピー代入演算子
   /// @param[in] src コピー元のソース
   DffVector&
   operator=(const DffVector& src);
-
-  /// @brief ムーブ代入演算子
-  /// @param[in] src ムーブ元のソース
-  DffVector&
-  operator=(DffVector&& src);
 
   /// @brief デストラクタ
   ~DffVector();
@@ -84,18 +79,18 @@ DffVector::DffVector(int vect_len) :
 {
 }
 
+// @brief BitVectorRep を引数にとるコンストラクタ
+// @param[in] rep 本体
+inline
+DffVector::DffVector(BitVectorRep* rep) :
+  BitVector(rep)
+{
+}
+
 // @brief コピーコンストラクタ
 // @param[in] src コピー元のソース
 inline
 DffVector::DffVector(const DffVector& src) :
-  BitVector(src)
-{
-}
-
-// @brief ムーブコンストラクタ
-// @param[in] src ムーブ元のソース
-inline
-DffVector::DffVector(DffVector&& src) :
   BitVector(src)
 {
 }
@@ -105,17 +100,6 @@ DffVector::DffVector(DffVector&& src) :
 inline
 DffVector&
 DffVector::operator=(const DffVector& src)
-{
-  BitVector::operator=(src);
-
-  return *this;
-}
-
-// @brief ムーブ代入演算子
-// @param[in] src ムーブ元のソース
-inline
-DffVector&
-DffVector::operator=(DffVector&& src)
 {
   BitVector::operator=(src);
 

@@ -1,20 +1,20 @@
 ﻿
-/// @file BitVector.cc
-/// @brief BitVector の実装ファイル
+/// @file BitVectorRep.cc
+/// @brief BitVectorRep の実装ファイル
 /// @author Yusuke Matsunaga (松永 裕介)
 ///
-/// Copyright (C) 2017 Yusuke Matsunaga
+/// Copyright (C) 2017, 2018 Yusuke Matsunaga
 /// All rights reserved.
 
 
-#include "BitVector.h"
+#include "BitVectorRep.h"
 
 
 BEGIN_NAMESPACE_YM_SATPG
 
 // @brief コンストラクタ
 // @param[in] vlen ベクタ長
-BitVector::BitVector(int vlen) :
+BitVectorRep::BitVectorRep(int vlen) :
   mVectLen(vlen),
   mPat(new PackedVal[block_num(vlen)])
 {
@@ -28,7 +28,7 @@ BitVector::BitVector(int vlen) :
 
 // @brief コピーコンストラクタ
 // @param[in] src コピー元のソース
-BitVector::BitVector(const BitVector& src) :
+BitVectorRep::BitVectorRep(const BitVectorRep& src) :
   mVectLen(src.mVectLen),
   mMask(src.mMask),
   mPat(new PackedVal[block_num(mVectLen)])
@@ -41,8 +41,8 @@ BitVector::BitVector(const BitVector& src) :
 
 // @brief コピー代入演算子
 // @param[in] src コピー元のソース
-BitVector&
-BitVector::operator=(const BitVector& src)
+BitVectorRep&
+BitVectorRep::operator=(const BitVectorRep& src)
 {
   if ( &src != this ) {
     mVectLen = src.mVectLen;
@@ -59,11 +59,11 @@ BitVector::operator=(const BitVector& src)
 
 // @brief X の個数を得る．
 int
-BitVector::x_count() const
+BitVectorRep::x_count() const
 {
   int nb = block_num(vect_len());
-  ymint n = 0;
-  for (int i = 0; i < nb; i += 2) {
+  int n = 0;
+  for ( int i = 0; i < nb; i += 2 ) {
     int i0 = i;
     int i1 = i + 1;
     PackedVal v = mPat[i] | mPat[i + 1];
@@ -75,13 +75,13 @@ BitVector::x_count() const
 
 // @brief 2つのベクタが両立しないとき true を返す．
 bool
-BitVector::is_conflict(const BitVector& bv1,
-		       const BitVector& bv2)
+BitVectorRep::is_conflict(const BitVectorRep& bv1,
+			  const BitVectorRep& bv2)
 {
   ASSERT_COND( bv1.vect_len() == bv2.vect_len() );
 
   int nb = block_num(bv1.vect_len());
-  for (int i = 0; i < nb; i += 2) {
+  for ( int i = 0; i < nb; i += 2 ) {
     int i0 = i;
     int i1 = i + 1;
     // 0 のビットと 1 のビットの両方が異なっていると
@@ -99,12 +99,12 @@ BitVector::is_conflict(const BitVector& bv1,
 // @param[in] right オペランド
 // @return 自分自身と right が等しいとき true を返す．
 bool
-BitVector::operator==(const BitVector& right) const
+BitVectorRep::operator==(const BitVectorRep& right) const
 {
   ASSERT_COND( vect_len() == right.vect_len() );
 
   int nb = block_num(vect_len());
-  for (int i = 0; i < nb; ++ i) {
+  for ( int i = 0; i < nb; ++ i ) {
     if ( mPat[i] != right.mPat[i] ) {
       return false;
     }
@@ -118,13 +118,13 @@ BitVector::operator==(const BitVector& right) const
 //
 // - false だからといって逆に自分自身が right を含むとは限らない．
 bool
-BitVector::operator<(const BitVector& right) const
+BitVectorRep::operator<(const BitVectorRep& right) const
 {
   ASSERT_COND( vect_len() == right.vect_len() );
 
   int nb = block_num(vect_len());
   bool diff = false;
-  for (int i = 0; i < nb; i += 2) {
+  for ( int i = 0; i < nb; i += 2 ) {
     int i0 = i;
     int i1 = i + 1;
     PackedVal val1_0 = mPat[i0];
@@ -149,12 +149,12 @@ BitVector::operator<(const BitVector& right) const
 // - こちらは等しい場合も含む．
 // - false だからといって逆に自分自身が right を含むとは限らない．
 bool
-BitVector::operator<=(const BitVector& right) const
+BitVectorRep::operator<=(const BitVectorRep& right) const
 {
   ASSERT_COND( vect_len() == right.vect_len() );
 
   int nb = block_num(vect_len());
-  for (int i = 0; i < nb; ++ i) {
+  for ( int i = 0; i < nb; ++ i ) {
     int i0 = i;
     int i1 = i + 1;
     PackedVal val1_0 = mPat[i0];
@@ -171,10 +171,10 @@ BitVector::operator<=(const BitVector& right) const
 
 // @brief すべて未定(X) で初期化する．
 void
-BitVector::init()
+BitVectorRep::init()
 {
   int nb = block_num(vect_len());
-  for (int i = 0; i < nb; ++ i) {
+  for ( int i = 0; i < nb; ++ i ) {
     mPat[i] = kPvAll1;
   }
 }
@@ -185,14 +185,14 @@ BitVector::init()
 // @note hex_string が短い時には残りは0で初期化される．
 // @note hex_string が長い時には余りは捨てられる．
 bool
-BitVector::set_from_hex(const string& hex_string)
+BitVectorRep::set_from_hex(const string& hex_string)
 {
   // よく問題になるが，ここでは最下位ビット側から入力する．
   int nl = hex_length(vect_len());
   int sft = 0;
   int blk = 0;
   PackedVal pat = kPvAll0;
-  for (int i = 0; i < nl; ++ i) {
+  for ( int i = 0; i < nl; ++ i ) {
     char c = (i < hex_string.size()) ? hex_string[i] : '0';
     PackedVal pat1 = kPvAll0;
     if ( '0' <= c && c <= '9' ) {
@@ -228,10 +228,10 @@ BitVector::set_from_hex(const string& hex_string)
 // @brief 乱数パタンを設定する．
 // @param[in] randgen 乱数生成器
 void
-BitVector::set_from_random(RandGen& randgen)
+BitVectorRep::set_from_random(RandGen& randgen)
 {
   int nb = block_num(vect_len());
-  for (int i = 0; i < nb; i += 2) {
+  for ( int i = 0; i < nb; i += 2 ) {
     PackedVal v = randgen.uint64();
     int i0 = i;
     int i1 = i + 1;
@@ -249,10 +249,10 @@ BitVector::set_from_random(RandGen& randgen)
 // @brief X の部分を乱数で 0/1 に設定する．
 // @param[in] randgen 乱数生成器
 void
-BitVector::fix_x_from_random(RandGen& randgen)
+BitVectorRep::fix_x_from_random(RandGen& randgen)
 {
   int nb = block_num(vect_len());
-  for (int i = 0; i < nb; i += 2) {
+  for ( int i = 0; i < nb; i += 2 ) {
     int i0 = i;
     int i1 = i + 1;
     // X のビットマスク
@@ -274,10 +274,10 @@ BitVector::fix_x_from_random(RandGen& randgen)
 //
 // - X の部分はコピーしない．
 void
-BitVector::copy(const BitVector& src)
+BitVectorRep::copy(const BitVectorRep& src)
 {
   int nb = block_num(vect_len());
-  for (int i = 0; i < nb; i += 2) {
+  for ( int i = 0; i < nb; i += 2 ) {
     int i0 = i;
     int i1 = i + 1;
     // X のビットマスク
@@ -290,12 +290,12 @@ BitVector::copy(const BitVector& src)
 // @breif ビットベクタをマージする．
 // @note X 以外で相異なるビットがあったら false を返す．
 bool
-BitVector::merge(const BitVector& src)
+BitVectorRep::merge(const BitVectorRep& src)
 {
   int nb = block_num(vect_len());
 
   // コンフリクトチェック
-  for (int i = 0; i < nb; i += 2) {
+  for ( int i = 0; i < nb; i += 2 ) {
     int i0 = i;
     int i1 = i + 1;
     PackedVal diff0 = (mPat[i0] ^ src.mPat[i0]);
@@ -306,7 +306,7 @@ BitVector::merge(const BitVector& src)
   }
 
   // 実際のマージ
-  for (int i = 0; i < nb; i += 2) {
+  for ( int i = 0; i < nb; i += 2 ) {
     int i0 = i;
     int i1 = i + 1;
     mPat[i0] |= src.mPat[i0];
@@ -317,11 +317,11 @@ BitVector::merge(const BitVector& src)
 
 // @brief 内容を BIN 形式で表す．
 string
-BitVector::bin_str() const
+BitVectorRep::bin_str() const
 {
   // よく問題になるが，ここでは最下位ビット側から出力する．
   string ans;
-  for (int i = 0; i < vect_len(); ++ i) {
+  for ( int i = 0; i < vect_len(); ++ i ) {
     switch ( val(i) ) {
     case Val3::_0: ans += '0'; break;
     case Val3::_1: ans += '1'; break;
@@ -334,13 +334,13 @@ BitVector::bin_str() const
 
 // @brief 内容を HEX 形式で出力する．
 string
-BitVector::hex_str() const
+BitVectorRep::hex_str() const
 {
   // よく問題になるが，ここでは最下位ビット側から出力する．
   int tmp = 0U;
   int bit = 1U;
   string ans;
-  for (int i = 0; ; ++ i) {
+  for ( int i = 0; ; ++ i ) {
     if ( i < vect_len() ) {
       if ( val(i) == Val3::_1 ) {
 	// 面倒くさいので Val3::X は Val3::_0 と同じとみなす．

@@ -61,7 +61,7 @@ DopTvList::operator()(const TpgFault* f,
 		      const NodeValList& assign_list)
 {
   TestVector tv(mInputNum, mDffNum, mFaultType, assign_list);
-  mTvList.push_back(std::move(tv));
+  mTvList.push_back(tv);
 }
 
 // @brief テストパタンが見つかった時の処理

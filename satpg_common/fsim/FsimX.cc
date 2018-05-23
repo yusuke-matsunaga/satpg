@@ -17,6 +17,8 @@
 #include "GateType.h"
 
 #include "TestVector.h"
+#include "InputVector.h"
+#include "DffVector.h"
 #include "NodeValList.h"
 
 #include "SimNode.h"
@@ -661,8 +663,13 @@ int
 FSIM_CLASSNAME::calc_wsa(const TestVector& tv,
 			 bool weighted)
 {
+#if 0
   set_state(tv.input_vector(), tv.dff_vector());
   return calc_wsa(tv.aux_input_vector(), weighted);
+#else
+#warning "TestVector を用いたバージョン未完成"
+  return 0;
+#endif
 }
 
 // @brief ノードの出力の(重み付き)信号遷移回数を求める．

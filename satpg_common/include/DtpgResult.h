@@ -42,17 +42,8 @@ public:
   explicit
   DtpgResult(const TestVector& testvect);
 
-
-  /// @brief テストベクタの右辺参照を指定したコンストラクタ
-  /// @param[in] testvect テストベクタ
-  explicit
-  DtpgResult(TestVector&& testvect);
-
   /// @brief コピーコンストラクタ
   DtpgResult(const DtpgResult& src) = default;
-
-  /// @brief ムーブコンストラクタ
-  DtpgResult(DtpgResult&& src) = default;
 
   /// @brief コピー代入演算子
   DtpgResult&
@@ -78,10 +69,6 @@ public:
   /// @brief テストベクタを返す．
   const TestVector&
   testvector() const;
-
-  /// @brief テストベクタを返す．
-  TestVector
-  _move_testvector();
 
 
 private:
@@ -128,15 +115,6 @@ DtpgResult::DtpgResult(const TestVector& testvect) :
 {
 }
 
-// @brief テストベクタの右辺参照を指定したコンストラクタ
-// @param[in] testvect テストベクタ
-inline
-DtpgResult::DtpgResult(TestVector&& testvect) :
-  mStat(SatBool3::True),
-  mTestVector(testvect)
-{
-}
-
 // @brief デストラクタ
 inline
 DtpgResult::~DtpgResult()
@@ -157,14 +135,6 @@ const TestVector&
 DtpgResult::testvector() const
 {
   return mTestVector;
-}
-
-// @brief テストベクタの右辺参照を返す．
-inline
-TestVector
-DtpgResult::_move_testvector()
-{
-  return std::move(mTestVector);
 }
 
 END_NAMESPACE_YM_SATPG

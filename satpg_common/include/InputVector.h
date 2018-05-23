@@ -32,23 +32,18 @@ public:
   explicit
   InputVector(int vect_len);
 
+  /// @brief BitVectorRep を引数にとるコンストラクタ
+  /// @param[in] rep 本体
+  InputVector(BitVectorRep* rep);
+
   /// @brief コピーコンストラクタ
   /// @param[in] src コピー元のソース
   InputVector(const InputVector& src);
-
-  /// @brief ムーブコンストラクタ
-  /// @param[in] src ムーブ元のソース
-  InputVector(InputVector&& src);
 
   /// @brief コピー代入演算子
   /// @param[in] src コピー元のソース
   InputVector&
   operator=(const InputVector& src);
-
-  /// @brief ムーブ代入演算子
-  /// @param[in] src ムーブ元のソース
-  InputVector&
-  operator=(InputVector&& src);
 
   /// @brief デストラクタ
   ~InputVector();
@@ -86,18 +81,18 @@ InputVector::InputVector(int vect_len) :
 {
 }
 
+// @brief BitVectorRep を引数にとるコンストラクタ
+// @param[in] rep 本体
+inline
+InputVector::InputVector(BitVectorRep* rep) :
+  BitVector(rep)
+{
+}
+
 // @brief コピーコンストラクタ
 // @param[in] src コピー元のソース
 inline
 InputVector::InputVector(const InputVector& src) :
-  BitVector(src)
-{
-}
-
-// @brief ムーブコンストラクタ
-// @param[in] src ムーブ元のソース
-inline
-InputVector::InputVector(InputVector&& src) :
   BitVector(src)
 {
 }
@@ -107,17 +102,6 @@ InputVector::InputVector(InputVector&& src) :
 inline
 InputVector&
 InputVector::operator=(const InputVector& src)
-{
-  BitVector::operator=(src);
-
-  return *this;
-}
-
-// @brief ムーブ代入演算子
-// @param[in] src ムーブ元のソース
-inline
-InputVector&
-InputVector::operator=(InputVector&& src)
 {
   BitVector::operator=(src);
 

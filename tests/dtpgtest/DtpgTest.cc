@@ -68,7 +68,7 @@ DtpgTest::single_test()
       SatBool3 ans = dtpg.dtpg(fault, testvect);
       if ( ans == SatBool3::True ) {
 	++ detect_num;
-	mDop(fault, testvect);
+	mDop(fault, std::move(testvect));
       }
       else if ( ans == SatBool3::False ) {
 	++ untest_num;
@@ -100,7 +100,7 @@ DtpgTest::ffr_test()
 	SatBool3 ans = dtpg.dtpg(fault, testvect);
 	if ( ans == SatBool3::True ) {
 	  ++ detect_num;
-	  mDop(fault, testvect);
+	  mDop(fault, std::move(testvect));
 	}
 	else if ( ans == SatBool3::False ) {
 	  ++ untest_num;
@@ -134,7 +134,7 @@ DtpgTest::mffc_test()
 	SatBool3 ans = dtpg.dtpg(fault, testvect);
 	if ( ans == SatBool3::True ) {
 	  ++ detect_num;
-	  mDop(fault, testvect);
+	  mDop(fault, std::move(testvect));
 	}
 	else if ( ans == SatBool3::False ) {
 	  ++ untest_num;

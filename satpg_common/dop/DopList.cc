@@ -58,7 +58,7 @@ DopList::operator()(const TpgFault* f,
 {
   for ( auto dop_p: mDopList ) {
     DetectOp& dop = *dop_p;
-    dop(f, tv);
+    dop(f, std::move(tv));
   }
 }
 

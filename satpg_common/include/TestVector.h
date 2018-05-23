@@ -10,8 +10,7 @@
 
 #include "satpg.h"
 #include "FaultType.h"
-#include "InputVector.h"
-#include "DffVector.h"
+#include "BitVector.h"
 #include "ym/RandGen.h"
 
 
@@ -81,21 +80,12 @@ public:
 
   /// @brief コピーコンストラクタ
   /// @param[in] src コピー元のソース
-  TestVector(const TestVector& src) = default;
+  TestVector(const TestVector& src);
 
   /// @brief コピー代入演算子
   /// @param[in] src コピー元のソース
   TestVector&
-  operator=(const TestVector& src) = default;
-
-  /// @brief ムーブコンストラクタ
-  /// @param[in] src ムーブ元のソース
-  TestVector(TestVector&& src) = default;
-
-  /// @brief ムーブ代入演算子
-  /// @param[in] src ムーブ元のソース
-  TestVector&
-  operator=(TestVector&& src) = default;
+  operator=(const TestVector& src);
 
   /// @brief デストラクタ
   ~TestVector();
@@ -167,22 +157,6 @@ public:
   int
   x_count() const;
 
-  /// @brief 入力のベクタを得る．
-  const InputVector&
-  input_vector() const;
-
-  /// @brief DFFのベクタを得る．
-  ///
-  /// nullptr の場合もある．
-  const DffVector&
-  dff_vector() const;
-
-  /// @brief ２時刻目の入力のベクタを得る．
-  ///
-  /// nullptr の場合もある．
-  const InputVector&
-  aux_input_vector() const;
-
   /// @brief 内容を BIN 形式で表す．
   string
   bin_str() const;
@@ -233,22 +207,10 @@ public:
   operator<=(const TestVector& right) const;
 
 
-
 public:
   //////////////////////////////////////////////////////////////////////
   // 値を設定する関数
   //////////////////////////////////////////////////////////////////////
-
-#if 0
-  /// @brief サイズを(再)設定する．
-  /// @param[in] input_num 入力数
-  /// @param[in] dff_numr DFF数
-  /// @param[in] fault_type 故障の種類
-  void
-  resize(int input_num,
-	 int dff_num,
-	 FaultType fault_type);
-#endif
 
   /// @brief すべて未定(X) で初期化する．
   void
@@ -301,44 +263,15 @@ public:
   void
   fix_x_from_random(RandGen& randgen);
 
-  /// @breif テストベクタをマージする．
-  /// @note X 以外で相異なるビットがあったら false を返す．
-  bool
-  merge(const TestVector& src);
-
 
 private:
   //////////////////////////////////////////////////////////////////////
-  // 下請け関数
+  // 内部で用いられる関数
   //////////////////////////////////////////////////////////////////////
 
-  /// @brief テストベクタをコピーする．
-  /// @param[in] src コピー元のテストベクタ
-  /// @note X の部分はコピーしない．
-  void
-  _copy(const TestVector& src);
-
-  /// @brief InputVector を作る．
-  /// @param[in] input_num 入力数
-  static
-  std::unique_ptr<InputVector>
-  new_input_vector(int input_num);
-
-  /// @brief DffVector を作る．
-  /// @param[in] dff_num DFF数
-  static
-  std::unique_ptr<DffVector>
-  new_dff_vector(int dff_num);
-
-  /// @brief InputVector を作る．
-  /// @param[in] input_num 入力数
-  /// @param[in] fault_type 故障のタイプ
-  ///
-  /// fault_type == StuckAt の時は nullptr を返す．
-  static
-  std::unique_ptr<InputVector>
-  new_aux_input_vector(int input_num,
-		       FaultType fault_type);
+  /// @brief ベクタ長を計算する．
+  int
+  _calc_vect_len() const;
 
 
 private:
@@ -346,104 +279,52 @@ private:
   // データメンバ
   //////////////////////////////////////////////////////////////////////
 
-  // 入力用ベクタ
-  InputVector mInputVector;
+  // 入力数
+  int mInputNum;
 
-  // DFF用ベクタ
-  DffVector mDffVector;
+  // DFF数
+  int mDffNum;
 
-  // ２時刻目の入力用ベクタ
-  InputVector mAuxInputVector;
+  // 故障のタイプ
+  FaultType mFaultType;
+
+  // 本体のビットベクタ
+  BitVector mVector;
 
 };
 
 /// @brief 等価関係の比較を行なう．
 /// @param[in] left, right オペランド
 /// @return left と right が等しくないとき true を返す．
-inline
 bool
 operator!=(const TestVector& left,
-	   const TestVector& right)
-{
-  return !left.operator==(right);
-}
+	   const TestVector& right);
 
 /// @brief 包含関係の比較を行なう．
 /// @param[in] left, right オペランド
 /// @return minterm の集合として left が right を含んでいたら true を返す．
 /// @note false だからといって逆に right が left を含むとは限らない．
-inline
 bool
 operator>(const TestVector& left,
-	  const TestVector& right)
-{
-  return right.operator<(left);
-}
+	  const TestVector& right);
 
 /// @brief 包含関係の比較を行なう
 /// @param[in] left, right オペランド
 /// @return minterm の集合として left が right を含んでいたら true を返す．
 /// @note こちらは等しい場合も含む．
 /// @note false だからといって逆に right が left を含むとは限らない．
-inline
 bool
 operator>=(const TestVector& left,
-	   const TestVector& right)
-{
-  return right.operator<=(left);
-}
+	   const TestVector& right);
 
 /// @brief マージする．
 /// @param[in] left, right オペランド
 /// @return マージ結果を返す．
 ///
 /// left と right がコンフリクトしている時の結果は不定
-inline
 TestVector
 operator&(const TestVector& left,
-	  const TestVector& right)
-{
-  return TestVector(left).operator&=(right);
-}
-
-/// @brief マージする．
-/// @param[in] left, right オペランド
-/// @return マージ結果を返す．
-///
-/// left と right がコンフリクトしている時の結果は不定
-inline
-TestVector
-operator&(TestVector&& left,
-	  const TestVector& right)
-{
-  return left.operator&=(right);
-}
-
-/// @brief マージする．
-/// @param[in] left, right オペランド
-/// @return マージ結果を返す．
-///
-/// left と right がコンフリクトしている時の結果は不定
-inline
-TestVector
-operator&(const TestVector& left,
-	  TestVector&& right)
-{
-  return right.operator&=(left);
-}
-
-/// @brief マージする．
-/// @param[in] left, right オペランド
-/// @return マージ結果を返す．
-///
-/// left と right がコンフリクトしている時の結果は不定
-inline
-TestVector
-operator&(TestVector&& left,
-	  TestVector&& right)
-{
-  return left.operator&=(right);
-}
+	  const TestVector& right);
 
 /// @brief 内容を出力する．
 /// @param[in] s 出力先のストリーム
@@ -452,24 +333,121 @@ ostream&
 operator<<(ostream& s,
 	   const TestVector& tv);
 
-/// @brief 内容を出力する．
-/// @param[in] s 出力先のストリーム
-/// @param[in] tvp テストベクタへのポインタ
-ostream&
-operator<<(ostream& s,
-	   const TestVector* tvp);
-
 
 //////////////////////////////////////////////////////////////////////
 // インライン関数の定義
 //////////////////////////////////////////////////////////////////////
+
+// @brief ベクタ長を計算する．
+inline
+int
+TestVector::_calc_vect_len() const
+{
+  int x = mFaultType == FaultType::StuckAt ? 1 : 2;
+  return mInputNum * x + mDffNum;
+}
+
+// @brief 空のコンストラクタ
+inline
+TestVector::TestVector() :
+  mInputNum(0),
+  mDffNum(0),
+  mFaultType(FaultType::StuckAt),
+  mVector(0)
+{
+}
+
+// @brief コンストラクタ
+// @param[in] input_num 入力数
+// @param[in] dff_numr DFF数
+// @param[in] fault_type 故障の種類
+inline
+TestVector::TestVector(int input_num,
+		       int dff_num,
+		       FaultType fault_type) :
+  mInputNum(input_num),
+  mDffNum(dff_num),
+  mFaultType(fault_type),
+  mVector(_calc_vect_len())
+{
+}
+
+// @brief 割当リストから内容を設定する．
+// @param[in] input_num 入力数
+// @param[in] dff_numr DFF数
+// @param[in] fault_type 故障の種類
+// @param[in] assign_list 割当リスト
+//
+// assign_list に外部入力以外の割当が含まれている場合無視する．
+inline
+TestVector::TestVector(int input_num,
+		       int dff_num,
+		       FaultType fault_type,
+		       const NodeValList& assign_list) :
+  mInputNum(input_num),
+  mDffNum(dff_num),
+  mFaultType(fault_type),
+  mVector(_calc_vect_len())
+{
+}
+
+// @brief HEX文字列から内容を設定する．
+// @param[in] input_num 入力数
+// @param[in] dff_numr DFF数
+// @param[in] fault_type 故障の種類
+// @param[in] hex_string HEX 文字列
+//
+// hex_string が短い時には残りは0で初期化される．
+// hex_string が長い時には余りは捨てられる．
+inline
+TestVector::TestVector(int input_num,
+		       int dff_num,
+		       FaultType fault_type,
+		       const string& hex_string) :
+  mInputNum(input_num),
+  mDffNum(dff_num),
+  mFaultType(fault_type),
+  mVector(_calc_vect_len())
+{
+}
+
+// @brief コピーコンストラクタ
+// @param[in] src コピー元のソース
+inline
+TestVector::TestVector(const TestVector& src) :
+  mInputNum(src.mInputNum),
+  mDffNum(src.mDffNum),
+  mFaultType(src.mFaultType),
+  mVector(src.mVector)
+{
+}
+
+// @brief コピー代入演算子
+// @param[in] src コピー元のソース
+inline
+TestVector&
+TestVector::operator=(const TestVector& src)
+{
+  mInputNum = src.mInputNum;
+  mDffNum = src.mDffNum;
+  mFaultType = mFaultType;
+  mVector = src.mVector;
+
+  return *this;
+}
+
+// @brief デストラクタ
+inline
+TestVector::~TestVector()
+{
+}
 
 // @brief 入力数を得る．
 inline
 int
 TestVector::input_num() const
 {
-  return mInputVector.vect_len();
+  return mInputNum;
 }
 
 // @brief DFF数を得る．
@@ -477,7 +455,7 @@ inline
 int
 TestVector::dff_num() const
 {
-  return mDffVector.vect_len();
+  return mDffNum;
 }
 
 // @brief PPI数を得る．
@@ -495,7 +473,7 @@ inline
 bool
 TestVector::has_aux_input() const
 {
-  return mAuxInputVector.vect_len() != 0;
+  return fault_type() == FaultType::TransitionDelay;
 }
 
 // @brief 故障の種類を返す．
@@ -503,12 +481,7 @@ inline
 FaultType
 TestVector::fault_type() const
 {
-  if ( has_aux_input() ) {
-    return FaultType::TransitionDelay;
-  }
-  else {
-    return FaultType::StuckAt;
-  }
+  return mFaultType;
 }
 
 // @brief ベクタ長を返す．
@@ -516,7 +489,7 @@ inline
 int
 TestVector::vect_len() const
 {
-  return input_num() + dff_num() + mAuxInputVector.vect_len();
+  return mVector.vect_len();
 }
 
 // @brief PPIの値を得る．
@@ -525,14 +498,7 @@ inline
 Val3
 TestVector::ppi_val(int pos) const
 {
-  ASSERT_COND( pos >= 0 && pos < ppi_num() );
-
-  if ( pos < input_num() ) {
-    return mInputVector.val(pos);
-  }
-  else {
-    return mDffVector.val(pos - input_num());
-  }
+  return mVector.val(pos);
 }
 
 // @brief 1時刻目の外部入力の値を得る．
@@ -541,10 +507,7 @@ inline
 Val3
 TestVector::input_val(int pos) const
 {
-  ASSERT_COND( fault_type() == FaultType::TransitionDelay );
-  ASSERT_COND( pos >= 0 && pos < input_num() );
-
-  return mInputVector.val(pos);
+  return mVector.val(pos);
 }
 
 // @brief 1時刻目のDFFの値を得る．
@@ -553,10 +516,7 @@ inline
 Val3
 TestVector::dff_val(int pos) const
 {
-  ASSERT_COND( fault_type() == FaultType::TransitionDelay );
-  ASSERT_COND( pos >= 0 && pos < dff_num() );
-
-  return mDffVector.val(pos);
+  return mVector.val(pos + mInputNum);
 }
 
 // @brief 2時刻目の外部入力の値を得る．
@@ -565,38 +525,7 @@ inline
 Val3
 TestVector::aux_input_val(int pos) const
 {
-  ASSERT_COND( fault_type() == FaultType::TransitionDelay );
-  ASSERT_COND( pos >= 0 && pos < input_num() );
-
-  return mAuxInputVector.val(pos);
-}
-
-// @brief 入力のベクタを得る．
-inline
-const InputVector&
-TestVector::input_vector() const
-{
-  return mInputVector;
-}
-
-// @brief DFFのベクタを得る．
-//
-// nullptr の場合もある．
-inline
-const DffVector&
-TestVector::dff_vector() const
-{
-  return mDffVector;
-}
-
-// @brief ２時刻目の入力のベクタを得る．
-//
-// nullptr の場合もある．
-inline
-const InputVector&
-TestVector::aux_input_vector() const
-{
-  return mAuxInputVector;
+  return mVector.val(pos + ppi_num());
 }
 
 // @brief PPIの値を設定する．
@@ -609,15 +538,7 @@ void
 TestVector::set_ppi_val(int pos,
 			Val3 val)
 {
-  ASSERT_COND( fault_type() == FaultType::StuckAt );
-  ASSERT_COND( pos < ppi_num() );
-
-  if ( pos < input_num() ) {
-    mInputVector.set_val(pos, val);
-  }
-  else {
-    mDffVector.set_val(pos - input_num(), val);
-  }
+  mVector.set_val(pos, val);
 }
 
 // @breif 1時刻目の外部入力の値を設定する．
@@ -628,10 +549,7 @@ void
 TestVector::set_input_val(int pos,
 			  Val3 val)
 {
-  ASSERT_COND( fault_type() == FaultType::TransitionDelay );
-  ASSERT_COND( pos < input_num() );
-
-  mInputVector.set_val(pos, val);
+  mVector.set_val(pos, val);
 }
 
 // @breif 1時刻目のDFFの値を設定する．
@@ -642,10 +560,7 @@ void
 TestVector::set_dff_val(int pos,
 			Val3 val)
 {
-  ASSERT_COND( fault_type() == FaultType::TransitionDelay );
-  ASSERT_COND( pos < dff_num() );
-
-  mDffVector.set_val(pos, val);
+  mVector.set_val(pos + input_num(), val);
 }
 
 // @breif 2時刻目の外部入力の値を設定する．
@@ -656,12 +571,158 @@ void
 TestVector::set_aux_input_val(int pos,
 			      Val3 val)
 {
-  ASSERT_COND( fault_type() == FaultType::TransitionDelay );
-  ASSERT_COND( pos < input_num() );
+  mVector.set_val(pos + ppi_num(), val);
+}
 
-  if ( fault_type() == FaultType::TransitionDelay ) {
-    mAuxInputVector.set_val(pos, val);
-  }
+// @brief X の個数を得る．
+inline
+int
+TestVector::x_count() const
+{
+  return mVector.x_count();
+}
+
+// @brief 2つのベクタが両立しないとき true を返す．
+inline
+bool
+TestVector::is_conflict(const TestVector& tv1,
+			const TestVector& tv2)
+{
+  return BitVector::is_conflict(tv1.mVector, tv2.mVector);
+}
+
+// @brief 等価関係の比較を行なう．
+// @param[in] right オペランド
+// @return 自分自身と right が等しいとき true を返す．
+inline
+bool
+TestVector::operator==(const TestVector& right) const
+{
+  return mVector == right.mVector;
+}
+
+// @brief 等価関係の比較を行なう．
+// @param[in] left, right オペランド
+// @return left と right が等しくないとき true を返す．
+inline
+bool
+operator!=(const TestVector& left,
+	   const TestVector& right)
+{
+  return !left.operator==(right);
+}
+
+// @brief 包含関係の比較を行なう
+// @param[in] right オペランド
+// @return minterm の集合として right が自分自身を含んでいたら true を返す．
+// @note false だからといって逆に自分自身が right を含むとは限らない．
+inline
+bool
+TestVector::operator<(const TestVector& right) const
+{
+  return mVector < right.mVector;
+}
+
+// @brief 包含関係の比較を行なう．
+// @param[in] left, right オペランド
+// @return minterm の集合として left が right を含んでいたら true を返す．
+// @note false だからといって逆に right が left を含むとは限らない．
+inline
+bool
+operator>(const TestVector& left,
+	  const TestVector& right)
+{
+  return right.operator<(left);
+}
+
+// @brief 包含関係の比較を行なう
+// @param[in] right オペランド
+// @return minterm の集合として right が自分自身を含んでいたら true を返す．
+// @note こちらは等しい場合も含む．
+// @note false だからといって逆に自分自身が right を含むとは限らない．
+inline
+bool
+TestVector::operator<=(const TestVector& right) const
+{
+  return mVector <= right.mVector;
+}
+
+// @brief 包含関係の比較を行なう
+// @param[in] left, right オペランド
+// @return minterm の集合として left が right を含んでいたら true を返す．
+// @note こちらは等しい場合も含む．
+// @note false だからといって逆に right が left を含むとは限らない．
+inline
+bool
+operator>=(const TestVector& left,
+	   const TestVector& right)
+{
+  return right.operator<=(left);
+}
+
+// @brief すべて未定(X) で初期化する．
+inline
+void
+TestVector::init()
+{
+  mVector.init();
+}
+
+// @brief 乱数パタンを設定する．
+// @param[in] randgen 乱数生成器
+inline
+void
+TestVector::set_from_random(RandGen& randgen)
+{
+  mVector.set_from_random(randgen);
+}
+
+// @brief X の部分を乱数で 0/1 に設定する．
+// @param[in] randgen 乱数生成器
+inline
+void
+TestVector::fix_x_from_random(RandGen& randgen)
+{
+  mVector.fix_x_from_random(randgen);
+}
+
+// @brief 内容を BIN 形式で表す．
+inline
+string
+TestVector::bin_str() const
+{
+  return mVector.bin_str();
+}
+
+// @brief 内容を HEX 形式で出力する．
+inline
+string
+TestVector::hex_str() const
+{
+  return mVector.hex_str();
+}
+
+// @brief マージする．
+// @param[in] left, right オペランド
+// @return マージ結果を返す．
+//
+// left と right がコンフリクトしている時の結果は不定
+inline
+TestVector
+operator&(const TestVector& left,
+	  const TestVector& right)
+{
+  return TestVector(left).operator&=(right);
+}
+
+// @brief マージして代入する．
+inline
+TestVector&
+TestVector::operator&=(const TestVector& right)
+{
+  mVector &= right.mVector;
+
+  return *this;
 }
 
 // @brief 内容を出力する．
@@ -671,15 +732,6 @@ operator<<(ostream& s,
 	   const TestVector& tv)
 {
   return s << tv.bin_str();
-}
-
-// @brief 内容を出力する．
-inline
-ostream&
-operator<<(ostream& s,
-	   const TestVector* tvp)
-{
-  return s << tvp->bin_str();
 }
 
 END_NAMESPACE_YM_SATPG

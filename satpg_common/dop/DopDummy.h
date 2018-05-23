@@ -39,18 +39,16 @@ public:
   /// @brief テストパタンが見つかった時の処理
   /// @param[in] f 故障
   /// @param[in] assign_list 値の割当リスト
-  virtual
   void
   operator()(const TpgFault* f,
-	     const NodeValList& assign_list);
+	     const NodeValList& assign_list) override;
 
   /// @brief テストパタンが見つかった時の処理
   /// @param[in] f 故障
   /// @param[in] tv テストベクタ
-  virtual
   void
   operator()(const TpgFault* f,
-	     const TestVector& tv);
+	     const TestVector& tv) override;
 
 
 private:

@@ -20,4 +20,3 @@ cdef extern from "DtpgResult.h" namespace "nsYm::nsSatpg" :
         DtpgResult(const TestVector&)
         SatBool3 stat()
         const TestVector& testvector()
-        TestVector _move_testvector()

@@ -33,5 +33,4 @@ cdef extern from "TestVector.h" namespace "nsYm::nsSatpg" :
         bool operator<=(const TestVector& right)
         string bin_str()
         string hex_str()
-#        void resize(int, int, FaultType)
         void init()
