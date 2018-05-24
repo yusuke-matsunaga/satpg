@@ -118,13 +118,6 @@ public:
   FaultType
   fault_type() const;
 
-  /// @brief ベクタ長を返す．
-  ///
-  /// - fault_type() == FaultType::StuckAt の時は input_num() + dff_num()
-  /// - fault_type() == FaultType::TransitionDelay の時は input_num() * 2 + dff_num()
-  int
-  vect_len() const;
-
   /// @brief PPIの値を得る．
   /// @param[in] pos PPI の位置番号 ( 0 <= pos < ppi_num() )
   Val3
@@ -283,6 +276,9 @@ private:
   //////////////////////////////////////////////////////////////////////
 
   /// @brief ベクタ長を計算する．
+  ///
+  /// - fault_type() == FaultType::StuckAt の時は input_num() + dff_num()
+  /// - fault_type() == FaultType::TransitionDelay の時は input_num() * 2 + dff_num()
   int
   _calc_vect_len() const;
 
@@ -536,14 +532,6 @@ FaultType
 TestVector::fault_type() const
 {
   return mFaultType;
-}
-
-// @brief ベクタ長を返す．
-inline
-int
-TestVector::vect_len() const
-{
-  return mVector.len();
 }
 
 // @brief PPIの値を得る．
