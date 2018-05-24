@@ -26,11 +26,11 @@ class DffVector :
 public:
 
   /// @brief コンストラクタ
-  /// @param[in] vect_len ベクタ長
+  /// @param[in] len ベクタ長
   ///
   /// 内容は X で初期化される．
   explicit
-  DffVector(int vect_len = 0);
+  DffVector(int len = 0);
 
   /// @brief コピーコンストラクタ
   /// @param[in] src コピー元のソース
@@ -70,10 +70,10 @@ private:
 //////////////////////////////////////////////////////////////////////
 
 // @brief コンストラクタ
-// @param[in] vect_len ベクタ長
+// @param[in] len ベクタ長
 inline
-DffVector::DffVector(int vect_len) :
-  BitVector(vect_len)
+DffVector::DffVector(int len) :
+  BitVector(len)
 {
 }
 

@@ -13,13 +13,15 @@
 BEGIN_NAMESPACE_YM_SATPG
 
 // @brief ベクタ長を指定してオブジェクトを作る．
-// @param[in] vect_len ベクタ長
+// @param[in] len ベクタ長
 //
 // 内容は X に初期化される．
 BitVectorRep*
-BitVectorRep::new_vector(int vect_len)
+BitVectorRep::new_vector(int len)
 {
-  return new BitVectorRep(vect_len);
+  SizeType size = sizeof(BitVectorRep) + sizeof(PackedVal) * (block_num(len) - 1);
+  void* p = new char[size];
+  return new (p) BitVectorRep(len);
 }
 
 // @brief 内容をコピーする．
@@ -27,9 +29,9 @@ BitVectorRep::new_vector(int vect_len)
 BitVectorRep*
 BitVectorRep::new_vector(const BitVectorRep& src)
 {
-  auto rep = new BitVectorRep(src.vect_len());
+  auto rep = new_vector(src.len());
 
-  int n = block_num(src.vect_len());
+  int n = block_num(src.len());
   for ( int i = 0; i < n; ++ i ) {
     rep->mPat[i] = src.mPat[i];
   }
@@ -39,11 +41,10 @@ BitVectorRep::new_vector(const BitVectorRep& src)
 // @brief コンストラクタ
 // @param[in] vlen ベクタ長
 BitVectorRep::BitVectorRep(int vlen) :
-  mVectLen(vlen),
-  mPat(new PackedVal[block_num(vlen)])
+  mLength(vlen)
 {
   // マスクを設定する．
-  int k = vect_len() % kPvBitLen;
+  int k = len() % kPvBitLen;
   if ( k == 0 ) {
     mMask = kPvAll1;
   }
@@ -59,7 +60,7 @@ BitVectorRep::BitVectorRep(int vlen) :
 int
 BitVectorRep::x_count() const
 {
-  int nb = block_num(vect_len());
+  int nb = block_num(len());
   int n = 0;
   for ( int i = 0; i < nb; i += 2 ) {
     int i0 = i;
@@ -80,9 +81,9 @@ bool
 BitVectorRep::is_eq(const BitVectorRep& bv1,
 		    const BitVectorRep& bv2)
 {
-  ASSERT_COND( bv1.vect_len() == bv2.vect_len() );
+  ASSERT_COND( bv1.len() == bv2.len() );
 
-  int nb = block_num(bv1.vect_len());
+  int nb = block_num(bv1.len());
   for ( int i = 0; i < nb; ++ i ) {
     if ( bv1.mPat[i] != bv2.mPat[i] ) {
       return false;
@@ -98,9 +99,9 @@ bool
 BitVectorRep::is_lt(const BitVectorRep& bv1,
 		    const BitVectorRep& bv2)
 {
-  ASSERT_COND( bv1.vect_len() == bv2.vect_len() );
+  ASSERT_COND( bv1.len() == bv2.len() );
 
-  int nb = block_num(bv1.vect_len());
+  int nb = block_num(bv1.len());
   bool diff = false;
   for ( int i = 0; i < nb; i += 2 ) {
     int i0 = i;
@@ -129,9 +130,9 @@ bool
 BitVectorRep::is_le(const BitVectorRep& bv1,
 		    const BitVectorRep& bv2)
 {
-  ASSERT_COND( bv1.vect_len() == bv2.vect_len() );
+  ASSERT_COND( bv1.len() == bv2.len() );
 
-  int nb = block_num(bv1.vect_len());
+  int nb = block_num(bv1.len());
   for ( int i = 0; i < nb; i += 2 ) {
     int i0 = i;
     int i1 = i + 1;
@@ -152,9 +153,9 @@ bool
 BitVectorRep::is_compat(const BitVectorRep& bv1,
 			const BitVectorRep& bv2)
 {
-  ASSERT_COND( bv1.vect_len() == bv2.vect_len() );
+  ASSERT_COND( bv1.len() == bv2.len() );
 
-  int nb = block_num(bv1.vect_len());
+  int nb = block_num(bv1.len());
   for ( int i = 0; i < nb; i += 2 ) {
     int i0 = i;
     int i1 = i + 1;
@@ -173,7 +174,7 @@ BitVectorRep::is_compat(const BitVectorRep& bv1,
 void
 BitVectorRep::init()
 {
-  int nb = block_num(vect_len());
+  int nb = block_num(len());
   for ( int i = 0; i < nb; i += 2 ) {
     if ( i < nb - 2 ) {
       mPat[i + 0] = kPvAll1;
@@ -198,7 +199,7 @@ bool
 BitVectorRep::set_from_bin(const string& bin_string)
 {
   // よく問題になるが，ここでは最下位ビット側から入力する．
-  int nl = vect_len();
+  int nl = len();
   int sft = 0;
   int blk = 0;
   PackedVal pat0 = kPvAll0;
@@ -245,7 +246,7 @@ bool
 BitVectorRep::set_from_hex(const string& hex_string)
 {
   // よく問題になるが，ここでは最下位ビット側から入力する．
-  int nl = hex_length(vect_len());
+  int nl = hex_length(len());
   int sft = 0;
   int blk = 0;
   PackedVal pat = kPvAll0;
@@ -287,7 +288,7 @@ BitVectorRep::set_from_hex(const string& hex_string)
 void
 BitVectorRep::set_from_random(RandGen& randgen)
 {
-  int nb = block_num(vect_len());
+  int nb = block_num(len());
   for ( int i = 0; i < nb; i += 2 ) {
     PackedVal v = randgen.uint64();
     int i0 = i;
@@ -308,7 +309,7 @@ BitVectorRep::set_from_random(RandGen& randgen)
 void
 BitVectorRep::fix_x_from_random(RandGen& randgen)
 {
-  int nb = block_num(vect_len());
+  int nb = block_num(len());
   for ( int i = 0; i < nb; i += 2 ) {
     int i0 = i;
     int i1 = i + 1;
@@ -331,9 +332,9 @@ BitVectorRep::fix_x_from_random(RandGen& randgen)
 bool
 BitVectorRep::merge(const BitVectorRep& src)
 {
-  ASSERT_COND( vect_len() == src.vect_len() );
+  ASSERT_COND( len() == src.len() );
 
-  int nb = block_num(vect_len());
+  int nb = block_num(len());
 
   // コンフリクトチェック
   for ( int i = 0; i < nb; i += 2 ) {
@@ -362,7 +363,7 @@ BitVectorRep::bin_str() const
 {
   // よく問題になるが，ここでは最下位ビット側から出力する．
   string ans;
-  for ( int i = 0; i < vect_len(); ++ i ) {
+  for ( int i = 0; i < len(); ++ i ) {
     switch ( val(i) ) {
     case Val3::_0: ans += '0'; break;
     case Val3::_1: ans += '1'; break;
@@ -382,7 +383,7 @@ BitVectorRep::hex_str() const
   int bit = 1U;
   string ans;
   for ( int i = 0; ; ++ i ) {
-    if ( i < vect_len() ) {
+    if ( i < len() ) {
       if ( val(i) == Val3::_1 ) {
 	// 面倒くさいので Val3::X は Val3::_0 と同じとみなす．
 	tmp += bit;

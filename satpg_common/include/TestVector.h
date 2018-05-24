@@ -543,7 +543,7 @@ inline
 int
 TestVector::vect_len() const
 {
-  return mVector.vect_len();
+  return mVector.len();
 }
 
 // @brief PPIの値を得る．

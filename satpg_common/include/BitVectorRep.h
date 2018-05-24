@@ -43,12 +43,12 @@ public:
   //////////////////////////////////////////////////////////////////////
 
   /// @brief ベクタ長を指定してオブジェクトを作る．
-  /// @param[in] vect_len ベクタ長
+  /// @param[in] len ベクタ長
   ///
   /// 内容は X に初期化される．
   static
   BitVectorRep*
-  new_vector(int vect_len);
+  new_vector(int len);
 
   /// @brief 内容をコピーする．
   /// @param[in] src コピー元のオブジェクト
@@ -70,10 +70,10 @@ public:
 
   /// @brief ベクタ長を返す．
   int
-  vect_len() const;
+  len() const;
 
   /// @brief 値を得る．
-  /// @param[in] pos 位置番号 ( 0 <= pos < vect_len() )
+  /// @param[in] pos 位置番号 ( 0 <= pos < len() )
   Val3
   val(int pos) const;
 
@@ -136,7 +136,7 @@ public:
   init();
 
   /// @brief 値を設定する．
-  /// @param[in] pos 位置番号 ( 0 <= pos < vect_len() )
+  /// @param[in] pos 位置番号 ( 0 <= pos < len() )
   /// @param[in] val 値
   void
   set_val(int pos,
@@ -189,28 +189,28 @@ private:
   //////////////////////////////////////////////////////////////////////
 
   /// @brief ブロック数を返す．
-  /// @param[in] ni 入力数
+  /// @param[in] length ベクタ長
   static
   int
-  block_num(int ni);
+  block_num(int length);
 
   /// @brief HEX文字列の長さを返す．
-  /// @param[in] ni 入力数
+  /// @param[in] length ベクタ長
   static
   int
-  hex_length(int ni);
+  hex_length(int length);
 
-  // 入力位置からブロック番号を得る．
-  /// @param[in] ipos 入力の位置番号
+  // 位置からブロック番号を得る．
+  /// @param[in] pos 位置番号
   static
   int
-  block_idx(int ipos);
+  block_idx(int pos);
 
-  // 入力位置からシフト量を得る．
-  /// @param[in] ipos 入力の位置番号
+  // 位置からシフト量を得る．
+  /// @param[in] pos 位置番号
   static
   int
-  shift_num(int ipos);
+  shift_num(int pos);
 
 
 private:
@@ -219,8 +219,8 @@ private:
   //////////////////////////////////////////////////////////////////////
 
   /// @brief コンストラクタ
-  /// @param[in] vect_len ベクタ長
-  BitVectorRep(int vect_len);
+  /// @param[in] length ベクタ長
+  BitVectorRep(int length);
 
 
 private:
@@ -229,13 +229,13 @@ private:
   //////////////////////////////////////////////////////////////////////
 
   // ベクタ長
-  int mVectLen;
+  int mLength;
 
   // 最後のブロックのマスク
   PackedVal mMask;
 
-  // ベクタ本体の配列
-  PackedVal* mPat;
+  // ベクタ本体の配列(のダミー)
+  PackedVal mPat[1];
 
 
 private:
@@ -273,24 +273,23 @@ operator<<(ostream& s,
 inline
 BitVectorRep::~BitVectorRep()
 {
-  delete [] mPat;
 }
 
 // @brief ベクタ長を返す．
 inline
 int
-BitVectorRep::vect_len() const
+BitVectorRep::len() const
 {
-  return mVectLen;
+  return mLength;
 }
 
 // @brief 値を得る．
-// @param[in] pos 位置番号 ( 0 <= pos < vect_len() )
+// @param[in] pos 位置番号 ( 0 <= pos < len() )
 inline
 Val3
 BitVectorRep::val(int pos) const
 {
-  ASSERT_COND( pos < vect_len() );
+  ASSERT_COND( pos < len() );
 
   int shift = shift_num(pos);
   int block0 = block_idx(pos);
@@ -307,7 +306,7 @@ void
 BitVectorRep::set_val(int pos,
 		      Val3 val)
 {
-  ASSERT_COND( pos < vect_len() );
+  ASSERT_COND( pos < len() );
 
   int shift = shift_num(pos);
   int block0 = block_idx(pos);
@@ -315,49 +314,49 @@ BitVectorRep::set_val(int pos,
   PackedVal mask = 1UL << shift;
   switch ( val ) {
   case Val3::_0:
-    mPat[block0] |= mask;
+    mPat[block0] |=  mask;
     mPat[block1] &= ~mask;
     break;
   case Val3::_1:
     mPat[block0] &= ~mask;
-    mPat[block1] |= mask;
+    mPat[block1] |=  mask;
     break;
   case Val3::_X:
-    mPat[block0] |= mask;
-    mPat[block1] |= mask;
+    mPat[block0] |=  mask;
+    mPat[block1] |=  mask;
   }
 }
 
 // @brief ブロック数を返す．
 inline
 int
-BitVectorRep::block_num(int ni)
+BitVectorRep::block_num(int len)
 {
-  return ((ni + kPvBitLen - 1) / kPvBitLen) * 2;
+  return ((len + kPvBitLen - 1) / kPvBitLen) * 2;
 }
 
 // @brief HEX文字列の長さを返す．
 inline
 int
-BitVectorRep::hex_length(int ni)
+BitVectorRep::hex_length(int len)
 {
-  return (ni + 3) / 4;
+  return (len + 3) / 4;
 }
 
 // 入力位置からブロック番号を得る．
 inline
 int
-BitVectorRep::block_idx(int ipos)
+BitVectorRep::block_idx(int pos)
 {
-  return (ipos / kPvBitLen) * 2;
+  return (pos / kPvBitLen) * 2;
 }
 
 // 入力位置からシフト量を得る．
 inline
 int
-BitVectorRep::shift_num(int ipos)
+BitVectorRep::shift_num(int pos)
 {
-  return ipos % kPvBitLen;
+  return pos % kPvBitLen;
 }
 
 // @brief 内容を出力する．

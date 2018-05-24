@@ -25,11 +25,11 @@ class BitVector
 public:
 
   /// @brief コンストラクタ
-  /// @param[in] vect_len ベクタ長
+  /// @param[in] len ベクタ長
   ///
   /// 内容は X で初期化される．
   explicit
-  BitVector(int vect_len = 0);
+  BitVector(int len = 0);
 
   /// @brief コピーコンストラクタ
   /// @param[in] src コピー元のソース
@@ -52,7 +52,7 @@ public:
   from_bin_str(const string& bin_str);
 
   /// @brief HEX文字列からオブジェクトを作る．
-  /// @param[in] vect_len ベクタ長
+  /// @param[in] len ベクタ長
   /// @param[in] hex_str HEX文字列
   ///
   /// - hex_string が短い時には残りは0で初期化される．
@@ -61,7 +61,7 @@ public:
   /// - hex_str が不適切な場合には長さ0のベクタを返す．
   static
   BitVector
-  from_hex_str(int vect_len,
+  from_hex_str(int len,
 	       const string& hex_str);
 
   /// @brief デストラクタ
@@ -75,10 +75,10 @@ public:
 
   /// @brief ベクタ長を返す．
   int
-  vect_len() const;
+  len() const;
 
   /// @brief 値を得る．
-  /// @param[in] pos 位置番号 ( 0 <= pos < vect_len() )
+  /// @param[in] pos 位置番号 ( 0 <= pos < len() )
   Val3
   val(int pos) const;
 
@@ -110,7 +110,7 @@ public:
   init();
 
   /// @brief 値を設定する．
-  /// @param[in] pos 位置番号 ( 0 <= pos < vect_len() )
+  /// @param[in] pos 位置番号 ( 0 <= pos < len() )
   /// @param[in] val 値
   void
   set_val(int pos,
@@ -304,10 +304,10 @@ operator&(const BitVector& left,
 //////////////////////////////////////////////////////////////////////
 
 // @brief コンストラクタ
-// @param[in] vect_len ベクタ長
+// @param[in] len ベクタ長
 inline
-BitVector::BitVector(int vect_len) :
-  mPtr(BitVectorRep::new_vector(vect_len))
+BitVector::BitVector(int len) :
+  mPtr(BitVectorRep::new_vector(len))
 {
 }
 
@@ -349,7 +349,7 @@ BitVector::from_bin_str(const string& bin_str)
 }
 
 // @brief HEX文字列からオブジェクトを作る．
-// @param[in] vect_len ベクタ長
+// @param[in] len ベクタ長
 // @param[in] hex_str HEX文字列
 //
 // - hex_string が短い時には残りは0で初期化される．
@@ -358,10 +358,10 @@ BitVector::from_bin_str(const string& bin_str)
 // - hex_str が不適切な場合には長さ0のベクタを返す．
 inline
 BitVector
-BitVector::from_hex_str(int vect_len,
+BitVector::from_hex_str(int len,
 			const string& hex_str)
 {
-  BitVector bv(vect_len);
+  BitVector bv(len);
   if ( bv.set_from_hex(hex_str) ) {
     return bv;
   }
@@ -378,13 +378,13 @@ BitVector::~BitVector()
 // @brief ベクタ長を返す．
 inline
 int
-BitVector::vect_len() const
+BitVector::len() const
 {
-  return mPtr->vect_len();
+  return mPtr->len();
 }
 
 // @brief 値を得る．
-// @param[in] pos 位置番号 ( 0 <= pos < vect_len() )
+// @param[in] pos 位置番号 ( 0 <= pos < len() )
 inline
 Val3
 BitVector::val(int pos) const
@@ -541,7 +541,7 @@ BitVector::init()
 }
 
 // @brief 値を設定する．
-// @param[in] pos 位置番号 ( 0 <= pos < vect_len() )
+// @param[in] pos 位置番号 ( 0 <= pos < len() )
 // @param[in] val 値
 inline
 void

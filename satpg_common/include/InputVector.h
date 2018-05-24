@@ -26,11 +26,11 @@ class InputVector :
 public:
 
   /// @brief コンストラクタ
-  /// @param[in] vect_len ベクタ長
+  /// @param[in] len ベクタ長
   ///
   /// 内容は X で初期化される．
   explicit
-  InputVector(int vect_len = 0);
+  InputVector(int len = 0);
 
   /// @brief コピーコンストラクタ
   /// @param[in] src コピー元のソース
@@ -70,10 +70,10 @@ private:
 //////////////////////////////////////////////////////////////////////
 
 // @brief コンストラクタ
-// @param[in] vect_len ベクタ長
+// @param[in] len ベクタ長
 inline
-InputVector::InputVector(int vect_len) :
-  BitVector(vect_len)
+InputVector::InputVector(int len) :
+  BitVector(len)
 {
 }
 

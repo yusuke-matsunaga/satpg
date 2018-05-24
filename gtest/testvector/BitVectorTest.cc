@@ -19,7 +19,7 @@ TEST(BitVectorTest, constructor_0)
 {
   BitVector bv(0);
 
-  EXPECT_EQ( 0, bv.vect_len() );
+  EXPECT_EQ( 0, bv.len() );
   EXPECT_EQ( 0, bv.x_count() );
   EXPECT_EQ( string(), bv.bin_str() );
   EXPECT_EQ( string(), bv.hex_str() );
@@ -32,7 +32,7 @@ TEST(BitVectorTest, constructor_1_0)
 
   bv.set_val(0, Val3::_0);
 
-  EXPECT_EQ( 1, bv.vect_len() );
+  EXPECT_EQ( 1, bv.len() );
   EXPECT_EQ( 0, bv.x_count() );
   EXPECT_EQ( Val3::_0, bv.val(0) );
   EXPECT_EQ( string("0"), bv.bin_str() );
@@ -46,7 +46,7 @@ TEST(BitVectorTest, constructor_1_1)
 
   bv.set_val(0, Val3::_1);
 
-  EXPECT_EQ( 1, bv.vect_len() );
+  EXPECT_EQ( 1, bv.len() );
   EXPECT_EQ( 0, bv.x_count() );
   EXPECT_EQ( Val3::_1, bv.val(0) );
   EXPECT_EQ( string("1"), bv.bin_str() );
@@ -60,7 +60,7 @@ TEST(BitVectorTest, constructor_1_X)
 
   bv.set_val(0, Val3::_X);
 
-  EXPECT_EQ( 1, bv.vect_len() );
+  EXPECT_EQ( 1, bv.len() );
   EXPECT_EQ( 1, bv.x_count() );
   EXPECT_EQ( Val3::_X, bv.val(0) );
   EXPECT_EQ( string("X"), bv.bin_str() );
@@ -70,20 +70,20 @@ TEST(BitVectorTest, constructor_1_X)
 // 長さ100のベクタ
 TEST(BitVectorTest, constructor_100_0)
 {
-  int vlen = 100;
-  BitVector bv(vlen);
+  int len = 100;
+  BitVector bv(len);
 
-  for ( int i = 0; i < vlen; ++ i ) {
+  for ( int i = 0; i < len; ++ i ) {
     bv.set_val(i, Val3::_0);
   }
 
-  EXPECT_EQ( vlen, bv.vect_len() );
+  EXPECT_EQ( len, bv.len() );
   EXPECT_EQ( 0, bv.x_count() );
-  for ( int i = 0; i < vlen; ++ i ) {
+  for ( int i = 0; i < len; ++ i ) {
     EXPECT_EQ( Val3::_0, bv.val(i) );
   }
   string str;
-  for ( int i = 0; i < vlen; ++ i ) {
+  for ( int i = 0; i < len; ++ i ) {
     str += "0";
   }
   EXPECT_EQ( str, bv.bin_str() );
@@ -92,20 +92,20 @@ TEST(BitVectorTest, constructor_100_0)
 // 長さ100のベクタ
 TEST(BitVectorTest, constructor_100_1)
 {
-  int vlen = 100;
-  BitVector bv(vlen);
+  int len = 100;
+  BitVector bv(len);
 
-  for ( int i = 0; i < vlen; ++ i ) {
+  for ( int i = 0; i < len; ++ i ) {
     bv.set_val(i, Val3::_1);
   }
 
-  EXPECT_EQ( vlen, bv.vect_len() );
+  EXPECT_EQ( len, bv.len() );
   EXPECT_EQ( 0, bv.x_count() );
-  for ( int i = 0; i < vlen; ++ i ) {
+  for ( int i = 0; i < len; ++ i ) {
     EXPECT_EQ( Val3::_1, bv.val(i) );
   }
   string str;
-  for ( int i = 0; i < vlen; ++ i ) {
+  for ( int i = 0; i < len; ++ i ) {
     str += "1";
   }
   EXPECT_EQ( str, bv.bin_str() );
@@ -114,20 +114,20 @@ TEST(BitVectorTest, constructor_100_1)
 // 長さ100のベクタ
 TEST(BitVectorTest, constructor_100_X)
 {
-  int vlen = 100;
-  BitVector bv(vlen);
+  int len = 100;
+  BitVector bv(len);
 
-  for ( int i = 0; i < vlen; ++ i ) {
+  for ( int i = 0; i < len; ++ i ) {
     bv.set_val(i, Val3::_X);
   }
 
-  EXPECT_EQ( vlen, bv.vect_len() );
-  EXPECT_EQ( vlen, bv.x_count() );
-  for ( int i = 0; i < vlen; ++ i ) {
+  EXPECT_EQ( len, bv.len() );
+  EXPECT_EQ( len, bv.x_count() );
+  for ( int i = 0; i < len; ++ i ) {
     EXPECT_EQ( Val3::_X, bv.val(i) );
   }
   string str;
-  for ( int i = 0; i < vlen; ++ i ) {
+  for ( int i = 0; i < len; ++ i ) {
     str += "X";
   }
   EXPECT_EQ( str, bv.bin_str() );
@@ -136,22 +136,22 @@ TEST(BitVectorTest, constructor_100_X)
 // 長さ100のベクタ
 TEST(BitVectorTest, constructor_100_01)
 {
-  int vlen = 100;
-  BitVector bv(vlen);
+  int len = 100;
+  BitVector bv(len);
 
-  for ( int i = 0; i < vlen; ++ i ) {
+  for ( int i = 0; i < len; ++ i ) {
     Val3 val = (i % 2 == 0) ? Val3::_0 : Val3::_1;
     bv.set_val(i, val);
   }
 
-  EXPECT_EQ( vlen, bv.vect_len() );
+  EXPECT_EQ( len, bv.len() );
   EXPECT_EQ( 0, bv.x_count() );
-  for ( int i = 0; i < vlen; ++ i ) {
+  for ( int i = 0; i < len; ++ i ) {
     Val3 val = (i % 2 == 0) ? Val3::_0 : Val3::_1;
     EXPECT_EQ( val, bv.val(i) );
   }
   string str;
-  for ( int i = 0; i < vlen; ++ i ) {
+  for ( int i = 0; i < len; ++ i ) {
     str += (i % 2 == 0) ? "0" : "1";
   }
   EXPECT_EQ( str, bv.bin_str() );
@@ -160,11 +160,11 @@ TEST(BitVectorTest, constructor_100_01)
 // 長さ100のベクタ
 TEST(BitVectorTest, constructor_100_01X)
 {
-  int vlen = 100;
-  BitVector bv(vlen);
+  int len = 100;
+  BitVector bv(len);
 
   int xnum = 0;
-  for ( int i = 0; i < vlen; ++ i ) {
+  for ( int i = 0; i < len; ++ i ) {
     Val3 val;
     switch ( i % 3 ) {
     case 0: val = Val3::_0; break;
@@ -174,9 +174,9 @@ TEST(BitVectorTest, constructor_100_01X)
     bv.set_val(i, val);
   }
 
-  EXPECT_EQ( vlen, bv.vect_len() );
+  EXPECT_EQ( len, bv.len() );
   EXPECT_EQ( xnum, bv.x_count() );
-  for ( int i = 0; i < vlen; ++ i ) {
+  for ( int i = 0; i < len; ++ i ) {
     Val3 val;
     switch ( i % 3 ) {
     case 0: val = Val3::_0; break;
@@ -186,7 +186,7 @@ TEST(BitVectorTest, constructor_100_01X)
     EXPECT_EQ( val, bv.val(i) );
   }
   string str;
-  for ( int i = 0; i < vlen; ++ i ) {
+  for ( int i = 0; i < len; ++ i ) {
     switch ( i % 3 ) {
     case 0: str += "0"; break;
     case 1: str += "1"; break;
@@ -202,7 +202,7 @@ TEST(BitVectorTest, from_bin_str1)
   string bin_str = "01X";
   BitVector bv = BitVector::from_bin_str(bin_str);
 
-  EXPECT_EQ( bin_str.size(), bv.vect_len() );
+  EXPECT_EQ( bin_str.size(), bv.len() );
   EXPECT_EQ( bin_str, bv.bin_str() );
 }
 
@@ -215,48 +215,48 @@ TEST(BitVectorTest, from_bin_str2)
   }
   BitVector bv = BitVector::from_bin_str(bin_str);
 
-  EXPECT_EQ( bin_str.size(), bv.vect_len() );
+  EXPECT_EQ( bin_str.size(), bv.len() );
   EXPECT_EQ( bin_str, bv.bin_str() );
 }
 
 // from_hex_str() のテスト
 TEST(BitVectorTest, from_hex_str1)
 {
-  int vect_len = 13;
+  int len = 13;
   string hex_str = "A5F0";
-  BitVector bv = BitVector::from_hex_str(vect_len, hex_str);
+  BitVector bv = BitVector::from_hex_str(len, hex_str);
 
-  EXPECT_EQ( vect_len, bv.vect_len() );
+  EXPECT_EQ( len, bv.len() );
   EXPECT_EQ( hex_str, bv.hex_str() );
 }
 
 // from_hex_str() のテスト
 TEST(BitVectorTest, from_hex_str2)
 {
-  int vect_len = 13;
+  int len = 13;
   string hex_str = "A5FF";
-  BitVector bv = BitVector::from_hex_str(vect_len, hex_str);
+  BitVector bv = BitVector::from_hex_str(len, hex_str);
 
-  EXPECT_EQ( vect_len, bv.vect_len() );
+  EXPECT_EQ( len, bv.len() );
   EXPECT_EQ( "A5F1", bv.hex_str() );
 }
 
 // init() のテスト
 TEST(BitVectorTest, init)
 {
-  int vlen = 100;
-  BitVector bv(vlen);
+  int len = 100;
+  BitVector bv(len);
 
-  for ( int i = 0; i < vlen; ++ i ) {
+  for ( int i = 0; i < len; ++ i ) {
     bv.set_val(i, Val3::_0);
   }
-  for ( int i = 0; i < vlen; ++ i ) {
+  for ( int i = 0; i < len; ++ i ) {
     EXPECT_EQ( Val3::_0, bv.val(i) );
   }
 
   bv.init();
 
-  for ( int i = 0; i < vlen; ++ i ) {
+  for ( int i = 0; i < len; ++ i ) {
     EXPECT_EQ( Val3::_X, bv.val(i) );
   }
 }
@@ -265,8 +265,8 @@ TEST(BitVectorTest, init)
 TEST(BitVectorTest, set_from_hex)
 {
   string hex_str = "A50F";
-  int vlen = hex_str.size() * 4;
-  BitVector bv(vlen);
+  int len = hex_str.size() * 4;
+  BitVector bv(len);
 
   bv.set_from_hex(hex_str);
 
@@ -277,9 +277,9 @@ TEST(BitVectorTest, set_from_hex)
 TEST(BitVectorTest, uniq_set_val)
 {
   // bv0 をすべて0で初期化
-  int vlen = 100;
-  BitVector bv0(vlen);
-  for ( int i = 0; i < vlen; ++ i ) {
+  int len = 100;
+  BitVector bv0(len);
+  for ( int i = 0; i < len; ++ i ) {
     bv0.set_val(i, Val3::_0);
   }
 
@@ -291,7 +291,7 @@ TEST(BitVectorTest, uniq_set_val)
   EXPECT_EQ( Val3::_1, bv1.val(0) );
 
   // bv0 が元のままであることを確認．
-  for ( int i = 0; i < vlen; ++ i ) {
+  for ( int i = 0; i < len; ++ i ) {
     EXPECT_EQ( Val3::_0, bv0.val(i) );
   }
 }
@@ -300,9 +300,9 @@ TEST(BitVectorTest, uniq_set_val)
 TEST(BitVectorTest, uniq_set_from_hex)
 {
   string hex_str = "A50F";
-  int vlen = hex_str.size() * 4;
-  BitVector bv0(vlen);
-  for ( int i = 0; i < vlen; ++ i ) {
+  int len = hex_str.size() * 4;
+  BitVector bv0(len);
+  for ( int i = 0; i < len; ++ i ) {
     bv0.set_val(i, Val3::_0);
   }
 
@@ -314,7 +314,7 @@ TEST(BitVectorTest, uniq_set_from_hex)
   EXPECT_EQ( hex_str, bv1.hex_str() );
 
   // bv0 が元のままであることを確認．
-  for ( int i = 0; i < vlen; ++ i ) {
+  for ( int i = 0; i < len; ++ i ) {
     EXPECT_EQ( Val3::_0, bv0.val(i) );
   }
 }
@@ -323,9 +323,9 @@ TEST(BitVectorTest, uniq_set_from_hex)
 TEST(BitVectorTest, uniq_set_from_random)
 {
   string hex_str = "A50F";
-  int vlen = hex_str.size() * 4;
-  BitVector bv0(vlen);
-  for ( int i = 0; i < vlen; ++ i ) {
+  int len = hex_str.size() * 4;
+  BitVector bv0(len);
+  for ( int i = 0; i < len; ++ i ) {
     bv0.set_val(i, Val3::_0);
   }
 
@@ -337,7 +337,7 @@ TEST(BitVectorTest, uniq_set_from_random)
   bv1.set_from_random(rg);
 
   // bv0 が元のままであることを確認．
-  for ( int i = 0; i < vlen; ++ i ) {
+  for ( int i = 0; i < len; ++ i ) {
     EXPECT_EQ( Val3::_0, bv0.val(i) );
   }
 }
