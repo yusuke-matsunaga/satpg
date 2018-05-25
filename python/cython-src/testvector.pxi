@@ -29,6 +29,11 @@ cdef class TestVector :
     def dff_num(TestVector self) :
         return self._this.dff_num()
 
+    ### @brief 2時刻目の外部入力を持つ時 true を返す．
+    @property
+    def has_aux_input(TestVector self) :
+        return self._this.has_aux_input()
+
     ### @brief 疑似入力数を返す．
     @property
     def ppi_num(TestVector self) :
@@ -83,3 +88,45 @@ cdef class TestVector :
     def hex_str(TestVector self) :
         cdef string c_str = self._this.hex_str()
         return c_str.decode('UTF-8')
+
+    ### @brief 全て未定値(X)で初期化する．
+    def init(TestVector self) :
+        self._this.init()
+
+    ### @brief PPIに値を設定する．
+    ### @param[in] pos PPIの位置番号
+    ### @param[in] val 値
+    def set_ppi_val(TestVector self, pos, val) :
+        cdef CXX_Val3 c_val = from_Val3(val)
+        self._this.set_ppi_val(pos, c_val)
+
+    ### @brief 1時刻目の外部入力の値を設定する．
+    ### @param[in] pos 入力の位置番号
+    ### @param[in] val 値
+    def set_input_val(TestVector self, pos, val) :
+        cdef CXX_Val3 c_val = from_Val3(val)
+        self._this.set_input_val(pos, c_val)
+
+    ### @brief 1時刻目のDFFの値を設定する．
+    ### @param[in] pos DFFの位置番号
+    ### @param[in] val 値
+    def set_dff_val(TestVector self, pos, val) :
+        cdef CXX_Val3 c_val = from_Val3(val)
+        self._this.set_dff_val(pos, c_val)
+
+    ### @brief 2時刻目の外部入力の値を設定する．
+    ### @param[in] pos 入力の位置番号
+    ### @param[in] val 値
+    def set_aux_input_val(TestVector self, pos, val) :
+        cdef CXX_Val3 c_val = from_Val3(val)
+        self._this.set_aux_input_val(pos, c_val)
+
+    ### @brief 乱数パタンを設定する．
+    ### @param[in] randgen 乱数発生器
+    def set_from_random(TestVector self, RandGen randgen) :
+        self._this.set_from_random(randgen._this)
+
+    ### @brief Xの部分を乱数で 0/1 に設定する．
+    ### @param[in] randgen 乱数発生器
+    def fix_x_from_random(TestVector self, RandGen randgen) :
+        self._this.fix_x_from_random(randgen._this)
