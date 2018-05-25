@@ -19,19 +19,19 @@ BEGIN_NAMESPACE_YM_SATPG
 
 BEGIN_NONAMESPACE
 
-JustImpl*
+std::unique_ptr<JustImpl>
 new_just(const string& just_type,
 	 int max_id)
 {
   if ( just_type == "just1" ) {
-    return new Just1(max_id);
+    return std::unique_ptr<JustImpl>(new Just1(max_id));
   }
   if ( just_type == "just2" ) {
-    return new Just2(max_id);
+    return std::unique_ptr<JustImpl>(new Just2(max_id));
   }
 
   // デフォルトフォールバックは Just2
-  return new Just2(max_id);
+  return std::unique_ptr<JustImpl>(new Just2(max_id));
 }
 
 END_NONAMESPACE

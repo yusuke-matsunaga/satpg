@@ -31,6 +31,7 @@ public:
   JustImpl(int max_id);
 
   /// @brief デストラクタ
+  virtual
   ~JustImpl();
 
 
