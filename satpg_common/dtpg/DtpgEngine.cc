@@ -791,7 +791,7 @@ DtpgEngine::solve(const TpgFault* fault,
     mStats.mBackTraceTime += timer.time();
     mStats.update_det(sat_stats, time);
 
-    return DtpgResult(std::move(testvect));
+    return DtpgResult(testvect);
   }
 
   if ( ans == SatBool3::False ) {

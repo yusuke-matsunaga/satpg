@@ -55,17 +55,6 @@ DopTvList::~DopTvList()
 
 // @brief テストパタンが見つかった時の処理
 // @param[in] f 故障
-// @param[in] assign_list 値割当のリスト
-void
-DopTvList::operator()(const TpgFault* f,
-		      const NodeValList& assign_list)
-{
-  TestVector tv(mInputNum, mDffNum, mFaultType, assign_list);
-  mTvList.push_back(tv);
-}
-
-// @brief テストパタンが見つかった時の処理
-// @param[in] f 故障
 // @param[in] tv テストベクタ
 void
 DopTvList::operator()(const TpgFault* f,

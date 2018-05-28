@@ -68,7 +68,7 @@ DtpgTest::single_test()
       SatBool3 ans = dtpg.dtpg(fault, testvect);
       if ( ans == SatBool3::True ) {
 	++ detect_num;
-	mDop(fault, std::move(testvect));
+	mDop(fault, testvect);
       }
       else if ( ans == SatBool3::False ) {
 	++ untest_num;
@@ -78,6 +78,17 @@ DtpgTest::single_test()
   }
 
   mTimer.stop();
+
+  int n = mVerifyResult.error_count();
+  for ( int i = 0; i < n; ++ i ) {
+    const TpgFault* f = mVerifyResult.error_fault(i);
+    TestVector tv = mVerifyResult.error_testvector(i);
+    cout << "Error: " << f->str() << " is not detected with "
+	 << tv << endl;
+  }
+  if ( n > 0 ) {
+    return make_pair(0, 0);
+  }
 
   return make_pair(detect_num, untest_num);
 }
@@ -100,7 +111,7 @@ DtpgTest::ffr_test()
 	SatBool3 ans = dtpg.dtpg(fault, testvect);
 	if ( ans == SatBool3::True ) {
 	  ++ detect_num;
-	  mDop(fault, std::move(testvect));
+	  mDop(fault, testvect);
 	}
 	else if ( ans == SatBool3::False ) {
 	  ++ untest_num;
@@ -111,6 +122,17 @@ DtpgTest::ffr_test()
   }
 
   mTimer.stop();
+
+  int n = mVerifyResult.error_count();
+  for ( int i = 0; i < n; ++ i ) {
+    const TpgFault* f = mVerifyResult.error_fault(i);
+    TestVector tv = mVerifyResult.error_testvector(i);
+    cout << "Error: " << f->str() << " is not detected with "
+	 << tv << endl;
+  }
+  if ( n > 0 ) {
+    return make_pair(0, 0);
+  }
 
   return make_pair(detect_num, untest_num);
 }
@@ -134,7 +156,7 @@ DtpgTest::mffc_test()
 	SatBool3 ans = dtpg.dtpg(fault, testvect);
 	if ( ans == SatBool3::True ) {
 	  ++ detect_num;
-	  mDop(fault, std::move(testvect));
+	  mDop(fault, testvect);
 	}
 	else if ( ans == SatBool3::False ) {
 	  ++ untest_num;
@@ -145,6 +167,17 @@ DtpgTest::mffc_test()
   }
 
   mTimer.stop();
+
+  int n = mVerifyResult.error_count();
+  for ( int i = 0; i < n; ++ i ) {
+    const TpgFault* f = mVerifyResult.error_fault(i);
+    TestVector tv = mVerifyResult.error_testvector(i);
+    cout << "Error: " << f->str() << " is not detected with "
+	 << tv << endl;
+  }
+  if ( n > 0 ) {
+    return make_pair(0, 0);
+  }
 
   return make_pair(detect_num, untest_num);
 }
@@ -176,6 +209,17 @@ DtpgTest::single_new_test()
   }
 
   mTimer.stop();
+
+  int n = mVerifyResult.error_count();
+  for ( int i = 0; i < n; ++ i ) {
+    const TpgFault* f = mVerifyResult.error_fault(i);
+    TestVector tv = mVerifyResult.error_testvector(i);
+    cout << "Error: " << f->str() << " is not detected with "
+	 << tv << endl;
+  }
+  if ( n > 0 ) {
+    return make_pair(0, 0);
+  }
 
   return make_pair(detect_num, untest_num);
 }
@@ -209,6 +253,17 @@ DtpgTest::ffr_new_test()
 
   mTimer.stop();
 
+  int n = mVerifyResult.error_count();
+  for ( int i = 0; i < n; ++ i ) {
+    const TpgFault* f = mVerifyResult.error_fault(i);
+    TestVector tv = mVerifyResult.error_testvector(i);
+    cout << "Error: " << f->str() << " is not detected with "
+	 << tv << endl;
+  }
+  if ( n > 0 ) {
+    return make_pair(0, 0);
+  }
+
   return make_pair(detect_num, untest_num);
 }
 
@@ -241,6 +296,17 @@ DtpgTest::mffc_new_test()
   }
 
   mTimer.stop();
+
+  int n = mVerifyResult.error_count();
+  for ( int i = 0; i < n; ++ i ) {
+    const TpgFault* f = mVerifyResult.error_fault(i);
+    TestVector tv = mVerifyResult.error_testvector(i);
+    cout << "Error: " << f->str() << " is not detected with "
+	 << tv << endl;
+  }
+  if ( n > 0 ) {
+    return make_pair(0, 0);
+  }
 
   return make_pair(detect_num, untest_num);
 }

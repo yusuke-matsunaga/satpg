@@ -48,22 +48,6 @@ DopVerify::~DopVerify()
 
 // @brief テストパタンが見つかった時の処理
 // @param[in] f 故障
-// @param[in] assign_list 値割当のリスト
-void
-DopVerify::operator()(const TpgFault* f,
-		      const NodeValList& assign_list)
-{
-  bool detect = mFsim.spsfp(assign_list, f);
-  if ( detect ) {
-    mResult.add_good(f);
-  }
-  else {
-    mResult.add_error(f, assign_list);
-  }
-}
-
-// @brief テストパタンが見つかった時の処理
-// @param[in] f 故障
 // @param[in] tv テストベクタ
 void
 DopVerify::operator()(const TpgFault* f,
@@ -74,8 +58,7 @@ DopVerify::operator()(const TpgFault* f,
     mResult.add_good(f);
   }
   else {
-#warning "TODO: tv -> assign_list への変換を行う．"
-    //mResult.add_error(f, assign_list);
+    mResult.add_error(f, tv);
   }
 }
 

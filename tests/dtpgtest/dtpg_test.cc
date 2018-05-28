@@ -212,9 +212,9 @@ dtpg_test(int argc,
   int n = verify_result.error_count();
   for ( int i = 0; i < n; ++ i ) {
     const TpgFault* f = verify_result.error_fault(i);
-    const NodeValList& assign_list = verify_result.error_assign_list(i);
+    TestVector tv = verify_result.error_testvector(i);
     cout << "Error: " << f->str() << " is not detected with "
-	 << assign_list << endl;
+	 << tv << endl;
   }
 
   return n;

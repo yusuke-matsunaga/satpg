@@ -36,12 +36,12 @@ DopVerifyResult::add_good(const TpgFault* f)
 
 // @brief エラー結果を追加する．
 // @param[in] f 故障
-// @param[in] assign_list 値割り当てのリスト
+// @param[in] tv テストベクタ
 void
 DopVerifyResult::add_error(const TpgFault* f,
-			   const NodeValList& assign_list)
+			   const TestVector& tv)
 {
-  mErrorList.push_back(ErrorCase(f, assign_list));
+  mErrorList.push_back(ErrorCase(f, tv));
 }
 
 // @brief 成功回数を得る．
@@ -76,18 +76,19 @@ DopVerifyResult::error_fault(int pos) const
   return mErrorList[pos].mFault;
 }
 
-// @brief エラーとなった割当を得る．
-const NodeValList&
-DopVerifyResult::error_assign_list(int pos) const
+// @brief エラーとなったテストベクタを得る．
+// @param[in] pos 位置版号 ( 0 <= pos < error_count() )
+TestVector
+DopVerifyResult::error_testvector(int pos) const
 {
   ASSERT_COND( pos < error_count() );
-  return mErrorList[pos].mAssignList;
+  return mErrorList[pos].mTestVector;
 }
 
 DopVerifyResult::ErrorCase::ErrorCase(const TpgFault* f,
-				      const NodeValList& assign_list) :
+				      const TestVector& tv) :
   mFault(f),
-  mAssignList(assign_list)
+  mTestVector(tv)
 {
 }
 

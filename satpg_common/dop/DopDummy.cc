@@ -36,15 +36,6 @@ DopDummy::~DopDummy()
 
 // @brief テストパタンが見つかった時の処理
 // @param[in] f 故障
-// @param[in] assign_list 値の割当リスト
-void
-DopDummy::operator()(const TpgFault* f,
-		     const NodeValList& assign_list)
-{
-}
-
-// @brief テストパタンが見つかった時の処理
-// @param[in] f 故障
 // @param[in] tv テストベクタ
 void
 DopDummy::operator()(const TpgFault* f,

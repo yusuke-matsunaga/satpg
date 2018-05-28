@@ -10,7 +10,7 @@
 
 
 #include "satpg.h"
-#include "NodeValList.h"
+#include "TestVector.h"
 
 
 BEGIN_NAMESPACE_YM_SATPG
@@ -42,10 +42,10 @@ public:
 
   /// @brief エラー結果を追加する．
   /// @param[in] f 故障
-  /// @param[in] assign_list 値割り当てのリスト
+  /// @param[in] tv テストベクタ
   void
   add_error(const TpgFault* f,
-	    const NodeValList& assign_list);
+	    const TestVector& tv);
 
   /// @brief 成功回数を得る．
   int
@@ -65,9 +65,10 @@ public:
   const TpgFault*
   error_fault(int pos) const;
 
-  /// @brief エラーとなった割当を得る．
-  const NodeValList&
-  error_assign_list(int pos) const;
+  /// @brief エラーとなったテストベクタを得る．
+  /// @param[in] pos 位置版号 ( 0 <= pos < error_count() )
+  TestVector
+  error_testvector(int pos) const;
 
 
 private:
@@ -85,13 +86,13 @@ private:
   {
     // コンストラクタ
     ErrorCase(const TpgFault* f,
-	      const NodeValList& assign_list);
+	      const TestVector& tv);
 
     // 故障
     const TpgFault* mFault;
 
-    // 値割り当てのリスト
-    NodeValList mAssignList;
+    // テストベクタ
+    TestVector mTestVector;
 
   };
 

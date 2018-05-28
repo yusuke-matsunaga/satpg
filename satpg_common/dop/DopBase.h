@@ -39,13 +39,6 @@ public:
 
   /// @brief テストパタンが見つかった時の処理
   /// @param[in] f 故障
-  /// @param[in] assign_list 値割当のリスト
-  void
-  operator()(const TpgFault* f,
-	     const NodeValList& assign_list) override;
-
-  /// @brief テストパタンが見つかった時の処理
-  /// @param[in] f 故障
   /// @param[in] tv テストベクタ
   void
   operator()(const TpgFault* f,

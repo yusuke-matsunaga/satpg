@@ -46,6 +46,7 @@ set (tpg_network_SOURCES
   tpg_network/FaultStatusMgr.cc
 
   tvect/BitVectorRep.cc
+  tvect/TestVector.cc
 
   tpg_network/NodeValList.cc
   )

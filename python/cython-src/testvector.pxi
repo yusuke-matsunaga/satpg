@@ -14,10 +14,35 @@ from CXX_FaultType cimport FaultType as CXX_FaultType
 cdef class TestVector :
     cdef CXX_TestVector _this
 
-    ### @brief サイズの設定
-    def resize(TestVector self, int input_num, int dff_num, fault_type) :
-        cdef CXX_FaultType c_fault_type = from_FaultType(fault_type)
-        self._this = CXX_TestVector(input_num, dff_num, c_fault_type)
+    ### @brief 初期化
+    ### @param[in] args 可変引数
+    ###
+    ### 引数の形は以下の通り
+    ### - () 空
+    ### - (TestVector src)
+    ### - (int input_num)
+    ### - (int input_num, int dff_num, FaultType fault_type)
+    def __init__(TestVector self, *args) :
+        cdef TestVector src
+        cdef CXX_FaultType c_fault_type
+        if len(args) == 0 :
+            pass
+        elif len(args) == 1 :
+            if type(args[0]) == TestVector :
+                src = args[0]
+                self._this = src._this
+            elif type(args[0]) == int :
+                self._this = CXX_TestVector(int(args[0]), 0, from_FaultType(FaultType.StuckAt))
+            else :
+                assert False
+        elif len(args) == 3 :
+            if type(args[0]) == int and type(args[1]) == int and type(args[2]) == FaultType :
+                c_fault_type = from_FaultType(args[2])
+                self._this = CXX_TestVector(int(args[0]), int(args[1]), c_fault_type)
+            else :
+                assert False
+        else :
+            assert False
 
     ### @brief 入力数を返す．
     @property

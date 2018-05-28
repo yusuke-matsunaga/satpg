@@ -38,19 +38,6 @@ DopList::add(DetectOp* dop)
 
 // @brief テストパタンが見つかった時の処理
 // @param[in] f 故障
-// @param[in] assign_list 値の割当リスト
-void
-DopList::operator()(const TpgFault* f,
-		    const NodeValList& assign_list)
-{
-  for ( auto dop_p: mDopList ) {
-    DetectOp& dop = *dop_p;
-    dop(f, assign_list);
-  }
-}
-
-// @brief テストパタンが見つかった時の処理
-// @param[in] f 故障
 // @param[in] tv テストベクタ
 void
 DopList::operator()(const TpgFault* f,

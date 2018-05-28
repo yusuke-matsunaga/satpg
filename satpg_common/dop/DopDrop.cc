@@ -46,17 +46,6 @@ DopDrop::~DopDrop()
 
 // @brief テストパタンが見つかった時の処理
 // @param[in] f 故障
-// @param[in] assign_list 値割当のリスト
-void
-DopDrop::operator()(const TpgFault* f,
-		    const NodeValList& assign_list)
-{
-  int n = mFsim.sppfp(assign_list);
-  common(n);
-}
-
-// @brief テストパタンが見つかった時の処理
-// @param[in] f 故障
 // @param[in] tv テストベクタ
 void
 DopDrop::operator()(const TpgFault* f,

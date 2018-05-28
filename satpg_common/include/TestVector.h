@@ -44,39 +44,19 @@ public:
   /// @brief 空のコンストラクタ
   TestVector();
 
-  /// @brief コンストラクタ
+  /// @brief コンストラクタ(組み合わせ回路用)
+  /// @param[in] input_num 入力数
+  ///
+  /// 故障タイプは StuckAt
+  TestVector(int input_num);
+
+  /// @brief コンストラクタ(順序回路用)
   /// @param[in] input_num 入力数
   /// @param[in] dff_numr DFF数
   /// @param[in] fault_type 故障の種類
   TestVector(int input_num,
 	     int dff_num,
 	     FaultType fault_type);
-
-  /// @brief 割当リストから内容を初期化するコンストラクタ
-  /// @param[in] input_num 入力数
-  /// @param[in] dff_numr DFF数
-  /// @param[in] fault_type 故障の種類
-  /// @param[in] assign_list 割当リスト
-  ///
-  /// assign_list に外部入力とDFF以外の割当が含まれている場合無視する．
-  TestVector(int input_num,
-	     int dff_num,
-	     FaultType fault_type,
-	     const NodeValList& assign_list);
-
-  /// @brief HEX文字列から内容を初期化するコンストラクタ
-  /// @param[in] input_num 入力数
-  /// @param[in] dff_numr DFF数
-  /// @param[in] fault_type 故障の種類
-  /// @param[in] hex_string HEX 文字列
-  ///
-  /// 1時刻目の外部入力，１時刻目のDFF，２時刻目の外部入力の順にならんでいると仮定する．<br>
-  /// hex_string が短い時には残りはXで初期化される．<br>
-  /// hex_string が長い時には余りは捨てられる．<br>
-  TestVector(int input_num,
-	     int dff_num,
-	     FaultType fault_type,
-	     const string& hex_string);
 
   /// @brief コピーコンストラクタ
   /// @param[in] src コピー元のソース
@@ -86,6 +66,38 @@ public:
   /// @param[in] src コピー元のソース
   TestVector&
   operator=(const TestVector& src);
+
+  /// @brief 割当リストからTestVectorを作るクラスメソッド
+  /// @param[in] input_num 入力数
+  /// @param[in] dff_numr DFF数
+  /// @param[in] fault_type 故障の種類
+  /// @param[in] assign_list 割当リスト
+  /// @return assign_list から変換したテストベクタ
+  ///
+  /// assign_list に外部入力とDFF以外の割当が含まれている場合無視する．
+  static
+  TestVector
+  new_from_assign_list(int input_num,
+		       int dff_num,
+		       FaultType fault_type,
+		       const NodeValList& assign_list);
+
+  /// @brief HEX文字列からTestVectorを作るクラスメソッド
+  /// @param[in] input_num 入力数
+  /// @param[in] dff_numr DFF数
+  /// @param[in] fault_type 故障の種類
+  /// @param[in] hex_string HEX 文字列
+  /// @return 生成したテストベクタ
+  ///
+  /// 1時刻目の外部入力，１時刻目のDFF，２時刻目の外部入力の順にならんでいると仮定する．<br>
+  /// hex_string が短い時には残りはXで初期化される．<br>
+  /// hex_string が長い時には余りは捨てられる．<br>
+  static
+  TestVector
+  new_from_hex(int input_num,
+	       int dff_num,
+	       FaultType fault_type,
+	       const string& hex_string);
 
   /// @brief デストラクタ
   ~TestVector();
@@ -407,7 +419,20 @@ TestVector::TestVector() :
 {
 }
 
-// @brief コンストラクタ
+// @brief コンストラクタ(組み合わせ回路用)
+// @param[in] input_num 入力数
+//
+// 故障タイプは StuckAt
+inline
+TestVector::TestVector(int input_num) :
+  mInputNum(input_num),
+  mDffNum(0),
+  mFaultType(FaultType::StuckAt),
+  mVector(_calc_vect_len())
+{
+}
+
+// @brief コンストラクタ(順序回路用)
 // @param[in] input_num 入力数
 // @param[in] dff_numr DFF数
 // @param[in] fault_type 故障の種類
@@ -422,6 +447,7 @@ TestVector::TestVector(int input_num,
 {
 }
 
+#if 0
 // @brief 割当リストから内容を設定する．
 // @param[in] input_num 入力数
 // @param[in] dff_numr DFF数
@@ -460,6 +486,7 @@ TestVector::TestVector(int input_num,
   mVector(_calc_vect_len())
 {
 }
+#endif
 
 // @brief コピーコンストラクタ
 // @param[in] src コピー元のソース
@@ -484,6 +511,29 @@ TestVector::operator=(const TestVector& src)
   mVector = src.mVector;
 
   return *this;
+}
+
+// @brief HEX文字列からTestVectorを作るクラスメソッド
+// @param[in] input_num 入力数
+// @param[in] dff_numr DFF数
+// @param[in] fault_type 故障の種類
+// @param[in] hex_string HEX 文字列
+// @return 生成したテストベクタ
+//
+// 1時刻目の外部入力，１時刻目のDFF，２時刻目の外部入力の順にならんでいると仮定する．<br>
+// hex_string が短い時には残りはXで初期化される．<br>
+// hex_string が長い時には余りは捨てられる．<br>
+inline
+TestVector
+TestVector::new_from_hex(int input_num,
+			 int dff_num,
+			 FaultType fault_type,
+			 const string& hex_string)
+{
+  TestVector tv(input_num, dff_num, fault_type);
+  tv.mVector.set_from_hex(hex_string);
+
+  return tv;
 }
 
 // @brief デストラクタ
