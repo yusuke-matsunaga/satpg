@@ -49,7 +49,8 @@ class InputVector;
 class DffVector;
 class TestVector;
 
-class Dtpg;
+class DtpgEngine;
+class DtpgResult;
 class DetectOp;
 class DopVerifyResult;
 class UntestOp;

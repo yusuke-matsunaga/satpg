@@ -203,7 +203,7 @@ DtpgEngine::dtpg(const TpgFault* fault)
     if ( !stat ) {
       cerr << "Error[DtpgEngine::dtpg()]: "
 	   << ffr_root->id() << " is not within the MFFC" << endl;
-      return DtpgResult(SatBool3::X);
+      return DtpgResult();
     }
 
     int ffr_num = mElemArray.size();
@@ -793,17 +793,16 @@ DtpgEngine::solve(const TpgFault* fault,
 
     return DtpgResult(testvect);
   }
-
-  if ( ans == SatBool3::False ) {
+  else if ( ans == SatBool3::False ) {
     // 検出不能と判定された．
     mStats.update_red(sat_stats, time);
+    return DtpgResult::make_untestable();
   }
   else {
     // ans == SatBool3::X つまりアボート
     mStats.update_abort(sat_stats, time);
+    return DtpgResult();
   }
-
-  return DtpgResult(ans);
 }
 
 END_NAMESPACE_YM_SATPG

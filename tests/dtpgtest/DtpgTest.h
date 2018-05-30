@@ -97,6 +97,11 @@ private:
   // 内部で用いられる関数
   //////////////////////////////////////////////////////////////////////
 
+  /// @brief 一つの故障に対する処理
+  void
+  update_result(const TpgFault* fault,
+		const DtpgResult& result);
+
 
 private:
   //////////////////////////////////////////////////////////////////////
@@ -135,6 +140,12 @@ private:
 
   // 検証結果
   DopVerifyResult mVerifyResult;
+
+  // 検出故障数
+  int mDetectNum;
+
+  // 検出不能故障数
+  int mUntestNum;
 
   // 統計情報
   DtpgStats mStats;

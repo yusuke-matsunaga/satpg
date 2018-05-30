@@ -190,20 +190,14 @@ DtpgTest::single_new_test()
   mTimer.reset();
   mTimer.start();
 
-  int detect_num = 0;
-  int untest_num = 0;
+  mDetectNum = 0;
+  mUntestNum = 0;
   for ( auto fault: mNetwork.rep_fault_list() ) {
     if ( mFaultMgr.get(fault) == FaultStatus::Undetected ) {
       const TpgNode* node = fault->tpg_onode();
       DtpgEngine dtpg(mSatType, mSatOption, mSatOutP, mFaultType, mJustType, mNetwork, node);
-      DtpgResult ans = dtpg.dtpg(fault);
-      if ( ans.stat() == SatBool3::True ) {
-	++ detect_num;
-	mDop(fault, ans.testvector());
-      }
-      else if ( ans.stat() == SatBool3::False ) {
-	++ untest_num;
-      }
+      DtpgResult result = dtpg.dtpg(fault);
+      update_result(fault, result);
       mStats.merge(dtpg.stats());
     }
   }
@@ -221,7 +215,7 @@ DtpgTest::single_new_test()
     return make_pair(0, 0);
   }
 
-  return make_pair(detect_num, untest_num);
+  return make_pair(mDetectNum, mUntestNum);
 }
 
 // @brief FFRモードのテストを行う．
@@ -232,20 +226,14 @@ DtpgTest::ffr_new_test()
   mTimer.reset();
   mTimer.start();
 
-  int detect_num = 0;
-  int untest_num = 0;
+  mDetectNum = 0;
+  mUntestNum = 0;
   for ( auto& ffr: mNetwork.ffr_list() ) {
     DtpgEngine dtpg(mSatType, mSatOption, mSatOutP, mFaultType, mJustType, mNetwork, ffr);
     for ( auto fault: ffr.fault_list() ) {
       if ( mFaultMgr.get(fault) == FaultStatus::Undetected ) {
-	DtpgResult ans = dtpg.dtpg(fault);
-	if ( ans.stat() == SatBool3::True ) {
-	  ++ detect_num;
-	  mDop(fault, ans.testvector());
-	}
-	else if ( ans.stat() == SatBool3::False ) {
-	  ++ untest_num;
-	}
+	DtpgResult result = dtpg.dtpg(fault);
+	update_result(fault, result);
       }
     }
     mStats.merge(dtpg.stats());
@@ -264,7 +252,7 @@ DtpgTest::ffr_new_test()
     return make_pair(0, 0);
   }
 
-  return make_pair(detect_num, untest_num);
+  return make_pair(mDetectNum, mUntestNum);
 }
 
 // @brief MFFCモードのテストを行う．
@@ -275,21 +263,15 @@ DtpgTest::mffc_new_test()
   mTimer.reset();
   mTimer.start();
 
-  int detect_num = 0;
-  int untest_num = 0;
+  mDetectNum = 0;
+  mUntestNum = 0;
   for ( auto& mffc: mNetwork.mffc_list() ) {
     DtpgEngine dtpg(mSatType, mSatOption, mSatOutP, mFaultType, mJustType, mNetwork, mffc);
     for ( auto fault: mffc.fault_list() ) {
       if ( mFaultMgr.get(fault) == FaultStatus::Undetected ) {
 	// 故障に対するテスト生成を行なう．
-	DtpgResult ans = dtpg.dtpg(fault);
-	if ( ans.stat() == SatBool3::True ) {
-	  ++ detect_num;
-	  mDop(fault, ans.testvector());
-	}
-	else if ( ans.stat() == SatBool3::False ) {
-	  ++ untest_num;
-	}
+	DtpgResult result = dtpg.dtpg(fault);
+	update_result(fault, result);
       }
     }
     mStats.merge(dtpg.stats());
@@ -308,7 +290,27 @@ DtpgTest::mffc_new_test()
     return make_pair(0, 0);
   }
 
-  return make_pair(detect_num, untest_num);
+  return make_pair(mDetectNum, mUntestNum);
+}
+
+// @brief 一つの故障に対する処理
+void
+DtpgTest::update_result(const TpgFault* fault,
+			const DtpgResult& result)
+{
+  switch ( result.status() ) {
+  case FaultStatus::Detected:
+    ++ mDetectNum;
+    mDop(fault, result.testvector());
+    break;
+
+  case FaultStatus::Untestable:
+    ++ mUntestNum;
+    break;
+
+  case FaultStatus::Undetected:
+    break;
+  }
 }
 
 // @brief 検証結果を得る．

@@ -7,7 +7,7 @@
 # All rights reserved.
 
 
-from CXX_SatBool3 cimport SatBool3
+from CXX_FaultStatus cimport FaultStatus
 from CXX_TestVector cimport TestVector
 
 
@@ -16,7 +16,8 @@ cdef extern from "DtpgResult.h" namespace "nsYm::nsSatpg" :
     ### @brief DtpgResult の Cython バージョン
     cdef cppclass DtpgResult :
         DtpgResult()
-        DtpgResult(SatBool3)
+        @staticmethod
+        make_untestable()
         DtpgResult(const TestVector&)
-        SatBool3 stat()
+        FaultStatus status()
         const TestVector& testvector()

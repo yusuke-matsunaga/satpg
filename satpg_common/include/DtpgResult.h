@@ -9,7 +9,7 @@
 /// All rights reserved.
 
 #include "satpg.h"
-#include "ym/SatBool3.h"
+#include "FaultStatus.h"
 #include "TestVector.h"
 
 
@@ -29,16 +29,20 @@ class DtpgResult
 {
 public:
 
-  /// @brief 内容を指定したコンストラクタ
-  /// @param[in] stat 結果 ( SatBool3::X か SatBool3::False )
+  /// @brief 空のコンストラクタ
   ///
-  /// stat が SatBool3 の時はエラーとなる．
-  explicit
-  DtpgResult(SatBool3 stat = SatBool3::X);
+  /// FaultStatus::Undetected となる．
+  DtpgResult();
 
+  /// @brief FaultStatus::Untestable の結果を生成するクラスメソッド
+  static
+  DtpgResult
+  make_untestable();
 
   /// @brief テストベクタを指定したコンストラクタ
   /// @param[in] testvect テストベクタ
+  ///
+  /// もちろん結果は FaultStatus::Detected となる．
   explicit
   DtpgResult(const TestVector& testvect);
 
@@ -48,10 +52,6 @@ public:
   /// @brief コピー代入演算子
   DtpgResult&
   operator=(const DtpgResult& src) = default;
-
-  /// @brief ムーブ代入演算子
-  DtpgResult&
-  operator=(DtpgResult& src) = default;
 
   /// @brief デストラクタ
   ~DtpgResult();
@@ -63,8 +63,8 @@ public:
   //////////////////////////////////////////////////////////////////////
 
   /// @brief 結果を返す．
-  SatBool3
-  stat() const;
+  FaultStatus
+  status() const;
 
   /// @brief テストベクタを返す．
   const TestVector&
@@ -76,6 +76,12 @@ private:
   // 内部で用いられる関数
   //////////////////////////////////////////////////////////////////////
 
+  /// @brief FaultStatus::Untestable を設定するコンストラクタ
+  /// @param[in] dummy ダミーの引数
+  ///
+  /// dummy の値は用いられない．
+  DtpgResult(int dummy);
+
 
 private:
   //////////////////////////////////////////////////////////////////////
@@ -83,7 +89,7 @@ private:
   //////////////////////////////////////////////////////////////////////
 
   // 結果
-  SatBool3 mStat;
+  FaultStatus mStatus;
 
   // テストベクタ
   TestVector mTestVector;
@@ -95,22 +101,38 @@ private:
 // インライン関数の定義
 //////////////////////////////////////////////////////////////////////
 
-// @brief 内容を指定したコンストラクタ
-// @param[in] stat 結果 ( SatBool3::_X か SatBool3::_False )
+// @brief 空のコンストラクタ
 //
-// stat が SatBool3 の時はエラーとなる．
+// FaultStatus::Undetected
 inline
-DtpgResult::DtpgResult(SatBool3 stat) :
-  mStat(stat)
+DtpgResult::DtpgResult() :
+  mStatus(FaultStatus::Undetected)
 {
-  ASSERT_COND( stat != SatBool3::True );
+}
+
+// @brief FaultStatus::Untestable の結果を生成するクラスメソッド
+inline
+DtpgResult
+DtpgResult::make_untestable()
+{
+  return DtpgResult(0);
+}
+
+// @brief SatBool3::False を設定するコンストラクタ
+// @param[in] dummy ダミーの引数
+//
+// dummy の値は用いられない．
+inline
+DtpgResult::DtpgResult(int dummy) :
+  mStatus(FaultStatus::Untestable)
+{
 }
 
 // @brief テストベクタを指定したコンストラクタ
 // @param[in] testvect テストベクタ
 inline
 DtpgResult::DtpgResult(const TestVector& testvect) :
-  mStat(SatBool3::True),
+  mStatus(FaultStatus::Detected),
   mTestVector(testvect)
 {
 }
@@ -123,10 +145,10 @@ DtpgResult::~DtpgResult()
 
 // @brief 結果を返す．
 inline
-SatBool3
-DtpgResult::stat() const
+FaultStatus
+DtpgResult::status() const
 {
-  return mStat;
+  return mStatus;
 }
 
 // @brief テストベクタを返す．
