@@ -7,6 +7,8 @@
 # All rights reserved.
 
 include "celllibrary.pxi"
+include "stopwatch.pxi"
+include "ustime.pxi"
 include "satbool3.pxi"
 include "fault_type.pxi"
 include "gate_type.pxi"

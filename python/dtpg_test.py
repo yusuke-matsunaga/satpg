@@ -106,9 +106,6 @@ def main() :
 
         dtpg = Dtpg(network, fault_type)
 
-        end = time.process_time()
-        cpu_time = (end - start) / 1000
-
         if mode == 'single' :
             ndet, nunt, nabt = dtpg.single_mode()
         elif mode == 'ffr' :
@@ -116,12 +113,15 @@ def main() :
         elif mode == 'mffc' :
             ndet, nunt, nabt = dtpg.mffc_mode()
 
+        end = time.process_time()
+        cpu_time = end - start
+
         print('file name:              {}'.format(file_name))
         print('# of total faults:      {}'.format(ndet + nunt + nabt))
         print('# of detected faults:   {}'.format(ndet))
         print('# of untestable faults: {}'.format(nunt))
         print('# of aborted faults:    {}'.format(nabt))
-        print('CPU time:               {}'.format(cpu_time))
+        print('CPU time:               {:8.2f}'.format(cpu_time))
 
 
 if __name__ == '__main__' :
