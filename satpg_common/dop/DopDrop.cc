@@ -10,6 +10,8 @@
 #include "DopDrop.h"
 #include "FaultStatusMgr.h"
 #include "Fsim.h"
+#include "TpgFault.h"
+#include "TestVector.h"
 
 
 BEGIN_NAMESPACE_YM_SATPG
@@ -51,18 +53,18 @@ void
 DopDrop::operator()(const TpgFault* f,
 		    const TestVector& tv)
 {
-  int n = mFsim.sppfp(tv);
-  common(n);
-}
-
-// @brief 検出された故障に印をつける．
-// @param[in] n 検出された故障数
-void
-DopDrop::common(int n)
-{
+  cout << f->str() << " is detected by " << tv.bin_str() << endl;
+  mFsim.set_skip(f);
+  int n = mFsim.sppfp(tv); // n は未使用
   for ( auto f: mFsim.det_fault_list() ) {
-    mFaultStatusMgr.set(f, FaultStatus::Detected);
-    mFsim.set_skip(f);
+    if ( mFaultStatusMgr.get(f) == FaultStatus::Untestable ) {
+      cout << f->str() << " is marked as 'untestable', but detected" << endl;
+    }
+    else {
+      mFaultStatusMgr.set(f, FaultStatus::Detected);
+      mFsim.set_skip(f);
+      cout << " Also " << f->str() << " is detected." << endl;
+    }
   }
 }
 

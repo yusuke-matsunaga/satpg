@@ -8,6 +8,7 @@
 ### All rights reserved.
 
 from satpg_core import DtpgEngine, DtpgEngineFFR, DtpgEngineMFFC
+from satpg_core import Fsim
 from satpg_core import FaultStatus, FaultStatusMgr
 from satpg_core import SatBool3
 
@@ -19,6 +20,8 @@ class Dtpg :
     def __init__(self, network, fault_type) :
         self.__network = network
         self.__fault_type = fault_type
+        self.__fsim3 = Fsim('Fsim3', network, fault_type)
+        self.__fsim3.clear_skip_all()
         self.__fsmgr = FaultStatusMgr(network)
         self.__tvlist = []
 
@@ -28,9 +31,10 @@ class Dtpg :
         self.__nunt = 0
         self.__nabt = 0
         for fault in self.__network.rep_fault_list() :
-            onode = fault.onode
-            dtpg = DtpgEngine(self.__network, self.__fault_type, onode)
-            self.__call_dtpg(dtpg, fault)
+            if self.__fsmgr.get(fault) == FaultStatus.Undetected :
+                onode = fault.onode
+                dtpg = DtpgEngine(self.__network, self.__fault_type, onode)
+                self.__call_dtpg(dtpg, fault)
         return self.__ndet, self.__nunt, self.__nabt
 
     ### @brief FFR mode でパタン生成を行う．
@@ -41,7 +45,8 @@ class Dtpg :
         for ffr in self.__network.ffr_list() :
             dtpg = DtpgEngineFFR(self.__network, self.__fault_type, ffr)
             for fault in ffr.fault_list() :
-                self.__call_dtpg(dtpg, fault)
+                if self.__fsmgr(fault) == FaultStatus.Undetected :
+                    self.__call_dtpg(dtpg, fault)
         return self.__ndet, self.__nunt, self.__nabt
 
     ### @brief MFFC mode でパタン生成を行う．
@@ -52,23 +57,44 @@ class Dtpg :
         for mffc in self.__network.mffc_list() :
             dtpg = DtpgEngineMFFC(self.__network, self.__fault_type, mffc)
             for fault in mffc.fault_list() :
-                self.__call_dtpg(dtpg, fault)
+                if self.__fsmgr(fault) == FaultStatus.Undetected :
+                    self.__call_dtpg(dtpg, fault)
         return self.__ndet, self.__nunt, self.__nabt
 
     ### @brief 全モードで共通な処理
     def __call_dtpg(self, dtpg, fault) :
         stat, testvect = dtpg(fault)
         if stat == FaultStatus.Detected :
+            print('{} is detected by {}'.format(fault.str, testvect.bin_str))
             self.__ndet += 1
             # fault を検出可能故障と記録
             self.__fsmgr.set(fault, FaultStatus.Detected)
+            self.__fsim3.set_skip(fault)
             # fault のパタンとして testvect を記録
             self.__tvlist.append(testvect)
+            # このパタンで検出される他の故障を調べる．
+            for fault in self.__fsim3.sppfp(testvect) :
+                if self.__fsmgr.get(fault) == FaultStatus.Untestable :
+                    if self.__fsim3.spsfp(testvect, fault) :
+                        print('{} is marked as \'untestable\', but detected'.format(fault.str))
+#assert self.__fsmgr.get(fault) == FaultStatus.Undetected
+                else :
+                    print(' Also {} is detected.'.format(fault.str))
+                    self.__fsim3.set_skip(fault)
+                    self.__fsmgr.set(fault, FaultStatus.Detected)
+                    self.__ndet += 1
         elif stat == FaultStatus.Untestable :
             self.__nunt += 1
             # fault をテスト不能故障と記録
             self.__fsmgr.set(fault, FaultStatus.Untestable)
+            #self.__fsim3.set_skip(fault)
+            print('{} is untestable'.format(fault.str))
         elif stat == FaultStatus.Undetected :
             self.__nabt += 1
         else :
             assert False
+
+    ### @brief テストパタンのリストを返す．
+    @property
+    def tvlist(self) :
+        return self.__tvlist

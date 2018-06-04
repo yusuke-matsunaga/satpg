@@ -116,11 +116,16 @@ def main() :
         end = time.process_time()
         cpu_time = end - start
 
+        tf = 0
+        for i in network.rep_fault_list() :
+            tf += 1
         print('file name:              {}'.format(file_name))
         print('# of total faults:      {}'.format(ndet + nunt + nabt))
+        print('# of total faults:      {}'.format(tf))
         print('# of detected faults:   {}'.format(ndet))
         print('# of untestable faults: {}'.format(nunt))
         print('# of aborted faults:    {}'.format(nabt))
+        print('# of patterns:          {}'.format(len(dtpg.tvlist)))
         print('CPU time:               {:8.2f}'.format(cpu_time))
 
 
