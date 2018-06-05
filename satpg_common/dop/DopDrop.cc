@@ -56,13 +56,10 @@ DopDrop::operator()(const TpgFault* f,
   mFsim.set_skip(f);
   int n = mFsim.sppfp(tv); // n は未使用
   for ( auto f: mFsim.det_fault_list() ) {
-    if ( mFaultStatusMgr.get(f) == FaultStatus::Untestable ) {
-      cout << f->str() << " is marked as 'untestable', but detected" << endl;
-    }
-    else {
-      mFaultStatusMgr.set(f, FaultStatus::Detected);
-      mFsim.set_skip(f);
-    }
+    ASSERT_COND( mFaultStatusMgr.get(f) != FaultStatus::Untestable );
+
+    mFaultStatusMgr.set(f, FaultStatus::Detected);
+    mFsim.set_skip(f);
   }
 }
 
