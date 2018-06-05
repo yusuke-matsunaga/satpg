@@ -208,7 +208,7 @@ operator^(PackedVal3 left,
 /// @brief DIFF演算
 /// @param[in] left, right オペランド
 ///
-/// 異なっているビットに1を立てた2値のビットベクタを返す．
+/// どちらかが 0 で他方が 1 のビットに1を立てたビットベクタを返す．
 PackedVal
 diff(PackedVal3 left,
      PackedVal3 right);
@@ -501,13 +501,18 @@ operator^(PackedVal3 left,
 // @brief DIFF演算
 // @param[in] left, right オペランド
 //
-// 異なっているビットに1を立てた2値のビットベクタを返す．
+// どちらかが 0 で他方が 1 のビットに1を立てたビットベクタを返す．
 inline
 PackedVal
 diff(PackedVal3 left,
      PackedVal3 right)
 {
-  return (left.val0() ^ right.val0()) | (left.val1() ^ right.val1());
+  PackedVal val0_0 = left.val0();
+  PackedVal val0_1 = left.val1();
+  PackedVal val1_0 = right.val0();
+  PackedVal val1_1 = right.val1();
+
+  return (val0_0 & ~val0_1 & ~val1_0 & val1_1) | (~val0_0 & val0_1 & val1_0 & ~val1_1);
 }
 
 END_NAMESPACE_YM_SATPG
