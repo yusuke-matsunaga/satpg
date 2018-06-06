@@ -7,6 +7,7 @@ include_directories (
   ${PROJECT_SOURCE_DIR}/ym-base/cython-src
   ${PROJECT_SOURCE_DIR}/ym-sat/cython-src
   ${PROJECT_SOURCE_DIR}/ym-cell/cython-src
+  ${PROJECT_SOURCE_DIR}/ym-udgraph/cython-src
   )
 
 
