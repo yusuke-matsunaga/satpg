@@ -7,7 +7,7 @@
 ### All rights reserved.
 
 from CXX_TestVector cimport TestVector as CXX_TestVector
-from CXX_TestVector cimport is_compatible
+from CXX_TestVector cimport is_compatible as c_is_compatible
 from CXX_FaultType cimport FaultType as CXX_FaultType
 
 
@@ -158,5 +158,17 @@ cdef class TestVector :
         self._this.fix_x_from_random(randgen._this)
 
     ### @brief 両立関係演算子
+    @staticmethod
+    def is_compatible(TestVector left, TestVector right) :
+        return c_is_compatible(left._this, right._this)
+
+    ### @brief マージ演算子
     def __and__(TestVector self, TestVector other) :
-        return is_compatible(self._this, other._this)
+        cdef TestVector ans = TestVector(self)
+        ans._this.merge(other._this)
+        return ans
+
+    ### @brief マージ演算子
+    def __iand__(TestVector self, TestVector other) :
+        self._this.merge(other._this)
+        return self

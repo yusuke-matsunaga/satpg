@@ -7,11 +7,22 @@
 ### Copyright (C) 2018 Yusuke Matsunaga
 ### All rights reserved.
 
-from satpg_core import DtpgEngine, DtpgEngineFFR, DtpgEngineMFFC
-from satpg_core import Fsim
-from satpg_core import FaultStatus, FaultStatusMgr
-from satpg_core import UdGraph
-from satpg_core import coloring
+debug = False
+
+if debug :
+    from satpg_core_d import DtpgEngine, DtpgEngineFFR, DtpgEngineMFFC
+    from satpg_core_d import Fsim
+    from satpg_core_d import FaultStatus, FaultStatusMgr
+    from satpg_core_d import TestVector
+    from satpg_core_d import UdGraph
+    from satpg_core_d import coloring
+else :
+    from satpg_core import DtpgEngine, DtpgEngineFFR, DtpgEngineMFFC
+    from satpg_core import Fsim
+    from satpg_core import FaultStatus, FaultStatusMgr
+    from satpg_core import TestVector
+    from satpg_core import UdGraph
+    from satpg_core import coloring
 
 
 ### @brief DTPG を行うクラス
@@ -95,11 +106,31 @@ class Dtpg :
             tv1 = self.__tvlist[i]
             for j in range(i + 1, n) :
                 tv2 = self.__tvlist[j]
-                if not (tv1 & tv2) :
+                if not TestVector.is_compatible(tv1, tv2) :
                     graph.connect(i, j)
         nc, color_map = coloring(graph)
         print('# of initial patterns: {}'.format(n))
         print('# of reduced patterns: {}'.format(nc))
+
+        # color_map から色番号ごとのパタン番号リストを作る．
+        pat_list_array = [ [] for i in range(nc) ]
+        for i in range(n) :
+            c = color_map[i]
+            assert c > 0 and c <= nc
+            tv = self.__tvlist[i]
+            pat_list_array[c - 1].append(tv)
+
+        # 各色に対応するパタンを作る．
+        self.__tvlist = []
+        for i in range(nc) :
+            n1 = len(pat_list_array[i])
+            assert n1 > 0
+            tv0 = pat_list_array[i][0]
+            for j in range(1, n1) :
+                tv1 = pat_list_array[i][j]
+                assert TestVector.is_compatible(tv0, tv1)
+                tv0 &= tv1
+            self.__tvlist.append(tv0)
 
     ### @brief テストパタンのリストを返す．
     @property

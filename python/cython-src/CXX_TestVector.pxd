@@ -30,6 +30,7 @@ cdef extern from "TestVector.h" namespace "nsYm::nsSatpg" :
         int x_count()
         string bin_str()
         string hex_str()
+        void merge(TestVector& right)
         void init()
         void set_ppi_val(int pos, Val3 val)
         void set_input_val(int pos, Val3 val)

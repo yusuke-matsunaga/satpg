@@ -181,6 +181,10 @@ public:
   TestVector&
   operator&=(const TestVector& right);
 
+  /// @brief マージして代入する．
+  void
+  merge(const TestVector& right);
+
 
 public:
   //////////////////////////////////////////////////////////////////////
@@ -648,6 +652,14 @@ int
 TestVector::x_count() const
 {
   return mVector.x_count();
+}
+
+// @brief マージして代入する．
+inline
+void
+TestVector::merge(const TestVector& right)
+{
+  operator&=(right);
 }
 
 // @brief 2つのベクタが両立しないとき true を返す．
