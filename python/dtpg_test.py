@@ -55,6 +55,9 @@ def main() :
     cmp_group.add_argument('--dsatur',
                            action = 'store_true',
                            help = 'use DSATUR compaction')
+    cmp_group.add_argument('--iscov',
+                           action = 'store_true',
+                           help = 'use Independent Set Covering compaction')
     cmp_group.add_argument('--tabucol',
                            action = 'store_true',
                            help = 'use TabCol compaction')
@@ -97,6 +100,8 @@ def main() :
     algorithm = ''
     if args.dsatur :
         algorithm = 'dsatur'
+    elif args.iscov :
+        algorithm = 'iscov'
     elif args.tabucol :
         algorithm = 'tabucol'
 
