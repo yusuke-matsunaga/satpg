@@ -154,12 +154,11 @@ def main() :
         for i in network.rep_fault_list() :
             tf += 1
         print('file name:              {}'.format(file_name))
-        print('# of total faults:      {}'.format(ndet + nunt + nabt))
-        print('# of total faults:      {}'.format(tf))
-        print('# of detected faults:   {}'.format(ndet))
-        print('# of untestable faults: {}'.format(nunt))
-        print('# of aborted faults:    {}'.format(nabt))
-        print('# of patterns:          {}'.format(len(tvlist)))
+        print('# of total faults:      {:8d}'.format(tf))
+        print('# of detected faults:   {:8d}'.format(ndet))
+        print('# of untestable faults: {:8d}'.format(nunt))
+        print('# of aborted faults:    {:8d}'.format(nabt))
+        print('# of patterns:          {:8d}'.format(len(tvlist)))
         print('CPU time(ATPG):         {:8.2f}'.format(cpu_time))
         print('CPU time(compaction):   {:8.2f}'.format(cpu_time2))
 
