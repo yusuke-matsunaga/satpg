@@ -51,19 +51,10 @@ def main() :
                         action = 'store_true',
                         help = 'fault drop mode')
 
-    cmp_group = parser.add_mutually_exclusive_group()
-    cmp_group.add_argument('--dsatur',
-                           action = 'store_true',
-                           help = 'use DSATUR compaction')
-    cmp_group.add_argument('--iscov',
-                           action = 'store_true',
-                           help = 'use Independent Set Covering compaction')
-    cmp_group.add_argument('--isx',
-                           action = 'store_true',
-                           help = 'use Independent Set Extraction compaction')
-    cmp_group.add_argument('--tabucol',
-                           action = 'store_true',
-                           help = 'use TabCol compaction')
+    parser.add_argument('--compaction',
+                        type = str,
+                        metavar = '<compaction algorithm>',
+                        help = 'specify compaction algorithm')
 
     parser.add_argument('file_list', metavar = '<filename>', type = str,
                         nargs = '+',
@@ -100,15 +91,8 @@ def main() :
     else :
         file_format = None
 
-    algorithm = ''
-    if args.dsatur :
-        algorithm = 'dsatur'
-    elif args.iscov :
-        algorithm = 'iscov'
-    elif args.isx :
-        algorithm = 'isx'
-    elif args.tabucol :
-        algorithm = 'tabucol'
+    cmp_algorithm = args.compaction
+    print(cmp_algorithm)
 
     for file_name in args.file_list :
         file_format1 = file_format
@@ -149,8 +133,8 @@ def main() :
         cpu_time = lap1 - start
 
         tvlist = dtpg.tvlist
-        if algorithm != '' :
-            tvlist = compaction(tvlist, algorithm)
+        if cmp_algorithm :
+            tvlist = compaction(tvlist, cmp_algorithm)
 
         end = time.process_time()
         cpu_time2 = end - lap1
