@@ -7,16 +7,9 @@
 ### Copyright (C) 2018 Yusuke Matsunaga
 ### All rights reserved.
 
-debug = False
-
-if debug :
-    from satpg_core_d import TestVector
-    from satpg_core_d import UdGraph
-    from satpg_core_d import coloring
-else :
-    from satpg_core import TestVector
-    from satpg_core import UdGraph
-    from satpg_core import coloring
+from satpg_core import TestVector
+from satpg_core import UdGraph
+from satpg_core import coloring
 
 ### @brief static compaction を行う．
 def compaction(tvlist, algorithm) :

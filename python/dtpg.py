@@ -7,18 +7,10 @@
 ### Copyright (C) 2018 Yusuke Matsunaga
 ### All rights reserved.
 
-debug = False
-
-if debug :
-    from satpg_core_d import DtpgEngine, DtpgEngineFFR, DtpgEngineMFFC
-    from satpg_core_d import Fsim
-    from satpg_core_d import FaultStatus, FaultStatusMgr
-    from satpg_core_d import TestVector
-else :
-    from satpg_core import DtpgEngine, DtpgEngineFFR, DtpgEngineMFFC
-    from satpg_core import Fsim
-    from satpg_core import FaultStatus, FaultStatusMgr
-    from satpg_core import TestVector
+from satpg_core import DtpgEngine, DtpgEngineFFR, DtpgEngineMFFC
+from satpg_core import Fsim
+from satpg_core import FaultStatus, FaultStatusMgr
+from satpg_core import TestVector
 
 
 ### @brief DTPG を行うクラス
