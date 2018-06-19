@@ -23,6 +23,7 @@ include_directories (
 add_subdirectory ( cython-src )
 add_subdirectory ( debug )
 
+
 # ===================================================================
 #  cython 用のソースファイルの設定
 # ===================================================================
@@ -72,4 +73,36 @@ target_link_libraries ( satpg_core
 install (TARGETS
   satpg_core
   DESTINATION lib/python/site-packages
+  )
+
+
+cython_add_module ( satpg_core_d
+  ${CYTHON_SOURCES}
+  $<TARGET_OBJECTS:satpg_common_d>
+  $<TARGET_OBJECTS:satpg_fsimsa2_d>
+  $<TARGET_OBJECTS:satpg_fsimsa3_d>
+  $<TARGET_OBJECTS:satpg_fsimtd2_d>
+  $<TARGET_OBJECTS:satpg_fsimtd3_d>
+  $<TARGET_OBJECTS:ym_base_d>
+  $<TARGET_OBJECTS:ym_logic_d>
+  $<TARGET_OBJECTS:ym_cell_d>
+  $<TARGET_OBJECTS:ym_bnet_d>
+  $<TARGET_OBJECTS:ym_udgraph_d>
+  $<TARGET_OBJECTS:ym_mincov_d>
+  $<TARGET_OBJECTS:ym_sat_d>
+  )
+
+target_compile_options ( satpg_core_d
+  PRIVATE "-g"
+  )
+
+target_link_libraries ( satpg_core_d
+  ${YM_LIB_DEPENDS}
+  )
+
+add_custom_command (
+  TARGET satpg_core_d
+  POST_BUILD
+  COMMAND ${CMAKE_COMMAND}
+  ARGS -E copy $<TARGET_FILE:satpg_core_d> ${CMAKE_CURRENT_BINARY_DIR}/debug/satpg_core.so
   )
