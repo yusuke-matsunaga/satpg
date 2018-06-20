@@ -12,9 +12,36 @@ import os.path
 import time
 from satpg_core import FaultType
 from satpg_core import TpgNetwork
+from satpg_core import Fsim
+from satpg_core import TestVector
 from dtpg import Dtpg
 from compaction import compaction
+#from satpg_core import gen_covering_matrix
 
+
+def gen_covering_matrix(tv_list, network, fault_type) :
+    fsim = Fsim('Fsim3', network, fault_type)
+    tv_buff = [ TestVector() for i in range(64) ]
+    wpos = 0
+    pat_list_dict = dict()
+    for tv in tv_list :
+        tv_buff[wpos] = tv
+        wpos += 1
+        if wpos == 64 :
+            fp_list = fsim.ppsfp(tv_buff)
+            for fault, patid_list in fp_list :
+                if not fault.id in pat_list_dict :
+                    pat_list_dict[fault.id] = list()
+                for patid in patid_list :
+                    pat_list_dict[fault.id].append(tv_buff[patid])
+            wpos = 0
+    if wpos > 0 :
+        fp_list = fsim.ppsfp(tv_buff)
+        for fault, patid_list in fp_list :
+            if not fault.id in pat_list_dict :
+                pat_list_dict[fault.id] = list()
+            for patid in patid_list :
+                pat_list_dict[fault.id].append(tv_buff[patid])
 
 def main() :
 
@@ -130,6 +157,12 @@ def main() :
 
         lap1 = time.process_time()
         cpu_time = lap1 - start
+
+        gen_covering_matrix(dtpg.tvlist, network, fault_type)
+
+        lap2 = time.process_time()
+        print('CPU time for covering_matrix: {:8.2f}'.format(lap2 - lap1))
+        lap1 = lap2
 
         tvlist = dtpg.tvlist
         if cmp_algorithm :
