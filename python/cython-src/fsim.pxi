@@ -16,6 +16,9 @@ cdef class Fsim :
     cdef CXX_Fsim* _thisptr
 
     ### @brief 初期化
+    ### @param[in] name シミュレータの種類 ('Fsim2' or 'Fsim3')
+    ### @param[in] network 対象のネットワーク
+    ### @param[in] fault_type 故障の種類
     def __cinit__(Fsim self, name, TpgNetwork network, fault_type) :
         cdef CXX_FaultType c_ftype = from_FaultType(fault_type)
         if name == 'Fsim2' :
@@ -35,6 +38,7 @@ cdef class Fsim :
         self._thisptr.set_skip_all()
 
     ### @brief 指定した故障を対象から外す．
+    ### @param[in] f 故障
     def set_skip(Fsim self, TpgFault f) :
         self._thisptr.set_skip(f._thisptr)
 
@@ -53,10 +57,12 @@ cdef class Fsim :
         self._thisptr.clear_skip_all()
 
     ### @brief 指定した故障を対象に含める．
+    ### @param[in] f 故障
     def clear_skip(Fsim self, TpgFault f) :
         self._thisptr.clear_skip(f._thisptr)
 
     ### @brief 指定した故障のリストを対象に含める．
+    ### @param[in] f_list 故障のリスト
     def clear_skip_list(Fsim self, f_list) :
         cdef int n = len(f_list)
         cdef vector[const CXX_TpgFault*] c_fault_list
@@ -67,14 +73,18 @@ cdef class Fsim :
         self._thisptr.clear_skip(c_fault_list)
 
     ### @brief SPSFP シミュレーションを行う．
+    ### @param[in] tv テストベクタ
+    ### @param[in] f 対象の故障
     def spsfp(Fsim self, TestVector tv, TpgFault f) :
         return self._thisptr.spsfp(tv._this, f._thisptr)
 
     ### @brief SPSFP シミュレーションを行う．
+    ### @param[in] assign_list 値の割当リスト
     def spsfp(Fsim self, NodeValList assign_list, TpgFault f) :
         return self._thisptr.spsfp(assign_list._this, f._thisptr)
 
     ### @brief SPPFP シミュレーションを行う．
+    ### @param[in] tv テストベクタ
     def sppfp(Fsim self, TestVector tv) :
         cdef int n_det = self._thisptr.sppfp(tv._this)
         cdef const CXX_TpgFault* c_fault
@@ -85,6 +95,7 @@ cdef class Fsim :
         return fault_list
 
     ### @brief SPPFP シミュレーションを行う．
+    ### @param[in] assign_list 値の割当リスト
     def sppfp(Fsim self, NodeValList assign_list) :
         cdef int n_det = self._thisptr.sppfp(assign_list._this)
         cdef const CXX_TpgFault* c_fault
@@ -95,6 +106,10 @@ cdef class Fsim :
         return fault_list
 
     ### @brief PPSFP シミュレーションを行う．
+    ### @param[in] tv_list テストベクタのリスト
+    ### @return 検出された故障と検出したパタン番号のリストのリスト
+    ###
+    ### パタン番号は tv_list 中の位置
     def ppsfp(Fsim self, tv_list) :
         cdef int n_det
         cdef TestVector tv
@@ -107,7 +122,7 @@ cdef class Fsim :
             self._thisptr.set_pattern(pos, tv._this)
             pos += 1
         n_det = self._thisptr.ppsfp()
-        fault_pat_list = []
+        fault_patid_list = []
         for i in range(n_det) :
             c_fault = self._thisptr.det_fault(i)
             c_pat = self._thisptr.det_fault_pat(i)
@@ -115,9 +130,9 @@ cdef class Fsim :
             tv_list1 = []
             for j in range(pos) :
                 if c_pat & (1 << j) :
-                    tv_list1.append(tv_list[j])
-            fault_pat_list.append( (fault, tv_list1) )
-        return fault_pat_list
+                    tv_list1.append(j)
+            fault_patid_list.append( (fault, tv_list1) )
+        return fault_patid_list
 
     ### @brief 遷移故障モードで信号遷移回数を数える．
     def calc_wsa(Fsim self, TestVector tv, bool weighted = False) :
