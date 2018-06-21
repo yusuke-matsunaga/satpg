@@ -33,8 +33,7 @@ ym_add_gtest ( SaFsim3SimNodeTest
   $<TARGET_OBJECTS:ym_cell_ad>
   $<TARGET_OBJECTS:ym_bnet_ad>
   $<TARGET_OBJECTS:ym_sat_ad>
-  $<TARGET_OBJECTS:ym_mincov_ad>
-  $<TARGET_OBJECTS:ym_udgraph_ad>
+  $<TARGET_OBJECTS:ym_combopt_ad>
   )
 
 target_compile_definitions ( SaFsim3SimNodeTest

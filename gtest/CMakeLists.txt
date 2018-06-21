@@ -34,8 +34,7 @@ ym_add_gtest(Val3Test
   $<TARGET_OBJECTS:ym_cell_ad>
   $<TARGET_OBJECTS:ym_bnet_ad>
   $<TARGET_OBJECTS:ym_sat_ad>
-  $<TARGET_OBJECTS:ym_mincov_ad>
-  $<TARGET_OBJECTS:ym_udgraph_ad>
+  $<TARGET_OBJECTS:ym_combopt_ad>
   )
 
 ym_add_gtest(GateTypeTest
@@ -50,6 +49,5 @@ ym_add_gtest(GateTypeTest
   $<TARGET_OBJECTS:ym_cell_ad>
   $<TARGET_OBJECTS:ym_bnet_ad>
   $<TARGET_OBJECTS:ym_sat_ad>
-  $<TARGET_OBJECTS:ym_mincov_ad>
-  $<TARGET_OBJECTS:ym_udgraph_ad>
+  $<TARGET_OBJECTS:ym_combopt_ad>
   )

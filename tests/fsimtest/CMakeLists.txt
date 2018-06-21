@@ -36,8 +36,7 @@ add_executable ( FsimTest
   $<TARGET_OBJECTS:ym_cell_a>
   $<TARGET_OBJECTS:ym_bnet_a>
   $<TARGET_OBJECTS:ym_sat_a>
-  $<TARGET_OBJECTS:ym_mincov_a>
-  $<TARGET_OBJECTS:ym_udgraph_a>
+  $<TARGET_OBJECTS:ym_combopt_a>
   )
 
 target_compile_options ( FsimTest
@@ -71,8 +70,7 @@ add_executable ( FsimTest_d
   $<TARGET_OBJECTS:ym_cell_ad>
   $<TARGET_OBJECTS:ym_bnet_ad>
   $<TARGET_OBJECTS:ym_sat_ad>
-  $<TARGET_OBJECTS:ym_mincov_ad>
-  $<TARGET_OBJECTS:ym_udgraph_ad>
+  $<TARGET_OBJECTS:ym_combopt_ad>
   )
 
 target_compile_options ( FsimTest_d

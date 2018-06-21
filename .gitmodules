@@ -25,3 +25,6 @@
 [submodule "ym-base"]
 	path = ym-base
 	url = git@github.com:yusuke-matsunaga/ym-base.git
+[submodule "ym-combopt"]
+	path = ym-combopt
+	url = git@github.com:yusuke-matsunaga/ym-combopt
