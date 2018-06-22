@@ -127,11 +127,11 @@ cdef class Fsim :
             c_fault = self._thisptr.det_fault(i)
             c_pat = self._thisptr.det_fault_pat(i)
             fault = to_TpgFault(c_fault)
-            tv_list1 = []
+            patid_list = []
             for j in range(pos) :
                 if c_pat & (1 << j) :
-                    tv_list1.append(j)
-            fault_patid_list.append( (fault, tv_list1) )
+                    patid_list.append(j)
+            fault_patid_list.append( (fault, patid_list) )
         return fault_patid_list
 
     ### @brief 遷移故障モードで信号遷移回数を数える．
