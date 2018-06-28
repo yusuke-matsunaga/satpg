@@ -20,6 +20,13 @@ BEGIN_NAMESPACE_YM_SATPG
 //////////////////////////////////////////////////////////////////////
 
 // @brief コンストラクタ
+ColCov::ColCov() :
+  mRowSize(0),
+  mColSize(0)
+{
+}
+
+// @brief コンストラクタ
 // @param[in] row_size 行数
 // @param[in] col_size 列数
 ColCov::ColCov(int row_size,
@@ -32,6 +39,22 @@ ColCov::ColCov(int row_size,
 // @brief デストラクタ
 ColCov::~ColCov()
 {
+}
+
+// @brief サイズを設定する．
+// @param[in] row_size 行数
+// @param[in] col_size 列数
+//
+// 以前の内容は破棄される．
+void
+ColCov::resize(int row_size,
+	       int col_size)
+{
+  mRowSize = row_size;
+  mColSize = col_size;
+
+  mElemList.clear();
+  mConflictList.clear();
 }
 
 // @brief 行列の要素を追加する．

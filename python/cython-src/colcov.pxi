@@ -7,6 +7,7 @@
 ### All rights reserved.
 
 from CXX_ColCov cimport ColCov as CXX_ColCov
+from libcpp cimport string
 from libcpp.pair cimport pair
 from libcpp.vector cimport vector
 
@@ -48,3 +49,17 @@ cdef class ColCov :
         cdef pair[int, int] c_elem_pair
         for c_elem_pair in c_elem_list :
             yield c_elem_pair.first, c_elem_pair.second
+
+    ### @brief ヒューリスティックで解を求める．
+    def heuristic(ColCov self, **kwargs) :
+        cdef string c_algorithm
+        cdef string c_option
+        cdef vector[int] c_color_map
+        cdef int i
+        cdef int nc
+        if 'algorithm' in kwargs :
+            c_algorithm = kwargs['algorithm'].encode('UTF-8')
+        if 'option' in kwargs :
+            c_option = kwargs['option'].encode('UTF-8')
+        nc = self._this.heuristic(c_algorithm, c_option, c_color_map)
+        return nc, [ c_color_map[i] for i in range(self.col_size) ]
