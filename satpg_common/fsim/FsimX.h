@@ -13,6 +13,7 @@
 #include "Fsim.h"
 #include "fsim_nsdef.h"
 #include "PackedVal.h"
+#include "PackedVal3.h"
 #include "EventQ.h"
 #include "SimFault.h"
 #include "TpgNode.h"
