@@ -53,8 +53,8 @@ public:
   /// @brief ファンインを得る．
   /// @param[in] pos 位置番号 ( 0 <= pos < fanin_num() )
   virtual
-  TpgNode*
-  _fanin(int pos) const override;
+  const TpgNode*
+  fanin(int pos) const override;
 
   /// @brief 接続している DFF を返す．
   ///

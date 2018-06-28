@@ -8,6 +8,7 @@
 
 
 #include "TpgLogic.h"
+#include "ym/Range.h"
 
 
 BEGIN_NAMESPACE_YM_SATPG
@@ -68,8 +69,8 @@ TpgLogic0::fanin_num() const
 
 // @brief ファンインを得る．
 // @param[in] pos 位置番号 ( 0 <= pos < fanin_num() )
-TpgNode*
-TpgLogic0::_fanin(int pos) const
+const TpgNode*
+TpgLogic0::fanin(int pos) const
 {
   ASSERT_NOT_REACHED;
 
@@ -112,8 +113,8 @@ TpgLogic1::fanin_num() const
 
 // @brief ファンインを得る．
 // @param[in] pos 位置番号 ( 0 <= pos < fanin_num() )
-TpgNode*
-TpgLogic1::_fanin(int pos) const
+const TpgNode*
+TpgLogic1::fanin(int pos) const
 {
   ASSERT_COND( pos == 0 );
 
@@ -161,8 +162,8 @@ TpgLogic2::fanin_num() const
 
 // @brief ファンインを得る．
 // @param[in] pos 位置番号 ( 0 <= pos < fanin_num() )
-TpgNode*
-TpgLogic2::_fanin(int pos) const
+const TpgNode*
+TpgLogic2::fanin(int pos) const
 {
   ASSERT_COND( pos >= 0 && pos < 2 );
 
@@ -211,8 +212,8 @@ TpgLogic3::fanin_num() const
 
 // @brief ファンインを得る．
 // @param[in] pos 位置番号 ( 0 <= pos < fanin_num() )
-TpgNode*
-TpgLogic3::_fanin(int pos) const
+const TpgNode*
+TpgLogic3::fanin(int pos) const
 {
   ASSERT_COND( pos >= 0 && pos < 3 );
 
@@ -262,8 +263,8 @@ TpgLogic4::fanin_num() const
 
 // @brief ファンインを得る．
 // @param[in] pos 位置番号 ( 0 <= pos < fanin_num() )
-TpgNode*
-TpgLogic4::_fanin(int pos) const
+const TpgNode*
+TpgLogic4::fanin(int pos) const
 {
   ASSERT_COND( pos >= 0 && pos < 4 );
 
@@ -301,13 +302,13 @@ TpgLogicN::fanin_num() const
 Array<const TpgNode*>
 TpgLogicN::fanin_list() const
 {
-  return Array<const TpgNode*>(const_cast<const TpgNode**>(mFanins), 0, mFaninNum);
+  return Array<const TpgNode*>(mFanins, 0, mFaninNum);
 }
 
 // @brief ファンインを得る．
 // @param[in] pos 位置番号 ( 0 <= pos < fanin_num() )
-TpgNode*
-TpgLogicN::_fanin(int pos) const
+const TpgNode*
+TpgLogicN::fanin(int pos) const
 {
   ASSERT_COND( pos >= 0 && pos < fanin_num() );
 
@@ -324,8 +325,8 @@ TpgLogicN::set_fanin(const vector<TpgNode*>& inode_list,
 		     Alloc& alloc)
 {
   mFaninNum = inode_list.size();
-  mFanins = alloc.get_array<TpgNode*>(mFaninNum);
-  for ( int i = 0; i < mFaninNum; ++ i ) {
+  mFanins = alloc.get_array<const TpgNode*>(mFaninNum);
+  for ( auto i: Range(mFaninNum) ) {
     mFanins[i] = inode_list[i];
   }
 }

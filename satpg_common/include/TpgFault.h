@@ -86,7 +86,7 @@ public:
   /// @brief tpg_onode 上の故障位置を返す．
   ///
   /// is_branch_fault() == true の時のみ意味を持つ．
-  /// tpg_onode(tpg_pos()) == tpg_inode() が成り立つ．
+  /// tpg_onode()->fanin(tpg_pos()) == tpg_inode() が成り立つ．
   virtual
   int
   tpg_pos() const = 0;

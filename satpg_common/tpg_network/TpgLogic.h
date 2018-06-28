@@ -93,8 +93,8 @@ public:
   /// @brief ファンインを得る．
   /// @param[in] pos 位置番号 ( 0 <= pos < fanin_num() )
   virtual
-  TpgNode*
-  _fanin(int pos) const override;
+  const TpgNode*
+  fanin(int pos) const override;
 
 
 private:
@@ -146,8 +146,8 @@ public:
   /// @brief ファンインを得る．
   /// @param[in] pos 位置番号 ( 0 <= pos < fanin_num() )
   virtual
-  TpgNode*
-  _fanin(int pos) const override;
+  const TpgNode*
+  fanin(int pos) const override;
 
 
 private:
@@ -156,7 +156,7 @@ private:
   //////////////////////////////////////////////////////////////////////
 
   // ファンイン
-  TpgNode* mFanin;
+  const TpgNode* mFanin;
 
 };
 
@@ -204,8 +204,8 @@ public:
   /// @brief ファンインを得る．
   /// @param[in] pos 位置番号 ( 0 <= pos < fanin_num() )
   virtual
-  TpgNode*
-  _fanin(int pos) const override;
+  const TpgNode*
+  fanin(int pos) const override;
 
 
 private:
@@ -214,7 +214,7 @@ private:
   //////////////////////////////////////////////////////////////////////
 
   // ファンインの配列
-  TpgNode* mFanins[2];
+  const TpgNode* mFanins[2];
 
 };
 
@@ -262,8 +262,8 @@ public:
   /// @brief ファンインを得る．
   /// @param[in] pos 位置番号 ( 0 <= pos < fanin_num() )
   virtual
-  TpgNode*
-  _fanin(int pos) const override;
+  const TpgNode*
+  fanin(int pos) const override;
 
 
 private:
@@ -272,7 +272,7 @@ private:
   //////////////////////////////////////////////////////////////////////
 
   // ファンインの配列
-  TpgNode* mFanins[3];
+  const TpgNode* mFanins[3];
 
 };
 
@@ -320,8 +320,8 @@ public:
   /// @brief ファンインを得る．
   /// @param[in] pos 位置番号 ( 0 <= pos < fanin_num() )
   virtual
-  TpgNode*
-  _fanin(int pos) const override;
+  const TpgNode*
+  fanin(int pos) const override;
 
 
 private:
@@ -330,7 +330,7 @@ private:
   //////////////////////////////////////////////////////////////////////
 
   // ファンインの配列
-  TpgNode* mFanins[4];
+  const TpgNode* mFanins[4];
 
 };
 
@@ -374,8 +374,8 @@ public:
   /// @brief ファンインを得る．
   /// @param[in] pos 位置番号 ( 0 <= pos < fanin_num() )
   virtual
-  TpgNode*
-  _fanin(int pos) const override;
+  const TpgNode*
+  fanin(int pos) const override;
 
 
 public:
@@ -403,7 +403,7 @@ private:
   int mFaninNum;
 
   // ファンインの配列
-  TpgNode** mFanins;
+  const TpgNode** mFanins;
 
 };
 

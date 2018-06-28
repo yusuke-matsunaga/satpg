@@ -145,7 +145,7 @@ FSIM_CLASSNAME::set_network(const TpgNetwork& network)
     }
     else if ( tpgnode->is_ppo() ) {
       // 外部出力に対応する SimNode の生成
-      auto inode = simmap[tpgnode->fanin_list()[0]->id()];
+      auto inode = simmap[tpgnode->fanin(0)->id()];
       // 実際にはバッファタイプのノードに出力の印をつけるだけ．
       node = make_gate(GateType::Buff, vector<SimNode*>(1, inode));
       node->set_output();
@@ -155,7 +155,7 @@ FSIM_CLASSNAME::set_network(const TpgNetwork& network)
 	      tpgnode->is_dff_clear() ||
 	      tpgnode->is_dff_preset() ) {
       // DFFの制御端子に対応する SimNode の生成
-      auto inode = simmap[tpgnode->fanin_list()[0]->id()];
+      auto inode = simmap[tpgnode->fanin(0)->id()];
       // 実際にはバッファタイプのノードに出力の印をつけるだけ．
       node = make_gate(GateType::Buff, vector<SimNode*>(1, inode));
       node->set_output();
@@ -260,7 +260,7 @@ FSIM_CLASSNAME::set_network(const TpgNetwork& network)
       int ipos = 0;
       if ( fault->is_branch_fault() ) {
 	ipos = fault->tpg_pos();
-	auto inode = tpgnode->fanin_list()[ipos];
+	auto inode = tpgnode->fanin(ipos);
 	isimnode = simmap[inode->id()];
       }
       else {

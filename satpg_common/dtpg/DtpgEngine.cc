@@ -668,7 +668,7 @@ DtpgEngine::make_ffr_condition(const TpgFault* fault)
       bool val = (nval == Val3::_1);
       for ( auto ipos: Range(onode->fanin_num()) ) {
 	if ( ipos != fault->tpg_pos() ) {
-	  auto inode1 = onode->_fanin(ipos);
+	  auto inode1 = onode->fanin(ipos);
 	  add_assign(assign_list, inode1, 1, val);
 	}
       }

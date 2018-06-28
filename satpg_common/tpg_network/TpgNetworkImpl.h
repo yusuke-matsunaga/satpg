@@ -361,12 +361,14 @@ private:
   /// @param[in] node_info 論理関数の情報
   /// @param[in] fanin_list ファンインのリスト
   /// @param[in] fanout_num ファンアウト数
+  /// @param[out] connection_list 接続リスト
   /// @return 生成したノードを返す．
   TpgNode*
   make_logic_node(const string& name,
 		  const TpgGateInfo* node_info,
 		  const vector<TpgNode*>& fanin_list,
-		  int fanout_num);
+		  int fanout_num,
+		  vector<pair<int, int>>& connection_list);
 
   /// @brief 論理式から TpgNode の木を生成する．
   /// @param[in] name ノード名
@@ -374,6 +376,7 @@ private:
   /// @param[in] leaf_nodes 式のリテラルに対応するノードの配列
   /// @param[in] inode_array ファンインの対応関係を収める配列
   /// @param[in] fanout_num ファンアウト数
+  /// @param[out] connection_list 接続リスト
   /// @return 生成したノードを返す．
   ///
   /// leaf_nodes は 変数番号 * 2 + (0/1) に
@@ -383,39 +386,46 @@ private:
 		 const Expr& expr,
 		 const vector<TpgNode*>& leaf_nodes,
 		 vector<InodeInfo>& inode_array,
-		 int fanout_num);
+		 int fanout_num,
+		 vector<pair<int, int>>& connection_list);
 
   /// @brief 組み込み型の論理ゲートを生成する．
   /// @param[in] name ノード名
   /// @param[in] type ゲートの型
   /// @param[in] fanin_list ファンインのリスト
   /// @param[in] fanout_num ファンアウト数
+  /// @param[out] connection_list 接続リスト
   /// @return 生成したノードを返す．
   TpgNode*
   make_prim_node(const string& name,
 		 GateType type,
 		 const vector<TpgNode*>& fanin_list,
-		 int fanout_num);
+		 int fanout_num,
+		 vector<pair<int, int>>& connection_list);
 
   /// @brief バッファを生成する．
   /// @param[in] name ノード名
   /// @param[in] fanin ファンインのノード
   /// @param[in] fanout_num ファンアウト数
+  /// @param[out] connection_list 接続リスト
   /// @return 生成したノードを返す．
   TpgNode*
   make_buff_node(const string& name,
 		 TpgNode* fanin,
-		 int fanout_num);
+		 int fanout_num,
+		 vector<pair<int, int>>& connection_list);
 
   /// @brief インバーターを生成する．
   /// @param[in] name ノード名
   /// @param[in] fanin ファンインのノード
   /// @param[in] fanout_num ファンアウト数
+  /// @param[out] connection_list 接続リスト
   /// @return 生成したノードを返す．
   TpgNode*
   make_not_node(const string& name,
 		TpgNode* fanin,
-		int fanout_num);
+		int fanout_num,
+		vector<pair<int, int>>& connection_list);
 
   /// @brief 出力の故障を作る．
   /// @param[in] name 故障位置のノード名
@@ -424,7 +434,7 @@ private:
   void
   new_ofault(const char* name,
 	     int val,
-	     TpgNode* node);
+	     const TpgNode* node);
 
   /// @brief 入力の故障を作る．
   /// @param[in] name 故障位置のノード名
@@ -462,7 +472,7 @@ private:
   /// @brief 代表故障を設定する．
   /// @param[in] node 対象のノード
   int
-  set_rep_faults(TpgNode* node);
+  set_rep_faults(const TpgNode* node);
 
   /// @brief FFR の情報を設定する．
   /// @param[in] root FFR の根のノード
@@ -477,6 +487,10 @@ private:
   void
   set_mffc(const TpgNode* root,
 	   TpgMFFC* mffc);
+
+  /// @brief 故障リストから故障の配列を作る．
+  const TpgFault**
+  make_fault_array(const vector<const TpgFault*>& fault_list);
 
 
 private:

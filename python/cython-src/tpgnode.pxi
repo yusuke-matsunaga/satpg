@@ -115,10 +115,10 @@ cdef class TpgNode :
     ###
     ### is_logic == True でなければ値は不定
     def fanin(self, pos) :
-        cdef CXX_TpgNode* c_inode
+        cdef const CXX_TpgNode* c_inode
         if not self.is_valid :
             return None
-        c_inode = self._thisptr._fanin(pos)
+        c_inode = self._thisptr.fanin(pos)
         return to_TpgNode(c_inode)
 
     ### @brief ファンアウト数を返す．
@@ -133,7 +133,7 @@ cdef class TpgNode :
     def fanout(self, pos) :
         if not self.is_valid :
             return 0
-        return to_TpgNode(self._thisptr._fanout(pos))
+        return to_TpgNode(self._thisptr.fanout(pos))
 
     ### @brief FFRの根のノードを返す．
     def ffr_root(self) :

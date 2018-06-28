@@ -49,8 +49,8 @@ TpgDffControl::fanin_num() const
 
 // @brief ファンインを得る．
 // @param[in] pos 位置番号 ( 0 <= pos < fanin_num() )
-TpgNode*
-TpgDffControl::_fanin(int pos) const
+const TpgNode*
+TpgDffControl::fanin(int pos) const
 {
   ASSERT_COND( pos == 0 );
 

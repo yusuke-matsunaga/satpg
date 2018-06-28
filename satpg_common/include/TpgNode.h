@@ -210,8 +210,8 @@ public:
   /// @brief ファンインを得る．
   /// @param[in] pos 位置番号 ( 0 <= pos < fanin_num() )
   virtual
-  TpgNode*
-  _fanin(int pos) const = 0;
+  const TpgNode*
+  fanin(int pos) const = 0;
 
   /// @brief ファンインのリストを得る．
   virtual
@@ -225,7 +225,7 @@ public:
   /// @brief ファンアウトを得る．
   /// @param[in] pos 位置番号 ( 0 <= pos < fanout_num() )
   const TpgNode*
-  _fanout(int pos) const;
+  fanout(int pos) const;
 
   /// @brief ファンアウトのリストを得る．
   Array<const TpgNode*>
@@ -363,7 +363,7 @@ TpgNode::fanout_num() const
 // @param[in] pos 位置番号 ( 0 <= pos < fanout_num() )
 inline
 const TpgNode*
-TpgNode::_fanout(int pos) const
+TpgNode::fanout(int pos) const
 {
   ASSERT_COND( pos < fanout_num() );
   return mFanoutList[pos];
@@ -379,7 +379,7 @@ TpgNode::ffr_root() const
   if ( fanout_num() == 0 || fanout_num() > 1 ) {
     return this;
   }
-  return _fanout(0)->ffr_root();
+  return fanout(0)->ffr_root();
 }
 
 // @brief MFFCの根のノードを得る．

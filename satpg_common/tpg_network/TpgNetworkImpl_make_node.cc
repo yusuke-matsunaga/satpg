@@ -20,6 +20,7 @@
 #include "Val3.h"
 
 #include "ym/Expr.h"
+#include "ym/Range.h"
 
 
 BEGIN_NAMESPACE_YM_SATPG
@@ -232,12 +233,14 @@ TpgNetworkImpl::make_dff_preset_node(const TpgDff* dff,
 // @param[in] node_info 論理関数の情報
 // @param[in] fanin_list ファンインのリスト
 // @param[in] fanout_num ファンアウト数
+// @param[out] connection_list 接続リスト
 // @return 生成したノードを返す．
 TpgNode*
 TpgNetworkImpl::make_logic_node(const string& src_name,
 				const TpgGateInfo* node_info,
 				const vector<TpgNode*>& fanin_list,
-				int fanout_num)
+				int fanout_num,
+				vector<pair<int, int>>& connection_list)
 {
   int ni = fanin_list.size();
 
@@ -253,17 +256,20 @@ TpgNetworkImpl::make_logic_node(const string& src_name,
       vector<TpgNode*> tmp_list(2);
       tmp_list[0] = fanin_list[0];
       tmp_list[1] = fanin_list[1];
-      TpgNode* tmp_node = make_prim_node(string(), GateType::Xor, tmp_list, 1);
+      TpgNode* tmp_node = make_prim_node(string(), GateType::Xor, tmp_list, 1,
+					 connection_list);
       inode_array[0].set(tmp_node, 0);
       inode_array[1].set(tmp_node, 1);
-      for ( int i = 2; i < ni; ++ i ) {
+      for ( auto i: Range(2, ni) ) {
 	tmp_list[0] = tmp_node;
 	tmp_list[1] = fanin_list[i];
 	if ( i < ni - 1 ) {
-	  tmp_node = make_prim_node(string(), GateType::Xor, tmp_list, 1);
+	  tmp_node = make_prim_node(string(), GateType::Xor, tmp_list, 1,
+				    connection_list);
 	}
 	else {
-	  tmp_node = make_prim_node(src_name, GateType::Xor, tmp_list, fanout_num);
+	  tmp_node = make_prim_node(src_name, GateType::Xor, tmp_list, fanout_num,
+				    connection_list);
 	}
 	inode_array[i].set(tmp_node, 1);
       }
@@ -273,25 +279,29 @@ TpgNetworkImpl::make_logic_node(const string& src_name,
       vector<TpgNode*> tmp_list(2);
       tmp_list[0] = fanin_list[0];
       tmp_list[1] = fanin_list[1];
-      TpgNode* tmp_node = make_prim_node(string(), GateType::Xor, tmp_list, 1);
+      TpgNode* tmp_node = make_prim_node(string(), GateType::Xor, tmp_list, 1,
+					 connection_list);
       inode_array[0].set(tmp_node, 0);
       inode_array[1].set(tmp_node, 1);
-      for ( int i = 2; i < ni; ++ i ) {
+      for ( auto i: Range(2, ni) ) {
 	tmp_list[0] = tmp_node;
 	tmp_list[1] = fanin_list[i];
 	if ( i < ni - 1 ) {
-	  tmp_node = make_prim_node(string(), GateType::Xor, tmp_list, 1);
+	  tmp_node = make_prim_node(string(), GateType::Xor, tmp_list, 1,
+				    connection_list);
 	}
 	else {
-	  tmp_node = make_prim_node(src_name, GateType::Xnor, tmp_list, fanout_num);
+	  tmp_node = make_prim_node(src_name, GateType::Xnor, tmp_list, fanout_num,
+				    connection_list);
 	}
 	inode_array[i].set(tmp_node, i);
       }
       node = tmp_node;
     }
     else {
-      node = make_prim_node(src_name, gate_type, fanin_list, fanout_num);
-      for ( int i = 0; i < ni; ++ i ) {
+      node = make_prim_node(src_name, gate_type, fanin_list, fanout_num,
+			    connection_list);
+      for ( auto i: Range(ni) ) {
 	inode_array[i].set(node, i);
       }
     }
@@ -303,7 +313,7 @@ TpgNetworkImpl::make_logic_node(const string& src_name,
     // pos * 2 + 0: 肯定のリテラル
     // pos * 2 + 1: 否定のリテラルに対応する．
     vector<TpgNode*> leaf_nodes(ni * 2, nullptr);
-    for ( int i = 0; i < ni; ++ i ) {
+    for ( auto i: Range(ni) ) {
       int p_num = expr.litnum(VarId(i), false);
       int n_num = expr.litnum(VarId(i), true);
       TpgNode* inode = fanin_list[i];
@@ -316,7 +326,8 @@ TpgNetworkImpl::make_logic_node(const string& src_name,
 	else {
 	  // 肯定のリテラルが2回以上現れている場合
 	  // ブランチの故障に対応するためにダミーのバッファをつくる．
-	  TpgNode* dummy_buff = make_buff_node(string(), inode, p_num);
+	  TpgNode* dummy_buff = make_buff_node(string(), inode, p_num,
+					       connection_list);
 	  leaf_nodes[i * 2 + 0] = dummy_buff;
 	  // このバッファの入力が故障位置となる．
 	  inode_array[i].set(dummy_buff, 0);
@@ -326,13 +337,15 @@ TpgNetworkImpl::make_logic_node(const string& src_name,
 	if ( p_num > 0 ) {
 	  // 肯定と否定のリテラルがともに現れる場合
 	  // ブランチの故障に対応するためにダミーのバッファを作る．
-	  TpgNode* dummy_buff = make_buff_node(string(), inode, p_num + 1);
+	  TpgNode* dummy_buff = make_buff_node(string(), inode, p_num + 1,
+					       connection_list);
 	  inode = dummy_buff;
 	  leaf_nodes[i * 2 + 0] = dummy_buff;
 	}
 
 	// 否定のリテラルに対応するNOTゲートを作る．
-	TpgNode* not_gate = make_not_node(string(), inode, n_num);
+	TpgNode* not_gate = make_not_node(string(), inode, n_num,
+					  connection_list);
 	leaf_nodes[i * 2 + 1] = not_gate;
 
 	if ( p_num > 0 ) {
@@ -345,7 +358,8 @@ TpgNetworkImpl::make_logic_node(const string& src_name,
     }
 
     // expr の内容を表す TpgNode の木を作る．
-    node = make_cplx_node(src_name, expr, leaf_nodes, inode_array, fanout_num);
+    node = make_cplx_node(src_name, expr, leaf_nodes, inode_array, fanout_num,
+			  connection_list);
   }
 
   // 出力位置の故障を生成
@@ -355,7 +369,7 @@ TpgNetworkImpl::make_logic_node(const string& src_name,
   }
 
   // 入力位置の故障を生成
-  for ( int i = 0; i < ni; ++ i ) {
+  for ( auto i: Range(ni) ) {
     Val3 oval0 = node_info->cval(i, Val3::_0);
     Val3 oval1 = node_info->cval(i, Val3::_1);
 
@@ -387,6 +401,7 @@ TpgNetworkImpl::make_logic_node(const string& src_name,
 // @param[in] leaf_nodes 式のリテラルに対応するノードの配列
 // @param[in] inode_array ファンインの対応関係を収める配列
 // @param[in] fanout_num ファンアウト数
+// @param[out] connection_list 接続リスト
 // @return 生成したノードを返す．
 //
 // leaf_nodes は 変数番号 * 2 + (0/1) に
@@ -396,7 +411,8 @@ TpgNetworkImpl::make_cplx_node(const string& name,
 			       const Expr& expr,
 			       const vector<TpgNode*>& leaf_nodes,
 			       vector<InodeInfo>& inode_array,
-			       int fanout_num)
+			       int fanout_num,
+			       vector<pair<int, int>>& connection_list)
 {
   if ( expr.is_posiliteral() ) {
     int iid = expr.varid().val();
@@ -424,19 +440,21 @@ TpgNetworkImpl::make_cplx_node(const string& name,
   // 子供の論理式を表すノード(の木)を作る．
   int nc = expr.child_num();
   vector<TpgNode*> fanins(nc);
-  for ( int i = 0; i < nc; ++ i ) {
+  for ( auto i: Range(nc) ) {
     const Expr& expr1 = expr.child(i);
-    TpgNode* inode = make_cplx_node(string(), expr1, leaf_nodes, inode_array, 1);
+    TpgNode* inode = make_cplx_node(string(), expr1, leaf_nodes, inode_array, 1,
+				    connection_list);
     ASSERT_COND( inode != nullptr );
     fanins[i] = inode;
   }
   // fanins[] を確保するオーバーヘッドがあるが，
   // 子供のノードよりも先に親のノードを確保するわけには行かない．
-  TpgNode* node = make_prim_node(name, gate_type, fanins, fanout_num);
+  TpgNode* node = make_prim_node(name, gate_type, fanins, fanout_num,
+				 connection_list);
 
   // オペランドがリテラルの場合，inode_array[]
   // の設定を行う．
-  for ( int i = 0; i < nc; ++ i ) {
+  for ( auto i: Range(nc) ) {
     // 美しくないけどスマートなやり方を思いつかない．
     const Expr& expr1 = expr.child(i);
     if ( expr1.is_posiliteral() ) {
@@ -455,12 +473,14 @@ TpgNetworkImpl::make_cplx_node(const string& name,
 // @param[in] type ゲートの型
 // @param[in] fanin_list ファンインのリスト
 // @param[in] fanout_num ファンアウト数
+// @param[out] connection_list 接続リスト
 // @return 生成したノードを返す．
 TpgNode*
 TpgNetworkImpl::make_prim_node(const string& name,
 			       GateType type,
 			       const vector<TpgNode*>& fanin_list,
-			       int fanout_num)
+			       int fanout_num,
+			       vector<pair<int, int>>& connection_list)
 {
   TpgNodeFactory factory(mAlloc);
 
@@ -473,6 +493,10 @@ TpgNetworkImpl::make_prim_node(const string& name,
 
   mAuxInfoArray[id].init(name, fanin_num, mAlloc);
 
+  for ( auto i: Range(fanin_num) ) {
+    connection_list.push_back(make_pair(fanin_list[i]->id(), id));
+  }
+
   return node;
 }
 
@@ -480,26 +504,32 @@ TpgNetworkImpl::make_prim_node(const string& name,
 // @param[in] name ノード名
 // @param[in] fanin ファンインのノード
 // @param[in] fanout_num ファンアウト数
+// @param[out] connection_list 接続リスト
 // @return 生成したノードを返す．
 TpgNode*
 TpgNetworkImpl::make_buff_node(const string& name,
 			       TpgNode* fanin,
-			       int fanout_num)
+			       int fanout_num,
+			       vector<pair<int, int>>& connection_list)
 {
-  return make_prim_node(name, GateType::Buff, vector<TpgNode*>(1, fanin), fanout_num);
+  return make_prim_node(name, GateType::Buff, vector<TpgNode*>(1, fanin), fanout_num,
+			connection_list);
 }
 
 // @brief インバーターを生成する．
 // @param[in] name ノード名
 // @param[in] fanin ファンインのノード
 // @param[in] fanout_num ファンアウト数
+// @param[out] connection_list 接続リスト
 // @return 生成したノードを返す．
 TpgNode*
 TpgNetworkImpl::make_not_node(const string& name,
 			      TpgNode* fanin,
-			      int fanout_num)
+			      int fanout_num,
+			      vector<pair<int, int>>& connection_list)
 {
-  return make_prim_node(name, GateType::Not, vector<TpgNode*>(1, fanin), fanout_num);
+  return make_prim_node(name, GateType::Not, vector<TpgNode*>(1, fanin), fanout_num,
+			connection_list);
 }
 
 // @brief 出力の故障を作る．
@@ -509,7 +539,7 @@ TpgNetworkImpl::make_not_node(const string& name,
 void
 TpgNetworkImpl::new_ofault(const char* name,
 			   int val,
-			   TpgNode* node)
+			   const TpgNode* node)
 {
   void* p = mAlloc.get_memory(sizeof(TpgStemFault));
   TpgFaultBase* f = new (p) TpgStemFault(mFaultNum, val, node, name, nullptr);
@@ -534,9 +564,9 @@ TpgNetworkImpl::new_ifault(const char* name,
 			   const InodeInfo& inode_info,
 			   TpgFault* rep)
 {
-  TpgNode* node = inode_info.mNode;
+  const TpgNode* node = inode_info.mNode;
   int inode_pos = inode_info.mPos;
-  const TpgNode* inode = node->fanin_list()[inode_pos];
+  const TpgNode* inode = node->fanin(inode_pos);
   void* p = mAlloc.get_memory(sizeof(TpgBranchFault));
   TpgFaultBase* f = new (p) TpgBranchFault(mFaultNum, val, node, name, ipos, inode, inode_pos, rep);
   mAuxInfoArray[node->id()].set_input_fault(inode_pos, val, f);
