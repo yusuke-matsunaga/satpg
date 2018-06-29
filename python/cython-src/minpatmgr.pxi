@@ -62,6 +62,8 @@ def gen_colcov(fault_list, tv_list, network, fault_type) :
     cdef int tid_base = 0
     cdef int fid = 0
     cdef ColCov colcov = ColCov(nf, nv)
+    cdef int vect_size
+    cdef int tid
     fid_dict = {}
     for fault in fault_list :
         fid_dict[fault.id] = fid
@@ -85,12 +87,22 @@ def gen_colcov(fault_list, tv_list, network, fault_type) :
             for pat_id in pat_id_list :
                 colcov.insert_elem(fid, tid_base + pat_id)
 
-    for id1 in range(nv - 1) :
-        tv1 = tv_list[id1]
-        for id2 in range(id1 + 1, nv) :
-            tv2 = tv_list[id2]
-            if not TestVector.is_compatible(tv1, tv2) :
-                colcov.insert_conflict(id1, id2)
+    tv = tv_list[0]
+    vect_size = tv.vector_size
+    conflict_pair_list = []
+    for bit in range(vect_size) :
+        list0 = []
+        list1 = []
+        for tid in range(len(tv_list)) :
+            tv = tv_list[tid]
+            v = tv.val(bit)
+            if v == Val3._0 :
+                list0.append(tid)
+            elif v == Val3._1 :
+                list1.append(tid)
+        if len(list0) > 0 and len(list1) > 0 :
+            print('{} x {}'.format(len(list0), len(list1)))
+            conflict_pair_list.append( (list0, list1) )
 
     return colcov
 
