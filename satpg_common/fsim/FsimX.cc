@@ -74,10 +74,10 @@ packedval_to_val3(FSIM_VALTYPE pval)
 
 END_NONAMESPACE
 
-Fsim*
+std::unique_ptr<FsimImpl>
 new_Fsim(const TpgNetwork& network)
 {
-  return new FSIM_CLASSNAME(network);
+  return static_cast<std::unique_ptr<FsimImpl>>(new FSIM_CLASSNAME(network));
 }
 
 
@@ -437,7 +437,7 @@ FSIM_CLASSNAME::set_pattern(int pos,
 
 // @brief 設定した ppsfp 用のパタンを読み出す．
 // @param[in] pos 位置番号 ( 0 <= pos < kPvBitLen )
-const TestVector&
+TestVector
 FSIM_CLASSNAME::get_pattern(int pos)
 {
   ASSERT_COND( pos >= 0 && pos < kPvBitLen );

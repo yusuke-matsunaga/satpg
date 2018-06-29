@@ -9,6 +9,7 @@
 /// All rights reserved.
 
 #include "satpg.h"
+#include "Fsim.h"
 
 
 BEGIN_NAMESPACE_YM_SATPG
@@ -73,7 +74,7 @@ private:
   vector<TestVector> mOrigTvList;
 
   // 故障シミュレータ
-  std::unique_ptr<Fsim> mFsim;
+  Fsim mFsim;
 
   // covering matrix の要素
   vector<pair<int, int>> mElemList;

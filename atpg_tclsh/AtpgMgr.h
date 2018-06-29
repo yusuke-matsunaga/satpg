@@ -13,7 +13,7 @@
 #include "satpg.h"
 #include "sa/sa_nsdef.h"
 #include "td/td_nsdef.h"
-
+#include "Fsim.h"
 #include "TpgNetwork.h"
 #include "ym/Binder.h"
 #include "ym/StopWatch.h"
@@ -159,10 +159,10 @@ private:
   TpgNetwork mNetwork;
 
   // 縮退故障用の2値の故障シミュレータ
-  std::unique_ptr<Fsim> mSaFsim2;
+  Fsim mSaFsim2;
 
   // 縮退故障用の3値の故障シミュレータ
-  std::unique_ptr<Fsim> mSaFsim3;
+  Fsim mSaFsim3;
 
   // 縮退故障用の故障マネージャ
   FaultStatusMgr* mSaFaultMgr;
@@ -171,10 +171,10 @@ private:
   vector<TestVector> mSaTvList;
 
   // 遷移故障用の2値の故障シミュレータ
-  std::unique_ptr<Fsim> mTdFsim2;
+  Fsim mTdFsim2;
 
   // 遷移故障用の3値の故障シミュレータ
-  std::unique_ptr<Fsim> mTdFsim3;
+  Fsim mTdFsim3;
 
   // 遷移故障用の故障マネージャ
   FaultStatusMgr* mTdFaultMgr;
@@ -208,7 +208,7 @@ inline
 Fsim&
 AtpgMgr::_sa_fsim2()
 {
-  return *mSaFsim2;
+  return mSaFsim2;
 }
 
 // @brief 縮退故障用の3値の故障シミュレータを返す．
@@ -216,7 +216,7 @@ inline
 Fsim&
 AtpgMgr::_sa_fsim3()
 {
-  return *mSaFsim3;
+  return mSaFsim3;
 }
 
 // @brief 縮退故障用の故障マネージャを取り出す．
@@ -240,7 +240,7 @@ inline
 Fsim&
 AtpgMgr::_td_fsim2()
 {
-  return *mTdFsim2;
+  return mTdFsim2;
 }
 
 // @brief 遷移故障用の3値の故障シミュレータを返す．
@@ -248,7 +248,7 @@ inline
 Fsim&
 AtpgMgr::_td_fsim3()
 {
-  return *mTdFsim3;
+  return mTdFsim3;
 }
 
 // @brief 遷移故障用の故障マネージャを取り出す．

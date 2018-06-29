@@ -31,9 +31,9 @@ MinPatMgr::MinPatMgr(const vector<const TpgFault*>& fault_list,
 		     FaultType fault_type) :
   mNetwork(network),
   mFaultList(fault_list),
-  mOrigTvList(tv_list),
-  mFsim(Fsim::new_Fsim3(network, fault_type))
+  mOrigTvList(tv_list)
 {
+  mFsim.init_fsim3(network, fault_type);
   gen_covering_matrix();
   gen_conflict_list();
 }
@@ -49,16 +49,16 @@ MinPatMgr::gen_covering_matrix()
 {
   mElemList.clear();
   int wpos = 0;
-  mFsim->clear_patterns();
+  mFsim.clear_patterns();
   int tv_base = 0;
   for ( auto tv: mOrigTvList ) {
-    mFsim->set_pattern(wpos, tv);
+    mFsim.set_pattern(wpos, tv);
     ++ wpos;
     if ( wpos == kPvBitLen ) {
-      int ndet = mFsim->ppsfp();
+      int ndet = mFsim.ppsfp();
       for ( auto i: Range(ndet) ) {
-	const TpgFault* fault = mFsim->det_fault(i);
-	PackedVal dbits = mFsim->det_fault_pat(i);
+	const TpgFault* fault = mFsim.det_fault(i);
+	PackedVal dbits = mFsim.det_fault_pat(i);
 	int fid = fault->id();
 	for ( auto bit: Range(kPvBitLen) ) {
 	  if ( dbits & (1UL << bit) ) {
@@ -68,15 +68,15 @@ MinPatMgr::gen_covering_matrix()
 	  }
 	}
       }
-      mFsim->clear_patterns();
+      mFsim.clear_patterns();
       tv_base += kPvBitLen;
     }
   }
   if ( wpos > 0 ) {
-    int ndet = mFsim->ppsfp();
+    int ndet = mFsim.ppsfp();
     for ( auto i: Range(ndet) ) {
-      const TpgFault* fault = mFsim->det_fault(i);
-      PackedVal dbits = mFsim->det_fault_pat(i);
+      const TpgFault* fault = mFsim.det_fault(i);
+      PackedVal dbits = mFsim.det_fault_pat(i);
       int fid = fault->id();
       for ( auto bit: Range(kPvBitLen) ) {
 	if ( dbits & (1UL << bit) ) {

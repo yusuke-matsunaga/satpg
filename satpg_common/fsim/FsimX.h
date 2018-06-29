@@ -10,7 +10,7 @@
 /// All rights reserved.
 
 
-#include "Fsim.h"
+#include "FsimImpl.h"
 #include "fsim_nsdef.h"
 #include "PackedVal.h"
 #include "PackedVal3.h"
@@ -34,7 +34,7 @@ class InputVals;
 /// 実際のクラス名は FsimSa2, FsimSa3, FsimTd2, FsimTd3 である．
 //////////////////////////////////////////////////////////////////////
 class FSIM_CLASSNAME :
-  public Fsim
+  public FsimImpl
 {
 public:
 
@@ -191,7 +191,7 @@ public:
   /// @brief 設定した ppsfp 用のパタンを読み出す．
   /// @param[in] pos 位置番号 ( 0 <= pos < kPvBitLen )
   virtual
-  const TestVector&
+  TestVector
   get_pattern(int pos);
 
 

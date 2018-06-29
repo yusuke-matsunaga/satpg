@@ -342,12 +342,12 @@ fsim2test(int argc,
   }
   FaultType fault_type = sa_mode ? FaultType::StuckAt : FaultType::TransitionDelay;
 
-  std::unique_ptr<Fsim> fsim;
+  Fsim fsim;
   if ( fsim2 ) {
-    fsim = Fsim::new_Fsim2(network, fault_type);
+    fsim.init_fsim2(network, fault_type);
   }
   else if ( fsim3 ) {
-    fsim = Fsim::new_Fsim3(network, fault_type);
+    fsim.init_fsim3(network, fault_type);
   }
   else {
     ASSERT_NOT_REACHED;
@@ -365,14 +365,14 @@ fsim2test(int argc,
 
   pair<int, int> dpnum;
   if ( ppsfp ) {
-    dpnum = ppsfp_test(*fsim, tv_list);
+    dpnum = ppsfp_test(fsim, tv_list);
   }
   else if ( sppfp ) {
-    dpnum = sppfp_test(*fsim, tv_list);
+    dpnum = sppfp_test(fsim, tv_list);
   }
   else {
     // デフォルトフォールバックは SPSFP
-    dpnum = spsfp_test(network, *fsim, tv_list);
+    dpnum = spsfp_test(network, fsim, tv_list);
   }
 
   int det_num = dpnum.first;

@@ -22,10 +22,9 @@ cdef extern from "Fsim.h" namespace "nsYm::nsSatpg" :
 
     ## @brief Fsim の cython バージョン
     cdef cppclass Fsim :
-        @staticmethod
-        Fsim* new_Fsim2(const TpgNetwork& network, FaultType ftype)
-        @staticmethod
-        Fsim* new_Fsim3(const TpgNetwork& network, FaultType ftype)
+        Fsim()
+        void init_fsim2(const TpgNetwork& network, FaultType ftype)
+        void init_fsim3(const TpgNetwork& network, FaultType ftype)
         void set_skip_all()
         void set_skip(const TpgFault* f)
         void set_skip(const vector[const TpgFault*]& fault_list)
@@ -40,7 +39,7 @@ cdef extern from "Fsim.h" namespace "nsYm::nsSatpg" :
         int calc_wsa(const TestVector& tv, bool weighted)
         void clear_patterns()
         void set_pattern(int pos, const TestVector& tv)
-        const TestVector& get_pattern(int pos)
+        TestVector get_pattern(int pos)
         int det_fault_num()
         const TpgFault* det_fault(int pos)
         PackedVal det_fault_pat(int pos)

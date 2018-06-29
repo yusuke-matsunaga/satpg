@@ -39,8 +39,8 @@ DtpgTest::DtpgTest(const string& sat_type,
   mNetwork(network),
   mFaultMgr(network)
 {
-  mFsim = Fsim::new_Fsim3(network, fault_type);
-  mDop.add(new_DopVerify(*mFsim, mVerifyResult));
+  mFsim.init_fsim3(network, fault_type);
+  mDop.add(new_DopVerify(mFsim, mVerifyResult));
 }
 
 // @brief デストラクタ

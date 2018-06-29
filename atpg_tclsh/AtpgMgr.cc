@@ -25,11 +25,7 @@ BEGIN_NAMESPACE_YM_SATPG
 AtpgMgr::AtpgMgr() :
   mTimer(TM_SIZE, TM_MISC)
 {
-  mSaFsim2 = nullptr;
-  mSaFsim3 = nullptr;
   mSaFaultMgr = nullptr;
-  mTdFsim2 = nullptr;
-  mTdFsim3 = nullptr;
   mTdFaultMgr = nullptr;
 }
 
@@ -85,11 +81,11 @@ AtpgMgr::after_set_network()
   mSaTvList.clear();
   mTdTvList.clear();
 
-  mSaFsim2 = Fsim::new_Fsim2(_network(), FaultType::StuckAt);
-  mSaFsim3 = Fsim::new_Fsim3(_network(), FaultType::StuckAt);
+  mSaFsim2.init_fsim2(_network(), FaultType::StuckAt);
+  mSaFsim3.init_fsim3(_network(), FaultType::StuckAt);
   mSaFaultMgr = new FaultStatusMgr(_network());
-  mTdFsim2 = Fsim::new_Fsim2(_network(), FaultType::TransitionDelay);
-  mTdFsim3 = Fsim::new_Fsim3(_network(), FaultType::TransitionDelay);
+  mTdFsim2.init_fsim2(_network(), FaultType::TransitionDelay);
+  mTdFsim3.init_fsim3(_network(), FaultType::TransitionDelay);
   mTdFaultMgr = new FaultStatusMgr(_network());
 }
 
