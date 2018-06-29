@@ -45,6 +45,15 @@ cdef class TestVector :
         else :
             assert False
 
+    ### @brief ベクタ長を返す．
+    @property
+    def vector_size(TestVector self) :
+        return self._this.vector_size()
+
+    ### @brief 値を返す．
+    def val(TestVector self, pos) :
+        return to_Val3(self._this.val(pos))
+
     ### @brief 入力数を返す．
     @property
     def input_num(TestVector self) :

@@ -18,6 +18,8 @@ cdef extern from "TestVector.h" namespace "nsYm::nsSatpg" :
     cdef cppclass TestVector :
         TestVector()
         TestVector(int, int, FaultType)
+        int vector_size()
+        Val3 val(int pos)
         int input_num()
         int dff_num()
         bool has_aux_input()
