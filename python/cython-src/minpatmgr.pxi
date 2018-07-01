@@ -6,37 +6,37 @@
 ### Copyright (C) 2018 Yusuke Matsunaga
 ### All rights reserved.
 
+from libcpp cimport vector
+from CXX_MinPatMgr cimport MinPatMgr as CXX_MinPatMgr
+from CXX_TpgFault cimport TpgFault as CXX_TpgFault
+from CXX_TestVector cimport TestVector as CXX_TestVector
+from CXX_FaultType cimport FaultType as CXX_FaultType
 
 cdef class MinPatMgr :
-    cdef TpgNetwork __network
+    cdef CXX_MinPatMgr _this
 
     ### @brief 初期化
+    ### @param[in] fault_list 故障のリスト
+    ### @param[in] tv_list テストパタンのリスト
     ### @param[in] network 対象のネットワーク
     ### @param[in] fault_type 故障の種類
-    def __init__(MinPatMgr self, TpgNetwork network, fault_type) :
-        self.__network = network
-        self.__fault_type = fault_type
-        self.__fsarray = [ FaultStatus.Undetected for i in range(network.max_fault_id) ]
-        self.__fault_list = []
-
-    ### @brief 故障の状態を設定する．
-    def set_fault_status(MinPatMgr self, TpgFault fault, status) :
-        assert self.__fsarray[fault.id] == FaultStatus.Undetected
-        self.__fsarray[fault.id] = status
-        if status == FaultStatus.Detected :
-            self.__fault_list.append(fault)
-
-    ### @brief テストパタンを追加する．
-    ### @param[in] tv テストパタン
-    def add_pat(MinPatMgr self, TestVector tv) :
-        self.__tvlist.append(tv)
-
-    ### @brief 検出行列を作る．
-    def gen_detection_matrix(MinPatMgr self) :
-        cdef Fsim fsim = Fsim('Fsim3', self.__network, self.__fault_type)
-        fsim.set_skip_all()
-        for fault in self.__fault_list :
-            fsim.clear_skip(fault)
+    def __init__(MinPatMgr self, fault_list, tv_list, TpgNetwork network, fault_type) :
+        cdef vector[const CXX_TpgFault*] c_fault_list
+        cdef vector[CXX_TestVector] c_tv_list
+        cdef int nf = len(fault_list)
+        cdef int nv = len(tv_list)
+        cdef CXX_FaultType c_fault_type = from_FaultType(fault_type)
+        cdef TpgFault fault
+        cdef TestVector tv
+        c_fault_list.resize(nf)
+        for i in range(nf) :
+            fault = fault_list[i]
+            c_fault_list[i] = fault._thisptr
+        c_tv_list.resize(nv)
+        for i in range(nv) :
+            tv = tv_list[i]
+            c_tv_list[i] = tv._this
+        self._this.init(c_fault_list, c_tv_list, network._this, c_fault_type)
 
 def gen_compat_graph(tv_list) :
     cdef int id1, id2

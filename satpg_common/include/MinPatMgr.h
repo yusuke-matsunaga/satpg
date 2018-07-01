@@ -14,6 +14,8 @@
 
 BEGIN_NAMESPACE_YM_SATPG
 
+class IdList;
+
 //////////////////////////////////////////////////////////////////////
 /// @class MinPatMgr MinPatMgr.h "MinPatMgr.h"
 /// @brief テストセット最小化を行うクラス
@@ -23,14 +25,7 @@ class MinPatMgr
 public:
 
   /// @brief コンストラクタ
-  /// @param[in] fault_list 故障のリスト
-  /// @param[in] tv_list テストパタンのリスト
-  /// @param[in] network 対象のネットワーク
-  /// @param[in] fault_type 故障の種類
-  MinPatMgr(const vector<const TpgFault*>& fault_list,
-	    const vector<TestVector>& tv_list,
-	    const TpgNetwork& network,
-	    FaultType fault_type);
+  MinPatMgr();
 
   /// @brief デストラクタ
   ~MinPatMgr();
@@ -41,6 +36,16 @@ public:
   // 外部インターフェイス
   //////////////////////////////////////////////////////////////////////
 
+  /// @brief 初期化する．
+  /// @param[in] fault_list 故障のリスト
+  /// @param[in] tv_list テストパタンのリスト
+  /// @param[in] network 対象のネットワーク
+  /// @param[in] fault_type 故障の種類
+  void
+  init(const vector<const TpgFault*>& fault_list,
+       const vector<TestVector>& tv_list,
+       const TpgNetwork& network,
+       FaultType fault_type);
 
 
 private:
@@ -49,10 +54,13 @@ private:
   //////////////////////////////////////////////////////////////////////
 
   /// @brief 故障シミュレーションを行い被覆表を作る．
+  /// @param[in] network 対象のネットワーク
+  /// @param[in] fault_type 故障の種類
   ///
   /// 結果は mElemList に格納される．
   void
-  gen_covering_matrix();
+  gen_covering_matrix(const TpgNetwork& network,
+		      FaultType fault_type);
 
   /// @brief テストパタンの衝突リストを作る．
   void
@@ -64,24 +72,21 @@ private:
   // データメンバ
   //////////////////////////////////////////////////////////////////////
 
-  // 対象のネットワーク
-  const TpgNetwork& mNetwork;
-
   // 対象の故障リスト
   vector<const TpgFault*> mFaultList;
 
   // 元のテストパタンのリスト
   vector<TestVector> mOrigTvList;
 
-  // 故障シミュレータ
-  Fsim mFsim;
-
   // covering matrix の要素
   vector<pair<int, int>> mElemList;
 
-  // 衝突するテストパタンのリストの対の配列
+  // 衝突するパタンのリストの対のリスト
   // サイズはテストパタンのビット長 x 2
-  vector<vector<int>> mConflictPairList;
+  vector<IdList*> mConflictPairList;
+
+  // テストパタンごとの衝突リストのリスト
+  vector<vector<IdList*>> mConflictListArray;
 
 };
 

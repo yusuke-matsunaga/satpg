@@ -11,6 +11,7 @@
 #include "Fsim.h"
 #include "TestVector.h"
 #include "TpgFault.h"
+#include "IdList.h"
 #include "ym/Range.h"
 
 
@@ -21,21 +22,8 @@ BEGIN_NAMESPACE_YM_SATPG
 //////////////////////////////////////////////////////////////////////
 
 // @brief コンストラクタ
-// @param[in] fault_list 故障のリスト
-// @param[in] tv_list テストパタンのリスト
-// @param[in] network 対象のネットワーク
-// @param[in] fault_type 故障の種類
-MinPatMgr::MinPatMgr(const vector<const TpgFault*>& fault_list,
-		     const vector<TestVector>& tv_list,
-		     const TpgNetwork& network,
-		     FaultType fault_type) :
-  mNetwork(network),
-  mFaultList(fault_list),
-  mOrigTvList(tv_list)
+MinPatMgr::MinPatMgr()
 {
-  mFsim.init_fsim3(network, fault_type);
-  gen_covering_matrix();
-  gen_conflict_list();
 }
 
 // @brief デストラクタ
@@ -43,22 +31,48 @@ MinPatMgr::~MinPatMgr()
 {
 }
 
-// @brief 故障シミュレーションを行い被覆表を作る．
+// @brief 初期化する．
+// @param[in] fault_list 故障のリスト
+// @param[in] tv_list テストパタンのリスト
+// @param[in] network 対象のネットワーク
+// @param[in] fault_type 故障の種類
 void
-MinPatMgr::gen_covering_matrix()
+MinPatMgr::init(const vector<const TpgFault*>& fault_list,
+		const vector<TestVector>& tv_list,
+		const TpgNetwork& network,
+		FaultType fault_type)
 {
+  mFaultList = fault_list;
+  mOrigTvList = tv_list;
+
+  gen_covering_matrix(network, fault_type);
+
+  gen_conflict_list();
+
+}
+
+// @brief 故障シミュレーションを行い被覆表を作る．
+// @param[in] network 対象のネットワーク
+// @param[in] fault_type 故障の種類
+void
+MinPatMgr::gen_covering_matrix(const TpgNetwork& network,
+			       FaultType fault_type)
+{
+  Fsim fsim;
+  fsim.init_fsim3(network, fault_type);
+
   mElemList.clear();
   int wpos = 0;
-  mFsim.clear_patterns();
+  fsim.clear_patterns();
   int tv_base = 0;
   for ( auto tv: mOrigTvList ) {
-    mFsim.set_pattern(wpos, tv);
+    fsim.set_pattern(wpos, tv);
     ++ wpos;
     if ( wpos == kPvBitLen ) {
-      int ndet = mFsim.ppsfp();
+      int ndet = fsim.ppsfp();
       for ( auto i: Range(ndet) ) {
-	const TpgFault* fault = mFsim.det_fault(i);
-	PackedVal dbits = mFsim.det_fault_pat(i);
+	const TpgFault* fault = fsim.det_fault(i);
+	PackedVal dbits = fsim.det_fault_pat(i);
 	int fid = fault->id();
 	for ( auto bit: Range(kPvBitLen) ) {
 	  if ( dbits & (1UL << bit) ) {
@@ -68,15 +82,16 @@ MinPatMgr::gen_covering_matrix()
 	  }
 	}
       }
-      mFsim.clear_patterns();
+      fsim.clear_patterns();
+      wpos = 0;
       tv_base += kPvBitLen;
     }
   }
   if ( wpos > 0 ) {
-    int ndet = mFsim.ppsfp();
+    int ndet = fsim.ppsfp();
     for ( auto i: Range(ndet) ) {
-      const TpgFault* fault = mFsim.det_fault(i);
-      PackedVal dbits = mFsim.det_fault_pat(i);
+      const TpgFault* fault = fsim.det_fault(i);
+      PackedVal dbits = fsim.det_fault_pat(i);
       int fid = fault->id();
       for ( auto bit: Range(kPvBitLen) ) {
 	if ( dbits & (1UL << bit) ) {
@@ -97,21 +112,67 @@ MinPatMgr::gen_conflict_list()
     return;
   }
 
+  int nv = mOrigTvList.size();
   int vs = mOrigTvList[0].vector_size();
   mConflictPairList.resize(vs * 2);
+  mConflictListArray.resize(nv);
   for ( auto bit: Range(vs) ) {
     int tvid = 0;
-    for ( auto tvid: Range(mOrigTvList.size()) ) {
+    vector<int> list0;
+    vector<int> list1;
+    for ( auto tvid: Range(nv) ) {
       TestVector tv = mOrigTvList[tvid];
       Val3 val = tv.val(bit);
       if ( val == Val3::_0 ) {
-	mConflictPairList[bit * 2 + 0].push_back(tvid);
+	list0.push_back(tvid);
       }
-      else {
-	mConflictPairList[bit * 2 + 1].push_back(tvid);
+      else if ( val == Val3::_1 ) {
+	list1.push_back(tvid);
       }
+    }
+    if ( list0.empty() || list1.empty() ) {
+      mConflictPairList[bit * 2 + 0] = nullptr;
+      mConflictPairList[bit * 2 + 1] = nullptr;
+    }
+    else {
+      IdList* idlist0 = IdList::new_obj(list0);
+      IdList* idlist1 = IdList::new_obj(list1);
+      mConflictPairList[bit * 2 + 0] = idlist0;
+      mConflictPairList[bit * 2 + 1] = idlist1;
+      for ( auto tvid: list0 ) {
+	mConflictListArray[tvid].push_back(idlist1);
+      }
+      for ( auto tvid: list1 ) {
+	mConflictListArray[tvid].push_back(idlist0);
+      }
+      cout << list0.size() << " x " << list1.size() << endl;
     }
   }
 }
+
+
+//////////////////////////////////////////////////////////////////////
+// クラス IdList
+//////////////////////////////////////////////////////////////////////
+
+// @brief オブジェクトを作るスタティック関数
+IdList*
+IdList::new_obj(const vector<int>& elem_list)
+{
+  int n = elem_list.size();
+  int n1 = n;
+  if ( n1 == 0 ) {
+    n1 = 1;
+  }
+  void* p = new char[sizeof(IdList) + sizeof(int*) * (n1 - 1)];
+  IdList* obj = new (p) IdList();
+  obj->mNum = n;
+  for ( auto i: Range(n) ) {
+    obj->mBody[i] = elem_list[i];
+  }
+
+  return obj;
+}
+
 
 END_NAMESPACE_YM_SATPG

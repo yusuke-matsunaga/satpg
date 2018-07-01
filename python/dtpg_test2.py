@@ -19,6 +19,7 @@ from satpg_core import ColCov
 from dtpg import Dtpg
 from compaction import compaction
 from satpg_core import gen_colcov
+from satpg_core import MinPatMgr
 
 
 def gen_covering_matrix(fault_list, tv_list, network, fault_type) :
@@ -161,7 +162,8 @@ def main() :
         cpu_time = lap1 - start
 
         tvlist = dtpg.tvlist
-        tvlist = gen_covering_matrix(dtpg.fault_list, tvlist, network, fault_type)
+        #tvlist = gen_covering_matrix(dtpg.fault_list, tvlist, network, fault_type)
+        minpatmgr = MinPatMgr(dtpg.fault_list, tvlist, network, fault_type)
 
         lap2 = time.process_time()
         print('CPU time for color-covering: {:8.2f}'.format(lap2 - lap1))
