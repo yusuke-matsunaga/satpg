@@ -11,7 +11,6 @@
 #include "Fsim.h"
 #include "TestVector.h"
 #include "TpgFault.h"
-#include "IdList.h"
 #include "ym/Range.h"
 
 
@@ -118,8 +117,8 @@ MinPatMgr::gen_conflict_list()
   mConflictListArray.resize(nv);
   for ( auto bit: Range(vs) ) {
     int tvid = 0;
-    vector<int> list0;
-    vector<int> list1;
+    vector<int>& list0 = mConflictPairList[bit * 2 + 0];
+    vector<int>& list1 = mConflictPairList[bit * 2 + 1];
     for ( auto tvid: Range(nv) ) {
       TestVector tv = mOrigTvList[tvid];
       Val3 val = tv.val(bit);
@@ -130,49 +129,32 @@ MinPatMgr::gen_conflict_list()
 	list1.push_back(tvid);
       }
     }
-    if ( list0.empty() || list1.empty() ) {
-      mConflictPairList[bit * 2 + 0] = nullptr;
-      mConflictPairList[bit * 2 + 1] = nullptr;
-    }
-    else {
-      IdList* idlist0 = IdList::new_obj(list0);
-      IdList* idlist1 = IdList::new_obj(list1);
-      mConflictPairList[bit * 2 + 0] = idlist0;
-      mConflictPairList[bit * 2 + 1] = idlist1;
+    if ( !list0.empty() && !list1.empty() ) {
       for ( auto tvid: list0 ) {
-	mConflictListArray[tvid].push_back(idlist1);
+	mConflictListArray[tvid].push_back(bit * 2 + 1);
       }
       for ( auto tvid: list1 ) {
-	mConflictListArray[tvid].push_back(idlist0);
+	mConflictListArray[tvid].push_back(bit * 2 + 0);
       }
-      cout << list0.size() << " x " << list1.size() << endl;
     }
   }
-}
 
-
-//////////////////////////////////////////////////////////////////////
-// クラス IdList
-//////////////////////////////////////////////////////////////////////
-
-// @brief オブジェクトを作るスタティック関数
-IdList*
-IdList::new_obj(const vector<int>& elem_list)
-{
-  int n = elem_list.size();
-  int n1 = n;
-  if ( n1 == 0 ) {
-    n1 = 1;
+  mConflictListArray2.resize(nv);
+  for ( auto tvid: Range(nv) ) {
+    cout << "TestVector#" << tvid << endl;
+    vector<int>& conflict_list = mConflictListArray2[tvid];
+    const vector<int>& idlist_list = mConflictListArray[tvid];
+    vector<bool> mark(nv, false);
+    for ( auto idlist: idlist_list ) {
+      for ( auto id: mConflictPairList[idlist] ) {
+	if ( !mark[id] ) {
+	  mark[id] = true;
+	  conflict_list.push_back(id);
+	}
+      }
+    }
+    cout << "  " << conflict_list.size() << endl;
   }
-  void* p = new char[sizeof(IdList) + sizeof(int*) * (n1 - 1)];
-  IdList* obj = new (p) IdList();
-  obj->mNum = n;
-  for ( auto i: Range(n) ) {
-    obj->mBody[i] = elem_list[i];
-  }
-
-  return obj;
 }
-
 
 END_NAMESPACE_YM_SATPG

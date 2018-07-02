@@ -9,12 +9,9 @@
 /// All rights reserved.
 
 #include "satpg.h"
-#include "Fsim.h"
 
 
 BEGIN_NAMESPACE_YM_SATPG
-
-class IdList;
 
 //////////////////////////////////////////////////////////////////////
 /// @class MinPatMgr MinPatMgr.h "MinPatMgr.h"
@@ -83,10 +80,12 @@ private:
 
   // 衝突するパタンのリストの対のリスト
   // サイズはテストパタンのビット長 x 2
-  vector<IdList*> mConflictPairList;
+  vector<vector<int>> mConflictPairList;
 
   // テストパタンごとの衝突リストのリスト
-  vector<vector<IdList*>> mConflictListArray;
+  vector<vector<int>> mConflictListArray;
+
+  vector<vector<int>> mConflictListArray2;
 
 };
 
