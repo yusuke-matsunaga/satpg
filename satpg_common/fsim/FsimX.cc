@@ -809,7 +809,7 @@ FSIM_CLASSNAME::_fault_sweep(const vector<SimFault*>& fault_list,
     if ( pat != kPvAll0 ) {
       auto f = ff->mOrigF;
       mDetFaultArray[mDetNum] = f;
-      mDetPatArray[mDetNum] = pat;
+      mDetPatArray[mDetNum] = pat & mPatMap;
       ++ mDetNum;
     }
   }
