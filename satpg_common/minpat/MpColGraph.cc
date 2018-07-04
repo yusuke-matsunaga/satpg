@@ -8,7 +8,6 @@
 
 
 #include "MpColGraph.h"
-#include "MpColNode.h"
 #include "TestVector.h"
 #include "ym/Range.h"
 #include "ym/HashSet.h"
