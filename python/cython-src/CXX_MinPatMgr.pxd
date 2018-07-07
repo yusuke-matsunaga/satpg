@@ -29,5 +29,8 @@ cdef extern from "MinPatMgr.h" namespace "nsYm::nsSatpg" :
         int solve(const string& algorithm,
                   vector[TestVector]& new_tv_list)
         @staticmethod
-        int coloring(const vector[TestVector]& tv_list,
+        int coloring(const vector[const TpgFault*]& fault_list,
+                     const vector[TestVector]& tv_list,
+                     const TpgNetwork& network,
+                     FaultType fault_type,
                      vector[TestVector]& new_tv_list)

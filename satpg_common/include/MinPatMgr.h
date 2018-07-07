@@ -87,7 +87,10 @@ public:
   /// @return 結果のパタン数を返す．
   static
   int
-  coloring(const vector<TestVector>& tv_list,
+  coloring(const vector<const TpgFault*>& fault_list,
+	   const vector<TestVector>& tv_list,
+	   const TpgNetwork& network,
+	   FaultType fault_type,
 	   vector<TestVector>& new_tv_list);
 
 

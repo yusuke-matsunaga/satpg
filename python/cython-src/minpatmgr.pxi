@@ -50,16 +50,25 @@ cdef class MinPatMgr :
 
     ### @brief 彩色問題を用いて問題を解く．
     @staticmethod
-    def coloring(tv_list) :
+    def coloring(fault_list, tv_list, TpgNetwork network, fault_type) :
+        cdef vector[const CXX_TpgFault*] c_fault_list
         cdef vector[CXX_TestVector] c_tv_list
+        cdef CXX_FaultType c_fault_type = from_FaultType(fault_type)
         cdef vector[CXX_TestVector] c_new_tv_list
+        cdef TpgFault fault
         cdef TestVector tv
+        cdef int nf = len(fault_list)
+        cdef int nv = len(tv_list)
         cdef int i
-        c_tv_list.resize(len(tv_list))
-        for i in range(len(tv_list)) :
+        c_fault_list.resize(nf)
+        for i in range(nf) :
+            fault = fault_list[i]
+            c_fault_list[i] = fault._thisptr
+        c_tv_list.resize(nv)
+        for i in range(nv) :
             tv = tv_list[i]
             c_tv_list[i] = tv._this
-        CXX_MinPatMgr.coloring(c_tv_list, c_new_tv_list)
+        CXX_MinPatMgr.coloring(c_fault_list, c_tv_list, network._this, c_fault_type, c_new_tv_list)
         return [ to_TestVector(c_tv) for c_tv in c_new_tv_list ]
 
 

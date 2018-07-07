@@ -1,8 +1,8 @@
-#ifndef ISX_H
-#define ISX_H
+#ifndef ISX2_H
+#define ISX2_H
 
-/// @file Isx.h
-/// @brief Isx のヘッダファイル
+/// @file Isx2.h
+/// @brief Isx2 のヘッダファイル
 /// @author Yusuke Matsunaga (松永 裕介)
 ///
 /// Copyright (C) 2018 Yusuke Matsunaga
@@ -17,19 +17,19 @@
 BEGIN_NAMESPACE_YM_SATPG
 
 //////////////////////////////////////////////////////////////////////
-/// @class Isx Isx.h "Isx.h"
+/// @class Isx2 Isx2.h "Isx2.h"
 /// @brief independent set extraction を行うクラス
 //////////////////////////////////////////////////////////////////////
-class Isx
+class Isx2
 {
 public:
 
   /// @brief コンストラクタ
   /// @param[in] graph 対象のグラフ
-  Isx(MpColGraph& graph);
+  Isx2(MpColGraph& graph);
 
   /// @brief デストラクタ
-  ~Isx();
+  ~Isx2();
 
 
 public:
@@ -105,6 +105,10 @@ private:
   // サイズは node_num()
   vector<int> mAdjCount;
 
+  // get_indep_set() で用いる一時的な行の被覆フラグ
+  // サイズは mGraph.fault_num()
+  vector<bool> mCoverFlag;
+
   // 候補ノードの価値
   // サイズは node_num()
   vector<int> mValue;
@@ -122,7 +126,7 @@ private:
 // @brief ランダムに選択する．
 inline
 int
-Isx::random_select(const vector<int>& cand_list)
+Isx2::random_select(const vector<int>& cand_list)
 {
   int n = cand_list.size();
   if ( n == 0 ) {
@@ -134,4 +138,4 @@ Isx::random_select(const vector<int>& cand_list)
 
 END_NAMESPACE_YM_SATPG
 
-#endif // ISX_H
+#endif // ISX2_H

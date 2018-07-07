@@ -14,6 +14,7 @@
 #include "TpgFault.h"
 #include "MpColGraph.h"
 #include "Isx.h"
+#include "Isx2.h"
 #include "ym/MinCov.h"
 #include "ym/UdGraph.h"
 #include "ym/Range.h"
@@ -347,7 +348,10 @@ MinPatMgr::gen_conflict_list2()
 // @param[out] new_tv_list 圧縮結果のテストパタンのリスト
 // @return 結果のパタン数を返す．
 int
-MinPatMgr::coloring(const vector<TestVector>& tv_list,
+MinPatMgr::coloring(const vector<const TpgFault*>& fault_list,
+		    const vector<TestVector>& tv_list,
+		    const TpgNetwork& network,
+		    FaultType fault_type,
 		    vector<TestVector>& new_tv_list)
 {
   new_tv_list.clear();
@@ -359,7 +363,7 @@ MinPatMgr::coloring(const vector<TestVector>& tv_list,
   cout << "*** coloring ***" << endl;
   cout << "# of initial patterns: " << nv << endl;
 
-  MpColGraph graph(tv_list);
+  MpColGraph graph(fault_list, tv_list, network, fault_type);
 
   cout << " MpColGraph generated" << endl;
 
@@ -369,6 +373,8 @@ MinPatMgr::coloring(const vector<TestVector>& tv_list,
   vector<int> color_map;
   int nc = graph.get_color_map(color_map);
   merge_tv_list(tv_list, nc, color_map, new_tv_list);
+
+  cout << "# of reduced patterns: " << nc << endl;
 
   return nc;
 }

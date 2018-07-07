@@ -186,7 +186,7 @@ def main() :
             tv_list1 = coloring(tv_list, 'isx')
             tv_list = tv_list1
         elif cmp_algorithm == 'coloring2' :
-            tv_list1 = MinPatMgr.coloring(tv_list)
+            tv_list1 = MinPatMgr.coloring(dtpg.fault_list, tv_list, network, fault_type)
             tv_list = tv_list1
         elif cmp_algorithm == 'mincov' :
             tv_list1 = mincov(dtpg.fault_list, tv_list, network, fault_type)
@@ -200,14 +200,14 @@ def main() :
         tf = 0
         for i in network.rep_fault_list() :
             tf += 1
-        print('file name:              {}'.format(file_name))
-        print('# of total faults:      {:8d}'.format(tf))
-        print('# of detected faults:   {:8d}'.format(ndet))
-        print('# of untestable faults: {:8d}'.format(nunt))
-        print('# of aborted faults:    {:8d}'.format(nabt))
-        print('# of patterns:          {:8d}'.format(len(tv_list)))
-        print('CPU time(ATPG):         {:8.2f}'.format(cpu_time))
-        print('CPU time(compaction):   {:8.2f}'.format(cpu_time2))
+        print('file name:               {}'.format(file_name))
+        print('# of total faults:       {:8d}'.format(tf))
+        print('# of detected faults:    {:8d}'.format(ndet))
+        print('# of untestable faults:  {:8d}'.format(nunt))
+        print('# of aborted faults:     {:8d}'.format(nabt))
+        print('# of patterns:           {:8d}'.format(len(tv_list)))
+        print('CPU time(ATPG):          {:8.2f}'.format(cpu_time))
+        print('CPU time(compaction):    {:8.2f}'.format(cpu_time2))
 
 
 if __name__ == '__main__' :
