@@ -9,7 +9,6 @@
 /// All rights reserved.
 
 #include "satpg.h"
-#include "ym/HashSet.h"
 
 
 BEGIN_NAMESPACE_YM_SATPG
@@ -18,7 +17,9 @@ BEGIN_NAMESPACE_YM_SATPG
 /// @class MpColGraph MpColGraph.h "MpColGraph.h"
 /// @brief MinPatMgr の coloring 用のグラフを表すクラス
 ///
-/// 隣接ペア(n1, n2)の枝を明示的には持たない．
+/// * 隣接ペア(n1, n2)の枝を明示的には持たない．
+/// * 代わりにテストベクタの各ビットごとに相反するグループのリストを持つ．
+/// * テストベクタ(グラフのノード)は一時的に削除される．
 //////////////////////////////////////////////////////////////////////
 class MpColGraph
 {
@@ -41,10 +42,23 @@ public:
   int
   node_num() const;
 
+  /// @brief node が node_list のノード集合と両立する時 true を返す．
+  /// @param[in] node ノード番号
+  /// @param[in] node_list ノード番号のリスト
+  bool
+  compatible_check(int node,
+		   const vector<int>& node_list) const;
+
   /// @brief node1 の衝突集合が node2 の衝突集合に含まれていたら true を返す．
+  /// @param[in] node1, node2 ノード番号
   bool
   containment_check(int node1,
 		    int node2) const;
+
+  /// @brief ノードを削除する．
+  /// @param[in] node 削除するノード番号
+  void
+  delete_node(int node);
 
   /// @brief 色数を返す．
   int
@@ -108,6 +122,9 @@ private:
   // テストベクタのビット長
   int mVectorSize;
 
+  // ノードの削除フラグ
+  vector<bool> mDeleteFlag;
+
   // 衝突関係にあるノード番号のリストの配列
   // サイズはテストベクタのベクタ長 x 2
   vector<vector<int>> mNodeListArray;
@@ -136,6 +153,17 @@ int
 MpColGraph::node_num() const
 {
   return mNodeNum;
+}
+
+// @brief ノードを削除する．
+// @param[in] node 削除するノード番号
+inline
+void
+MpColGraph::delete_node(int node)
+{
+  ASSERT_COND( node >= 0 && node < node_num() );
+
+  mDeleteFlag[node] = true;
 }
 
 // @brief 色数を返す．

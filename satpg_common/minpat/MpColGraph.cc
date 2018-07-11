@@ -10,7 +10,6 @@
 #include "MpColGraph.h"
 #include "TestVector.h"
 #include "ym/Range.h"
-#include "ym/HashSet.h"
 
 
 BEGIN_NAMESPACE_YM_SATPG
@@ -21,6 +20,7 @@ MpColGraph::MpColGraph(const vector<TestVector>& tv_list) :
   mTvList(tv_list),
   mNodeNum(mTvList.size()),
   mVectorSize(0),
+  mDeleteFlag(mNodeNum, false),
   mOidListArray(mNodeNum),
   mColNum(0),
   mColorMap(mNodeNum, 0)
@@ -74,6 +74,28 @@ MpColGraph::gen_conflict_list()
   }
 }
 
+// @brief node が node_list のノード集合と両立する時 true を返す．
+// @param[in] node ノード番号
+// @param[in] node_list ノード番号のリスト
+bool
+MpColGraph::compatible_check(int node,
+			     const vector<int>& node_list) const
+{
+  vector<bool> mark(mVectorSize * 2, false);
+  for ( auto node1: node_list ) {
+    for ( auto oid1: mOidListArray[node1] ) {
+      mark[oid1] = true;
+    }
+  }
+
+  for ( auto oid: mOidListArray[node] ) {
+    if ( mark[oid ^ 1] ) {
+      return false;
+    }
+  }
+  return true;
+}
+
 // @brief node1 の衝突集合が node2 の衝突集合に含まれていたら true を返す．
 bool
 MpColGraph::containment_check(int node1,
@@ -84,7 +106,7 @@ MpColGraph::containment_check(int node1,
   const vector<int>& src_list1 = mOidListArray[node1];
   const vector<int>& src_list2 = mOidListArray[node2];
   vector<int> tmp_list1; tmp_list1.reserve(src_list1.size());
-  vector<int> tmp_list2; tmp_lsit2.reserve(src_list2.size());
+  vector<int> tmp_list2; tmp_list2.reserve(src_list2.size());
   int rpos1 = 0;
   int rpos2 = 0;
   int n1 = src_list1.size();
@@ -111,10 +133,39 @@ MpColGraph::containment_check(int node1,
   }
   for ( ; rpos2 < n2; ++ rpos2 ) {
     int oid2 = src_list2[rpos2];
-    tmp_lsit2.push_back(oid2);
+    tmp_list2.push_back(oid2);
   }
 
-  // tmp_list1 に含まれる
+  // tmp_list1 に含まれる oid の要素が tmp_list2 に含まれているか調べる．
+  for ( auto oid1: tmp_list1 ) {
+    for ( auto id1: mNodeListArray[oid1] ) {
+      if ( mDeleteFlag[id1] ) {
+	continue;
+      }
+      bool found = false;
+      for ( auto oid2: tmp_list2 ) {
+	for ( auto id2: mNodeListArray[oid2] ) {
+	  if ( id2 == id1 ) {
+	    found = true;
+	    break;
+	  }
+	  if ( id2 > id1 ) {
+	    break;
+	  }
+	}
+	if ( found ) {
+	  break;
+	}
+      }
+      if ( !found ) {
+	// node1 の衝突集合に含まれていて node2 の衝突集合に含まれない
+	// ノードがある．
+	return false;
+      }
+    }
+  }
+
+  return true;
 }
 
 // @brief color_map を作る．
