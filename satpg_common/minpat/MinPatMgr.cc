@@ -14,8 +14,7 @@
 #include "TpgFault.h"
 #include "MpColGraph.h"
 #include "MatrixGen.h"
-#include "ym/MinCov.h"
-#include "ym/UdGraph.h"
+#include "ym/McMatrix.h"
 #include "ym/Range.h"
 #include "ym/StopWatch.h"
 
@@ -53,6 +52,7 @@ merge_tv_list(const vector<TestVector>& tv_list,
 }
 
 END_NONAMESPACE
+
 
 //////////////////////////////////////////////////////////////////////
 // クラス MinPatMgr
