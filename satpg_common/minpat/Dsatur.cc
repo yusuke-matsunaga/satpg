@@ -40,7 +40,7 @@ Dsatur::init()
       if ( c != 0 ) {
 	continue;
       }
-      bool row_num = 0;
+      int row_num = 0;
       for ( auto row_id: mGraph.cover_list(node_id) ) {
 	if ( !mGraph.is_covered(row_id) ) {
 	  ++ row_num;

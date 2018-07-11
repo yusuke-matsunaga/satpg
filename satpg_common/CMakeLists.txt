@@ -103,15 +103,7 @@ set (colcov_SOURCES
 set (minpat_SOURCES
   minpat/MinPatMgr.cc
   minpat/MpColGraph.cc
-  minpat/Dsatur.cc
-  minpat/Isx.cc
-  minpat/Isx2.cc
-  minpat/matrix/MpBlock.cc
-  minpat/matrix/MpColList.cc
-  minpat/matrix/MpHead.cc
-  minpat/matrix/MpHeadList.cc
-  minpat/matrix/MpMatrix.cc
-  minpat/matrix/MpRowList.cc
+  minpat/MatrixGen.cc
   )
 
 set (sa_SOURCES

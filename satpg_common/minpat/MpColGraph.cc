@@ -8,10 +8,7 @@
 
 
 #include "MpColGraph.h"
-#include "TpgNetwork.h"
-#include "TpgFault.h"
 #include "TestVector.h"
-#include "Fsim.h"
 #include "ym/Range.h"
 #include "ym/HashSet.h"
 
@@ -19,141 +16,40 @@
 BEGIN_NAMESPACE_YM_SATPG
 
 // @brief コンストラクタ
-// @param[in] fault_list 故障のリスト
 // @param[in] tv_list テストパタンのリスト
-// @param[in] network ネットワーク
-// @param[in] fault_type 故障の種類
-MpColGraph::MpColGraph(const vector<const TpgFault*>& fault_list,
-		       const vector<TestVector>& tv_list,
-		       const TpgNetwork& network,
-		       FaultType fault_type)
+MpColGraph::MpColGraph(const vector<TestVector>& tv_list) :
+  mTvList(tv_list),
+  mNodeNum(mTvList.size()),
+  mVectorSize(0),
+  mOidListArray(mNodeNum),
+  mColNum(0),
+  mColorMap(mNodeNum, 0)
 {
-  init(fault_list, tv_list, network, fault_type);
+  if ( mNodeNum > 0 ) {
+    TestVector tv0 = mTvList[0];
+    mVectorSize = tv0.vector_size();
+    mNodeListArray.resize(mVectorSize * 2);
+
+    gen_conflict_list();
+  }
 }
 
 // @brief デストラクタ
 MpColGraph::~MpColGraph()
 {
-  delete [] mRowIdMap;
-  delete [] mCoverFlag;
-  delete [] mConflictPairArray;
-  delete [] mAdjListArray;
-  delete [] mCoverListArray;
-  delete [] mColorMap;
-}
-
-// @brief 初期化する
-// @param[in] fault_list 故障のリスト
-// @param[in] tv_list テストパタンのリスト
-// @param[in] network ネットワーク
-// @param[in] fault_type 故障の種類
-void
-MpColGraph::init(const vector<const TpgFault*>& fault_list,
-		 const vector<TestVector>& tv_list,
-		 const TpgNetwork& network,
-		 FaultType fault_type)
-{
-  mFaultNum = fault_list.size();
-  mRowIdMap = new int[network.max_fault_id()];
-  for ( auto fault_id: Range(network.max_fault_id()) ) {
-    mRowIdMap[fault_id] = -1;
-  }
-  mCoverFlag = new bool[mFaultNum];
-  for ( auto row_id: Range(mFaultNum) ) {
-    auto fault = fault_list[row_id];
-    mRowIdMap[fault->id()] = row_id;
-    mCoverFlag[row_id] = false;
-  }
-
-  mColNum = 0;
-  mNodeNum = tv_list.size();
-  if ( mNodeNum == 0 ) {
-    mAdjListArray = nullptr;
-    mCoverListArray = nullptr;
-    mColorMap = nullptr;
-    return;
-  }
-
-  mAdjListArray = new IdList[mNodeNum];
-  mCoverListArray = new IdList[mNodeNum];
-  mColorMap = new int[mNodeNum];
-  for ( auto node_id: Range(mNodeNum) ) {
-    mColorMap[node_id] = 0;
-  }
-
-  gen_cover_list(fault_list, tv_list, network, fault_type);
-  gen_conflict_list(tv_list);
-}
-
-// @brief 被覆リストを作る．
-// @param[in] fault_list 故障のリスト
-// @param[in] tv_list テストパタンのリスト
-/// @param[in] network ネットワーク
-// @param[in] fault_type 故障の種類
-void
-MpColGraph::gen_cover_list(const vector<const TpgFault*>& fault_list,
-			   const vector<TestVector>& tv_list,
-			   const TpgNetwork& network,
-			   FaultType fault_type)
-{
-  Fsim fsim;
-  fsim.init_fsim3(network, fault_type);
-
-  int wpos = 0;
-  fsim.clear_patterns();
-  int tv_base = 0;
-  for ( auto tv: tv_list ) {
-    fsim.set_pattern(wpos, tv);
-    ++ wpos;
-    if ( wpos == kPvBitLen ) {
-      do_fsim(fsim, tv_base, wpos);
-      fsim.clear_patterns();
-      wpos = 0;
-      tv_base += kPvBitLen;
-    }
-  }
-  if ( wpos > 0 ) {
-    do_fsim(fsim, tv_base, wpos);
-  }
-}
-
-// @brief 故障シミュレーションを行う．
-void
-MpColGraph::do_fsim(Fsim& fsim,
-		    int tv_base,
-		    int num)
-{
-  int ndet = fsim.ppsfp();
-  vector<int> det_list[kPvBitLen];
-  for ( auto i: Range(ndet) ) {
-    const TpgFault* fault = fsim.det_fault(i);
-    PackedVal dbits = fsim.det_fault_pat(i);
-    int row_id = mRowIdMap[fault->id()];
-    for ( auto bit: Range(num) ) {
-      if ( dbits & (1UL << bit) ) {
-	int tvid = tv_base + bit;
-	det_list[bit].push_back(row_id);
-      }
-    }
-  }
-  for ( auto bit: Range(num) ) {
-    mCoverListArray[tv_base + bit].init(det_list[bit]);
-  }
 }
 
 // @brief 衝突リストを作る．
-// @param[in] tv_list テストパタンのリスト
 void
-MpColGraph::gen_conflict_list(const vector<TestVector>& tv_list)
+MpColGraph::gen_conflict_list()
 {
-  int vs = tv_list[0].vector_size();
-  vector<vector<int>> conflict_pos_array(mNodeNum);
-  mConflictPairArray = new IdList[vs * 2];
-  for ( auto bit: Range(vs) ) {
-    vector<int> list0;
-    vector<int> list1;
+  for ( auto bit: Range(mVectorSize) ) {
+    int oid0 = bit * 2 + 0;
+    int oid1 = bit * 2 + 1;
+    vector<int>& list0 = mNodeListArray[oid0];
+    vector<int>& list1 = mNodeListArray[oid1];
     for ( auto id: Range(mNodeNum) ) {
-      const TestVector& tv = tv_list[id];
+      const TestVector& tv = mTvList[id];
       Val3 val = tv.val(bit);
       if ( val == Val3::_0 ) {
 	list0.push_back(id);
@@ -162,23 +58,63 @@ MpColGraph::gen_conflict_list(const vector<TestVector>& tv_list)
 	list1.push_back(id);
       }
     }
-    int pos0 = bit * 2 + 0;
-    int pos1 = bit * 2 + 1;
-    mConflictPairArray[pos0].init(list0);
-    mConflictPairArray[pos1].init(list1);
     if ( !list0.empty() && !list1.empty() ) {
       for ( auto id: list0 ) {
-	conflict_pos_array[id].push_back(pos1);
+	mOidListArray[id].push_back(oid1);
       }
       for ( auto id: list1 ) {
-	conflict_pos_array[id].push_back(pos0);
+	mOidListArray[id].push_back(oid0);
       }
     }
   }
 
   for ( auto id: Range(mNodeNum) ) {
-    mAdjListArray[id].init(conflict_pos_array[id]);
+    vector<int>& list = mOidListArray[id];
+    sort(list.begin(), list.end());
   }
+}
+
+// @brief node1 の衝突集合が node2 の衝突集合に含まれていたら true を返す．
+bool
+MpColGraph::containment_check(int node1,
+			      int node2) const
+{
+  // まず mOidListArray[node1] と mOidListArray[node2] を比較する．
+  // 共通に含まれる oid は削除する．
+  const vector<int>& src_list1 = mOidListArray[node1];
+  const vector<int>& src_list2 = mOidListArray[node2];
+  vector<int> tmp_list1; tmp_list1.reserve(src_list1.size());
+  vector<int> tmp_list2; tmp_lsit2.reserve(src_list2.size());
+  int rpos1 = 0;
+  int rpos2 = 0;
+  int n1 = src_list1.size();
+  int n2 = src_list2.size();
+  while ( rpos1 < n1 && rpos2 < n2 ) {
+    int oid1 = src_list1[rpos1];
+    int oid2 = src_list2[rpos2];
+    if ( oid1 < oid2 ) {
+      tmp_list1.push_back(oid1);
+      ++ rpos1;
+    }
+    else if ( oid1 > oid2 ) {
+      tmp_list2.push_back(oid2);
+      ++ rpos2;
+    }
+    else {
+      ++ rpos1;
+      ++ rpos2;
+    }
+  }
+  for ( ; rpos1 < n1; ++ rpos1 ) {
+    int oid1 = src_list1[rpos1];
+    tmp_list1.push_back(oid1);
+  }
+  for ( ; rpos2 < n2; ++ rpos2 ) {
+    int oid2 = src_list2[rpos2];
+    tmp_lsit2.push_back(oid2);
+  }
+
+  // tmp_list1 に含まれる
 }
 
 // @brief color_map を作る．
@@ -191,68 +127,6 @@ MpColGraph::get_color_map(vector<int>& color_map) const
     color_map[node_id] = mColorMap[node_id];
   }
   return color_num();
-}
-
-// @brief すべての行が彩色された列で被覆されているとき true を返す．
-bool
-MpColGraph::is_covered() const
-{
-  vector<bool> mark(fault_num(), false);
-  for ( auto node_id: Range(node_num()) ) {
-    if ( color(node_id) != 0 ) {
-      for ( auto row_id: cover_list(node_id) ) {
-	mark[row_id] = true;
-      }
-    }
-  }
-  for ( auto row_id: Range(fault_num()) ) {
-    if ( !mark[row_id] ) {
-      return false;
-    }
-  }
-
-  return true;
-}
-
-// @brief 隣接しているノード対に同じ色が割り当てられていないか確認する．
-bool
-MpColGraph::verify() const
-{
-  for ( auto node_id: Range(node_num()) ) {
-    int c = color(node_id);
-    if ( c == 0 ) {
-      continue;
-    }
-    for ( auto node1_id: adj_list(node_id) ) {
-      int c1 = color(node1_id);
-      if ( c1 != 0 && c1 == c ) {
-	return false;
-      }
-    }
-  }
-  return true;
-}
-
-MpColGraph::IdList::IdList() :
-  mBody(nullptr),
-  mNum(0)
-{
-}
-
-MpColGraph::IdList::~IdList()
-{
-  delete [] mBody;
-}
-
-void
-MpColGraph::IdList::init(const vector<int>& src_list)
-{
-  delete [] mBody;
-  mNum = src_list.size();
-  mBody = new int[mNum];
-  for ( auto i: Range(mNum) ) {
-    mBody[i] = src_list[i];
-  }
 }
 
 END_NAMESPACE_YM_SATPG

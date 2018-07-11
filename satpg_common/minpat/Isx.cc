@@ -87,7 +87,7 @@ Isx::get_indep_set(vector<int>& indep_set)
 
   indep_set.clear();
   for ( ; ; ) {
-    int node_id = select_node0(tmp_list);
+    int node_id = select_node0();
     if ( node_id == -1 ) {
       break;
     }
@@ -95,7 +95,7 @@ Isx::get_indep_set(vector<int>& indep_set)
     for ( auto row_id: mGraph.cover_list(node_id) ) {
       mGraph.set_covered(row_id);
     }
-    update_cand_list(node_id, tmp_list);
+    update_cand_list(node_id);
   }
   //sort(indep_set.begin(), indep_set.end());
 }
@@ -140,15 +140,15 @@ Isx::init_cand_list()
 // - 現在の候補集合に隣接していないノードの内，隣接ノード数の少ないものを選ぶ．
 // - 追加できるノードがない場合は -1 を返す．
 int
-Isx::select_node(const vector<int>& cand_list)
+Isx::select_node()
 {
-  ASSERT_COND( cand_list.size() > 0 );
+  ASSERT_COND( mCandList.size() > 0 );
 
   vector<int> tmp_list;
-  tmp_list.reserve(cand_list.size());
+  tmp_list.reserve(mCandList.size());
   int min_num = mGraph.node_num();
   int max_num = 0;
-  for ( auto node_id: cand_list ) {
+  for ( auto node_id: mCandList ) {
     int c = mAdjCount[node_id];
     if ( c > min_num ) {
       continue;
@@ -190,12 +190,12 @@ Isx::select_node(const vector<int>& cand_list)
 // - 現在の候補集合に隣接していないノードの内，隣接ノード数の少ないものを選ぶ．
 // - 追加できるノードがない場合は -1 を返す．
 int
-Isx::select_node0(const vector<int>& cand_list)
+Isx::select_node0()
 {
   vector<int> tmp_list;
-  tmp_list.reserve(cand_list.size());
+  tmp_list.reserve(mCandList.size());
   int max_num = 0;
-  for ( auto node_id: cand_list ) {
+  for ( auto node_id: mCandList ) {
     int v = mValue[node_id];
     if ( max_num <= v ) {
       if ( max_num < v ) {
@@ -212,8 +212,7 @@ Isx::select_node0(const vector<int>& cand_list)
 // @brief 候補リストを更新する．
 // @param[in] node_id 新たに加わったノード
 void
-Isx::update_cand_list(int node_id,
-		      vector<int>& cand_list)
+Isx::update_cand_list(int node_id)
 {
   // node_id と隣接するノードの cand_mark をはずす．
   mCandMark[node_id] = false;
@@ -232,7 +231,7 @@ Isx::update_cand_list(int node_id,
     }
   }
 
-  // cand_mark に従って cand_list を更新する．
+  // cand_mark に従って mCandList を更新する．
   int n = mCandList.size();
   int rpos = 0;
   int wpos = 0;

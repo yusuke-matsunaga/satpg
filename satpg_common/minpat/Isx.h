@@ -11,6 +11,7 @@
 
 #include "satpg.h"
 #include "MpColGraph.h"
+#include "ym/McMatrix.h"
 #include "ym/RandGen.h"
 
 

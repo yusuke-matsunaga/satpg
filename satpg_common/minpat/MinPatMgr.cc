@@ -13,8 +13,7 @@
 #include "TpgNetwork.h"
 #include "TpgFault.h"
 #include "MpColGraph.h"
-#include "Isx.h"
-#include "Isx2.h"
+#include "MatrixGen.h"
 #include "ym/MinCov.h"
 #include "ym/UdGraph.h"
 #include "ym/Range.h"
@@ -363,12 +362,17 @@ MinPatMgr::coloring(const vector<const TpgFault*>& fault_list,
   cout << "*** coloring ***" << endl;
   cout << "# of initial patterns: " << nv << endl;
 
-  MpColGraph graph(fault_list, tv_list, network, fault_type);
+  MpColGraph graph(tv_list);
 
   cout << " MpColGraph generated" << endl;
 
-  Isx isx(graph);
-  isx.coloring(500);
+  MatrixGen matgen(fault_list, tv_list, network, fault_type);
+  std::unique_ptr<McMatrix> matrix = matgen.generate();
+
+  cout << " McMatrix generated" << endl;
+
+  //Isx isx(graph);
+  //isx.coloring(500);
 
   vector<int> color_map;
   int nc = graph.get_color_map(color_map);
