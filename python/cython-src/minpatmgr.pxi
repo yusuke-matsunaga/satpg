@@ -16,38 +16,6 @@ from CXX_FaultType cimport FaultType as CXX_FaultType
 cdef class MinPatMgr :
     cdef CXX_MinPatMgr _this
 
-    ### @brief 初期化
-    ### @param[in] fault_list 故障のリスト
-    ### @param[in] tv_list テストパタンのリスト
-    ### @param[in] network 対象のネットワーク
-    ### @param[in] fault_type 故障の種類
-    def __init__(MinPatMgr self, fault_list, tv_list, TpgNetwork network, fault_type) :
-        cdef vector[const CXX_TpgFault*] c_fault_list
-        cdef vector[CXX_TestVector] c_tv_list
-        cdef int nf = len(fault_list)
-        cdef int nv = len(tv_list)
-        cdef CXX_FaultType c_fault_type = from_FaultType(fault_type)
-        cdef TpgFault fault
-        cdef TestVector tv
-        c_fault_list.resize(nf)
-        for i in range(nf) :
-            fault = fault_list[i]
-            c_fault_list[i] = fault._thisptr
-        c_tv_list.resize(nv)
-        for i in range(nv) :
-            tv = tv_list[i]
-            c_tv_list[i] = tv._this
-        self._this.init(c_fault_list, c_tv_list, network._this, c_fault_type)
-
-    ### @brief 問題を解く
-    def solve(MinPatMgr self, algorithm) :
-        cdef string c_algorithm = algorithm.encode('UTF-8')
-        cdef vector[CXX_TestVector] c_tv_list
-        cdef CXX_TestVector c_tv
-        cdef int nc = self._this.solve(c_algorithm, c_tv_list)
-        tv_list = [ to_TestVector(c_tv) for c_tv in c_tv_list ]
-        return nc, tv_list
-
     ### @brief 彩色問題を用いて問題を解く．
     @staticmethod
     def coloring(fault_list, tv_list, TpgNetwork network, fault_type) :

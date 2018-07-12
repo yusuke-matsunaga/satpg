@@ -18,16 +18,6 @@ cdef extern from "MinPatMgr.h" namespace "nsYm::nsSatpg" :
     ### @brief MinPatMgr の cython バージョン
     cdef cppclass MinPatMgr :
         MinPatMgr()
-        void init(const vector[const TpgFault*]& fault_list,
-                  const vector[TestVector]& tv_list,
-                  const TpgNetwork& network,
-                  FaultType fault_type)
-        int fault_num()
-        const TpgFault* fault(int)
-        int orig_tv_num()
-        TestVector orig_tv(int)
-        int solve(const string& algorithm,
-                  vector[TestVector]& new_tv_list)
         @staticmethod
         int coloring(const vector[const TpgFault*]& fault_list,
                      const vector[TestVector]& tv_list,

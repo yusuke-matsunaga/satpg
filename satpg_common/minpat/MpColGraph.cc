@@ -9,6 +9,7 @@
 
 #include "MpColGraph.h"
 #include "TestVector.h"
+#include "ym/HashSet.h"
 #include "ym/Range.h"
 
 
@@ -20,10 +21,10 @@ MpColGraph::MpColGraph(const vector<TestVector>& tv_list) :
   mTvList(tv_list),
   mNodeNum(mTvList.size()),
   mVectorSize(0),
-  mDeleteFlag(mNodeNum, false),
   mOidListArray(mNodeNum),
   mColNum(0),
-  mColorMap(mNodeNum, 0)
+  mColorMap(mNodeNum, 0),
+  mTmpMark(mNodeNum, 0)
 {
   if ( mNodeNum > 0 ) {
     TestVector tv0 = mTvList[0];
@@ -31,6 +32,8 @@ MpColGraph::MpColGraph(const vector<TestVector>& tv_list) :
     mNodeListArray.resize(mVectorSize * 2);
 
     gen_conflict_list();
+
+    mTmpList.reserve(mNodeNum);
   }
 }
 
@@ -71,6 +74,33 @@ MpColGraph::gen_conflict_list()
   for ( auto id: Range(mNodeNum) ) {
     vector<int>& list = mOidListArray[id];
     sort(list.begin(), list.end());
+  }
+}
+
+// @brief ノードを削除する．
+// @param[in] node 削除するノード番号
+void
+MpColGraph::delete_node(int node)
+{
+  ASSERT_COND( node >= 0 && node < node_num() );
+
+  for ( auto oid: mOidListArray[node] ) {
+    vector<int>& list = mNodeListArray[oid ^ 1];
+    // list から node を削除する．
+    int rpos = 0;
+    int n = list.size();
+    for ( ; rpos < n; ++ rpos ) {
+      if ( list[rpos] == node ) {
+	break;
+      }
+    }
+    ASSERT_COND( rpos < n );
+
+    int wpos = rpos;
+    for ( ++ rpos; rpos < n; ++ rpos, ++ wpos ) {
+      list[wpos] = list[rpos];
+    }
+    list.erase(list.end() - 1, list.end());
   }
 }
 
@@ -135,13 +165,9 @@ MpColGraph::containment_check(int node1,
     int oid2 = src_list2[rpos2];
     tmp_list2.push_back(oid2);
   }
-
   // tmp_list1 に含まれる oid の要素が tmp_list2 に含まれているか調べる．
   for ( auto oid1: tmp_list1 ) {
     for ( auto id1: mNodeListArray[oid1] ) {
-      if ( mDeleteFlag[id1] ) {
-	continue;
-      }
       bool found = false;
       for ( auto oid2: tmp_list2 ) {
 	for ( auto id2: mNodeListArray[oid2] ) {
@@ -166,6 +192,31 @@ MpColGraph::containment_check(int node1,
   }
 
   return true;
+}
+
+// @brief ノードの衝突数を返す．
+// @param[in] node ノード番号
+//
+// 削除されたノードはカウントしない．
+int
+MpColGraph::conflict_num(int node) const
+{
+  for ( auto oid: mOidListArray[node] ) {
+    for ( auto id: mNodeListArray[oid] ) {
+      if ( mTmpMark[id] == 0 ) {
+	mTmpMark[id] = 1;
+	mTmpList.push_back(id);
+      }
+    }
+  }
+  for ( auto id: mTmpList ) {
+    mTmpMark[id] = 0;
+  }
+
+  int n = mTmpList.size();
+  mTmpList.clear();
+
+  return n;
 }
 
 // @brief color_map を作る．

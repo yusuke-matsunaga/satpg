@@ -42,6 +42,12 @@ public:
   int
   node_num() const;
 
+  /// @brief node1 と node2 が両立する時 true を返す．
+  /// @param[in] node1, nod2 ノード番号
+  bool
+  compatible_check(int node1,
+		   int node2) const;
+
   /// @brief node が node_list のノード集合と両立する時 true を返す．
   /// @param[in] node ノード番号
   /// @param[in] node_list ノード番号のリスト
@@ -54,6 +60,13 @@ public:
   bool
   containment_check(int node1,
 		    int node2) const;
+
+  /// @brief ノードの衝突数を返す．
+  /// @param[in] node ノード番号
+  ///
+  /// 削除されたノードはカウントしない．
+  int
+  conflict_num(int node) const;
 
   /// @brief ノードを削除する．
   /// @param[in] node 削除するノード番号
@@ -122,9 +135,6 @@ private:
   // テストベクタのビット長
   int mVectorSize;
 
-  // ノードの削除フラグ
-  vector<bool> mDeleteFlag;
-
   // 衝突関係にあるノード番号のリストの配列
   // サイズはテストベクタのベクタ長 x 2
   vector<vector<int>> mNodeListArray;
@@ -139,6 +149,15 @@ private:
   // 彩色結果の配列
   // サイズは mNodeNum
   vector<int> mColorMap;
+
+  // 作業用に用いる配列
+  // サイズは mNodeNum;
+  mutable
+  vector<int> mTmpMark;
+
+  // 作業用に用いるリスト
+  mutable
+  vector<int> mTmpList;
 
 };
 
@@ -155,15 +174,14 @@ MpColGraph::node_num() const
   return mNodeNum;
 }
 
-// @brief ノードを削除する．
-// @param[in] node 削除するノード番号
+// @brief node1 と node2 が両立する時 true を返す．
+// @param[in] node1, nod2 ノード番号
 inline
-void
-MpColGraph::delete_node(int node)
+bool
+MpColGraph::compatible_check(int node1,
+			     int node2) const
 {
-  ASSERT_COND( node >= 0 && node < node_num() );
-
-  mDeleteFlag[node] = true;
+  return compatible_check(node1, vector<int>(1, node2));
 }
 
 // @brief 色数を返す．
@@ -206,6 +224,8 @@ MpColGraph::set_color(int node_id,
   ASSERT_COND( color >= 1 && color <= color_num() );
 
   mColorMap[node_id] = color;
+
+  delete_node(node_id);
 }
 
 // @brief ノードの集合を色をつける．
