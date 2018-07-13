@@ -251,12 +251,14 @@ protected:
 	     bool val);
 
   /// @brief 一つの SAT問題を解く．
-  /// @param[in] fault 対象の故障
   /// @param[in] assumptions 値の決まっている変数のリスト
+  /// @param[out] model SAT モデル
   /// @return 結果を返す．
-  DtpgResult
-  solve(const TpgFault* fault,
-	const vector<SatLiteral>& assumptions);
+  ///
+  /// mSolver.solve() を呼び出すだけだが統計情報の更新を行っている．
+  SatBool3
+  solve(const vector<SatLiteral>& assumptions,
+	vector<SatBool3>& model);
 
 
 private:

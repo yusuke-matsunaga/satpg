@@ -29,15 +29,20 @@ class DtpgResult
 {
 public:
 
-  /// @brief 空のコンストラクタ
-  ///
-  /// FaultStatus::Undetected となる．
-  DtpgResult();
-
   /// @brief FaultStatus::Untestable の結果を生成するクラスメソッド
   static
   DtpgResult
   make_untestable();
+
+  /// @brief FaultStatus::Undetected の結果を生成するクラスメソッド
+  static
+  DtpgResult
+  make_undetected();
+
+  /// @brief 空のコンストラクタ
+  ///
+  /// FaultStatus::Undetected となる．
+  DtpgResult();
 
   /// @brief テストベクタを指定したコンストラクタ
   /// @param[in] testvect テストベクタ
@@ -101,13 +106,12 @@ private:
 // インライン関数の定義
 //////////////////////////////////////////////////////////////////////
 
-// @brief 空のコンストラクタ
-//
-// FaultStatus::Undetected
+// @brief FaultStatus::Undetected の結果を生成するクラスメソッド
 inline
-DtpgResult::DtpgResult() :
-  mStatus(FaultStatus::Undetected)
+DtpgResult
+DtpgResult::make_undetected()
 {
+  return DtpgResult();
 }
 
 // @brief FaultStatus::Untestable の結果を生成するクラスメソッド
@@ -116,6 +120,15 @@ DtpgResult
 DtpgResult::make_untestable()
 {
   return DtpgResult(0);
+}
+
+// @brief 空のコンストラクタ
+//
+// FaultStatus::Undetected
+inline
+DtpgResult::DtpgResult() :
+  mStatus(FaultStatus::Undetected)
+{
 }
 
 // @brief SatBool3::False を設定するコンストラクタ

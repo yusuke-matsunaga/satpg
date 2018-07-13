@@ -219,7 +219,48 @@ DtpgEngine::gen_pattern(const TpgFault* fault)
     }
   }
 
-  return solve(fault, assumptions);
+  // FFR 内の故障伝搬条件を assign_list に入れる．
+  NodeValList ffr_cond = make_ffr_condition(fault);
+
+  // ffr_cond の内容と assumptions に追加する．
+  int n0 = assumptions.size();
+  int n = ffr_cond.size();
+  assumptions.reserve(n + n0);
+  for ( auto nv: ffr_cond ) {
+    const TpgNode* node = nv.node();
+    bool inv = !nv.val();
+    SatVarId vid = (nv.time() == 0) ? hvar(node) : gvar(node);
+    assumptions.push_back(SatLiteral(vid, inv));
+  }
+
+  vector<SatBool3> model;
+  SatBool3 sat_res = solve(assumptions, model);
+  if ( sat_res == SatBool3::True ) {
+    StopWatch timer;
+    timer.start();
+
+    // バックトレースを行う．
+    const TpgNode* ffr_root = fault->tpg_onode()->ffr_root();
+    NodeValList assign_list2 = extract(ffr_root, mGvarMap, mFvarMap, model);
+    assign_list2.merge(ffr_cond);
+    TestVector testvect;
+    if ( mFaultType == FaultType::TransitionDelay ) {
+      testvect = mJustifier(assign_list2, mHvarMap, mGvarMap, model);
+    }
+    else {
+      testvect = mJustifier(assign_list2, mGvarMap, model);
+    }
+
+    timer.stop();
+    mStats.mBackTraceTime += timer.time();
+    return DtpgResult(testvect);
+  }
+  else if ( sat_res == SatBool3::False ) {
+    return DtpgResult::make_untestable();
+  }
+  else { // sat_res == SatBool3::X
+    return DtpgResult::make_undetected();
+  }
 }
 
 // @brief タイマーをスタートする．
@@ -426,7 +467,7 @@ DtpgEngine::gen_cnf_base()
 
 
   //////////////////////////////////////////////////////////////////////
-  // 故障の検出条件
+  // 故障の検出条件(正確には mRoot から外部出力までの故障の伝搬条件)
   //////////////////////////////////////////////////////////////////////
   int no = mOutputList.size();
   vector<SatLiteral> odiff(no);
@@ -728,14 +769,12 @@ DtpgEngine::add_assign(NodeValList& assign_list,
 }
 
 // @brief 一つの SAT問題を解く．
-// @param[in] fault 対象の故障
 // @param[in] assumptions 値の決まっている変数のリスト
-// @param[out] testvect テストパタンを格納する変数
-// @param[inout] stats DTPGの統計情報
+// @param[out] model SAT モデル
 // @return 結果を返す．
-DtpgResult
-DtpgEngine::solve(const TpgFault* fault,
-		  const vector<SatLiteral>& assumptions)
+SatBool3
+DtpgEngine::solve(const vector<SatLiteral>& assumptions,
+		  vector<SatBool3>& model)
 {
   StopWatch timer;
   timer.start();
@@ -743,26 +782,7 @@ DtpgEngine::solve(const TpgFault* fault,
   SatStats prev_stats;
   mSolver.get_stats(prev_stats);
 
-  // FFR 内の故障伝搬条件を assign_list に入れる．
-  NodeValList assign_list = make_ffr_condition(fault);
-
-  // assign_list の内容と assumptions を足したものを assumptions1 に入れる．
-  vector<SatLiteral> assumptions1;
-  int n0 = assumptions.size();
-  int n = assign_list.size();
-  assumptions1.reserve(n + n0);
-  for ( auto nv: assign_list ) {
-    const TpgNode* node = nv.node();
-    bool inv = !nv.val();
-    SatVarId vid = (nv.time() == 0) ? hvar(node) : gvar(node);
-    assumptions1.push_back(SatLiteral(vid, inv));
-  }
-  for ( auto lit: assumptions ) {
-    assumptions1.push_back(lit);
-  }
-
-  vector<SatBool3> model;
-  SatBool3 ans = mSolver.solve(assumptions1, model);
+  SatBool3 ans = mSolver.solve(assumptions, model);
 
   timer.stop();
   USTime time = timer.time();
@@ -773,38 +793,18 @@ DtpgEngine::solve(const TpgFault* fault,
 
   if ( ans == SatBool3::True ) {
     // パタンが求まった．
-
-    timer.reset();
-    timer.start();
-
-    // バックトレースを行う．
-    const TpgNode* ffr_root = fault->tpg_onode()->ffr_root();
-    NodeValList assign_list2 = extract(ffr_root, mGvarMap, mFvarMap, model);
-    assign_list2.merge(assign_list);
-    TestVector testvect;
-    if ( mFaultType == FaultType::TransitionDelay ) {
-      testvect = mJustifier(assign_list2, mHvarMap, mGvarMap, model);
-    }
-    else {
-      testvect = mJustifier(assign_list2, mGvarMap, model);
-    }
-
-    timer.stop();
-    mStats.mBackTraceTime += timer.time();
     mStats.update_det(sat_stats, time);
-
-    return DtpgResult(testvect);
   }
   else if ( ans == SatBool3::False ) {
     // 検出不能と判定された．
     mStats.update_red(sat_stats, time);
-    return DtpgResult::make_untestable();
   }
   else {
     // ans == SatBool3::X つまりアボート
     mStats.update_abort(sat_stats, time);
-    return DtpgResult();
   }
+
+  return ans;
 }
 
 END_NAMESPACE_YM_SATPG
