@@ -60,6 +60,131 @@ MpComp::operator()(int col1,
   return ans;
 }
 
+int
+select_Naive(const McMatrix& matrix,
+	     const MpColGraph& graph)
+{
+  // matrix のアクティブな列から要素数の最も多い列を選ぶ．
+  int max_n = 0;
+  int min_c = matrix.col_size() + 1;
+  int max_col = -1;
+  for ( auto col: matrix.col_head_list() ) {
+    int n = matrix.col_elem_num(col);
+    if ( max_n < n ) {
+      max_n = n;
+      min_c = graph.conflict_num(col);
+      max_col = col;
+    }
+    else if ( max_n == n ) {
+      int c = graph.conflict_num(col);
+      if ( min_c > c ) {
+	min_c = c;
+	max_col = col;
+      }
+    }
+  }
+  return max_col;
+}
+
+int
+select_Simple(const McMatrix& matrix)
+{
+  // 各行にカバーしている列数に応じた重みをつけ，
+  // その重みの和が最大となる列を選ぶ．
+  double max_weight = 0.0;
+  int max_col = 0;
+  for ( auto col_pos: matrix.col_head_list() ) {
+    double weight = 0.0;
+    for ( auto row_pos: matrix.col_list(col_pos) ) {
+      double num = matrix.row_elem_num(row_pos);
+      weight += (1.0 / (num - 1.0));
+    }
+    weight /= matrix.col_cost(col_pos);
+
+    if ( max_weight < weight ) {
+      max_weight = weight;
+      max_col = col_pos;
+    }
+  }
+  return max_col;
+}
+
+int
+select_CS(const McMatrix& matrix)
+{
+  // 各行にカバーしている列数に応じた重みをつけ，
+  // その重みの和が最大となる列を選ぶ．
+  int nr = matrix.row_size();
+  vector<double> row_weights(nr);
+  for ( auto row_pos: matrix.row_head_list() ) {
+    double min_cost = DBL_MAX;
+    for ( auto col_pos: matrix.row_list(row_pos) ) {
+      double col_cost = static_cast<double>(matrix.col_cost(col_pos)) / matrix.col_elem_num(col_pos);
+      if ( min_cost > col_cost ) {
+	min_cost = col_cost;
+      }
+    }
+    row_weights[row_pos] = min_cost;
+  }
+
+  double min_delta = DBL_MAX;
+  int min_col = 0;
+
+  for ( auto col_pos: matrix.col_head_list() ) {
+    double col_cost = matrix.col_cost(col_pos);
+
+    vector<int> col_delta(matrix.col_size(), 0);
+    vector<int> col_list;
+    for ( auto row_pos: matrix.col_list(col_pos) ) {
+      for ( auto col_pos1: matrix.row_list(row_pos) ) {
+	if ( col_delta[col_pos1] == 0 ) {
+	  col_list.push_back(col_pos1);
+	}
+	++ col_delta[col_pos1];
+      }
+    }
+
+    vector<bool> row_mark(matrix.row_size(), false);
+    vector<int> row_list;
+    for ( auto col_pos1: col_list ) {
+      double cost1 = matrix.col_cost(col_pos1);
+      int num = matrix.col_elem_num(col_pos1);
+      cost1 /= num;
+      for ( auto row_pos: matrix.col_list(col_pos) ) {
+	if ( row_weights[row_pos] < cost1 ) {
+	  continue;
+	}
+	if ( row_mark[row_pos] ) {
+	  continue;
+	}
+	row_mark[row_pos] = true;
+	row_list.push_back(row_pos);
+      }
+    }
+
+    double delta_sum = 0.0;
+    for ( auto row_pos: row_list ) {
+      double min_weight = DBL_MAX;
+      for ( auto col_pos1: matrix.row_list(row_pos) ) {
+	double n = matrix.col_elem_num(col_pos1) - col_delta[col_pos1];
+	double cost1 = matrix.col_cost(col_pos1) / n;
+	if ( min_weight > cost1 ) {
+	  min_weight = cost1;
+	}
+      }
+      double delta = min_weight - row_weights[row_pos];
+      delta_sum += delta;
+    }
+
+    //cout << "Col#" << col->pos() << ": " << delta_sum << endl;
+    if ( min_delta > delta_sum ) {
+      min_delta = delta_sum;
+      min_col = col_pos;
+    }
+  }
+  return min_col;
+}
+
 END_NONAMESPACE
 
 
@@ -166,7 +291,7 @@ MinPatMgr::coloring(const vector<const TpgFault*>& fault_list,
     for ( auto col: node_list ) {
       if ( !matrix->col_deleted(col) ) {
 	matrix->select_col(col);
-	changed = true;
+	//changed = true;
       }
     }
     {
@@ -204,6 +329,20 @@ MinPatMgr::coloring(const vector<const TpgFault*>& fault_list,
   return nc;
 }
 
+int
+conflict_num(const MpColGraph& graph,
+	     int id,
+	     const vector<int>& cand_list)
+{
+  int n = 0;
+  for ( auto id1: cand_list ) {
+    if ( !graph.compatible_check(id, id1) ) {
+      ++ n;
+    }
+  }
+  return n;
+}
+
 // @brief 両立集合を取り出す．
 // @param[in] graph 衝突グラフ
 // @param[in] matrix 被覆行列
@@ -221,25 +360,11 @@ MinPatMgr::get_compatible_nodes(const MpColGraph& graph,
   vector<bool> row_mark(matrix.row_size(), false);
   node_list.clear();
   if ( selected_nodes.empty() ) {
-    // matrix のアクティブな列から要素数の最も多い列を選ぶ．
-    int max_n = 0;
-    int min_c = graph.node_num() + 1;
-    int max_col = -1;
-    for ( auto col: matrix.col_head_list() ) {
-      int n = matrix.col_elem_num(col);
-      if ( max_n < n ) {
-	max_n = n;
-	min_c = graph.conflict_num(col);
-	max_col = col;
-      }
-      else if ( max_n == n ) {
-	int c = graph.conflict_num(col);
-	if ( min_c > c ) {
-	  min_c = c;
-	  max_col = col;
-	}
-      }
-    }
+#if 0
+    int max_col = select_Naive(matrix, graph);
+#else
+    int max_col = select_Simple(matrix);
+#endif
     node_list.push_back(max_col);
     col_mark[max_col] = true;
     for ( auto row: matrix.col_list(max_col) ) {
@@ -274,7 +399,7 @@ MinPatMgr::get_compatible_nodes(const MpColGraph& graph,
       int min_c = graph.node_num() + 1;
       int min_id = -1;
       for ( auto id: cand_list ) {
-	int c = graph.conflict_num(id);
+	int c = conflict_num(graph, id, cand_list);
 	if ( min_c > c ) {
 	  min_c = c;
 	  min_id = id;
