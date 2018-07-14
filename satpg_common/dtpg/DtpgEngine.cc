@@ -172,7 +172,7 @@ DtpgEngine::gen_pattern(const TpgFault* fault)
     if ( ffr_num > 1 ) {
       // FFR の根の出力に故障を挿入する．
       assumptions.reserve(ffr_num);
-      for ( int i = 0; i < ffr_num; ++ i ) {
+      for ( auto i: Range(ffr_num) ) {
 	SatVarId evar = mElemVarArray[i];
 	bool inv = (i != ffr_id);
 	assumptions.push_back(SatLiteral(evar, inv));
@@ -180,10 +180,10 @@ DtpgEngine::gen_pattern(const TpgFault* fault)
     }
   }
 
-  // FFR 内の故障伝搬条件を assign_list に入れる．
+  // FFR 内の故障伝搬条件を ffr_cond に入れる．
   NodeValList ffr_cond = make_ffr_condition(fault);
 
-  // ffr_cond の内容と assumptions に追加する．
+  // ffr_cond の内容を assumptions に追加する．
   int n0 = assumptions.size();
   int n = ffr_cond.size();
   assumptions.reserve(n + n0);
@@ -201,15 +201,14 @@ DtpgEngine::gen_pattern(const TpgFault* fault)
     timer.start();
 
     // バックトレースを行う．
-    const TpgNode* ffr_root = fault->tpg_onode()->ffr_root();
-    NodeValList assign_list2 = extract(ffr_root, mGvarMap, mFvarMap, model);
-    assign_list2.merge(ffr_cond);
+    NodeValList assign_list = extract(ffr_root, mGvarMap, mFvarMap, model);
+    assign_list.merge(ffr_cond);
     TestVector testvect;
     if ( mFaultType == FaultType::TransitionDelay ) {
-      testvect = mJustifier(assign_list2, mHvarMap, mGvarMap, model);
+      testvect = mJustifier(assign_list, mHvarMap, mGvarMap, model);
     }
     else {
-      testvect = mJustifier(assign_list2, mGvarMap, model);
+      testvect = mJustifier(assign_list, mGvarMap, model);
     }
 
     timer.stop();
