@@ -7,7 +7,7 @@
 ### Copyright (C) 2018 Yusuke Matsunaga
 ### All rights reserved.
 
-from satpg_core import DtpgEngine, DtpgEngineMFFC
+from satpg_core import DtpgFFR, DtpgMFFC
 from satpg_core import Fsim
 from satpg_core import FaultStatus, FaultStatusMgr
 from satpg_core import TestVector
@@ -34,7 +34,7 @@ class Dtpg :
         self.__nabt = 0
         self.__fault_drop = drop
         for ffr in self.__network.ffr_list() :
-            dtpg = DtpgEngine(self.__network, self.__fault_type, ffr)
+            dtpg = DtpgFFR(self.__network, self.__fault_type, ffr)
             for fault in ffr.fault_list() :
                 if self.__fsmgr.get(fault) == FaultStatus.Undetected :
                     self.__call_dtpg(dtpg, fault)
@@ -47,7 +47,7 @@ class Dtpg :
         self.__nabt = 0
         self.__fault_drop = drop
         for mffc in self.__network.mffc_list() :
-            dtpg = DtpgEngineMFFC(self.__network, self.__fault_type, mffc)
+            dtpg = DtpgMFFC(self.__network, self.__fault_type, mffc)
             for fault in mffc.fault_list() :
                 if self.__fsmgr.get(fault) == FaultStatus.Undetected :
                     self.__call_dtpg(dtpg, fault)

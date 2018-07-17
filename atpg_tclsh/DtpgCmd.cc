@@ -17,7 +17,8 @@
 #include "FaultStatusMgr.h"
 #include "DtpgStats.h"
 #include "Dtpg_se.h"
-#include "DtpgEngine.h"
+#include "DtpgFFR.h"
+#include "DtpgMFFC.h"
 #include "Fsim.h"
 #include "TestVector.h"
 #include "DetectOp.h"
@@ -43,7 +44,7 @@ run_ffr_new(const string& sat_type,
 {
   int nffr = network.ffr_num();
   for ( auto& ffr: network.ffr_list() ) {
-    DtpgEngine dtpg(sat_type, sat_option, sat_outp, fault_type, just_type, network, ffr);
+    DtpgFFR dtpg(sat_type, sat_option, sat_outp, fault_type, just_type, network, ffr);
     for ( auto fault: ffr.fault_list() ) {
       if ( fmgr.get(fault) == FaultStatus::Undetected ) {
 	DtpgResult result = dtpg.gen_pattern(fault);
@@ -73,7 +74,7 @@ run_mffc_new(const string& sat_type,
 {
   int n = network.mffc_num();
   for ( auto& mffc: network.mffc_list() ) {
-    DtpgEngine dtpg(sat_type, sat_option, sat_outp, fault_type, just_type, network, mffc);
+    DtpgMFFC dtpg(sat_type, sat_option, sat_outp, fault_type, just_type, network, mffc);
     for ( auto fault: mffc.fault_list() ) {
       if ( fmgr.get(fault) == FaultStatus::Undetected ) {
 	// 故障に対するテスト生成を行なう．

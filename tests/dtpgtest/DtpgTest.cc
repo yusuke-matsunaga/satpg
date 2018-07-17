@@ -9,7 +9,8 @@
 
 #include "DtpgTest.h"
 #include "Dtpg_se.h"
-#include "DtpgEngine.h"
+#include "DtpgFFR.h"
+#include "DtpgMFFC.h"
 
 #include "TpgMFFC.h"
 #include "TpgFFR.h"
@@ -148,7 +149,7 @@ DtpgTest::ffr_new_test()
   mDetectNum = 0;
   mUntestNum = 0;
   for ( auto& ffr: mNetwork.ffr_list() ) {
-    DtpgEngine dtpg(mSatType, mSatOption, mSatOutP, mFaultType, mJustType, mNetwork, ffr);
+    DtpgFFR dtpg(mSatType, mSatOption, mSatOutP, mFaultType, mJustType, mNetwork, ffr);
     for ( auto fault: ffr.fault_list() ) {
       if ( mFaultMgr.get(fault) == FaultStatus::Undetected ) {
 	DtpgResult result = dtpg.gen_pattern(fault);
@@ -185,7 +186,7 @@ DtpgTest::mffc_new_test()
   mDetectNum = 0;
   mUntestNum = 0;
   for ( auto& mffc: mNetwork.mffc_list() ) {
-    DtpgEngine dtpg(mSatType, mSatOption, mSatOutP, mFaultType, mJustType, mNetwork, mffc);
+    DtpgMFFC dtpg(mSatType, mSatOption, mSatOutP, mFaultType, mJustType, mNetwork, mffc);
     for ( auto fault: mffc.fault_list() ) {
       if ( mFaultMgr.get(fault) == FaultStatus::Undetected ) {
 	// 故障に対するテスト生成を行なう．

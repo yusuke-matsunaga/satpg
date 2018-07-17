@@ -23,9 +23,7 @@
 #include "ym/SatBool3.h"
 #include "ym/SatLiteral.h"
 #include "ym/SatSolver.h"
-#include "ym/SatStats.h"
 #include "ym/StopWatch.h"
-#include "ym/HashMap.h"
 
 #include "VidMap.h"
 
@@ -34,29 +32,13 @@ BEGIN_NAMESPACE_YM_SATPG
 
 //////////////////////////////////////////////////////////////////////
 /// @class DtpgEngine DtpgEngine.h "DtpgEngine.h"
-/// @brief Dtpg 基本的な処理を行うクラス
+/// @brief DTPG の基本的な処理を行うクラス
 //////////////////////////////////////////////////////////////////////
 class DtpgEngine
 {
 public:
 
-  /// @brief コンストラクタ(FFRモード)
-  /// @param[in] sat_type SATソルバの種類を表す文字列
-  /// @param[in] sat_option SATソルバに渡すオプション文字列
-  /// @param[in] sat_outp SATソルバ用の出力ストリーム
-  /// @param[in] fault_type 故障の種類
-  /// @param[in] just_type Justifier の種類を表す文字列
-  /// @param[in] network 対象のネットワーク
-  /// @param[in] ffr 故障伝搬の起点となる FFR
-  DtpgEngine(const string& sat_type,
-	     const string& sat_option,
-	     ostream* sat_outp,
-	     FaultType fault_type,
-	     const string& just_type,
-	     const TpgNetwork& network,
-	     const TpgFFR& ffr);
-
-  /// @brief コンストラクタ(MFFCモード)
+  /// @brief コンストラクタ
   /// @param[in] sat_type SATソルバの種類を表す文字列
   /// @param[in] sat_option SATソルバに渡すオプション文字列
   /// @param[in] sat_outp SATソルバ用の出力ストリーム
@@ -70,7 +52,7 @@ public:
 	     FaultType fault_type,
 	     const string& just_type,
 	     const TpgNetwork& network,
-	     const TpgMFFC& mffc);
+	     const TpgNode* root);
 
   /// @brief デストラクタ
   ~DtpgEngine();
@@ -81,15 +63,25 @@ public:
   // 外部インターフェイス
   //////////////////////////////////////////////////////////////////////
 
-  /// @brief テスト生成を行なう．
-  /// @param[in] fault 対象の故障
-  /// @return 結果を返す．
-  DtpgResult
-  gen_pattern(const TpgFault* fault);
-
   /// @brief 統計情報を得る．
   const DtpgStats&
   stats() const;
+
+  /// @brief 故障の影響がFFRの根のノードまで伝搬する条件を作る．
+  /// @param[in] fault 対象の故障
+  /// @param[out] assign_list 結果の値割り当てリスト
+  NodeValList
+  make_ffr_condition(const TpgFault* fault);
+
+  /// @brief 一つの SAT問題を解く．
+  /// @param[in] assumptions 値の決まっている変数のリスト
+  /// @param[out] model SAT モデル
+  /// @return 結果を返す．
+  ///
+  /// mSolver.solve() を呼び出すだけだが統計情報の更新を行っている．
+  SatBool3
+  solve(const vector<SatLiteral>& assumptions,
+	vector<SatBool3>& model);
 
 
 protected:
@@ -120,6 +112,23 @@ protected:
   /// @brief 時間計測を終了する．
   USTime
   timer_stop();
+
+  /// @brief バックトレースを行う．
+  /// @param[in] ffr_root 故障のある FFR の根のノード
+  /// @param[in] ffr_cond FFR 内の故障伝搬条件
+  /// @param[in] model SATの解
+  /// @return テストパタンを返す．
+  TestVector
+  backtrace(const TpgNode* ffr_root,
+	    const NodeValList& ffr_cond,
+	    const vector<SatBool3>& model);
+
+  /// @brief 値割り当てをリテラルのリストに変換する．
+  /// @param[in] assign_list 値の割り当てリスト
+  /// @param[out] assumptions 変換したリテラルを追加するリスト
+  void
+  conv_to_assumptions(const NodeValList& assign_list,
+		      vector<SatLiteral>& assumptions);
 
   /// @brief SATソルバを返す．
   SatSolver&
@@ -201,27 +210,10 @@ protected:
   void
   gen_cnf_base();
 
-  /// @brief mffc 内の影響が root まで伝搬する条件のCNF式を作る．
-  void
-  gen_cnf_mffc();
-
   /// @brief 故障伝搬条件を表すCNF式を生成する．
   /// @param[in] node 対象のノード
   void
   make_dchain_cnf(const TpgNode* node);
-
-  /// @brief 故障挿入回路のCNFを作る．
-  /// @param[in] elem_pos 要素番号
-  /// @param[in] ovar ゲートの出力の変数
-  void
-  inject_fault(int elem_pos,
-	       SatVarId ovar);
-
-  /// @brief 故障の影響がFFRの根のノードまで伝搬する条件を作る．
-  /// @param[in] fault 対象の故障
-  /// @param[out] assign_list 結果の値割り当てリスト
-  NodeValList
-  make_ffr_condition(const TpgFault* fault);
 
   /// @brief NodeValList に追加する．
   /// @param[in] assign_list 追加するリスト
@@ -233,16 +225,6 @@ protected:
 	     const TpgNode* node,
 	     int time,
 	     bool val);
-
-  /// @brief 一つの SAT問題を解く．
-  /// @param[in] assumptions 値の決まっている変数のリスト
-  /// @param[out] model SAT モデル
-  /// @return 結果を返す．
-  ///
-  /// mSolver.solve() を呼び出すだけだが統計情報の更新を行っている．
-  SatBool3
-  solve(const vector<SatLiteral>& assumptions,
-	vector<SatBool3>& model);
 
 
 private:
@@ -312,17 +294,6 @@ private:
   // 作業用のマークを入れておく配列
   // サイズは mMaxNodeId
   vector<ymuint8> mMarkArray;
-
-  // FFR の根のリスト
-  // [0] は MFFC の根でもある．
-  vector<const TpgNode*> mElemArray;
-
-  // 各FFRの根に反転イベントを挿入するための変数
-  // サイズは mElemArray.size()
-  vector<SatVarId> mElemVarArray;
-
-  // ノード番号をキーにしてFFR番号を入れる連想配列
-  HashMap<int, int> mElemPosMap;
 
   // 1時刻前の正常値を表す変数のマップ
   VidMap mHvarMap;

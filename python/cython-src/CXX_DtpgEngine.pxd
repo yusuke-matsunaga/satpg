@@ -21,13 +21,21 @@ from CXX_DtpgStats cimport DtpgStats
 from CXX_SatBool3 cimport SatBool3
 from CXX_TestVector cimport TestVector
 
-cdef extern from "DtpgEngine.h" namespace "nsYm::nsSatpg" :
+cdef extern from "DtpgFFR.h" namespace "nsYm::nsSatpg" :
 
-    ## @brief DtpgEngine の Cython バージョン
-    cdef cppclass DtpgEngine :
-        DtpgEngine(const string&, const string&, ostream*, FaultType, const string&,
-                   const TpgNetwork&, const TpgFFR&)
-        DtpgEngine(const string&, const string&, ostream*, FaultType, const string&,
-                   const TpgNetwork&, const TpgMFFC&)
+    ## @brief DtpgFFR の Cython バージョン
+    cdef cppclass DtpgFFR :
+        DtpgFFR(const string&, const string&, ostream*, FaultType, const string&,
+                const TpgNetwork&, const TpgFFR&)
+        DtpgResult gen_pattern(const TpgFault*)
+        const DtpgStats& stats()
+
+
+cdef extern from "DtpgMFFC.h" namespace "nsYm::nsSatpg" :
+
+    ## @brief DtpgMFFC の Cython バージョン
+    cdef cppclass DtpgMFFC :
+        DtpgMFFC(const string&, const string&, ostream*, FaultType, const string&,
+                 const TpgNetwork&, const TpgMFFC&)
         DtpgResult gen_pattern(const TpgFault*)
         const DtpgStats& stats()
