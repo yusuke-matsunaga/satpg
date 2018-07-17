@@ -219,19 +219,19 @@ MinPatMgr::coloring(const vector<const TpgFault*>& fault_list,
     return 0;
   }
 
-  cout << "*** coloring ***" << endl;
-  cout << "# of initial patterns: " << nv << endl;
+  //cout << "*** coloring ***" << endl;
+  //cout << "# of initial patterns: " << nv << endl;
 
   MpColGraph graph(tv_list);
 
-  cout << " MpColGraph generated" << endl;
+  //cout << " MpColGraph generated" << endl;
 
   MatrixGen matgen(fault_list, tv_list, network, fault_type);
   std::unique_ptr<McMatrix> matrix = matgen.generate();
 
-  cout << " McMatrix generated" << endl;
+  //cout << " McMatrix generated" << endl;
 
-  {
+  if ( 0 ) {
     cout << matrix->active_row_num() << " x " << matrix->active_col_num() << endl;
   }
 
@@ -242,7 +242,7 @@ MinPatMgr::coloring(const vector<const TpgFault*>& fault_list,
   bool changed = true;
   while ( !selected_cols.empty() || matrix->active_row_num() > 0 ) {
     if ( changed && selected_cols.empty() ) {
-      {
+      if ( 0 ) {
 	timer.reset();
 	timer.start();
 	cout << "reducing matrix: "
@@ -271,7 +271,7 @@ MinPatMgr::coloring(const vector<const TpgFault*>& fault_list,
 	}
       }
 
-      {
+      if ( 0 ) {
 	timer.stop();
 	USTime time = timer.time();
 	cout << " ==> "
@@ -318,7 +318,7 @@ MinPatMgr::coloring(const vector<const TpgFault*>& fault_list,
       selected_cols.erase(selected_cols.begin() + wpos, selected_cols.end());
     }
 
-    {
+    if ( 0 ) {
       cout << "COL#" << graph.color_num()
 	   << ", # of colored columns: " << node_list.size()
 	   << ": # of selected cols " << selected_cols.size() << endl
@@ -331,7 +331,7 @@ MinPatMgr::coloring(const vector<const TpgFault*>& fault_list,
   int nc = graph.get_color_map(color_map);
   merge_tv_list(tv_list, nc, color_map, new_tv_list);
 
-  cout << "# of reduced patterns: " << nc << endl;
+  // cout << "# of reduced patterns: " << nc << endl;
 
   return nc;
 }
