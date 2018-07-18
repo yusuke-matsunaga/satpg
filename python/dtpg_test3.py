@@ -57,7 +57,7 @@ def minpat(tv_list, fault_list, network, fault_type, cmp_algorithm) :
         return None
 
 
-def exec_one(file_name, fault_type) :
+def exec_one(file_name, fault_type, drop) :
 
     body, ext = os.path.splitext(file_name)
     if ext == '.blif' :
@@ -80,44 +80,37 @@ def exec_one(file_name, fault_type) :
         print('Error, could not read {}'.format(file_name))
         return
 
-    result = {}
-    for drop in (False, True) :
+    start = time.process_time()
 
+    dtpg = Dtpg(network, fault_type)
+
+    ndet, nunt, nabt = dtpg.ffr_mode(drop)
+
+    end = time.process_time()
+    cpu_time = end - start
+
+    tf = 0
+    for i in network.rep_fault_list() :
+        tf += 1
+    print('file name:               {}'.format(file_name))
+    print('Drop flag:               {}'.format(drop))
+    print('# of total faults:       {:8d}'.format(tf))
+    print('# of detected faults:    {:8d}'.format(ndet))
+    print('# of untestable faults:  {:8d}'.format(nunt))
+    print('# of aborted faults:     {:8d}'.format(nabt))
+    print('# of initial patterns:   {:8d}'.format(len(dtpg.tvlist)))
+    print('CPU time(ATPG):          {:8.2f}'.format(cpu_time))
+    for algorithm in algorithm_list :
         start = time.process_time()
-
-        dtpg = Dtpg(network, fault_type)
-
-        ndet, nunt, nabt = dtpg.ffr_mode(drop)
-
+        new_tv_list = minpat(dtpg.tvlist, dtpg.fault_list, network, fault_type, algorithm)
         end = time.process_time()
-        cpu_time = end - start
-
-        tv_list = dtpg.tvlist
-        for algorithm in algorithm_list :
-            start = time.process_time()
-            new_tv_list = minpat(dtpg.tvlist, dtpg.fault_list, network, fault_type, algorithm)
-            end = time.process_time()
-            cpu_time1 = end - start
-            result[algorithm] = (len(new_tv_list), cpu_time1)
-
-        tf = 0
-        for i in network.rep_fault_list() :
-            tf += 1
-        print('file name:               {}'.format(file_name))
-        print('Drop flag:               {}'.format(drop))
-        print('# of total faults:       {:8d}'.format(tf))
-        print('# of detected faults:    {:8d}'.format(ndet))
-        print('# of untestable faults:  {:8d}'.format(nunt))
-        print('# of aborted faults:     {:8d}'.format(nabt))
-        print('# of initial patterns:   {:8d}'.format(len(tv_list)))
-        print('CPU time(ATPG):          {:8.2f}'.format(cpu_time))
-        for algorithm in algorithm_list :
-            nv, cpu_time = result[algorithm]
-            print('---------------------------------')
-            print('Compaction Algorithm:    {}'.format(algorithm))
-            print('# of minimized patterns: {:8d}'.format(nv))
-            print('CPU time(compaction):    {:8.2f}'.format(cpu_time))
-        print()
+        cpu_time1 = end - start
+        nv = len(new_tv_list)
+        print('---------------------------------')
+        print('Compaction Algorithm:    {}'.format(algorithm))
+        print('# of minimized patterns: {:8d}'.format(nv))
+        print('CPU time(compaction):    {:8.2f}'.format(cpu_time1))
+    print()
 
 
 def main() :
@@ -148,8 +141,9 @@ def main() :
         # デフォルト
         fault_type = FaultType.StuckAt
 
-    for file_name in args.file_list :
-        exec_one(file_name, fault_type)
+    for drop in (False, True) :
+        for file_name in args.file_list :
+            exec_one(file_name, fault_type, drop)
 
 
 if __name__ == '__main__' :
