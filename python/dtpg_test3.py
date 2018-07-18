@@ -21,92 +21,40 @@ from compaction import mincov, coloring
 from satpg_core import gen_colcov
 from satpg_core import MinPatMgr
 
+algorithm_list = ('coloring2', 'mincov+dsatur', 'mincov+isx', 'isx+mincov', 'dsatur+mincov')
 
-def gen_covering_matrix(fault_list, tv_list, network, fault_type) :
-    colcov = gen_colcov(fault_list, tv_list, network, fault_type)
-
-    nv = len(tv_list)
-    print('# of initial patterns: {}'.format(nv))
-    n, color_map = colcov.heuristic(algorithm = 'mincov+coloring')
-    print('# of reduced patterns: {}'.format(n))
-
-    # color_map から同じ色のパタンをマージする．
-    pat_list_array = [ [] for i in range(n) ]
-    for i in range(nv) :
-        c = color_map[i]
-        if c == -1 :
-            continue
-        tv = tv_list[i]
-        pat_list_array[c - 1].append(tv)
-
-    new_tv_list = []
-    for i in range(n) :
-        tv = TestVector.merge(pat_list_array[i])
-        new_tv_list.append(tv)
-    return new_tv_list
-
-
-def dtpg(file_name, network, fault_type, drop, cmp_algorithm) :
-
-    start = time.process_time()
-
-    dtpg = Dtpg(network, fault_type)
-
-    ndet, nunt, nabt = dtpg.ffr_mode(drop)
-
-    lap1 = time.process_time()
-    cpu_time = lap1 - start
-
-    tv_list = dtpg.tvlist
-
+def minpat(tv_list, fault_list, network, fault_type, cmp_algorithm) :
     if cmp_algorithm == 'mincov+dsatur' :
-        tv_list1 = mincov(dtpg.fault_list, tv_list, network, fault_type)
+        tv_list1 = mincov(fault_list, tv_list, network, fault_type)
         tv_list2 = coloring(tv_list1, 'dsatur')
-        tv_list = tv_list2
+        return tv_list2
     elif cmp_algorithm == 'mincov+isx' :
-        tv_list1 = mincov(dtpg.fault_list, tv_list, network, fault_type)
+        tv_list1 = mincov(fault_list, tv_list, network, fault_type)
         tv_list2 = coloring(tv_list1, 'isx')
-        tv_list = tv_list2
+        return tv_list2
     elif cmp_algorithm == 'dsatur+mincov' :
         tv_list1 = coloring(tv_list, 'dsatur')
-        tv_list2 = mincov(dtpg.fault_list, tv_list1, network, fault_type)
-        tv_list = tv_list2
+        tv_list2 = mincov(fault_list, tv_list1, network, fault_type)
+        return tv_list2
     elif cmp_algorithm == 'isx+mincov' :
         tv_list1 = coloring(tv_list, 'isx')
-        tv_list2 = mincov(dtpg.fault_list, tv_list1, network, fault_type)
-        tv_list = tv_list2
+        tv_list2 = mincov(fault_list, tv_list1, network, fault_type)
+        return tv_list2
     elif cmp_algorithm == 'dsatur' :
         tv_list1 = coloring(tv_list, 'dsatur')
-        tv_list = tv_list1
+        return tv_list1
     elif cmp_algorithm == 'isx' :
         tv_list1 = coloring(tv_list, 'isx')
-        tv_list = tv_list1
+        return tv_list1
     elif cmp_algorithm == 'coloring2' :
-        tv_list1 = MinPatMgr.coloring(dtpg.fault_list, tv_list, network, fault_type)
-        tv_list = tv_list1
+        tv_list1 = MinPatMgr.coloring(fault_list, tv_list, network, fault_type)
+        return tv_list1
     elif cmp_algorithm == 'mincov' :
-        tv_list1 = mincov(dtpg.fault_list, tv_list, network, fault_type)
-        tv_list = tv_list1
+        tv_list1 = mincov(fault_list, tv_list, network, fault_type)
+        return tv_list1
     elif cmp_algorithm != '' :
         print('Error: unknown algorithm "{}"'.format(cmp_algorithm))
-
-    lap2 = time.process_time()
-    cpu_time2 = lap2 - lap1
-
-    tf = 0
-    for i in network.rep_fault_list() :
-        tf += 1
-    print('file name:               {}'.format(file_name))
-    print('Drop flag:               {}'.format(drop))
-    print('Compaction Algorithm:    {}'.format(cmp_algorithm))
-    print('# of total faults:       {:8d}'.format(tf))
-    print('# of detected faults:    {:8d}'.format(ndet))
-    print('# of untestable faults:  {:8d}'.format(nunt))
-    print('# of aborted faults:     {:8d}'.format(nabt))
-    print('# of patterns:           {:8d}'.format(len(tv_list)))
-    print('CPU time(ATPG):          {:8.2f}'.format(cpu_time))
-    print('CPU time(compaction):    {:8.2f}'.format(cpu_time2))
-    print()
+        return None
 
 
 def exec_one(file_name, fault_type) :
@@ -132,9 +80,44 @@ def exec_one(file_name, fault_type) :
         print('Error, could not read {}'.format(file_name))
         return
 
+    result = {}
     for drop in (False, True) :
-        for algorithm in ('coloring2', 'mincov+isx', 'isx+mincov') :
-            dtpg(file_name, network, fault_type, drop, algorithm)
+
+        start = time.process_time()
+
+        dtpg = Dtpg(network, fault_type)
+
+        ndet, nunt, nabt = dtpg.ffr_mode(drop)
+
+        end = time.process_time()
+        cpu_time = end - start
+
+        tv_list = dtpg.tvlist
+        for algorithm in algorithm_list :
+            start = time.process_time()
+            new_tv_list = minpat(dtpg.tvlist, dtpg.fault_list, network, fault_type, algorithm)
+            end = time.process_time()
+            cpu_time1 = end - start
+            result[algorithm] = (len(new_tv_list), cpu_time1)
+
+        tf = 0
+        for i in network.rep_fault_list() :
+            tf += 1
+        print('file name:               {}'.format(file_name))
+        print('Drop flag:               {}'.format(drop))
+        print('# of total faults:       {:8d}'.format(tf))
+        print('# of detected faults:    {:8d}'.format(ndet))
+        print('# of untestable faults:  {:8d}'.format(nunt))
+        print('# of aborted faults:     {:8d}'.format(nabt))
+        print('# of initial patterns:   {:8d}'.format(len(tv_list)))
+        print('CPU time(ATPG):          {:8.2f}'.format(cpu_time))
+        for algorithm in algorithm_list :
+            nv, cpu_time = result[algorithm]
+            print('---------------------------------')
+            print('Compaction Algorithm:    {}'.format(algorithm))
+            print('# of minimized patterns: {:8d}'.format(nv))
+            print('CPU time(compaction):    {:8.2f}'.format(cpu_time))
+        print()
 
 
 def main() :
