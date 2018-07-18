@@ -231,9 +231,32 @@ MinPatMgr::coloring(const vector<const TpgFault*>& fault_list,
 
   //cout << " McMatrix generated" << endl;
 
+  // 被覆行列の縮約を行う．
+  vector<int> selected_cols;
+  reduce(matrix, graph, selected_cols);
+
+  heuristic1(matrix, graph, selected_cols);
+
+  vector<int> color_map;
+  int nc = graph.get_color_map(color_map);
+  merge_tv_list(tv_list, nc, color_map, new_tv_list);
+
+  // cout << "# of reduced patterns: " << nc << endl;
+
+  return new_tv_list.size();
+}
+
+// @brief 縮約を行う．
+// @param[in] matrix 対象の被覆行列
+// @param[in] graph 衝突グラフ
+// @param[in] selected_cols この縮約で選択された列のリスト
+void
+MinPatMgr::reduce(McMatrix& matrix,
+		  MpColGraph& graph,
+		  vector<int>& selected_cols)
+{
   StopWatch timer;
 
-  // 被覆行列の縮約を行う．
   if ( 0 ) {
     timer.reset();
     timer.start();
@@ -241,7 +264,7 @@ MinPatMgr::coloring(const vector<const TpgFault*>& fault_list,
 	 << matrix.active_row_num() << " x " << matrix.active_col_num()
 	 << endl;
   }
-  vector<int> selected_cols;
+
   for ( ; ; ) {
     MpComp comp(graph);
     vector<int> deleted_cols;
@@ -262,6 +285,7 @@ MinPatMgr::coloring(const vector<const TpgFault*>& fault_list,
       matrix.set_col_dirty(col1);
     }
   }
+
   if ( 0 ) {
     timer.stop();
     USTime time = timer.time();
@@ -270,7 +294,14 @@ MinPatMgr::coloring(const vector<const TpgFault*>& fault_list,
 	 << ", # of selected_cols = " << selected_cols.size()
 	 << ", " << time << endl;
   }
+}
 
+// @brief ヒューリスティック1
+void
+MinPatMgr::heuristic1(McMatrix& matrix,
+		      MpColGraph& graph,
+		      vector<int>& selected_cols)
+{
   while ( !selected_cols.empty() || matrix.active_row_num() > 0 ) {
 
     // 両立集合を1つ選ぶ．
@@ -316,14 +347,6 @@ MinPatMgr::coloring(const vector<const TpgFault*>& fault_list,
 	   << " x " << matrix.active_col_num() << endl;
     }
   }
-
-  vector<int> color_map;
-  int nc = graph.get_color_map(color_map);
-  merge_tv_list(tv_list, nc, color_map, new_tv_list);
-
-  // cout << "# of reduced patterns: " << nc << endl;
-
-  return nc;
 }
 
 // @brief 両立集合を取り出す．

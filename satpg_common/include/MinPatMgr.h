@@ -55,6 +55,23 @@ private:
   // 内部で用いられる関数
   //////////////////////////////////////////////////////////////////////
 
+  /// @brief 縮約を行う．
+  /// @param[in] matrix 対象の被覆行列
+  /// @param[in] graph 衝突グラフ
+  /// @param[in] selected_cols この縮約で選択された列のリスト
+  static
+  void
+  reduce(McMatrix& matrix,
+	 MpColGraph& graph,
+	 vector<int>& selected_cols);
+
+  /// @brief ヒューリスティック1
+  static
+  void
+  heuristic1(McMatrix& matrix,
+	     MpColGraph& graph,
+	     vector<int>& selected_cols);
+
   /// @brief 両立集合を取り出す．
   /// @param[in] graph 衝突グラフ
   /// @param[in] matrix 被覆行列
