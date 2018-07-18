@@ -44,10 +44,10 @@ MatrixGen::~MatrixGen()
 }
 
 // @brief 被覆行列を作る．
-std::unique_ptr<McMatrix>
+McMatrix
 MatrixGen::generate()
 {
-  mMatrix = static_cast<std::unique_ptr<McMatrix>>(new McMatrix(mFaultList.size(), mTvList.size()));
+  McMatrix matrix(mFaultList.size(), mTvList.size());
 
   int wpos = 0;
   mFsim.clear_patterns();
@@ -56,22 +56,23 @@ MatrixGen::generate()
     mFsim.set_pattern(wpos, tv);
     ++ wpos;
     if ( wpos == kPvBitLen ) {
-      do_fsim(tv_base, wpos);
+      do_fsim(matrix, tv_base, wpos);
       mFsim.clear_patterns();
       wpos = 0;
       tv_base += kPvBitLen;
     }
   }
   if ( wpos > 0 ) {
-    do_fsim(tv_base, wpos);
+    do_fsim(matrix, tv_base, wpos);
   }
 
-  return std::move(mMatrix);
+  return std::move(matrix);
 }
 
 // @brief 故障シミュレーションを行う．
 void
-MatrixGen::do_fsim(int tv_base,
+MatrixGen::do_fsim(McMatrix& matrix,
+		   int tv_base,
 		   int num)
 {
   int ndet = mFsim.ppsfp();
@@ -83,7 +84,7 @@ MatrixGen::do_fsim(int tv_base,
     for ( auto bit: Range(num) ) {
       if ( dbits & (1UL << bit) ) {
 	int tvid = tv_base + bit;
-	mMatrix->insert_elem(row_id, tv_base + bit);
+	matrix.insert_elem(row_id, tv_base + bit);
       }
     }
   }

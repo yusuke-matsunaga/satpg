@@ -43,7 +43,7 @@ public:
   //////////////////////////////////////////////////////////////////////
 
   /// @brief 被覆行列を作る．
-  std::unique_ptr<McMatrix>
+  McMatrix
   generate();
 
 
@@ -53,10 +53,12 @@ private:
   //////////////////////////////////////////////////////////////////////
 
   /// @brief 故障シミュレーションを行い，被覆行列に要素を設定する．
+  /// @param[in] matrix 対象の行列
   /// @param[in] tv_base テストベクタ番号の基点
   /// @param[in] num セットしたパタン数
   void
-  do_fsim(int tv_base,
+  do_fsim(McMatrix& matrix,
+	  int tv_base,
 	  int num);
 
 
@@ -77,9 +79,6 @@ private:
 
   // 故障シミュレータ
   Fsim mFsim;
-
-  // 対象の行列
-  std::unique_ptr<McMatrix> mMatrix;
 
 };
 

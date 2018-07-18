@@ -227,63 +227,55 @@ MinPatMgr::coloring(const vector<const TpgFault*>& fault_list,
   //cout << " MpColGraph generated" << endl;
 
   MatrixGen matgen(fault_list, tv_list, network, fault_type);
-  std::unique_ptr<McMatrix> matrix = matgen.generate();
+  McMatrix matrix = matgen.generate();
 
   //cout << " McMatrix generated" << endl;
 
-  if ( 0 ) {
-    cout << matrix->active_row_num() << " x " << matrix->active_col_num() << endl;
-  }
-
   StopWatch timer;
 
-  MpComp comp(graph);
+  // 被覆行列の縮約を行う．
+  if ( 0 ) {
+    timer.reset();
+    timer.start();
+    cout << "reducing matrix: "
+	 << matrix.active_row_num() << " x " << matrix.active_col_num()
+	 << endl;
+  }
   vector<int> selected_cols;
-  bool changed = true;
-  while ( !selected_cols.empty() || matrix->active_row_num() > 0 ) {
-    if ( changed && selected_cols.empty() ) {
-      if ( 0 ) {
-	timer.reset();
-	timer.start();
-	cout << "reducing matrix: "
-	     << matrix->active_row_num() << " x " << matrix->active_col_num()
-	     << endl;
-      }
-
-      for ( ; ; ) {
-	// 被覆行列の縮約を行う．
-	vector<int> deleted_cols;
-	if ( !matrix->reduce(selected_cols, deleted_cols, comp) ) {
-	  break;
-	}
-	ASSERT_COND( !selected_cols.empty() || matrix->active_row_num() > 0 );
-
-	// 今の縮約で削除された列を衝突グラフからも削除する．
-	for ( auto col: deleted_cols ) {
-	  graph.delete_node(col);
-	}
-
-	// 衝突グラフの変更を被覆行列に伝搬する．
-	vector<int> conflict_list;
-	graph.get_conflict_list(deleted_cols, conflict_list);
-	for ( auto col1: conflict_list ) {
-	  matrix->set_col_dirty(col1);
-	}
-      }
-
-      if ( 0 ) {
-	timer.stop();
-	USTime time = timer.time();
-	cout << " ==> "
-	     << matrix->active_row_num() << " x " << matrix->active_col_num()
-	     << ", # of selected_cols = " << selected_cols.size()
-	     << ", " << time << endl;
-      }
+  for ( ; ; ) {
+    MpComp comp(graph);
+    vector<int> deleted_cols;
+    if ( !matrix.reduce(selected_cols, deleted_cols, comp) ) {
+      break;
     }
+    ASSERT_COND( !selected_cols.empty() || matrix.active_row_num() > 0 );
+
+    // 今の縮約で削除された列を衝突グラフからも削除する．
+    for ( auto col: deleted_cols ) {
+      graph.delete_node(col);
+    }
+
+    // 衝突グラフの変更を被覆行列に伝搬する．
+    vector<int> conflict_list;
+    graph.get_conflict_list(deleted_cols, conflict_list);
+    for ( auto col1: conflict_list ) {
+      matrix.set_col_dirty(col1);
+    }
+  }
+  if ( 0 ) {
+    timer.stop();
+    USTime time = timer.time();
+    cout << " ==> "
+	 << matrix.active_row_num() << " x " << matrix.active_col_num()
+	 << ", # of selected_cols = " << selected_cols.size()
+	 << ", " << time << endl;
+  }
+
+  while ( !selected_cols.empty() || matrix.active_row_num() > 0 ) {
 
     // 両立集合を1つ選ぶ．
     vector<int> node_list;
-    get_compatible_nodes(graph, *matrix, selected_cols, node_list);
+    get_compatible_nodes(graph, matrix, selected_cols, node_list);
     ASSERT_COND( !node_list.empty() );
 
     // 選ばれた両立集合に彩色を行う．
@@ -291,17 +283,15 @@ MinPatMgr::coloring(const vector<const TpgFault*>& fault_list,
     graph.set_color(node_list, color);
 
     // 被覆行列の更新を行う．
-    changed = false;
     for ( auto col: node_list ) {
-      if ( !matrix->col_deleted(col) ) {
-	matrix->select_col(col);
-	//changed = true;
+      if ( !matrix.col_deleted(col) ) {
+	matrix.select_col(col);
       }
     }
 
     // selected_cols の更新を行う．
     if ( !selected_cols.empty() ) {
-      vector<bool> mark(matrix->col_size(), false);
+      vector<bool> mark(matrix.col_size(), false);
       for ( auto col: node_list ) {
 	mark[col] = true;
       }
@@ -322,8 +312,8 @@ MinPatMgr::coloring(const vector<const TpgFault*>& fault_list,
       cout << "COL#" << graph.color_num()
 	   << ", # of colored columns: " << node_list.size()
 	   << ": # of selected cols " << selected_cols.size() << endl
-	   << " ==> " << matrix->active_row_num()
-	   << " x " << matrix->active_col_num() << endl;
+	   << " ==> " << matrix.active_row_num()
+	   << " x " << matrix.active_col_num() << endl;
     }
   }
 
