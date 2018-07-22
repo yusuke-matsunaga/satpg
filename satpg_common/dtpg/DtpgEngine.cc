@@ -496,7 +496,7 @@ SatLiteral
 DtpgEngine::conv_to_literal(NodeVal node_val)
 {
   const TpgNode* node = node_val.node();
-  bool inode_val = !node_val.val();
+  bool inv = !node_val.val(); // 0 の時が inv = true
   SatVarId vid = (node_val.time() == 0) ? hvar(node) : gvar(node);
   return SatLiteral(vid, inv);
  }
@@ -573,6 +573,116 @@ DtpgEngine::get_sufficient_condition(const TpgFault* fault,
 
   const TpgNode* ffr_root = fault->tpg_onode()->ffr_root();
   return extract(ffr_root, mGvarMap, mFvarMap, model);
+}
+
+// @brief 複数の十分条件を取り出す．
+// @param[in] fault 対象の故障
+// @param[in] model SATモデル
+//
+// FFR内の故障伝搬条件は含まない．
+Expr
+DtpgEngine::get_sufficient_conditions(const TpgFault* fault,
+				      const vector<SatBool3>& model)
+{
+  extern
+  Expr
+  extract_all(const TpgNode* root,
+	      const VidMap& gvar_map,
+	      const VidMap& fvar_map,
+	      const vector<SatBool3>& model);
+
+  const TpgNode* ffr_root = fault->tpg_onode()->ffr_root();
+  return extract_all(ffr_root, mGvarMap, mFvarMap, model);
+}
+
+// @brief SATソルバに論理式の否定を追加する．
+// @param[in] expr 対象の論理式
+// @param[in] clit 制御用のリテラル
+//
+// clit が true の時に与えられた論理式が false となる条件を追加する．
+// 論理式の変数番号はノード番号に対応している．
+void
+DtpgEngine::add_negation(const Expr& expr,
+			 SatLiteral clit)
+{
+  if ( expr.is_posiliteral() ) {
+    int id = expr.varid().val();
+    const TpgNode* node = mNetwork.node(id);
+    SatLiteral lit(gvar(node));
+    solver().add_clause(~clit, ~lit);
+  }
+  else if ( expr.is_negaliteral() ) {
+    int id = expr.varid().val();
+    const TpgNode* node = mNetwork.node(id);
+    SatLiteral lit(gvar(node));
+    solver().add_clause(~clit,  lit);
+  }
+  else if ( expr.is_and() ) {
+    int n = expr.child_num();
+    ASSERT_COND( n > 0 );
+    vector<SatLiteral> tmp_lits(n + 1);
+    tmp_lits[0] = ~clit;
+    for ( int i: Range(n) ) {
+      SatLiteral lit1 = _add_negation_sub(expr.child(i));
+      tmp_lits[i + 1] = ~lit1;
+    }
+    solver().add_clause(tmp_lits);
+  }
+  else if ( expr.is_or() ) {
+    int n = expr.child_num();
+    for ( int i: Range(n) ) {
+      SatLiteral lit1 = _add_negation_sub(expr.child(i));
+      solver().add_clause(~clit, ~lit1);
+    }
+  }
+  else {
+    ASSERT_NOT_REACHED;
+  }
+}
+
+// @brief add_negation の下請け関数
+// @param[in] expr 論理式
+SatLiteral
+DtpgEngine::_add_negation_sub(const Expr& expr)
+{
+  if ( expr.is_posiliteral() ) {
+    int id = expr.varid().val();
+    const TpgNode* node = mNetwork.node(id);
+    SatLiteral lit(gvar(node));
+    return lit;
+  }
+  else if ( expr.is_negaliteral() ) {
+    int id = expr.varid().val();
+    const TpgNode* node = mNetwork.node(id);
+    SatLiteral lit(gvar(node));
+    return ~lit;
+  }
+  else if ( expr.is_and() ) {
+    int n = expr.child_num();
+    SatVarId nvar = solver().new_variable();
+    SatLiteral nlit(nvar);
+    vector<SatLiteral> tmp_lits(n + 1);
+    tmp_lits[0] = nlit;
+    for ( int i: Range(n) ) {
+      SatLiteral lit1 = _add_negation_sub(expr.child(i));
+      tmp_lits[i + 1] = ~lit1;
+    }
+    solver().add_clause(tmp_lits);
+    return nlit;
+  }
+  else if ( expr.is_or() ) {
+    int n = expr.child_num();
+    SatVarId nvar = solver().new_variable();
+    SatLiteral nlit(nvar);
+    for ( int i: Range(n) ) {
+      SatLiteral lit1 = _add_negation_sub(expr.child(i));
+      solver().add_clause(nlit, ~lit1);
+    }
+    return nlit;
+  }
+
+  ASSERT_NOT_REACHED;
+  return SatLiteral();
 }
 
 END_NAMESPACE_YM_SATPG

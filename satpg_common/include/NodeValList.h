@@ -10,78 +10,10 @@
 
 
 #include "satpg.h"
+#include "NodeVal.h"
 
 
 BEGIN_NAMESPACE_YM_SATPG
-
-//////////////////////////////////////////////////////////////////////
-/// @class NodeVal NodeValList.h "td/NodeValList.h"
-/// @brief ノードに対する値の割当を表すクラス
-///
-/// 昔の C でよく使われていたポインタの下位ビットが0であることを
-/// 利用して，そこにフラグを埋め込むテクニック
-/// C++ の時代では醜いことこのうえない．
-///
-/// なお，縮退故障モードのときは時刻は 1 となる．
-//////////////////////////////////////////////////////////////////////
-class NodeVal
-{
-public:
-
-  /// @brief 空のコンストラクタ
-  ///
-  /// 内容は不定
-  NodeVal();
-
-  /// @brief 値を指定したコンストラクタ
-  /// @param[in] node ノード
-  /// @param[in] time 時刻 ( 0 or 1 )
-  /// @param[in] val 値
-  NodeVal(const TpgNode* node,
-	  int time,
-	  bool val);
-
-
-public:
-  //////////////////////////////////////////////////////////////////////
-  // 外部インターフェイス
-  //////////////////////////////////////////////////////////////////////
-
-  /// @brief ノードを返す．
-  const TpgNode*
-  node() const;
-
-  /// @brief 時刻を返す．
-  int
-  time() const;
-
-  /// @brief ノードと時刻をパックした値を返す．
-  ///
-  /// 結果は等価比較のみに用いる．
-  ympuint
-  node_time() const;
-
-  /// @brief 値を返す．
-  bool
-  val() const;
-
-  /// @brief 大小関係の比較関数
-  friend
-  bool
-  operator<(const NodeVal& left,
-	    const NodeVal& right);
-
-
-private:
-  //////////////////////////////////////////////////////////////////////
-  // データメンバ
-  //////////////////////////////////////////////////////////////////////
-
-  // パックした値
-  ympuint mPackVal;
-
-};
-
 
 //////////////////////////////////////////////////////////////////////
 /// @class NodeValList NodeValList.h "td/NodeValList.h"
@@ -102,18 +34,18 @@ public:
   NodeValList();
 
   /// @brief コピーコンストラクタ
-  NodeValList(const NodeValList& src);
+  NodeValList(const NodeValList& src) = default;
 
   /// @brief ムーブコンストラクタ
-  NodeValList(NodeValList&& src);
+  NodeValList(NodeValList&& src) = default;
 
   /// @brief コピー代入演算子
   NodeValList&
-  operator=(const NodeValList& src);
+  operator=(const NodeValList& src) = default;
 
   /// @brief ムーブ代入演算子
   NodeValList&
-  operator=(NodeValList&& src);
+  operator=(NodeValList&& src) = default;
 
   /// @brief デストラクタ
   ~NodeValList();
@@ -161,14 +93,27 @@ public:
   /// @brief 要素を返す．
   /// @param[in] pos 位置 ( 0 <= pos < size() )
   NodeVal
-  operator[](int pos) const;
-
-  /// @brief 要素を返す．
-  /// @param[in] pos 位置 ( 0 <= pos < size() )
-  ///
-  /// operator[] の別名
-  NodeVal
   elem(int pos) const;
+
+  /// @brief add(NodeVal) の別名
+  /// @param[in] node_val 追加する要素
+  NodeValList&
+  operator+=(NodeVal node_val);
+
+  /// @brief merge() の別名
+  /// @param[in] src_list 追加する要素のリスト
+  NodeValList&
+  operator+=(const NodeValList& src_list);
+
+  /// @brief diff() の別名
+  /// @param[in] src_list 差分の対象のリスト
+  NodeValList&
+  operator-=(const NodeValList& src_list);
+
+  /// @brief elem() の別名
+  /// @param[in] pos 位置 ( 0 <= pos < size() )
+  NodeVal
+  operator[](int pos) const;
 
   /// @brief 矛盾した内容になっていないかチェックする．
   /// @return 正しければ true を返す．
@@ -232,6 +177,16 @@ int
 compare(const NodeValList& src_list1,
 	const NodeValList& src_list2);
 
+/// @brief 2つのリストを結合して新しいリストを返す．
+NodeValList
+operator+(const NodeValList& src_list1,
+	  const NodeValList& src_list2);
+
+/// @brief 2つのリストの差分を計算して新しいリストを返す．
+NodeValList
+operator-(const NodeValList& src_list1,
+	  const NodeValList& src_list2);
+
 /// @brief 割当の内容を出力する．
 /// @param[in] s 出力先のストリーム
 /// @param[in] nv 値の割り当て
@@ -253,88 +208,6 @@ operator<<(ostream& s,
 // インライン関数の定義
 //////////////////////////////////////////////////////////////////////
 
-// @brief 空のコンストラクタ
-//
-// 内容は不定
-inline
-NodeVal::NodeVal() :
-  mPackVal(0UL)
-{
-}
-
-// @brief 値を指定したコンストラクタ
-// @param[in] node ノード
-// @param[in] time 時刻(0 or 1)
-// @param[in] val 値
-inline
-NodeVal::NodeVal(const TpgNode* node,
-		 int time,
-		 bool val) :
-  mPackVal(reinterpret_cast<ympuint>(node) | (time << 1) | val)
-{
-}
-
-// @brief ノードを返す．
-inline
-const TpgNode*
-NodeVal::node() const
-{
-  return reinterpret_cast<const TpgNode*>(mPackVal & ~3UL);
-}
-
-// @brief 時刻を返す．
-inline
-int
-NodeVal::time() const
-{
-  return static_cast<int>((mPackVal >> 1) & 1U);
-}
-
-// @brief ノードと時刻をパックした値を返す．
-//
-// 結果は等価比較のみに用いる．
-inline
-ympuint
-NodeVal::node_time() const
-{
-  return mPackVal & ~1UL;
-}
-
-// @brief 値を返す．
-inline
-bool
-NodeVal::val() const
-{
-  return static_cast<bool>(mPackVal & 1UL);
-}
-
-// @brief 大小関係の比較関数
-inline
-bool
-operator>(const NodeVal& left,
-	  const NodeVal& right)
-{
-  return operator<(right, left);
-}
-
-// @brief 大小関係の比較関数
-inline
-bool
-operator<=(const NodeVal& left,
-	   const NodeVal& right)
-{
-  return !operator<(right, left);
-}
-
-// @brief 大小関係の比較関数
-inline
-bool
-operator>=(const NodeVal& left,
-	   const NodeVal& right)
-{
-  return !operator<(left, right);
-}
-
 // @brief コンストラクタ
 inline
 NodeValList::NodeValList() :
@@ -342,6 +215,7 @@ NodeValList::NodeValList() :
 {
 }
 
+#if 0
 // @brief コピーコンストラクタ
 inline
 NodeValList::NodeValList(const NodeValList& src) :
@@ -381,6 +255,7 @@ NodeValList::operator=(NodeValList&& src)
 
   return *this;
 }
+#endif
 
 // @brief デストラクタ
 inline
@@ -443,23 +318,54 @@ NodeValList::add(NodeVal node_val)
 // @param[in] pos 位置 ( 0 <= pos < size() )
 inline
 NodeVal
-NodeValList::operator[](int pos) const
-{
-  return elem(pos);
-}
-
-// @brief 要素を返す．
-// @param[in] pos 位置 ( 0 <= pos < size() )
-//
-// operator[] の別名
-inline
-NodeVal
 NodeValList::elem(int pos) const
 {
   ASSERT_COND( pos >= 0 && pos < size() );
 
   _sort();
   return mAsList[pos];
+}
+
+// @brief add(NodeVal) の別名
+// @param[in] node_val 追加する要素
+inline
+NodeValList&
+NodeValList::operator+=(NodeVal node_val)
+{
+  add(node_val);
+
+  return *this;
+}
+
+// @brief merge() の別名
+// @param[in] src_list 追加する要素のリスト
+inline
+NodeValList&
+NodeValList::operator+=(const NodeValList& src_list)
+{
+  merge(src_list);
+
+  return *this;
+}
+
+// @brief diff() の別名
+// @param[in] src_list 差分の対象のリスト
+inline
+NodeValList&
+NodeValList::operator-=(const NodeValList& src_list)
+{
+  diff(src_list);
+
+  return *this;
+}
+
+// @brief elem() の別名
+// @param[in] pos 位置 ( 0 <= pos < size() )
+inline
+NodeVal
+NodeValList::operator[](int pos) const
+{
+  return elem(pos);
 }
 
 // @brief 先頭の反復子を返す．
@@ -496,6 +402,26 @@ check_contain(const NodeValList& src_list1,
 	      const NodeValList& src_list2)
 {
   return (compare(src_list1, src_list2) & 1) == 1;
+}
+
+// @brief 2つのリストを結合して新しいリストを返す．
+inline
+NodeValList
+operator+(const NodeValList& src_list1,
+	  const NodeValList& src_list2)
+{
+  NodeValList tmp(src_list1);
+  return tmp.operator+=(src_list2);
+}
+
+// @brief 2つのリストの差分を計算して新しいリストを返す．
+inline
+NodeValList
+operator-(const NodeValList& src_list1,
+	  const NodeValList& src_list2)
+{
+  NodeValList tmp(src_list1);
+  return tmp.operator-=(src_list2);
 }
 
 END_NAMESPACE_YM_SATPG

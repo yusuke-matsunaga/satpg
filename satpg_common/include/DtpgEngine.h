@@ -19,6 +19,7 @@
 #include "FaultType.h"
 #include "Justifier.h"
 
+#include "ym/Expr.h"
 #include "ym/ym_sat.h"
 #include "ym/SatBool3.h"
 #include "ym/SatLiteral.h"
@@ -84,6 +85,24 @@ public:
   conv_to_assumptions(const NodeValList& assign_list,
 		      vector<SatLiteral>& assumptions);
 
+  /// @brief SATソルバに変数を割り当てる．
+  SatVarId
+  new_variable();
+
+  /// @brief SATソルバに節を追加する．
+  void
+  add_clause(const vector<SatLiteral>& lits);
+
+  /// @brief SATソルバに論理式の否定を追加する．
+  /// @param[in] expr 対象の論理式
+  /// @param[in] clit 制御用のリテラル
+  ///
+  /// clit が true の時に与えられた論理式が false となる条件を追加する．
+  /// 論理式の変数番号はノード番号に対応している．
+  void
+  add_negation(const Expr& expr,
+	       SatLiteral clit);
+
   /// @brief 一つの SAT問題を解く．
   /// @param[in] assumptions 値の決まっている変数のリスト
   /// @param[out] model SAT モデル
@@ -103,6 +122,15 @@ public:
   NodeValList
   get_sufficient_condition(const TpgFault* fault,
 			   const vector<SatBool3>& model);
+
+  /// @brief 複数の十分条件を取り出す．
+  /// @param[in] fault 対象の故障
+  /// @param[in] model SATモデル
+  ///
+  /// FFR内の故障伝搬条件は含まない．
+  Expr
+  get_sufficient_conditions(const TpgFault* fault,
+			    const vector<SatBool3>& model);
 
 
 protected:
@@ -246,6 +274,11 @@ private:
   // 内部で用いられる関数
   //////////////////////////////////////////////////////////////////////
 
+  /// @brief add_negation の下請け関数
+  /// @param[in] expr 論理式
+  SatLiteral
+  _add_negation_sub(const Expr& expr);
+
   /// @brief TFO マークをつける．
   /// @param[in] node 対象のノード
   ///
@@ -343,6 +376,22 @@ const DtpgStats&
 DtpgEngine::stats() const
 {
   return mStats;
+}
+
+// @brief SATソルバに変数を割り当てる．
+inline
+SatVarId
+DtpgEngine::new_variable()
+{
+  return solver().new_variable();
+}
+
+// @brief SATソルバに節を追加する．
+inline
+void
+DtpgEngine::add_clause(const vector<SatLiteral>& lits)
+{
+  solver().add_clause(lits);
 }
 
 // @brief SATソルバを返す．

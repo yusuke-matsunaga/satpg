@@ -44,6 +44,7 @@ class TpgFFR;
 class TpgFault;
 class FaultStatusMgr;
 
+class NodeVal;
 class NodeValList;
 class InputVector;
 class DffVector;

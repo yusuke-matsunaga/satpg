@@ -22,7 +22,7 @@ extract(const TpgNode* root,
 	const vector<SatBool3>& model)
 {
   Extractor extractor(gvar_map, fvar_map, model);
-  return extractor(root);
+  return extractor.get_assignment(root);
 }
 
 BEGIN_NONAMESPACE
@@ -56,7 +56,7 @@ Extractor::~Extractor()
 // @param[in] root 起点となるノード
 // @param[out] assign_list 値の割当リスト
 NodeValList
-Extractor::operator()(const TpgNode* root)
+Extractor::get_assignment(const TpgNode* root)
 {
   // root の TFO (fault cone) に印をつける．
   // 同時に故障差の伝搬している外部出力のリストを作る．

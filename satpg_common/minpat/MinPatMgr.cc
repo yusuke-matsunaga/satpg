@@ -11,6 +11,7 @@
 #include "TestVector.h"
 #include "MpColGraph.h"
 #include "MatrixGen.h"
+#include "Analyzer.h"
 #include "ym/McMatrix.h"
 #include "ym/HashSet.h"
 #include "ym/Range.h"
@@ -218,6 +219,11 @@ MinPatMgr::coloring(const vector<const TpgFault*>& fault_list,
   if ( nv == 0 ) {
     return 0;
   }
+
+  cout << "Analyze start" << endl;
+  Analyzer analyzer(network, fault_type);
+  analyzer.init(10);
+  cout << "Analyze end" << endl;
 
   //cout << "*** coloring ***" << endl;
   //cout << "# of initial patterns: " << nv << endl;

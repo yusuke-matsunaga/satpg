@@ -89,6 +89,7 @@ set (uop_SOURCES
 
 set (ex_SOURCES
   ex/Extractor.cc
+  ex/MultiExtractor.cc
   )
 
 set (jt_SOURCES

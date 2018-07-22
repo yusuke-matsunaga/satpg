@@ -10,6 +10,7 @@
 
 #include "satpg.h"
 #include "NodeValList.h"
+#include "ym/Expr.h"
 
 
 BEGIN_NAMESPACE_YM_SATPG
@@ -24,15 +25,11 @@ public:
 
   /// @brief コンストラクタ
   /// @param[in] fault 対象の故障
-  /// @param[in] sufficient_cond 十分条件(左辺値)
+  /// @param[in] mand_cond 必要条件
+  /// @param[in] sufficient_cond 十分条件
   FaultInfo(const TpgFault* fault,
-	    const NodeValList& sufficient_cond);
-
-  /// @brief コンストラクタ
-  /// @param[in] fault 対象の故障
-  /// @param[in] sufficient_cond 十分条件(右辺値)
-  FaultInfo(const TpgFault* fault,
-	    NodeValList&& sufficient_cond);
+	    const NodeValList& mand_cond,
+	    const Expr& sufficient_cond);
 
   /// @brief デストラクタ
   ~FaultInfo();
@@ -47,17 +44,13 @@ public:
   const TpgFault*
   fault() const;
 
-  /// @brief 十分条件の割当リストを返す．
+  /// @brief 必要条件を返す．
   const NodeValList&
+  mand_cond() const;
+
+  /// @brief 十分条件を返す．
+  const Expr&
   sufficient_cond() const;
-
-  /// @brief 被支配フラグを立てる．
-  void
-  set_dominated();
-
-  /// @brief 被支配フラグを得る．
-  bool
-  is_dominated() const;
 
   /// @brief 衝突している故障を追加する．
   /// @param[in] fi 追加する故障情報
@@ -92,11 +85,11 @@ private:
   // 故障
   const TpgFault* mFault;
 
-  // 十分条件
-  NodeValList mSufficientCond;
+  // 必要条件
+  NodeValList mMandCond;
 
-  // 被支配フラグ
-  bool mDominated;
+  // 十分条件
+  Expr mSufficientCond;
 
   // 衝突している故障のリスト
   vector<FaultInfo*> mConflictList;
@@ -113,25 +106,15 @@ private:
 
 // @brief コンストラクタ
 // @param[in] fault 対象の故障
-// @param[in] sufficient_cond 十分条件(左辺値)
+// @param[in] mand_cond 必要条件
+// @param[in] sufficient_cond 十分条件
 inline
 FaultInfo::FaultInfo(const TpgFault* fault,
-		     const NodeValList& sufficient_cond) :
+		     const NodeValList& mand_cond,
+		     const Expr& sufficient_cond) :
   mFault(fault),
-  mSufficientCond(sufficient_cond),
-  mDominated(false)
-{
-}
-
-// @brief コンストラクタ
-// @param[in] fault 対象の故障
-// @param[in] sufficient_cond 十分条件(右辺値)
-inline
-FaultInfo::FaultInfo(const TpgFault* fault,
-		     NodeValList&& sufficient_cond) :
-  mFault(fault),
-  mSufficientCond(sufficient_cond),
-  mDominated(false)
+  mMandCond(mand_cond),
+  mSufficientCond(sufficient_cond)
 {
 }
 
@@ -149,28 +132,20 @@ FaultInfo::fault() const
   return mFault;
 }
 
-// @brief 十分条件の割当リストを返す．
+// @brief 必要条件を返す．
 inline
 const NodeValList&
+FaultInfo::mand_cond() const
+{
+  return mMandCond;
+}
+
+// @brief 十分条件の割当リストを返す．
+inline
+const Expr&
 FaultInfo::sufficient_cond() const
 {
   return mSufficientCond;
-}
-
-// @brief 被支配フラグを立てる．
-inline
-void
-FaultInfo::set_dominated()
-{
-  mDominated = true;
-}
-
-// @brief 被支配フラグを得る．
-inline
-bool
-FaultInfo::is_dominated() const
-{
-  return mDominated;
 }
 
 // @brief 衝突している故障を追加する．

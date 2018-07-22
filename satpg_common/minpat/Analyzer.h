@@ -9,6 +9,8 @@
 /// All rights reserved.
 
 #include "satpg.h"
+#include "DtpgEngine.h"
+#include "ym/Expr.h"
 
 
 BEGIN_NAMESPACE_YM_SATPG
@@ -39,14 +41,47 @@ public:
   //////////////////////////////////////////////////////////////////////
 
   /// @brief 初期化する
+  /// @param[in] loop_limit 反復回数の上限
   void
-  init();
+  init(int loop_limit);
 
 
 private:
   //////////////////////////////////////////////////////////////////////
   // 内部で用いられる関数
   //////////////////////////////////////////////////////////////////////
+
+  /// @brief 故障の検出条件の解析を行う．
+  /// @param[in] dtpg DTPGエンジン
+  /// @param[in] fault 対象の故障
+  /// @param[in] loop_limit 反復回数の上限
+  /// @return FaultInfo を返す．
+  ///
+  /// fault が検出不能の場合には nullptr を返す．
+  FaultInfo*
+  analyze_fault(DtpgFFR& dtpg,
+		const TpgFault* fault,
+		int loop_limit);
+
+  /// @brief 論理式に含まれるキューブを求める．
+  /// @param[in] expr 論理式
+  NodeValList
+  common_cube(const Expr& expr);
+
+  /// @brief 必要割り当てに従って論理式を簡単化する．
+  /// @param[in] expr 論理式
+  /// @param[in] mand_cond 必要割り当て
+  /// @return 簡単化した論理式を返す．
+  Expr
+  restrict(const Expr& expr,
+	   const NodeValList& mand_cond);
+
+  /// @brief restrict の下請け関数
+  /// @param[in] expr 論理式
+  /// @param[in] val_map 割り当てマップ
+  Expr
+  _restrict_sub(const Expr& expr,
+		const HashMap<VarId, bool>& val_map);
 
 
 private:
