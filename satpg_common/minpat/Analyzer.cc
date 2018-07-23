@@ -27,6 +27,8 @@ Analyzer::Analyzer(const TpgNetwork& network,
 {
 }
 
+int nex_num;
+
 // @brief デストラクタ
 Analyzer::~Analyzer()
 {
@@ -37,22 +39,83 @@ Analyzer::~Analyzer()
 void
 Analyzer::init(int loop_limit)
 {
-  // まず検出可能故障を見つける．
   string sat_type;
   string sat_option;
   ostream* sat_outp = nullptr;
   string just_type;
   vector<FaultInfo*> tmp_fault_list;
+  nex_num = 0;
   tmp_fault_list.reserve(mNetwork.rep_fault_num());
   for ( auto& ffr: mNetwork.ffr_list() ) {
+    // FFR ごとに検出可能な故障をもとめる．
     DtpgFFR dtpg(sat_type, sat_option, sat_outp, mFaultType, just_type, mNetwork, ffr);
+    vector<const TpgFault*> fault_list;
+    vector<NodeValList> ffr_cond_list;
     for ( auto fault: ffr.fault_list() ) {
-      auto fi = analyze_fault(dtpg, fault, loop_limit);
-      if ( fi != nullptr ) {
-	tmp_fault_list.push_back(fi);
+      NodeValList ffr_cond = dtpg.make_ffr_condition(fault);
+      vector<SatLiteral> assumptions;
+      dtpg.conv_to_assumptions(ffr_cond, assumptions);
+      vector<SatBool3> model;
+      SatBool3 sat_res = dtpg.solve(assumptions, model);
+      if ( sat_res == SatBool3::True ) {
+	fault_list.push_back(fault);
+	ffr_cond_list.push_back(ffr_cond);
       }
     }
+    // 支配関係を調べ，代表故障のみを残す．
+    int nf = fault_list.size();
+    vector<bool> mark(nf, false);
+    for ( auto i1: Range(nf) ) {
+      if ( mark[i1] ) {
+	continue;
+      }
+      const NodeValList& ffr_cond1 = ffr_cond_list[i1];
+      // ffr_cond1 を否定した節を加える．
+      // 制御変数は clit1
+      SatVarId cvar1 = dtpg.new_variable();
+      SatLiteral clit1(cvar1);
+      vector<SatLiteral> tmp_lits;
+      tmp_lits.reserve(ffr_cond1.size() + 1);
+      tmp_lits.push_back(~clit1);
+      for ( auto nv: ffr_cond1 ) {
+	SatLiteral lit1 = dtpg.conv_to_literal(nv);
+	tmp_lits.push_back(~lit1);
+      }
+      dtpg.add_clause(tmp_lits);
+      for ( auto i2: Range(nf) ) {
+	if ( i2 == i1 ) {
+	  continue;
+	}
+	if ( mark[i2] ) {
+	  continue;
+	}
+	const NodeValList& ffr_cond2 = ffr_cond_list[i2];
+	vector<SatLiteral> assumptions;
+	assumptions.reserve(ffr_cond2.size() + 1);
+	dtpg.conv_to_assumptions(ffr_cond2, assumptions);
+	assumptions.push_back(clit1);
+	vector<SatBool3> dummy;
+	SatBool3 sat_res = dtpg.solve(assumptions, dummy);
+	if ( sat_res == SatBool3::False ) {
+	  // fault2 を検出する条件のもとで fault1 を検出しない
+	  // 割り当てが存在しない．→ fault1 は支配されている．
+	  mark[i1] = true;
+	  break;
+	}
+      }
+    }
+    for ( auto i: Range(nf) ) {
+      if ( mark[i] ) {
+	continue;
+      }
+      auto fault = fault_list[i];
+      auto fi = analyze_fault(dtpg, fault, loop_limit);
+      ASSERT_COND ( fi != nullptr );
+      tmp_fault_list.push_back(fi);
+    }
   }
+  cout << "Total faults: " << tmp_fault_list.size() << endl;
+  cout << "incomplete faults: " << nex_num << endl;
 
 #if 0
   int nf = tmp_fault_list.size();
@@ -207,11 +270,9 @@ Analyzer::analyze_fault(DtpgFFR& dtpg,
 	}
       }
     }
-    cout << fault << ": " << expr;
     if ( !exhausted ) {
-      cout << "*";
+      ++ nex_num;
     }
-    cout << endl;
     auto fi = new FaultInfo(fault, mand_cond, expr);
     return fi;
   }

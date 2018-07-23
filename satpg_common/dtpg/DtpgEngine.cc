@@ -114,9 +114,9 @@ DtpgEngine::timer_stop()
   return time;
 }
 
-// @brief root の影響が外部出力まで伝搬する条件のCNF式を作る．
+// @brief 対象の部分回路の関係を表す変数を用意する．
 void
-DtpgEngine::gen_cnf_base()
+DtpgEngine::prepare_vars()
 {
   // root の TFO を mTfoList に入れる．
   set_tfo_mark(mRoot);
@@ -198,8 +198,12 @@ DtpgEngine::gen_cnf_base()
       DEBUG_OUT << "hvar(Node#" << node->id() << ") = " << hvar << endl;
     }
   }
+}
 
-
+// @brief 対象の部分回路の正常値の関係を表す CNF 式を作る．
+void
+DtpgEngine::gen_good_cnf()
+{
   //////////////////////////////////////////////////////////////////////
   // 正常回路の CNF を生成
   //////////////////////////////////////////////////////////////////////
@@ -254,8 +258,12 @@ DtpgEngine::gen_cnf_base()
       DEBUG_OUT << ")" << endl;
     }
   }
+}
 
-
+// @brief 対象の部分回路の故障値の関係を表す CNF 式を作る．
+void
+DtpgEngine::gen_faulty_cnf()
+{
   //////////////////////////////////////////////////////////////////////
   // 故障回路の CNF を生成
   //////////////////////////////////////////////////////////////////////
@@ -277,6 +285,20 @@ DtpgEngine::gen_cnf_base()
     }
     make_dchain_cnf(node);
   }
+}
+
+// @brief root の影響が外部出力まで伝搬する条件のCNF式を作る．
+void
+DtpgEngine::gen_detect_cnf()
+{
+  // 変数割り当て
+  prepare_vars();
+
+  // 正常回路の CNF を生成
+  gen_good_cnf();
+
+  // 故障回路の CNF を生成
+  gen_faulty_cnf();
 
 
   //////////////////////////////////////////////////////////////////////
@@ -294,6 +316,28 @@ DtpgEngine::gen_cnf_base()
   if ( !mRoot->is_ppo() ) {
     // mRoot の dlit が1でなければならない．
     mSolver.add_clause(SatLiteral(dvar(mRoot)));
+  }
+}
+
+// @brief 故障の伝搬しない条件を表す CNF 式を作る．
+void
+DtpgEngine::gen_undetect_cnf()
+{
+  // 変数割り当て
+  prepare_vars();
+
+  // 正常回路の CNF を生成
+  gen_good_cnf();
+
+  // 故障回路の CNF を生成
+  gen_faulty_cnf();
+
+  //////////////////////////////////////////////////////////////////////
+  // 故障の検出条件(正確には mRoot から外部出力までの故障の伝搬条件)
+  //////////////////////////////////////////////////////////////////////
+  for ( auto node: mOutputList ) {
+    SatLiteral dlit(dvar(node));
+    mSolver.add_clause(~dlit);
   }
 }
 

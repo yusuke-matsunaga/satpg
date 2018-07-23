@@ -1,8 +1,8 @@
-﻿#ifndef DTPGMFFC_H
-#define DTPGMFFC_H
+﻿#ifndef DTPGFFR2_H
+#define DTPGFFR2_H
 
-/// @file DtpgMFFC.h
-/// @brief DtpgMFFC のヘッダファイル
+/// @file DtpgFFR2.h
+/// @brief DtpgFFR2 のヘッダファイル
 ///
 /// @author Yusuke Matsunaga (松永 裕介)
 ///
@@ -11,16 +11,17 @@
 
 
 #include "DtpgEngine.h"
-#include "ym/HashMap.h"
 
 
 BEGIN_NAMESPACE_YM_SATPG
 
 //////////////////////////////////////////////////////////////////////
-/// @class DtpgMFFC DtpgMFFC.h "DtpgMFFC.h"
-/// @brief MFFC 単位で DTPG の基本的な処理を行うクラス
+/// @class DtpgFFR2 DtpgFFR2.h "DtpgFFR2.h"
+/// @brief FFR 単位で DTPG の基本的な処理を行うクラス
+///
+/// こちらは故障を検出しない条件を調べるために用いる．
 //////////////////////////////////////////////////////////////////////
-class DtpgMFFC :
+class DtpgFFR2 :
   public DtpgEngine
 {
 public:
@@ -32,17 +33,17 @@ public:
   /// @param[in] fault_type 故障の種類
   /// @param[in] just_type Justifier の種類を表す文字列
   /// @param[in] network 対象のネットワーク
-  /// @param[in] root 故障伝搬の起点となるノード
-  DtpgMFFC(const string& sat_type,
-	   const string& sat_option,
-	   ostream* sat_outp,
-	   FaultType fault_type,
-	   const string& just_type,
-	   const TpgNetwork& network,
-	   const TpgMFFC& mffc);
+  /// @param[in] ffr 故障伝搬の起点となる FFR
+  DtpgFFR2(const string& sat_type,
+	  const string& sat_option,
+	  ostream* sat_outp,
+	  FaultType fault_type,
+	  const string& just_type,
+	  const TpgNetwork& network,
+	  const TpgFFR& ffr);
 
   /// @brief デストラクタ
-  ~DtpgMFFC();
+  ~DtpgFFR2();
 
 
 public:
@@ -50,11 +51,13 @@ public:
   // 外部インターフェイス
   //////////////////////////////////////////////////////////////////////
 
-  /// @brief テスト生成を行なう．
+  /// @brief fault が検出不能か調べる．
   /// @param[in] fault 対象の故障
+  /// @param[in] condition 制約条件
   /// @return 結果を返す．
-  DtpgResult
-  gen_pattern(const TpgFault* fault);
+  SatBool3
+  check_untestable(const TpgFault* fault,
+		   const NodeValList& condition);
 
 
 protected:
@@ -62,39 +65,20 @@ protected:
   // 継承クラスから用いられる関数
   //////////////////////////////////////////////////////////////////////
 
-  /// @brief mffc 内の影響が root まで伝搬する条件のCNF式を作る．
-  void
-  gen_mffc_cnf();
-
-  /// @brief 故障挿入回路のCNFを作る．
-  /// @param[in] elem_pos 要素番号
-  /// @param[in] ovar ゲートの出力の変数
-  void
-  inject_fault(int elem_pos,
-	       SatVarId ovar);
-
-
 private:
   //////////////////////////////////////////////////////////////////////
   // 内部で用いられる関数
   //////////////////////////////////////////////////////////////////////
+
+  /// @brief FFR 内の故障差が伝搬しない条件を作る．
+  void
+  gen_ffr2_cnf();
 
 
 private:
   //////////////////////////////////////////////////////////////////////
   // データメンバ
   //////////////////////////////////////////////////////////////////////
-
-  // FFR の根のリスト
-  // [0] は MFFC の根でもある．
-  vector<const TpgNode*> mElemArray;
-
-  // 各FFRの根に反転イベントを挿入するための変数
-  // サイズは mElemArray.size()
-  vector<SatVarId> mElemVarArray;
-
-  // ノード番号をキーにしてFFR番号を入れる連想配列
-  HashMap<int, int> mElemPosMap;
 
 };
 
@@ -103,6 +87,7 @@ private:
 // インライン関数の定義
 //////////////////////////////////////////////////////////////////////
 
+
 END_NAMESPACE_YM_SATPG
 
-#endif // DTPGMFFC_H
+#endif // DTPGFFR2_H

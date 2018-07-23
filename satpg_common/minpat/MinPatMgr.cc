@@ -9,6 +9,7 @@
 
 #include "MinPatMgr.h"
 #include "TestVector.h"
+#include "TpgFault.h"
 #include "MpColGraph.h"
 #include "MatrixGen.h"
 #include "Analyzer.h"
@@ -220,9 +221,35 @@ MinPatMgr::coloring(const vector<const TpgFault*>& fault_list,
     return 0;
   }
 
+  // trivial な支配故障を削除する．
+  vector<const TpgFault*> red_fault_list;
+  red_fault_list.reserve(fault_list.size());
+  // ファンインの非制御値の故障が検出可能なノードに印をつける．
+  vector<bool> mark(network.node_num(), false);
+  for ( auto fault: fault_list ) {
+    if ( fault->is_branch_fault() ) {
+      const TpgNode* node = fault->tpg_onode();
+      if ( node->is_logic() && fault->val3() == node->nval() ) {
+	mark[node->id()] = true;
+      }
+    }
+  }
+  // 印のついたノードの出力の非制御値の故障は支配されている．
+  for ( auto fault: fault_list ) {
+    if ( fault->is_stem_fault() ) {
+      const TpgNode* node = fault->tpg_onode();
+      if ( mark[node->id()] && fault->val3() == node->noval() ) {
+	continue;
+      }
+    }
+    red_fault_list.push_back(fault);
+  }
+  cout << "initial fault num: " << fault_list.size() << endl
+       << "reduced fault num: " << red_fault_list.size() << endl;
+
   cout << "Analyze start" << endl;
   Analyzer analyzer(network, fault_type);
-  analyzer.init(10);
+  analyzer.init(0);
   cout << "Analyze end" << endl;
 
   //cout << "*** coloring ***" << endl;

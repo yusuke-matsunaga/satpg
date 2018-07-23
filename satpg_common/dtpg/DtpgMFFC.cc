@@ -63,9 +63,9 @@ DtpgMFFC::DtpgMFFC(const string& sat_type,
 
   cnf_begin();
 
-  gen_cnf_base();
+  gen_detect_cnf();
 
-  gen_cnf_mffc();
+  gen_mffc_cnf();
 
   cnf_end();
 }
@@ -129,7 +129,7 @@ DtpgMFFC::gen_pattern(const TpgFault* fault)
 
 // @brief mffc 内の影響が root まで伝搬する条件のCNF式を作る．
 void
-DtpgMFFC::gen_cnf_mffc()
+DtpgMFFC::gen_mffc_cnf()
 {
   // 各FFRの根にXORゲートを挿入した故障回路を作る．
   // そのXORをコントロールする入力変数を作る．

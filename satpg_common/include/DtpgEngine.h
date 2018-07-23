@@ -248,14 +248,25 @@ protected:
   const vector<const TpgNode*>&
   prev_node_list() const;
 
+  /// @brief 対象の部分回路の関係を表す変数を用意する．
+  void
+  prepare_vars();
+
+  /// @brief 対象の部分回路の正常値の関係を表す CNF 式を作る．
+  void
+  gen_good_cnf();
+
+  /// @brief 対象の部分回路の故障値の関係を表す CNF 式を作る．
+  void
+  gen_faulty_cnf();
+
   /// @brief root の影響が外部出力まで伝搬する条件のCNF式を作る．
   void
-  gen_cnf_base();
+  gen_detect_cnf();
 
-  /// @brief 故障伝搬条件を表すCNF式を生成する．
-  /// @param[in] node 対象のノード
+  /// @brief 故障の伝搬しない条件を表す CNF 式を作る．
   void
-  make_dchain_cnf(const TpgNode* node);
+  gen_undetect_cnf();
 
   /// @brief NodeValList に追加する．
   /// @param[in] assign_list 追加するリスト
@@ -273,6 +284,11 @@ private:
   //////////////////////////////////////////////////////////////////////
   // 内部で用いられる関数
   //////////////////////////////////////////////////////////////////////
+
+  /// @brief 故障伝搬条件を表すCNF式を生成する．
+  /// @param[in] node 対象のノード
+  void
+  make_dchain_cnf(const TpgNode* node);
 
   /// @brief add_negation の下請け関数
   /// @param[in] expr 論理式

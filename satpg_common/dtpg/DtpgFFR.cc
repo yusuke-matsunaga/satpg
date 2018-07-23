@@ -36,7 +36,7 @@ DtpgFFR::DtpgFFR(const string& sat_type,
 {
   cnf_begin();
 
-  gen_cnf_base();
+  gen_detect_cnf();
 
   cnf_end();
 }
