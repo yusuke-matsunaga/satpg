@@ -163,34 +163,34 @@ MultiExtractor::record_masking_node(const TpgNode* node)
 {
   ASSERT_COND ( gval(node) == fval(node) );
 
+  // 以下の3通りの場合がある．
+  // * [case1] fault-cone 内で制御値をもったファンインがある．
+  // * [case2] fault-cone 以外で制御値を持ったファンインがある．
+  // * [case3] 故障差の伝搬しているファンインが複数あって打ち消し合っている．
   Expr expr;
   if ( !mExprMap.find(node->id(), expr) ) {
-    // ファンインには sensitized node があって
-    // side input がある場合．
-    bool has_cval = false;
-    bool has_snode = false;
-    vector<const TpgNode*> cnode_list;
+    bool has_cnode = false;
+    vector<const TpgNode*> c1node_list;
+    vector<const TpgNode*> c2node_list;
     for ( auto inode: node->fanin_list() ) {
       if ( mFconeMark.check(inode->id()) ) {
-	if ( gval(inode) != fval(inode) ) {
-	  // このノードには故障差が伝搬している．
-	  has_snode = true;
+	if ( gval(inode) == fval(inode) && gval(inode) == node->cval() ) {
+	  has_cnode = true;
+	  c1node_list.push_back(inode);
 	}
       }
-      else {
-	if ( node->cval() == gval(inode) ) {
-	  // このノードは制御値を持っている．
-	  has_cval = true;
-	  cnode_list.push_back(inode);
-	}
+      else if ( gval(inode) == node->cval() ) {
+	has_cnode = true;
+	c2node_list.push_back(inode);
       }
     }
-    if ( has_snode && has_cval ) {
-      // node のファンインに故障差が伝搬しており，
-      // 他のファンインの制御値でブロックされている場合，
-      // その制御値を持つノードの値を確定させる．
+    if ( has_cnode ) {
+      // 制御値を持つノードの値を確定させる．
       expr = Expr::const_zero();
-      for ( auto cnode: cnode_list ) {
+      for ( auto cnode: c1node_list ) {
+	expr |= record_masking_node(cnode);
+      }
+      for ( auto cnode: c2node_list ) {
 	expr |= record_side_input(cnode);
       }
     }
