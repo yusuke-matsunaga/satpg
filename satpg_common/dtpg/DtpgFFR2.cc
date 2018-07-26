@@ -38,7 +38,7 @@ DtpgFFR2::DtpgFFR2(const string& sat_type,
 
   gen_undetect_cnf();
 
-  gen_ffr2_cnf();
+  //gen_ffr2_cnf();
 
   cnf_end();
 }
@@ -59,12 +59,42 @@ DtpgFFR2::check_untestable(const TpgFault* fault,
   const TpgNode* ffr_root = fault->tpg_onode()->ffr_root();
   ASSERT_COND( ffr_root == root_node() );
 
-  // FFR 内の故障伝搬条件を ffr_cond に入れる．
+  // fault の非検出条件を作る．
+  SatVarId nvar = solver().new_variable();
+  SatLiteral nlit(nvar);
+#if 0
+  auto node = fault->tpg_onode();
+  SatLiteral dlit = get_plit(node);
+  NodeValList tmp_cond;
+  if ( fault->is_branch_fault() ) {
+    add_side_input(node, fault->tpg_pos(), tmp_cond);
+  }
+  vector<SatLiteral> tmp_lits;
+  tmp_lits.reserve(tmp_cond.size() + 2);
+  tmp_lits.push_back(~nlit);
+  for ( auto nv: tmp_cond ) {
+    auto inode = nv.node();
+    bool inv = (nv.val() == 0);
+    SatLiteral ilit(gvar(inode), inv);
+    tmp_lits.push_back(~ilit);
+  }
+  tmp_lits.push_back(dlit);
+#else
   NodeValList ffr_cond = make_ffr_condition(fault);
+  vector<SatLiteral> tmp_lits;
+  tmp_lits.reserve(ffr_cond.size() + 1);
+  tmp_lits.push_back(~nlit);
+  for ( auto nv: ffr_cond ) {
+    SatLiteral lit = conv_to_literal(nv);
+    tmp_lits.push_back(~lit);
+  }
+#endif
+  solver().add_clause(tmp_lits);
 
-  // ffr_cond の内容を assumptions に追加する．
+  // condition の内容を assumptions に追加する．
   vector<SatLiteral> assumptions;
-  conv_to_assumptions(ffr_cond, assumptions);
+  conv_to_assumptions(condition, assumptions);
+  assumptions.push_back(nlit);
 
   vector<SatBool3> model;
   SatBool3 sat_res = solve(assumptions, model);
@@ -96,47 +126,44 @@ DtpgFFR2::gen_ffr2_cnf()
 {
   // FFR 内のノードを DFS の preorder でリストに入れる．
   vector<const TpgNode*> tmp_list;
-  dfs(root_node(), tmp_list);
+  for ( auto node: root_node()->fanin_list() ) {
+    dfs(node, tmp_list);
+  }
 
   for ( auto node: tmp_list ) {
-    if ( node == root_node() ) {
-      continue;
-    }
     SatVarId dvar1 = new_variable();
     SatLiteral dlit1(dvar1);
     mPvarMap.add(node->id(), dlit1);
     vector<SatLiteral> tmp_lits;
     const TpgNode* onode = node->fanout(0);
-    tmp_lits.reserve(onode->fanin_num() + 1);
+    SatLiteral dlit2 = get_plit(onode);
+    NodeValList tmp_cond;
+    add_side_input(onode, node, tmp_cond);
+    tmp_lits.reserve(tmp_cond.size() + 2);
     tmp_lits.push_back(~dlit1);
-    bool sinv = false;
-    bool has_nval = true;
-    if ( onode->nval() == Val3::False ) {
-      sinv = true;
+    for ( auto nv: tmp_cond ) {
+      auto inode = nv.node();
+      bool inv = (nv.val() == 0);
+      SatLiteral ilit(gvar(inode), inv);
+      tmp_lits.push_back(~ilit);
     }
-    else if ( onode->nval() == Val3::True ) {
-      sinv = false;
-    }
-    else {
-      has_nval = false;
-    }
-    if ( has_nval ) {
-      for ( auto inode: onode->fanin_list() ) {
-	if ( inode != node ) {
-	  auto ivar = gvar(inode);
-	  SatLiteral ilit(ivar, sinv);
-	  tmp_lits.push_back(ilit);
-	}
-      }
-    }
-    SatVarId odlit;
-    if ( onode == root_node() ) {
-      odvar = SatLiteral(dvar(onode));
-    }
-    else {
-      mPvarMap.find(onode->id(), odlit);
-    }
-    tmp_lits.push_back(odlit);
+    tmp_lits.push_back(dlit2);
+    solver().add_clause(tmp_lits);
+  }
+}
+
+// @brief node の plit を得る．
+SatLiteral
+DtpgFFR2::get_plit(const TpgNode* node)
+{
+  if ( node == root_node() ) {
+    return SatLiteral(dvar(node));
+  }
+  else {
+    SatLiteral lit;
+    bool res = mPvarMap.find(node->id(), lit);
+    ASSERT_COND( res );
+    return lit;
   }
 }
 

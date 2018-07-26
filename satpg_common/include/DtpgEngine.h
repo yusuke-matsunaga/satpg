@@ -132,6 +132,16 @@ public:
   get_sufficient_conditions(const TpgFault* fault,
 			    const vector<SatBool3>& model);
 
+  /// @brief バックトレースを行う．
+  /// @param[in] fault 故障
+  /// @param[in] suf_cond 十分条件の割り当て
+  /// @param[in] model SATモデル
+  /// @return テストパタンを返す．
+  TestVector
+  backtrace(const TpgFault* fault,
+	    const NodeValList& suf_cond,
+	    const vector<SatBool3>& model);
+
 
 protected:
   //////////////////////////////////////////////////////////////////////
@@ -161,16 +171,6 @@ protected:
   /// @brief 時間計測を終了する．
   USTime
   timer_stop();
-
-  /// @brief バックトレースを行う．
-  /// @param[in] fault 故障
-  /// @param[in] ffr_cond FFR 内の故障伝搬条件
-  /// @param[in] model SATの解
-  /// @return テストパタンを返す．
-  TestVector
-  backtrace(const TpgFault* fault,
-	    const NodeValList& ffr_cond,
-	    const vector<SatBool3>& model);
 
   /// @brief SATソルバを返す．
   SatSolver&
@@ -267,6 +267,29 @@ protected:
   /// @brief 故障の伝搬しない条件を表す CNF 式を作る．
   void
   gen_undetect_cnf();
+
+  /// @brief side-input の割り当てを追加する．
+  /// @param[in] node ノード
+  /// @param[in] ipos 対象のファンイン番号
+  /// @param[out] nodeval_list 割り当てを追加するリスト
+  ///
+  /// * node が非制御値を持たない場合はなにもしない．
+  void
+  add_side_input(const TpgNode* node,
+		 int ipos,
+		 NodeValList& nodeval_list);
+
+  /// @brief side-input の割り当てを追加する．
+  /// @param[in] node ノード
+  /// @param[in] inode 対象のファンイン
+  /// @param[out] nodeval_list 割り当てを追加するリスト
+  ///
+  /// * node が非制御値を持たない場合はなにもしない．
+  /// * 上の関数との違いは同じノードが重複してファンインとなっている場合
+  void
+  add_side_input(const TpgNode* node,
+		 const TpgNode* inode,
+		 NodeValList& nodeval_list);
 
   /// @brief NodeValList に追加する．
   /// @param[in] assign_list 追加するリスト

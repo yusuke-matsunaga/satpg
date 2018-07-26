@@ -40,6 +40,21 @@ public:
   // 外部インターフェイス
   //////////////////////////////////////////////////////////////////////
 
+  /// @brief 検出可能故障リストを作る．
+  /// @param[out] fi_list 故障情報のリスト
+  void
+  gen_fault_list(vector<FaultInfo*>& fi_list);
+
+  /// @brief 異なる FFR 間の支配故障の簡易チェックを行う．
+  /// @param[inout] fi_list 故障情報のリスト
+  void
+  dom_reduction1(vector<FaultInfo*>& fi_list);
+
+  /// @brief 異なる FFR 間の支配故障の簡易チェックを行う．
+  /// @param[inout] fi_list 故障情報のリスト
+  void
+  dom_reduction2(vector<FaultInfo*>& fi_list);
+
   /// @brief 初期化する
   /// @param[in] loop_limit 反復回数の上限
   void

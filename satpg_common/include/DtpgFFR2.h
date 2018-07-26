@@ -11,6 +11,7 @@
 
 
 #include "DtpgEngine.h"
+#include "ym/HashMap.h"
 
 
 BEGIN_NAMESPACE_YM_SATPG
@@ -74,11 +75,17 @@ private:
   void
   gen_ffr2_cnf();
 
+  /// @brief node の plit を得る．
+  SatLiteral
+  get_plit(const TpgNode* node);
+
 
 private:
   //////////////////////////////////////////////////////////////////////
   // データメンバ
   //////////////////////////////////////////////////////////////////////
+
+  HashMap<int, SatLiteral> mPvarMap;
 
 };
 

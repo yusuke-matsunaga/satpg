@@ -10,8 +10,13 @@
 #include "Analyzer.h"
 #include "FaultInfo.h"
 #include "DtpgFFR.h"
+#include "DtpgFFR2.h"
+#include "UndetChecker.h"
+#include "DomChecker.h"
 #include "TpgFFR.h"
 #include "TpgFault.h"
+#include "MatrixGen.h"
+#include "ym/McMatrix.h"
 #include "ym/Range.h"
 
 
@@ -34,6 +39,280 @@ Analyzer::~Analyzer()
 {
 }
 
+// @brief 検出可能故障リストを作る．
+// @param[out] fi_list 故障情報のリスト
+void
+Analyzer::gen_fault_list(vector<FaultInfo*>& fi_list)
+{
+  string sat_type;
+  string sat_option;
+  ostream* sat_outp = nullptr;
+  string just_type;
+
+  int n0 = 0;
+  int n1 = 0;
+  for ( auto& ffr: mNetwork.ffr_list() ) {
+    // FFR ごとに検出可能な故障をもとめる．
+    DtpgFFR dtpg(sat_type, sat_option, sat_outp, mFaultType, just_type, mNetwork, ffr);
+    vector<FaultInfo*> tmp_fi_list;
+    for ( auto fault: ffr.fault_list() ) {
+      NodeValList ffr_cond = dtpg.make_ffr_condition(fault);
+      vector<SatLiteral> assumptions;
+      dtpg.conv_to_assumptions(ffr_cond, assumptions);
+      vector<SatBool3> model;
+      SatBool3 sat_res = dtpg.solve(assumptions, model);
+      if ( sat_res == SatBool3::True ) {
+	NodeValList suf_cond = dtpg.get_sufficient_condition(fault, model);
+	suf_cond.merge(ffr_cond);
+	TestVector testvect = dtpg.backtrace(fault, suf_cond, model);
+	FaultInfo* fi = new FaultInfo(fault, ffr_cond, suf_cond, testvect);
+	tmp_fi_list.push_back(fi);
+	++ n0;
+      }
+    }
+
+    // 支配関係を調べ，代表故障のみを残す．
+    int nf = tmp_fi_list.size();
+    vector<bool> mark(nf, true);
+    for ( auto i1: Range(nf) ) {
+      if ( !mark[i1] ) {
+	continue;
+      }
+      auto fi1 = tmp_fi_list[i1];
+      auto fault1 = fi1->fault();
+      const NodeValList& ffr_cond1 = fi1->mand_cond();
+      // ffr_cond1 を否定した節を加える．
+      // 制御変数は clit1
+      SatVarId cvar1 = dtpg.new_variable();
+      SatLiteral clit1(cvar1);
+      vector<SatLiteral> tmp_lits;
+      tmp_lits.reserve(ffr_cond1.size() + 1);
+      tmp_lits.push_back(~clit1);
+      for ( auto nv: ffr_cond1 ) {
+	SatLiteral lit1 = dtpg.conv_to_literal(nv);
+	tmp_lits.push_back(~lit1);
+      }
+      dtpg.add_clause(tmp_lits);
+
+      for ( auto i2: Range(nf) ) {
+	if ( i2 == i1 || !mark[i2] ) {
+	  continue;
+	}
+	auto fi2 = tmp_fi_list[i2];
+	auto fault2 = fi2->fault();
+	const NodeValList& ffr_cond2 = fi2->mand_cond();
+	vector<SatLiteral> assumptions;
+	assumptions.reserve(ffr_cond2.size() + 1);
+	dtpg.conv_to_assumptions(ffr_cond2, assumptions);
+	assumptions.push_back(clit1);
+	vector<SatBool3> dummy;
+	SatBool3 sat_res = dtpg.solve(assumptions, dummy);
+	if ( sat_res == SatBool3::False ) {
+	  // fault2 を検出する条件のもとで fault1 を検出しない
+	  // 割り当てが存在しない．→ fault1 は支配されている．
+	  mark[i1] = false;
+	  break;
+	}
+      }
+    }
+    for ( auto i: Range(nf) ) {
+      if ( mark[i] ) {
+	auto fi = tmp_fi_list[i];
+	fi_list.push_back(fi);
+	++ n1;
+      }
+    }
+  }
+  cout << "# of initial faults: " << n0 << endl
+       << "after FFR dominance reduction: " << n1 << endl;
+}
+
+// @brief 異なる FFR 間の支配故障の簡易チェックを行う．
+void
+Analyzer::dom_reduction1(vector<FaultInfo*>& fi_list)
+{
+  int nf = fi_list.size();
+  vector<const TpgFault*> fault_list;
+  fault_list.reserve(nf);
+  vector<TestVector> tv_list;
+  tv_list.reserve(nf);
+  for ( auto fi: fi_list ) {
+    fault_list.push_back(fi->fault());
+    tv_list.push_back(fi->testvect());
+  }
+  MatrixGen matgen(fault_list, tv_list, mNetwork, mFaultType);
+  McMatrix matrix = matgen.generate();
+
+  string sat_type;
+  string sat_option;
+  ostream* sat_outp = nullptr;
+  string just_type;
+
+  vector<bool> mark(nf, false);
+  for ( int i1 = 0; i1 < nf; ++ i1 ) {
+    auto fi1 = fi_list[i1];
+    auto fault1 = fi1->fault();
+    UndetChecker undet_checker(sat_type, sat_option, sat_outp, mFaultType, mNetwork, fault1);
+
+    // i2 が i1 を支配している時
+    // i2 に含まれる列は必ず i1 にも含まれなければならない．
+    vector<bool> col_mark(nf, false);
+    for ( auto col: matrix.row_list(i1) ) {
+      col_mark[col] = true;
+    }
+    for ( auto i2: Range(nf) ) {
+      if ( i2 == i1 || mark[i2] ) {
+	continue;
+      }
+      bool not_covered = false;
+      for ( auto col: matrix.row_list(i2) ) {
+	if ( !col_mark[col] ) {
+	  not_covered = true;
+	  break;
+	}
+      }
+      if ( false && not_covered ) {
+	continue;
+      }
+      auto fi2 = fi_list[i2];
+      auto fault2 = fi2->fault();
+      if ( fault1->tpg_onode()->ffr_root() == fault2->tpg_onode()->ffr_root() ) {
+	// 同じ FFR ならチェック済み
+	continue;
+      }
+      NodeValList mand_cond = fi2->mand_cond();
+      {
+	bool out_of_range = false;
+	for ( auto nv: mand_cond ) {
+	  auto node = nv.node();
+	  if ( undet_checker.gvar(node) == kSatVarIdIllegal ) {
+	    out_of_range = true;
+	    break;
+	  }
+	}
+	if ( out_of_range ) {
+	  continue;
+	}
+      }
+      SatBool3 res = undet_checker.check_detectable(fault2);
+      if ( res == SatBool3::False ) {
+	// fault2 が検出可能の条件のもとで fault が検出不能となることはない．
+	// fault2 が fault を支配している．
+	mark[i1] = true;
+	{
+	  vector<bool> col1_mark(nf, false);
+	  vector<bool> col2_mark(nf, false);
+	  for ( auto col: matrix.row_list(i1) ) {
+	    col1_mark[col] = true;
+	  }
+	  for ( auto col: matrix.row_list(i2) ) {
+	    col2_mark[col] = true;
+	  }
+
+	  vector<int> f1_list;
+	  for ( auto col: matrix.row_list(i1) ) {
+	    if ( !col2_mark[col] ) {
+	      f1_list.push_back(col);
+	    }
+	  }
+	  vector<int> f2_list;
+	  for ( auto col: matrix.row_list(i2) ) {
+	    if ( !col1_mark[col] ) {
+	      f2_list.push_back(col);
+	    }
+	  }
+	  if ( f2_list.size() ) {
+	    Fsim fsim;
+	    fsim.init_fsim3(mNetwork, mFaultType);
+	    auto col = f2_list[0];
+	    TestVector tv = tv_list[col];
+	    bool res1 = fsim.spsfp(tv, fault1);
+	    bool res2 = fsim.spsfp(tv, fault2);
+	    cout << "fault1: " << fault1->str() << ": " << res1 << endl
+		 << "fault2: " << fault2->str() << ": " << res2 << endl;
+	    DomChecker dc(sat_type, sat_option, sat_outp, mFaultType, mNetwork,
+			  fault2->tpg_onode()->ffr_root(), fault1);
+	    SatBool3 res3 = dc.check_detectable(fault2);
+	    cout << res3 << endl
+		 << endl;
+	  }
+	}
+	break;
+      }
+    }
+  }
+
+  int rpos = 0;
+  int wpos = 0;
+  for ( ; rpos < nf; ++ rpos ) {
+    if ( !mark[rpos] ) {
+      fi_list[wpos] = fi_list[rpos];
+      ++ wpos;
+    }
+  }
+  if ( wpos < nf ) {
+    fi_list.erase(fi_list.begin() + wpos, fi_list.end());
+  }
+  cout << "after semi-global dominance reduction: " << wpos << endl;
+}
+
+// @brief 異なる FFR 間の支配故障の簡易チェックを行う．
+void
+Analyzer::dom_reduction2(vector<FaultInfo*>& fi_list)
+{
+  string sat_type;
+  string sat_option;
+  ostream* sat_outp = nullptr;
+
+  int n = fi_list.size();
+  vector<bool> mark(mNetwork.max_fault_id(), false);
+  for ( int i1 = 0; i1 < n; ++ i1 ) {
+    auto fi1 = fi_list[i1];
+    auto fault1 = fi1->fault();
+    mark[fault1->id()] = true;
+  }
+  for ( int i1 = 0; i1 < n; ++ i1 ) {
+    auto fi1 = fi_list[i1];
+    auto fault1 = fi1->fault();
+    for ( auto& ffr2: mNetwork.ffr_list() ) {
+      if ( ffr2.root() == fault1->tpg_onode()->ffr_root() ) {
+	continue;
+      }
+      DomChecker dom_checker(sat_type, sat_option, sat_outp, mFaultType, mNetwork,
+			     ffr2.root(), fault1);
+      for ( auto fault2: ffr2.fault_list() ) {
+	if ( !mark[fault2->id()] ) {
+	  continue;
+	}
+	SatBool3 res = dom_checker.check_detectable(fault2);
+	if ( res == SatBool3::False ) {
+	  // fault2 が検出可能の条件のもとで fault1 が検出不能となることはない．
+	  // fault2 が fault1 を支配している．
+	  mark[fault1->id()] = false;
+	  break;
+	}
+      }
+      if ( !mark[fault1->id()] ) {
+	break;
+      }
+    }
+  }
+  int rpos = 0;
+  int wpos = 0;
+  for ( ; rpos < n; ++ rpos ) {
+    auto fi = fi_list[rpos];
+    auto fault = fi->fault();
+    if ( mark[fault->id()] ) {
+      fi_list[wpos] = fi;
+      ++ wpos;
+    }
+  }
+  if ( wpos < n ) {
+    fi_list.erase(fi_list.begin() + wpos, fi_list.end());
+  }
+  cout << "after global dominance reduction: " << fi_list.size() << endl;
+}
+
 // @brief 初期化する
 // @param[in] loop_limit 反復回数の上限
 void
@@ -43,14 +322,18 @@ Analyzer::init(int loop_limit)
   string sat_option;
   ostream* sat_outp = nullptr;
   string just_type;
-  vector<FaultInfo*> tmp_fault_list;
+
   nex_num = 0;
-  tmp_fault_list.reserve(mNetwork.rep_fault_num());
+  vector<bool> mark(mNetwork.max_fault_id(), false);
+  vector<NodeValList> ffr_cond_array(mNetwork.max_fault_id());
+  vector<FaultInfo*> tmp_fi_map(mNetwork.max_fault_id(), nullptr);
+  int n1 = 0;
   for ( auto& ffr: mNetwork.ffr_list() ) {
     // FFR ごとに検出可能な故障をもとめる．
     DtpgFFR dtpg(sat_type, sat_option, sat_outp, mFaultType, just_type, mNetwork, ffr);
     vector<const TpgFault*> fault_list;
     vector<NodeValList> ffr_cond_list;
+    vector<NodeValList> suf_cond_list;
     for ( auto fault: ffr.fault_list() ) {
       NodeValList ffr_cond = dtpg.make_ffr_condition(fault);
       vector<SatLiteral> assumptions;
@@ -60,13 +343,17 @@ Analyzer::init(int loop_limit)
       if ( sat_res == SatBool3::True ) {
 	fault_list.push_back(fault);
 	ffr_cond_list.push_back(ffr_cond);
+	ffr_cond_array[fault->id()] = ffr_cond;
+	NodeValList suf_cond = dtpg.get_sufficient_condition(fault, model);
+	suf_cond_list.push_back(suf_cond);
+	mark[fault->id()] = true;
       }
     }
     // 支配関係を調べ，代表故障のみを残す．
     int nf = fault_list.size();
-    vector<bool> mark(nf, false);
     for ( auto i1: Range(nf) ) {
-      if ( mark[i1] ) {
+      auto fault1 = fault_list[i1];
+      if ( !mark[fault1->id()] ) {
 	continue;
       }
       const NodeValList& ffr_cond1 = ffr_cond_list[i1];
@@ -86,7 +373,8 @@ Analyzer::init(int loop_limit)
 	if ( i2 == i1 ) {
 	  continue;
 	}
-	if ( mark[i2] ) {
+	auto fault2 = fault_list[i2];
+	if ( !mark[fault2->id()] ) {
 	  continue;
 	}
 	const NodeValList& ffr_cond2 = ffr_cond_list[i2];
@@ -99,23 +387,113 @@ Analyzer::init(int loop_limit)
 	if ( sat_res == SatBool3::False ) {
 	  // fault2 を検出する条件のもとで fault1 を検出しない
 	  // 割り当てが存在しない．→ fault1 は支配されている．
-	  mark[i1] = true;
+	  mark[fault1->id()] = false;
 	  break;
 	}
       }
     }
+
     for ( auto i: Range(nf) ) {
-      if ( mark[i] ) {
-	continue;
-      }
       auto fault = fault_list[i];
-      auto fi = analyze_fault(dtpg, fault, loop_limit);
-      ASSERT_COND ( fi != nullptr );
-      tmp_fault_list.push_back(fi);
+      if ( mark[fault->id()] ) {
+	auto fi = analyze_fault(dtpg, fault, loop_limit);
+	ASSERT_COND ( fi != nullptr );
+	tmp_fi_map[fault->id()] = fi;
+	++ n1;
+      }
     }
   }
-  cout << "Total faults: " << tmp_fault_list.size() << endl;
-  cout << "incomplete faults: " << nex_num << endl;
+  cout << "# of initial faults: " << mNetwork.rep_fault_num() << endl
+       << "after FFR dominance reduction: " << n1 << endl;
+
+  for ( auto& ffr: mNetwork.ffr_list() ) {
+    for ( auto fault: ffr.fault_list() ) {
+      if ( !mark[fault->id()] ) {
+	continue;
+      }
+      UndetChecker undet_checker(sat_type, sat_option, sat_outp, mFaultType, mNetwork, fault);
+      for ( auto& ffr2: mNetwork.ffr_list() ) {
+	if ( &ffr == &ffr2 ) {
+	  continue;
+	}
+	for ( auto fault2: ffr2.fault_list() ) {
+	  if ( !mark[fault2->id()] ) {
+	    continue;
+	  }
+	  auto fi2 = tmp_fi_map[fault2->id()];
+	  NodeValList mand_cond = fi2->mand_cond();
+	  {
+	    bool out_of_range = false;
+	    for ( auto nv: mand_cond ) {
+	      auto node = nv.node();
+	      if ( undet_checker.gvar(node) == kSatVarIdIllegal ) {
+		out_of_range = true;
+		break;
+	      }
+	    }
+	    if ( out_of_range ) {
+	      continue;
+	    }
+	  }
+	  SatBool3 res = undet_checker.check_detectable(fault2);
+	  if ( res == SatBool3::False ) {
+	    // fault2 が検出可能の条件のもとで fault が検出不能となることはない．
+	    // fault2 が fault を支配している．
+	    mark[fault->id()] = false;
+	    break;
+	  }
+	}
+	if ( !mark[fault->id()] ) {
+	  break;
+	}
+      }
+    }
+  }
+  int n2 = 0;
+  for ( auto fault: mNetwork.rep_fault_list() ) {
+    if ( mark[fault->id()] ) {
+      ++ n2;
+    }
+  }
+  cout << "after semi-global dominance reduction: " << n2 << endl;
+
+  for ( auto& ffr: mNetwork.ffr_list() ) {
+    //DtpgFFR2 dtpg(sat_type, sat_option, sat_outp, mFaultType, just_type, mNetwork, ffr);
+    for ( auto fault: ffr.fault_list() ) {
+      if ( !mark[fault->id()] ) {
+	continue;
+      }
+      for ( auto& ffr2: mNetwork.ffr_list() ) {
+	if ( &ffr == &ffr2 ) {
+	  continue;
+	}
+	DomChecker dom_checker(sat_type, sat_option, sat_outp, mFaultType, mNetwork,
+			       ffr2.root(), fault);
+	for ( auto fault2: ffr2.fault_list() ) {
+	  if ( !mark[fault2->id()] ) {
+	    continue;
+	  }
+	  SatBool3 res = dom_checker.check_detectable(fault2);
+	  if ( res == SatBool3::False ) {
+	    // fault2 が検出可能の条件のもとで fault が検出不能となることはない．
+	    // fault2 が fault を支配している．
+	    mark[fault->id()] = false;
+	    break;
+	  }
+	}
+	if ( !mark[fault->id()] ) {
+	  break;
+	}
+      }
+    }
+  }
+  int n3 = 0;
+  for ( auto fault: mNetwork.rep_fault_list() ) {
+    if ( mark[fault->id()] ) {
+      ++ n3;
+    }
+  }
+  cout << "after global dominance reduction: " << n3 << endl;
 
 #if 0
   int nf = tmp_fault_list.size();
@@ -216,6 +594,7 @@ Analyzer::analyze_fault(DtpgFFR& dtpg,
 			const TpgFault* fault,
 			int loop_limit)
 {
+#if 0
   // FFR 内の伝搬条件をリテラルに変換して加えたSAT問題を解く．
   NodeValList ffr_cond = dtpg.make_ffr_condition(fault);
   SatBool3 sat_res;
@@ -245,6 +624,7 @@ Analyzer::analyze_fault(DtpgFFR& dtpg,
 	mand_cond.add(nv);
       }
     }
+#if 0
     bool exhausted = true;
     expr = restrict(expr, mand_cond);
     if ( !expr.is_constant() ) {
@@ -273,12 +653,16 @@ Analyzer::analyze_fault(DtpgFFR& dtpg,
     if ( !exhausted ) {
       ++ nex_num;
     }
+#endif
     auto fi = new FaultInfo(fault, mand_cond, expr);
     return fi;
   }
   else {
     return nullptr;
   }
+#else
+  return nullptr;
+#endif
 }
 
 // @brief 論理式に含まれるキューブを求める．

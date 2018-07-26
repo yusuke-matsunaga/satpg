@@ -13,6 +13,7 @@
 #include "MpColGraph.h"
 #include "MatrixGen.h"
 #include "Analyzer.h"
+#include "FaultInfo.h"
 #include "ym/McMatrix.h"
 #include "ym/HashSet.h"
 #include "ym/Range.h"
@@ -221,37 +222,25 @@ MinPatMgr::coloring(const vector<const TpgFault*>& fault_list,
     return 0;
   }
 
-  // trivial な支配故障を削除する．
-  vector<const TpgFault*> red_fault_list;
-  red_fault_list.reserve(fault_list.size());
-  // ファンインの非制御値の故障が検出可能なノードに印をつける．
-  vector<bool> mark(network.node_num(), false);
-  for ( auto fault: fault_list ) {
-    if ( fault->is_branch_fault() ) {
-      const TpgNode* node = fault->tpg_onode();
-      if ( node->is_logic() && fault->val3() == node->nval() ) {
-	mark[node->id()] = true;
-      }
-    }
-  }
-  // 印のついたノードの出力の非制御値の故障は支配されている．
-  for ( auto fault: fault_list ) {
-    if ( fault->is_stem_fault() ) {
-      const TpgNode* node = fault->tpg_onode();
-      if ( mark[node->id()] && fault->val3() == node->noval() ) {
-	continue;
-      }
-    }
-    red_fault_list.push_back(fault);
-  }
-  cout << "initial fault num: " << fault_list.size() << endl
-       << "reduced fault num: " << red_fault_list.size() << endl;
-
   cout << "Analyze start" << endl;
   Analyzer analyzer(network, fault_type);
-  analyzer.init(0);
+  //analyzer.init(0);
+  vector<FaultInfo*> fi_list;
+  analyzer.gen_fault_list(fi_list);
+  analyzer.dom_reduction1(fi_list);
+  analyzer.dom_reduction2(fi_list);
   cout << "Analyze end" << endl;
 
+  vector<const TpgFault*> red_fault_list;
+  red_fault_list.reserve(fi_list.size());
+  //vector<TestVector> red_tv_list;
+  //red_tv_list.reserve(fi_list.size());
+  for ( auto fi: fi_list ) {
+    auto fault = fi->fault();
+    red_fault_list.push_back(fault);
+    //auto testvect = fi->testvect();
+    //red_tv_list.push_back(testvect);
+  }
   //cout << "*** coloring ***" << endl;
   //cout << "# of initial patterns: " << nv << endl;
 
@@ -259,13 +248,13 @@ MinPatMgr::coloring(const vector<const TpgFault*>& fault_list,
 
   //cout << " MpColGraph generated" << endl;
 
-  MatrixGen matgen(fault_list, tv_list, network, fault_type);
+  MatrixGen matgen(red_fault_list, tv_list, network, fault_type);
   McMatrix matrix = matgen.generate();
 
   //cout << " McMatrix generated" << endl;
 
   {
-    cout << "# of faults: " << fault_list.size() << endl;
+    cout << "# of faults: " << red_fault_list.size() << endl;
     int n_sum = 0;
     int n_max = 0;
     for ( auto row: matrix.row_head_list() ) {
@@ -276,7 +265,7 @@ MinPatMgr::coloring(const vector<const TpgFault*>& fault_list,
       }
     }
     cout << "# of max detects: " << n_max << endl
-	 << "# of avg. detects: " << (n_sum / static_cast<double>(fault_list.size())) << endl;
+	 << "# of avg. detects: " << (n_sum / static_cast<double>(red_fault_list.size())) << endl;
   }
 
   // 被覆行列の縮約を行う．

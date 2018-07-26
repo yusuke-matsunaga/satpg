@@ -66,6 +66,7 @@ set (struct_enc_SOURCES
 set (dtpg_SOURCES
   dtpg/DtpgEngine.cc
   dtpg/DtpgFFR.cc
+  dtpg/DtpgFFR2.cc
   dtpg/DtpgMFFC.cc
   dtpg/Dtpg_se.cc
   )
@@ -108,6 +109,8 @@ set (minpat_SOURCES
   minpat/MpColGraph.cc
   minpat/MatrixGen.cc
   minpat/Analyzer.cc
+  minpat/UndetChecker.cc
+  minpat/DomChecker.cc
   )
 
 set (sa_SOURCES

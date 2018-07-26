@@ -26,10 +26,12 @@ public:
   /// @brief コンストラクタ
   /// @param[in] fault 対象の故障
   /// @param[in] mand_cond 必要条件
-  /// @param[in] sufficient_cond 十分条件
+  /// @param[in] suff_cond 十分条件
+  /// @param[in] testvect テストベクタ
   FaultInfo(const TpgFault* fault,
 	    const NodeValList& mand_cond,
-	    const Expr& sufficient_cond);
+	    const NodeValList& suff_cond,
+	    const TestVector& testvect);
 
   /// @brief デストラクタ
   ~FaultInfo();
@@ -49,26 +51,12 @@ public:
   mand_cond() const;
 
   /// @brief 十分条件を返す．
-  const Expr&
-  sufficient_cond() const;
+  const NodeValList&
+  suff_cond() const;
 
-  /// @brief 衝突している故障を追加する．
-  /// @param[in] fi 追加する故障情報
-  void
-  add_conflict(FaultInfo* fi);
-
-  /// @brief 衝突リストを返す．
-  const vector<FaultInfo*>&
-  conflict_list() const;
-
-  /// @brief 両立している故障を追加する．
-  /// @param[in] fi 追加する故障情報
-  void
-  add_compatible(FaultInfo* fi);
-
-  /// @brief 両立している故障リストを返す．
-  const vector<FaultInfo*>&
-  compatible_list() const;
+  /// @brief テストベクタを返す．
+  const TestVector&
+  testvect() const;
 
 
 private:
@@ -89,13 +77,10 @@ private:
   NodeValList mMandCond;
 
   // 十分条件
-  Expr mSufficientCond;
+  NodeValList mSufficientCond;
 
-  // 衝突している故障のリスト
-  vector<FaultInfo*> mConflictList;
-
-  // 両立している故障のリスト
-  vector<FaultInfo*> mCompatibleList;
+  // テストベクタ
+  TestVector mTestVector;
 
 };
 
@@ -107,14 +92,17 @@ private:
 // @brief コンストラクタ
 // @param[in] fault 対象の故障
 // @param[in] mand_cond 必要条件
-// @param[in] sufficient_cond 十分条件
+// @param[in] suff_cond 十分条件
+// @param[in] testvect テストベクタ
 inline
 FaultInfo::FaultInfo(const TpgFault* fault,
 		     const NodeValList& mand_cond,
-		     const Expr& sufficient_cond) :
+		     const NodeValList& suff_cond,
+		     const TestVector& testvect) :
   mFault(fault),
   mMandCond(mand_cond),
-  mSufficientCond(sufficient_cond)
+  mSufficientCond(suff_cond),
+  mTestVector(testvect)
 {
 }
 
@@ -142,43 +130,18 @@ FaultInfo::mand_cond() const
 
 // @brief 十分条件の割当リストを返す．
 inline
-const Expr&
-FaultInfo::sufficient_cond() const
+const NodeValList&
+FaultInfo::suff_cond() const
 {
   return mSufficientCond;
 }
 
-// @brief 衝突している故障を追加する．
+// @brief テストベクタを返す．
 inline
-void
-FaultInfo::add_conflict(FaultInfo* fi)
+const TestVector&
+FaultInfo::testvect() const
 {
-  mConflictList.push_back(fi);
-}
-
-// @brief 衝突リストを返す．
-inline
-const vector<FaultInfo*>&
-FaultInfo::conflict_list() const
-{
-  return mConflictList;
-}
-
-// @brief 両立している故障を追加する．
-// @param[in] fi 追加する故障情報
-inline
-void
-FaultInfo::add_compatible(FaultInfo* fi)
-{
-  mCompatibleList.push_back(fi);
-}
-
-// @brief 両立している故障リストを返す．
-inline
-const vector<FaultInfo*>&
-FaultInfo::compatible_list() const
-{
-  return mCompatibleList;
+  return mTestVector;
 }
 
 END_NAMESPACE_YM_SATPG

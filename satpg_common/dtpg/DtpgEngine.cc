@@ -300,7 +300,6 @@ DtpgEngine::gen_detect_cnf()
   // 故障回路の CNF を生成
   gen_faulty_cnf();
 
-
   //////////////////////////////////////////////////////////////////////
   // 故障の検出条件(正確には mRoot から外部出力までの故障の伝搬条件)
   //////////////////////////////////////////////////////////////////////
@@ -441,36 +440,14 @@ DtpgEngine::make_ffr_condition(const TpgFault* fault)
   // ブランチの故障の場合，ゲートの出力までの伝搬条件を作る．
   if ( fault->is_branch_fault() ) {
     const TpgNode* onode = fault->tpg_onode();
-    Val3 nval = onode->nval();
-    if ( nval != Val3::_X ) {
-      bool val = (nval == Val3::_1);
-      for ( auto ipos: Range(onode->fanin_num()) ) {
-	if ( ipos != fault->tpg_pos() ) {
-	  auto inode1 = onode->fanin(ipos);
-	  add_assign(assign_list, inode1, 1, val);
-	}
-      }
-    }
+    add_side_input(onode, fault->tpg_pos(), assign_list);
   }
 
   // FFR の根までの伝搬条件を作る．
   for ( const TpgNode* node = fault->tpg_onode(); node->fanout_num() == 1;
 	node = node->fanout_list()[0]) {
     const TpgNode* fonode = node->fanout_list()[0];
-    int ni = fonode->fanin_num();
-    if ( ni == 1 ) {
-      continue;
-    }
-    Val3 nval = fonode->nval();
-    if ( nval == Val3::_X ) {
-      continue;
-    }
-    bool val = (nval == Val3::_1);
-    for ( auto inode1: fonode->fanin_list() ) {
-      if ( inode1 != node ) {
-	add_assign(assign_list, inode1, 1, val);
-      }
-    }
+    add_side_input(fonode, node, assign_list);
   }
 
   if ( debug_dtpg ) {
@@ -507,26 +484,24 @@ DtpgEngine::add_assign(NodeValList& assign_list,
 
 // @brief バックトレースを行う．
 // @param[in] fault 故障
-// @param[in] ffr_cond FFR 内の故障伝搬条件
-// @param[in] model SATの解
+// @param[in] suf_cond 十分条件の割り当て
+// @param[in] model SATモデル
 // @return テストパタンを返す．
 TestVector
 DtpgEngine::backtrace(const TpgFault* fault,
-		      const NodeValList& ffr_cond,
+		      const NodeValList& suf_cond,
 		      const vector<SatBool3>& model)
 {
   StopWatch timer;
   timer.start();
 
   // バックトレースを行う．
-  NodeValList assign_list = get_sufficient_condition(fault, model);
-  assign_list.merge(ffr_cond);
   TestVector testvect;
   if ( mFaultType == FaultType::TransitionDelay ) {
-    testvect = mJustifier(assign_list, mHvarMap, mGvarMap, model);
+    testvect = mJustifier(suf_cond, mHvarMap, mGvarMap, model);
   }
   else {
-    testvect = mJustifier(assign_list, mGvarMap, model);
+    testvect = mJustifier(suf_cond, mGvarMap, model);
   }
 
   timer.stop();
@@ -543,7 +518,7 @@ DtpgEngine::conv_to_literal(NodeVal node_val)
   bool inv = !node_val.val(); // 0 の時が inv = true
   SatVarId vid = (node_val.time() == 0) ? hvar(node) : gvar(node);
   return SatLiteral(vid, inv);
- }
+}
 
 // @brief 値割り当てをリテラルのリストに変換する．
 // @param[in] assign_list 値の割り当てリスト
@@ -727,6 +702,57 @@ DtpgEngine::_add_negation_sub(const Expr& expr)
 
   ASSERT_NOT_REACHED;
   return SatLiteral();
+}
+
+// @brief side-input の割り当てを得る．
+// @param[in] node ノード
+// @param[in] ipos 対象のファンイン番号
+// @param[out] nodeval_list 割り当てリスト
+//
+// * node が非制御値を持たない場合は nodeval_list は空になる．
+void
+DtpgEngine::add_side_input(const TpgNode* node,
+			   int ipos,
+			   NodeValList& nodeval_list)
+{
+  Val3 nval = node->nval();
+  if ( nval != Val3::_X ) {
+    bool val = (nval == Val3::_1);
+    for ( auto ipos1: Range(node->fanin_num()) ) {
+      if ( ipos1 != ipos ) {
+	auto inode1 = node->fanin(ipos1);
+	add_assign(nodeval_list, inode1, 1, val);
+      }
+    }
+  }
+}
+
+// @brief side-input の割り当てを得る．
+// @param[in] node ノード
+// @param[in] inode 対象のファンイン
+// @param[out] nodeval_list 割り当てリスト
+//
+// * node が非制御値を持たない場合は nodeval_list は空になる．
+// * 上の関数との違いは同じノードが重複してファンインとなっている場合
+void
+DtpgEngine::add_side_input(const TpgNode* node,
+			   const TpgNode* inode,
+			   NodeValList& nodeval_list)
+{
+  int ni = node->fanin_num();
+  if ( ni == 1 ) {
+    return;
+  }
+  Val3 nval = node->nval();
+  if ( nval == Val3::_X ) {
+    return;
+  }
+  bool val = (nval == Val3::_1);
+  for ( auto inode1: node->fanin_list() ) {
+    if ( inode1 != inode ) {
+      add_assign(nodeval_list, inode1, 1, val);
+    }
+  }
 }
 
 END_NAMESPACE_YM_SATPG

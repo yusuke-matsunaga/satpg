@@ -30,12 +30,14 @@ MatrixGen::MatrixGen(const vector<const TpgFault*>& fault_list,
   mTvList(tv_list),
   mRowIdMap(network.max_fault_id(), -1)
 {
+  mFsim.init_fsim3(network, fault_type);
+  mFsim.clear_patterns();
+  mFsim.set_skip_all();
   for ( auto row_id: Range(mFaultList.size()) ) {
     auto fault = mFaultList[row_id];
     mRowIdMap[fault->id()] = row_id;
+    mFsim.clear_skip(fault);
   }
-
-  mFsim.init_fsim3(network, fault_type);
 }
 
 // @brief デストラクタ
@@ -50,7 +52,6 @@ MatrixGen::generate()
   McMatrix matrix(mFaultList.size(), mTvList.size());
 
   int wpos = 0;
-  mFsim.clear_patterns();
   int tv_base = 0;
   for ( auto tv: mTvList ) {
     mFsim.set_pattern(wpos, tv);
