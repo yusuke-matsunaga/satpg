@@ -74,7 +74,7 @@ GateEnc::make_cnf(const TpgNode* node,
   case GateType::Not:
     {
       SatLiteral ilit = lit(fanin_array[0]);
-      mSolver.add_eq_rel( ilit, ~olit);
+      mSolver.add_neq_rel( ilit, olit);
     }
     break;
 

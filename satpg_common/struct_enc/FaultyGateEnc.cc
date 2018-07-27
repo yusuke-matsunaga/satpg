@@ -116,12 +116,8 @@ FaultyGateEnc::make_cnf(SatVarId ovar)
     }
     else {
       // 入力の1縮退故障
-      if ( ni == 2 ) {
-	mSolver.add_eq_rel( olit, ilits[0]);
-      }
-      else {
-	mSolver.add_andgate_rel( olit, ilits);
-      }
+      // ilits の要素数が 1 でも正しく動く．
+      mSolver.add_andgate_rel( olit, ilits);
     }
     break;
 
@@ -132,12 +128,8 @@ FaultyGateEnc::make_cnf(SatVarId ovar)
     }
     else {
       // 入力の1縮退故障
-      if ( ni == 2 ) {
-	mSolver.add_eq_rel( ~olit, ilits[0] );
-      }
-      else {
-	mSolver.add_nandgate_rel( olit, ilits);
-      }
+      // ilits の要素数が 1 でも正しく動く．
+      mSolver.add_nandgate_rel( olit, ilits);
     }
     break;
 
@@ -148,12 +140,8 @@ FaultyGateEnc::make_cnf(SatVarId ovar)
     }
     else {
       // 入力の 0 縮退故障
-      if ( ni == 2 ) {
-	mSolver.add_eq_rel( olit, ilits[0] );
-      }
-      else {
-	mSolver.add_orgate_rel( olit, ilits );
-      }
+      // ilits の要素数が 1 でも正しく動く．
+      mSolver.add_orgate_rel( olit, ilits );
     }
     break;
 
@@ -163,19 +151,15 @@ FaultyGateEnc::make_cnf(SatVarId ovar)
       mSolver.add_clause(~olit);
     }
     else {
-      if ( ni == 2 ) {
-	mSolver.add_eq_rel( ~olit, ilits[0] );
-      }
-      else {
-	mSolver.add_norgate_rel( olit, ilits);
-      }
+      // ilits の要素数が 1 でも正しく動く．
+      mSolver.add_norgate_rel( olit, ilits);
     }
     break;
 
   case GateType::Xor:
     ASSERT_COND( ni == 2 );
     if ( fval ) {
-      mSolver.add_eq_rel( ~olit, ilits[0] );
+      mSolver.add_neq_rel( olit, ilits[0] );
     }
     else {
       mSolver.add_eq_rel( olit, ilits[0] );
@@ -188,7 +172,7 @@ FaultyGateEnc::make_cnf(SatVarId ovar)
       mSolver.add_eq_rel( olit, ilits[0] );
     }
     else {
-      mSolver.add_eq_rel( ~olit, ilits[0] );
+      mSolver.add_neq_rel( olit, ilits[0] );
     }
     break;
 
