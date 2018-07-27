@@ -47,6 +47,7 @@ public:
 	   const vector<TestVector>& tv_list,
 	   const TpgNetwork& network,
 	   FaultType fault_type,
+	   const string& red_algorithm,
 	   vector<TestVector>& new_tv_list);
 
 

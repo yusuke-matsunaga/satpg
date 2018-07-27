@@ -126,6 +126,14 @@ public:
   SatVarId
   dvar(const TpgNode* node);
 
+  /// @brief gvar が割り当てられている時に true を返す．
+  bool
+  has_gvar(const TpgNode* node) const;
+
+  /// @brief hvar が割り当てられている時に true を返す．
+  bool
+  has_hvar(const TpgNode* node) const;
+
 
 protected:
   //////////////////////////////////////////////////////////////////////
@@ -300,6 +308,14 @@ private:
   void
   set_prev_tfi_mark(const TpgNode* node);
 
+  /// @brief 正常回路の CNF を作る．
+  void
+  make_good_cnf(const TpgNode* node);
+
+  /// @brief 1時刻前の正常回路の CNF を作る．
+  void
+  make_prev_cnf(const TpgNode* node);
+
 
 private:
   //////////////////////////////////////////////////////////////////////
@@ -341,6 +357,11 @@ private:
 
   // 作業用のマークを入れておく配列
   // サイズは mMaxNodeId
+  // bit-0: TFOマーク
+  // bit-1: TFIマーク
+  // bit-2: prev TFIマーク
+  // bit-3: gvar マーク
+  // bit-4: hvar マーク
   vector<ymuint8> mMarkArray;
 
   // 1時刻前の正常値を表す変数のマップ
@@ -471,6 +492,20 @@ UndetChecker::set_hvar(const TpgNode* node,
 		       SatVarId var)
 {
   mHvarMap.set_vid(node, var);
+  mMarkArray[node->id()] |= 16U;
+}
+
+// @brief hvar が割り当てられている時に true を返す．
+inline
+bool
+UndetChecker::has_hvar(const TpgNode* node) const
+{
+  if ( (mMarkArray[node->id()] & 16U) != 0U ) {
+    return true;
+  }
+  else {
+    return false;
+  }
 }
 
 // @brief 正常値の変数を設定する．
@@ -482,6 +517,21 @@ UndetChecker::set_gvar(const TpgNode* node,
 		       SatVarId var)
 {
   mGvarMap.set_vid(node, var);
+  mFvarMap.set_vid(node, var);
+  mMarkArray[node->id()] |= 8U;
+}
+
+// @brief gvar が割り当てられている時に true を返す．
+inline
+bool
+UndetChecker::has_gvar(const TpgNode* node) const
+{
+  if ( (mMarkArray[node->id()] & 8U) != 0U ) {
+    return true;
+  }
+  else {
+    return false;
+  }
 }
 
 // @brief 故障値値の変数を設定する．
@@ -553,7 +603,7 @@ void
 UndetChecker::set_tfi_mark(const TpgNode* node)
 {
   int id = node->id();
-  ymuint8 mask = 4U;
+  ymuint8 mask = 2U;
   if ( (mMarkArray[id] & mask) == 0U ) {
     mMarkArray[id] |= mask;
     mTfiList.push_back(node);
@@ -569,7 +619,7 @@ void
 UndetChecker::set_prev_tfi_mark(const TpgNode* node)
 {
   int id = node->id();
-  ymuint8 mask = 8U;
+  ymuint8 mask = 4U;
   if ( (mMarkArray[id] & mask) == 0U ) {
     mMarkArray[id] |= mask;
     mPrevTfiList.push_back(node);

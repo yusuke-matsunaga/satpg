@@ -153,7 +153,7 @@ UndetChecker::timer_stop()
 void
 UndetChecker::prepare_vars()
 {
-  // root[pos] の TFO を mTfoList[pos] に入れる．
+  // root[pos] の TFO を mTfoList に入れる．
   set_tfo_mark(mRoot);
   for ( int rpos = 0; rpos < mTfoList.size(); ++ rpos ) {
     const TpgNode* node = mTfoList[rpos];
@@ -169,7 +169,7 @@ UndetChecker::prepare_vars()
     }
   }
 
-  // TFI に含まれる DFF のさらに TFI を mTfi2List に入れる．
+  // TFI に含まれる DFF のさらに TFI を mPrevTfiList に入れる．
   if ( mFaultType == FaultType::TransitionDelay ) {
     if ( mRoot->is_dff_output() ) {
       mDffList.push_back(mRoot->dff());
@@ -191,8 +191,7 @@ UndetChecker::prepare_vars()
   for ( auto node: mTfiList ) {
     SatVarId gvar = mSolver.new_variable();
 
-    mGvarMap.set_vid(node, gvar);
-    mFvarMap.set_vid(node, gvar);
+    set_gvar(node, gvar);
 
     if ( debug_dtpg ) {
       DEBUG_OUT << "gvar(Node#" << node->id() << ") = " << gvar << endl;
@@ -201,10 +200,12 @@ UndetChecker::prepare_vars()
 
   // TFO の部分に変数を割り当てる．
   for ( auto node: mTfoList ) {
+    SatVarId gvar = mSolver.new_variable();
     SatVarId fvar = mSolver.new_variable();
     //SatVarId dvar = mSolver.new_variable();
 
-    mFvarMap.set_vid(node, fvar);
+    set_gvar(node, gvar);
+    set_fvar(node, fvar);
     //mDvarMap.set_vid(node, dvar);
 
     if ( debug_dtpg ) {
@@ -214,11 +215,12 @@ UndetChecker::prepare_vars()
     }
   }
 
+
   // prev TFI の部分に変数を割り当てる．
   for ( auto node: mPrevTfiList ) {
     SatVarId hvar = mSolver.new_variable();
 
-    mHvarMap.set_vid(node, hvar);
+    set_hvar(node, hvar);
 
     if ( debug_dtpg ) {
       DEBUG_OUT << "hvar(Node#" << node->id() << ") = " << hvar << endl;
@@ -452,7 +454,15 @@ UndetChecker::conv_to_literal(NodeVal node_val)
 {
   const TpgNode* node = node_val.node();
   bool inv = !node_val.val(); // 0 の時が inv = true
-  SatVarId vid = (node_val.time() == 0) ? hvar(node) : gvar(node);
+  SatVarId vid;
+  if ( node_val.time() == 0 ) {
+    make_prev_cnf(node);
+    vid = hvar(node);
+  }
+  else {
+    make_good_cnf(node);
+    vid = gvar(node);
+  }
   return SatLiteral(vid, inv);
 }
 
@@ -461,7 +471,7 @@ UndetChecker::conv_to_literal(NodeVal node_val)
 // @param[out] assumptions 変換したリテラルを追加するリスト
 void
 UndetChecker::conv_to_assumptions(const NodeValList& assign_list,
-				vector<SatLiteral>& assumptions)
+				  vector<SatLiteral>& assumptions)
 {
   int n0 = assumptions.size();
   int n = assign_list.size();
@@ -478,7 +488,7 @@ UndetChecker::conv_to_assumptions(const NodeValList& assign_list,
 // @return 結果を返す．
 SatBool3
 UndetChecker::solve(const vector<SatLiteral>& assumptions,
-		  vector<SatBool3>& model)
+		    vector<SatBool3>& model)
 {
   StopWatch timer;
   timer.start();
@@ -543,8 +553,8 @@ UndetChecker::add_side_input(const TpgNode* node,
 // * 上の関数との違いは同じノードが重複してファンインとなっている場合
 void
 UndetChecker::add_side_input(const TpgNode* node,
-			   const TpgNode* inode,
-			   NodeValList& nodeval_list)
+			     const TpgNode* inode,
+			     NodeValList& nodeval_list)
 {
   int ni = node->fanin_num();
   if ( ni == 1 ) {
@@ -560,6 +570,42 @@ UndetChecker::add_side_input(const TpgNode* node,
       add_assign(nodeval_list, inode1, 1, val);
     }
   }
+}
+
+// @brief 正常回路の CNF を作る．
+void
+UndetChecker::make_good_cnf(const TpgNode* node)
+{
+  if ( has_gvar(node) ) {
+    return;
+  }
+  for ( auto inode: node->fanin_list() ) {
+    make_good_cnf(inode);
+  }
+
+  SatVarId var = mSolver.new_variable();
+  set_gvar(node, var);
+
+  GateEnc gval_enc(mSolver, mGvarMap);
+  gval_enc.make_cnf(node);
+}
+
+// @brief 1時刻前の正常回路の CNF を作る．
+void
+UndetChecker::make_prev_cnf(const TpgNode* node)
+{
+  if ( has_hvar(node) ) {
+    return;
+  }
+  for ( auto inode: node->fanin_list() ) {
+    make_prev_cnf(inode);
+  }
+
+  SatVarId var = mSolver.new_variable();
+  set_hvar(node, var);
+
+  GateEnc hval_enc(mSolver, mHvarMap);
+  hval_enc.make_cnf(node);
 }
 
 END_NAMESPACE_YM_SATPG

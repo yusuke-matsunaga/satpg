@@ -18,10 +18,11 @@ cdef class MinPatMgr :
 
     ### @brief 彩色問題を用いて問題を解く．
     @staticmethod
-    def coloring(fault_list, tv_list, TpgNetwork network, fault_type) :
+    def coloring(fault_list, tv_list, TpgNetwork network, fault_type, red_algorithm) :
         cdef vector[const CXX_TpgFault*] c_fault_list
         cdef vector[CXX_TestVector] c_tv_list
         cdef CXX_FaultType c_fault_type = from_FaultType(fault_type)
+        cdef string c_alg = red_algorithm.encode('UTF-8')
         cdef vector[CXX_TestVector] c_new_tv_list
         cdef TpgFault fault
         cdef TestVector tv
@@ -36,7 +37,8 @@ cdef class MinPatMgr :
         for i in range(nv) :
             tv = tv_list[i]
             c_tv_list[i] = tv._this
-        CXX_MinPatMgr.coloring(c_fault_list, c_tv_list, network._this, c_fault_type, c_new_tv_list)
+        CXX_MinPatMgr.coloring(c_fault_list, c_tv_list, network._this, c_fault_type, c_alg,
+                               c_new_tv_list)
         return [ to_TestVector(c_tv) for c_tv in c_new_tv_list ]
 
 

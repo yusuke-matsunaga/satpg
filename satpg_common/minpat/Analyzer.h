@@ -40,15 +40,24 @@ public:
   // 外部インターフェイス
   //////////////////////////////////////////////////////////////////////
 
+  /// @brief 故障の支配関係を調べて故障リストを縮約する．
+  /// @param[inout] fault_list 対象の故障リスト
+  /// @param[in] algorithm アルゴリズム
+  void
+  fault_reduction(vector<const TpgFault*>& fault_list,
+		  const string& algorithm);
+
   /// @brief 検出可能故障リストを作る．
   /// @param[out] fi_list 故障情報のリスト
   void
-  gen_fault_list(vector<FaultInfo*>& fi_list);
+  gen_fault_list(const vector<bool>& mark,
+		 vector<FaultInfo*>& fi_list);
 
   /// @brief 異なる FFR 間の支配故障の簡易チェックを行う．
   /// @param[inout] fi_list 故障情報のリスト
   void
-  dom_reduction1(vector<FaultInfo*>& fi_list);
+  dom_reduction1(vector<FaultInfo*>& fi_list,
+		 bool do_narrowing);
 
   /// @brief 異なる FFR 間の支配故障の簡易チェックを行う．
   /// @param[inout] fi_list 故障情報のリスト

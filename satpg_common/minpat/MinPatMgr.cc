@@ -214,6 +214,7 @@ MinPatMgr::coloring(const vector<const TpgFault*>& fault_list,
 		    const vector<TestVector>& tv_list,
 		    const TpgNetwork& network,
 		    FaultType fault_type,
+		    const string& red_algorithm,
 		    vector<TestVector>& new_tv_list)
 {
   new_tv_list.clear();
@@ -222,31 +223,13 @@ MinPatMgr::coloring(const vector<const TpgFault*>& fault_list,
     return 0;
   }
 
-#if 1
-  cout << "Analyze start" << endl;
-  Analyzer analyzer(network, fault_type);
-  //analyzer.init(0);
-  vector<FaultInfo*> fi_list;
-  analyzer.gen_fault_list(fi_list);
-  analyzer.dom_reduction1(fi_list);
-  analyzer.dom_reduction2(fi_list);
-  cout << "Analyze end" << endl;
-
-  vector<const TpgFault*> red_fault_list;
-  red_fault_list.reserve(fi_list.size());
-  //vector<TestVector> red_tv_list;
-  //red_tv_list.reserve(fi_list.size());
-  for ( auto fi: fi_list ) {
-    auto fault = fi->fault();
-    red_fault_list.push_back(fault);
-    //auto testvect = fi->testvect();
-    //red_tv_list.push_back(testvect);
+  vector<const TpgFault*> red_fault_list(fault_list);
+  if ( red_algorithm != string() ) {
+    cout << "Analyze start" << endl;
+    Analyzer analyzer(network, fault_type);
+    analyzer.fault_reduction(red_fault_list, red_algorithm);
+    cout << "Analyze end" << endl;
   }
-  //cout << "*** coloring ***" << endl;
-  //cout << "# of initial patterns: " << nv << endl;
-#else
-  auto& red_fault_list = fault_list;
-#endif
 
   MpColGraph graph(tv_list);
 

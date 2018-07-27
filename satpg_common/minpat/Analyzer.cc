@@ -13,7 +13,6 @@
 #include "DtpgFFR2.h"
 #include "UndetChecker.h"
 #include "DomChecker.h"
-#include "DomChecker2.h"
 #include "TpgFFR.h"
 #include "TpgFault.h"
 #include "MatrixGen.h"
@@ -23,6 +22,45 @@
 
 
 BEGIN_NAMESPACE_YM_SATPG
+
+BEGIN_NONAMESPACE
+
+// オプション文字列をパーズする
+// * オプションは
+//   <オプションキーワード>[:<オプション値>][, <オプションキーワード>[:<オプション値>]]
+//   の形式と仮定する．
+// * 空白の除去は行わない．単純に ',' と ':' のみで区切る．
+// * 結果を opt_list に格納する．
+void
+parse_option(const string& option_str,
+	     vector<pair<string, string>>& opt_list)
+{
+  // ',' で区切る
+  string tmp_str(option_str);
+  for ( ; ; ) {
+    string::size_type p = tmp_str.find_first_of(',');
+    string tmp = tmp_str.substr(0, p);
+    // tmp を ':' で区切る．
+    string::size_type q = tmp.find_first_of(':');
+    if ( q == string::npos ) {
+      // ':' がなかった
+      opt_list.push_back(make_pair(tmp, string()));
+    }
+    else {
+      string l_str = tmp.substr(0, q);
+      string r_str = tmp.substr(q + 1, string::npos);
+      opt_list.push_back(make_pair(l_str, r_str));
+    }
+    if ( p == string::npos ) {
+      // 末尾だったので終わる．
+      break;
+    }
+    // tmp_str を切り詰める．
+    tmp_str = tmp_str.substr(p + 1, string::npos);
+  }
+}
+
+END_NONAMESPACE
 
 // @brief コンストラクタ
 // @param[in] network 対象のネットワーク
@@ -41,10 +79,50 @@ Analyzer::~Analyzer()
 {
 }
 
+// @brief 故障の支配関係を調べて故障リストを縮約する．
+// @param[inout] fault_list 対象の故障リスト
+// @param[in] algorithm アルゴリズム
+void
+Analyzer::fault_reduction(vector<const TpgFault*>& fault_list,
+			  const string& algorithm)
+{
+  // 実は fault_list は参考程度にしか使わない．
+  vector<bool> mark(mNetwork.max_fault_id(), false);
+  for ( auto fault: fault_list ) {
+    mark[fault->id()] = true;
+  }
+  vector<FaultInfo*> fi_list;
+  gen_fault_list(mark, fi_list);
+
+  vector<pair<string, string>> opt_list;
+  parse_option(algorithm, opt_list);
+
+  for ( auto opt_pair: opt_list ) {
+    auto alg = opt_pair.first;
+    auto opt = opt_pair.second;
+    if ( alg == "red1" ) {
+      bool do_narrowing = false;
+      if ( opt == "narrowing" ) {
+	do_narrowing = true;
+      }
+      dom_reduction1(fi_list, do_narrowing);
+    }
+    else if ( alg == "red2" ) {
+      dom_reduction2(fi_list);
+    }
+  }
+
+  fault_list.clear();
+  for ( auto fi: fi_list ) {
+    fault_list.push_back(fi->fault());
+  }
+}
+
 // @brief 検出可能故障リストを作る．
 // @param[out] fi_list 故障情報のリスト
 void
-Analyzer::gen_fault_list(vector<FaultInfo*>& fi_list)
+Analyzer::gen_fault_list(const vector<bool>& mark,
+			 vector<FaultInfo*>& fi_list)
 {
   string sat_type;
   string sat_option;
@@ -59,6 +137,9 @@ Analyzer::gen_fault_list(vector<FaultInfo*>& fi_list)
     DtpgFFR dtpg(sat_type, sat_option, sat_outp, mFaultType, just_type, mNetwork, ffr);
     vector<FaultInfo*> tmp_fi_list;
     for ( auto fault: ffr.fault_list() ) {
+      if ( !mark[fault->id()] ) {
+	continue;
+      }
       NodeValList ffr_cond = dtpg.make_ffr_condition(fault);
       vector<SatLiteral> assumptions;
       dtpg.conv_to_assumptions(ffr_cond, assumptions);
@@ -133,7 +214,8 @@ Analyzer::gen_fault_list(vector<FaultInfo*>& fi_list)
 
 // @brief 異なる FFR 間の支配故障の簡易チェックを行う．
 void
-Analyzer::dom_reduction1(vector<FaultInfo*>& fi_list)
+Analyzer::dom_reduction1(vector<FaultInfo*>& fi_list,
+			 bool do_narrowing)
 {
   StopWatch timer;
   timer.start();
@@ -192,11 +274,11 @@ Analyzer::dom_reduction1(vector<FaultInfo*>& fi_list)
 	continue;
       }
       NodeValList mand_cond = fi2->mand_cond();
-      {
+      if ( do_narrowing ) {
 	bool out_of_range = false;
 	for ( auto nv: mand_cond ) {
 	  auto node = nv.node();
-	  if ( undet_checker.gvar(node) == kSatVarIdIllegal ) {
+	  if ( !undet_checker.has_gvar(node) ) {
 	    out_of_range = true;
 	    break;
 	  }

@@ -22,7 +22,7 @@ from satpg_core import gen_colcov
 from satpg_core import MinPatMgr
 
 #algorithm_list = ('coloring2', 'mincov+dsatur', 'mincov+isx', 'isx+mincov', 'dsatur+mincov')
-algorithm_list = ('coloring2', 'mincov+dsatur', 'mincov+isx')
+algorithm_list = ('coloring2', 'coloring3', 'coloring4', 'coloring5', 'mincov+dsatur', 'mincov+isx')
 
 def minpat(tv_list, fault_list, network, fault_type, cmp_algorithm) :
     if cmp_algorithm == 'mincov+dsatur' :
@@ -48,7 +48,19 @@ def minpat(tv_list, fault_list, network, fault_type, cmp_algorithm) :
         tv_list1 = coloring(tv_list, 'isx')
         return tv_list1
     elif cmp_algorithm == 'coloring2' :
-        tv_list1 = MinPatMgr.coloring(fault_list, tv_list, network, fault_type)
+        tv_list1 = MinPatMgr.coloring(fault_list, tv_list, network, fault_type, "")
+        return tv_list1
+    elif cmp_algorithm == 'coloring3' :
+        tv_list1 = MinPatMgr.coloring(fault_list, tv_list, network, fault_type, "red1:narrowing")
+        return tv_list1
+    elif cmp_algorithm == 'coloring4' :
+        tv_list1 = MinPatMgr.coloring(fault_list, tv_list, network, fault_type, "red1")
+        return tv_list1
+    elif cmp_algorithm == 'coloring5' :
+        tv_list1 = MinPatMgr.coloring(fault_list, tv_list, network, fault_type, "red1:narrowing,red2")
+        return tv_list1
+    elif cmp_algorithm == 'coloring6' :
+        tv_list1 = MinPatMgr.coloring(fault_list, tv_list, network, fault_type, "red1,red2")
         return tv_list1
     elif cmp_algorithm == 'mincov' :
         tv_list1 = mincov(fault_list, tv_list, network, fault_type)
@@ -101,15 +113,16 @@ def exec_one(file_name, fault_type, k) :
     print('# of initial patterns:   {:8d}'.format(len(dtpg.tvlist)))
     print('CPU time(ATPG):          {:8.2f}'.format(cpu_time))
     for algorithm in algorithm_list :
+        print('---------------------------------')
+        print('Compaction Algorithm:    {}'.format(algorithm))
         start = time.process_time()
         new_tv_list = minpat(dtpg.tvlist, dtpg.fault_list, network, fault_type, algorithm)
         end = time.process_time()
         cpu_time1 = end - start
         nv = len(new_tv_list)
-        print('---------------------------------')
-        print('Compaction Algorithm:    {}'.format(algorithm))
         print('# of minimized patterns: {:8d}'.format(nv))
         print('CPU time(compaction):    {:8.2f}'.format(cpu_time1))
+        print()
     print()
 
 
