@@ -380,12 +380,12 @@ UndetChecker::make_good_cnf(const TpgNode* node)
   if ( has_gvar(node) ) {
     return;
   }
+  SatVarId var = mSolver.new_variable();
+  set_gvar(node, var);
+
   for ( auto inode: node->fanin_list() ) {
     make_good_cnf(inode);
   }
-
-  SatVarId var = mSolver.new_variable();
-  set_gvar(node, var);
 
   GateEnc gval_enc(mSolver, mGvarMap);
   gval_enc.make_cnf(node);
@@ -398,12 +398,12 @@ UndetChecker::make_prev_cnf(const TpgNode* node)
   if ( has_hvar(node) ) {
     return;
   }
+  SatVarId var = mSolver.new_variable();
+  set_hvar(node, var);
+
   for ( auto inode: node->fanin_list() ) {
     make_prev_cnf(inode);
   }
-
-  SatVarId var = mSolver.new_variable();
-  set_hvar(node, var);
 
   GateEnc hval_enc(mSolver, mHvarMap);
   hval_enc.make_cnf(node);
