@@ -56,8 +56,7 @@ public:
   /// @brief 異なる FFR 間の支配故障の簡易チェックを行う．
   /// @param[inout] fi_list 故障情報のリスト
   void
-  dom_reduction1(vector<FaultInfo*>& fi_list,
-		 bool do_narrowing);
+  dom_reduction1(vector<FaultInfo*>& fi_list);
 
   /// @brief 異なる FFR 間の支配故障の簡易チェックを行う．
   /// @param[inout] fi_list 故障情報のリスト

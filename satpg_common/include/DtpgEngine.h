@@ -40,20 +40,16 @@ class DtpgEngine
 public:
 
   /// @brief コンストラクタ
-  /// @param[in] sat_type SATソルバの種類を表す文字列
-  /// @param[in] sat_option SATソルバに渡すオプション文字列
-  /// @param[in] sat_outp SATソルバ用の出力ストリーム
-  /// @param[in] fault_type 故障の種類
-  /// @param[in] just_type Justifier の種類を表す文字列
   /// @param[in] network 対象のネットワーク
+  /// @param[in] fault_type 故障の種類
   /// @param[in] root 故障伝搬の起点となるノード
-  DtpgEngine(const string& sat_type,
-	     const string& sat_option,
-	     ostream* sat_outp,
+  /// @param[in] just_type Justifier の種類を表す文字列
+  /// @param[in] solver_type SATソルバの実装タイプ
+  DtpgEngine(const TpgNetwork& network,
 	     FaultType fault_type,
+	     const TpgNode* root,
 	     const string& just_type,
-	     const TpgNetwork& network,
-	     const TpgNode* root);
+	     const SatSolverType& solver_type = SatSolverType());
 
   /// @brief デストラクタ
   ~DtpgEngine();
@@ -267,16 +263,6 @@ protected:
   /// @brief 対象の部分回路の故障値の関係を表す CNF 式を作る．
   void
   gen_faulty_cnf();
-
-#if 0
-  /// @brief root の影響が外部出力まで伝搬する条件のCNF式を作る．
-  void
-  gen_detect_cnf();
-
-  /// @brief 故障の伝搬しない条件を表す CNF 式を作る．
-  void
-  gen_undetect_cnf();
-#endif
 
 
 private:

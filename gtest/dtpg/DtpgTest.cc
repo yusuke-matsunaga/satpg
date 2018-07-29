@@ -130,11 +130,7 @@ private:
   // データメンバ
   //////////////////////////////////////////////////////////////////////
 
-  string mSatType;
-
-  string mSatOption;
-
-  ostream* mSatOutp;
+  SatSolverType mSolverType;
 
   TpgNetwork mNetwork;
 
@@ -144,9 +140,6 @@ private:
 
 
 DtpgTestWithParam::DtpgTestWithParam() :
-  mSatType(""),
-  mSatOption(""),
-  mSatOutp(nullptr),
   mDtpgTest(nullptr)
 {
 }
@@ -158,7 +151,7 @@ DtpgTestWithParam::SetUp()
   bool stat = mNetwork.read_blif(filename());
   ASSERT_COND( stat );
 
-  mDtpgTest = new DtpgTest(mSatType, mSatOption, mSatOutp, fault_type(), just_type(), mNetwork);
+  mDtpgTest = new DtpgTest(mNetwork, fault_type(), just_type(), mSolverType);
 }
 
 // @brief 終了処理を行う．

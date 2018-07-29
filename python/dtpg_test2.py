@@ -179,7 +179,9 @@ def main() :
             tv_list1 = coloring(tv_list, 'isx')
             tv_list = tv_list1
         elif cmp_algorithm == 'coloring2' :
-            tv_list1 = MinPatMgr.coloring(dtpg.fault_list, tv_list, network, fault_type)
+            fault_list = list(dtpg.fault_list)
+            MinPatMgr.fault_reduction(fault_list, network, fault_type, 'red1,red2')
+            tv_list1 = MinPatMgr.coloring(fault_list, tv_list, network, fault_type)
             tv_list = tv_list1
         elif cmp_algorithm == 'mincov' :
             tv_list1 = mincov(dtpg.fault_list, tv_list, network, fault_type)

@@ -9,7 +9,7 @@
 
 from satpg_core import DtpgFFR, DtpgMFFC
 from satpg_core import Fsim
-from satpg_core import FaultStatus, FaultStatusMgr
+from satpg_core import FaultStatus
 from satpg_core import TestVector
 
 
@@ -22,10 +22,26 @@ class Dtpg :
         self.__fault_type = fault_type
         self.__fsim3 = Fsim('Fsim3', network, fault_type)
         self.__fsim3.clear_skip_all()
-        self.__fsmgr = FaultStatusMgr(network)
         self.__fault_list = []
-        self.__tvlist = []
+        self.__tv_list = []
         self.__fault_drop = False
+        self.__fault_mark = {}
+        for fault in self.__network.rep_fault_list() :
+            self.__fault_mark[fault.id] = True
+
+    ### @brief 故障の印を消す．
+    def clear_fault_mark(self) :
+        for fault in self.__network.rep_fault_list() :
+            self.__fault_mark[fault.id] = False
+            self.__fsim3.set_skip(fault)
+
+    ### @brief 故障に印をつける．
+    def set_fault_mark(self, fault, val) :
+        self.__fault_mark[fault.id] = val
+        if val :
+            self.__fsim3.clear_skip(fault)
+        else :
+            self.__fsim3.set_skip(fault)
 
     ### @brief FFR mode でパタン生成を行う．
     def ffr_mode(self, drop) :
@@ -33,10 +49,12 @@ class Dtpg :
         self.__nunt = 0
         self.__nabt = 0
         self.__fault_drop = drop
+        self.__fault_list = []
+        self.__tv_list = []
         for ffr in self.__network.ffr_list() :
             dtpg = DtpgFFR(self.__network, self.__fault_type, ffr)
             for fault in ffr.fault_list() :
-                if self.__fsmgr.get(fault) == FaultStatus.Undetected :
+                if self.__fault_mark[fault.id] :
                     self.__call_dtpg(dtpg, fault)
         return self.__ndet, self.__nunt, self.__nabt
 
@@ -45,10 +63,12 @@ class Dtpg :
         self.__ndet = 0
         self.__nunt = 0
         self.__nabt = 0
+        self.__fault_list = []
+        self.__tv_list = []
         for ffr in self.__network.ffr_list() :
             dtpg = DtpgFFR(self.__network, self.__fault_type, ffr)
             for fault in ffr.fault_list() :
-                if self.__fsmgr.get(fault) == FaultStatus.Undetected :
+                if self.__fault_mark[fault.id] :
                     self.__call_dtpg_k(dtpg, fault, k)
         return self.__ndet, self.__nunt, self.__nabt
 
@@ -61,7 +81,7 @@ class Dtpg :
         for mffc in self.__network.mffc_list() :
             dtpg = DtpgMFFC(self.__network, self.__fault_type, mffc)
             for fault in mffc.fault_list() :
-                if self.__fsmgr.get(fault) == FaultStatus.Undetected :
+                if self.__fault_mark[faul.id] :
                     self.__call_dtpg(dtpg, fault)
         return self.__ndet, self.__nunt, self.__nabt
 
@@ -71,23 +91,23 @@ class Dtpg :
         if stat == FaultStatus.Detected :
             self.__ndet += 1
             # fault を検出可能故障と記録
-            self.__fsmgr.set(fault, FaultStatus.Detected)
             self.__fsim3.set_skip(fault)
             self.__fault_list.append(fault)
+            self.__fault_mark[fault.id] = False
             # fault のパタンとして testvect を記録
-            self.__tvlist.append(testvect)
+            self.__tv_list.append(testvect)
             if self.__fault_drop :
                 # このパタンで検出される他の故障を調べる．
                 for fault in self.__fsim3.sppfp(testvect) :
-                    self.__fsmgr.set(fault, FaultStatus.Detected)
                     self.__fsim3.set_skip(fault)
                     self.__fault_list.append(fault)
+                    self.__fault_mark[fault.id] = False
                     self.__ndet += 1
         elif stat == FaultStatus.Untestable :
             self.__nunt += 1
             # fault をテスト不能故障と記録
-            self.__fsmgr.set(fault, FaultStatus.Untestable)
             self.__fsim3.set_skip(fault)
+            self.__fault_mark[fault.id] = False
         elif stat == FaultStatus.Undetected :
             self.__nabt += 1
         else :
@@ -99,17 +119,17 @@ class Dtpg :
         if stat == FaultStatus.Detected :
             self.__ndet += 1
             # fault を検出可能故障と記録
-            self.__fsmgr.set(fault, FaultStatus.Detected)
             self.__fsim3.set_skip(fault)
             self.__fault_list.append(fault)
+            self.__fault_mark[fault.id] = False
             # fault のパタンとして testvect を記録
             for testvect in testvect_list :
-                self.__tvlist.append(testvect)
+                self.__tv_list.append(testvect)
         elif stat == FaultStatus.Untestable :
             self.__nunt += 1
             # fault をテスト不能故障と記録
-            self.__fsmgr.set(fault, FaultStatus.Untestable)
             self.__fsim3.set_skip(fault)
+            self.__fault_mark[fault.id] = False
         elif stat == FaultStatus.Undetected :
             self.__nabt += 1
         else :
@@ -122,5 +142,5 @@ class Dtpg :
 
     ### @brief テストパタンのリストを返す．
     @property
-    def tvlist(self) :
-        return self.__tvlist
+    def tv_list(self) :
+        return self.__tv_list

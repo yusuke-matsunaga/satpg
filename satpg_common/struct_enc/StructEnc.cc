@@ -50,12 +50,10 @@ END_NONAMESPACE
 // @param[in] sat_outp SATソルバ用の出力ストリーム
 StructEnc::StructEnc(const TpgNetwork& network,
 		     FaultType fault_type,
-		     const string& sat_type,
-		     const string& sat_option,
-		     ostream* sat_outp) :
+		     const SatSolverType& solver_type) :
   mNetwork(network),
   mFaultType(fault_type),
-  mSolver(sat_type, sat_option, sat_outp),
+  mSolver(solver_type),
   mMaxId(network.node_num()),
   mMark(mMaxId, false)
 {

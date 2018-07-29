@@ -20,14 +20,14 @@ from CXX_TpgFault cimport TpgFault
 from CXX_DtpgResult cimport DtpgResult
 from CXX_DtpgStats cimport DtpgStats
 from CXX_SatBool3 cimport SatBool3
+from CXX_SatSolverType cimport SatSolverType
 from CXX_TestVector cimport TestVector
 
 cdef extern from "DtpgFFR.h" namespace "nsYm::nsSatpg" :
 
     ## @brief DtpgFFR の Cython バージョン
     cdef cppclass DtpgFFR :
-        DtpgFFR(const string&, const string&, ostream*, FaultType, const string&,
-                const TpgNetwork&, const TpgFFR&)
+        DtpgFFR(const TpgNetwork&, FaultType, const TpgFFR&, const string&, const SatSolverType)
         DtpgResult gen_pattern(const TpgFault*)
         DtpgResult gen_k_patterns(const TpgFault*, int, vector[TestVector])
         const DtpgStats& stats()
@@ -37,7 +37,6 @@ cdef extern from "DtpgMFFC.h" namespace "nsYm::nsSatpg" :
 
     ## @brief DtpgMFFC の Cython バージョン
     cdef cppclass DtpgMFFC :
-        DtpgMFFC(const string&, const string&, ostream*, FaultType, const string&,
-                 const TpgNetwork&, const TpgMFFC&)
+        DtpgMFFC(const TpgNetwork&, FaultType, const TpgMFFC&, const string&, const SatSolverType)
         DtpgResult gen_pattern(const TpgFault*)
         const DtpgStats& stats()

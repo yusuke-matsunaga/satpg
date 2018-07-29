@@ -37,6 +37,14 @@ public:
   // 外部インターフェイス
   //////////////////////////////////////////////////////////////////////
 
+  /// @brief 故障リストを縮約する．
+  static
+  void
+  fault_reduction(vector<const TpgFault*>& fault_list,
+		  const TpgNetwork& network,
+		  FaultType fault_type,
+		  const string& algorithm);
+
   /// @brief 彩色問題でパタン圧縮を行う．
   /// @param[in] tv_list 初期テストパタンのリスト
   /// @param[out] new_tv_list 圧縮結果のテストパタンのリスト
@@ -47,7 +55,6 @@ public:
 	   const vector<TestVector>& tv_list,
 	   const TpgNetwork& network,
 	   FaultType fault_type,
-	   const string& red_algorithm,
 	   vector<TestVector>& new_tv_list);
 
 

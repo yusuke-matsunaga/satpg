@@ -103,11 +103,7 @@ Analyzer::fault_reduction(vector<const TpgFault*>& fault_list,
     auto alg = opt_pair.first;
     auto opt = opt_pair.second;
     if ( alg == "red1" ) {
-      bool do_narrowing = false;
-      if ( opt == "narrowing" ) {
-	do_narrowing = true;
-      }
-      dom_reduction1(fi_list, do_narrowing);
+      dom_reduction1(fi_list);
     }
     else if ( alg == "red2" ) {
       dom_reduction2(fi_list);
@@ -126,9 +122,6 @@ void
 Analyzer::gen_fault_list(const vector<bool>& mark,
 			 vector<FaultInfo*>& fi_list)
 {
-  string sat_type;
-  string sat_option;
-  ostream* sat_outp = nullptr;
   string just_type;
 
   RandGen randgen;
@@ -136,7 +129,7 @@ Analyzer::gen_fault_list(const vector<bool>& mark,
   int n1 = 0;
   for ( auto& ffr: mNetwork.ffr_list() ) {
     // FFR ごとに検出可能な故障をもとめる．
-    DtpgFFR dtpg(sat_type, sat_option, sat_outp, mFaultType, just_type, mNetwork, ffr);
+    DtpgFFR dtpg(mNetwork, mFaultType, ffr, just_type);
     vector<FaultInfo*> tmp_fi_list;
     for ( auto fault: ffr.fault_list() ) {
       if ( !mark[fault->id()] ) {
@@ -218,8 +211,7 @@ Analyzer::gen_fault_list(const vector<bool>& mark,
 
 // @brief 異なる FFR 間の支配故障の簡易チェックを行う．
 void
-Analyzer::dom_reduction1(vector<FaultInfo*>& fi_list,
-			 bool do_narrowing)
+Analyzer::dom_reduction1(vector<FaultInfo*>& fi_list)
 {
   StopWatch timer;
   timer.start();
@@ -236,9 +228,6 @@ Analyzer::dom_reduction1(vector<FaultInfo*>& fi_list,
   MatrixGen matgen(fault_list, tv_list, mNetwork, mFaultType);
   McMatrix matrix = matgen.generate();
 
-  string sat_type;
-  string sat_option;
-  ostream* sat_outp = nullptr;
   string just_type;
 
   int check_num = 0;
@@ -249,7 +238,7 @@ Analyzer::dom_reduction1(vector<FaultInfo*>& fi_list,
   for ( int i1 = 0; i1 < nf; ++ i1 ) {
     auto fi1 = fi_list[i1];
     auto fault1 = fi1->fault();
-    UndetChecker undet_checker(sat_type, sat_option, sat_outp, mFaultType, mNetwork, fault1);
+    UndetChecker undet_checker(mNetwork, mFaultType, fault1);
 
     // i2 が i1 を支配している時
     // i2 に含まれる列は必ず i1 にも含まれなければならない．
@@ -277,20 +266,7 @@ Analyzer::dom_reduction1(vector<FaultInfo*>& fi_list,
 	// 同じ FFR ならチェック済み
 	continue;
       }
-      NodeValList mand_cond = fi2->mand_cond();
-      if ( do_narrowing ) {
-	bool out_of_range = false;
-	for ( auto nv: mand_cond ) {
-	  auto node = nv.node();
-	  if ( !undet_checker.has_gvar(node) ) {
-	    out_of_range = true;
-	    break;
-	  }
-	}
-	if ( out_of_range ) {
-	  continue;
-	}
-      }
+
       ++ check_num;
       SatBool3 res = undet_checker.check(fault2);
       if ( res == SatBool3::False ) {
@@ -347,10 +323,6 @@ Analyzer::dom_reduction2(vector<FaultInfo*>& fi_list)
   MatrixGen matgen(fault_list, tv_list, mNetwork, mFaultType);
   McMatrix matrix = matgen.generate();
 
-  string sat_type;
-  string sat_option;
-  ostream* sat_outp = nullptr;
-
   int check_num = 0;
   int dom_num = 0;
   int success_num = 0;
@@ -398,8 +370,7 @@ Analyzer::dom_reduction2(vector<FaultInfo*>& fi_list)
 	continue;
       }
       ++ dom_num;
-      DomChecker dom_checker(sat_type, sat_option, sat_outp, mFaultType, mNetwork,
-			     ffr2.root(), fault1);
+      DomChecker dom_checker(mNetwork, mFaultType, ffr2.root(), fault1);
       for ( auto fault2: fault2_list ) {
 	++ check_num;
 	SatBool3 res = dom_checker.check_detectable(fault2);
@@ -444,9 +415,6 @@ Analyzer::dom_reduction2(vector<FaultInfo*>& fi_list)
 void
 Analyzer::init(int loop_limit)
 {
-  string sat_type;
-  string sat_option;
-  ostream* sat_outp = nullptr;
   string just_type;
 
   nex_num = 0;
@@ -456,7 +424,7 @@ Analyzer::init(int loop_limit)
   int n1 = 0;
   for ( auto& ffr: mNetwork.ffr_list() ) {
     // FFR ごとに検出可能な故障をもとめる．
-    DtpgFFR dtpg(sat_type, sat_option, sat_outp, mFaultType, just_type, mNetwork, ffr);
+    DtpgFFR dtpg(mNetwork, mFaultType, ffr, just_type);
     vector<const TpgFault*> fault_list;
     vector<NodeValList> ffr_cond_list;
     vector<NodeValList> suf_cond_list;
@@ -539,7 +507,7 @@ Analyzer::init(int loop_limit)
       if ( !mark[fault->id()] ) {
 	continue;
       }
-      UndetChecker undet_checker(sat_type, sat_option, sat_outp, mFaultType, mNetwork, fault);
+      UndetChecker undet_checker(mNetwork, mFaultType, fault);
       for ( auto& ffr2: mNetwork.ffr_list() ) {
 	if ( &ffr == &ffr2 ) {
 	  continue;
@@ -597,8 +565,7 @@ Analyzer::init(int loop_limit)
 	if ( &ffr == &ffr2 ) {
 	  continue;
 	}
-	DomChecker dom_checker(sat_type, sat_option, sat_outp, mFaultType, mNetwork,
-			       ffr2.root(), fault);
+	DomChecker dom_checker(mNetwork, mFaultType, ffr2.root(), fault);
 	for ( auto fault2: ffr2.fault_list() ) {
 	  if ( !mark[fault2->id()] ) {
 	    continue;

@@ -35,9 +35,7 @@ public:
   /// @param[in] sat_outp SATソルバ用の出力ストリーム
   StructEnc(const TpgNetwork& network,
 	    FaultType fault_type,
-	    const string& sat_type = string(),
-	    const string& sat_option = string(),
-	    ostream* sat_outp = nullptr);
+	    const SatSolverType& solver_type = SatSolverType());
 
   /// @brief デストラクタ
   ~StructEnc();

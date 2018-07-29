@@ -26,20 +26,16 @@ class DtpgMFFC :
 public:
 
   /// @brief コンストラクタ
-  /// @param[in] sat_type SATソルバの種類を表す文字列
-  /// @param[in] sat_option SATソルバに渡すオプション文字列
-  /// @param[in] sat_outp SATソルバ用の出力ストリーム
+  /// @param[in] network 対象のネットワーク
   /// @param[in] fault_type 故障の種類
   /// @param[in] just_type Justifier の種類を表す文字列
-  /// @param[in] network 対象のネットワーク
-  /// @param[in] root 故障伝搬の起点となるノード
-  DtpgMFFC(const string& sat_type,
-	   const string& sat_option,
-	   ostream* sat_outp,
+  /// @param[in] mffc 故障伝搬の起点となる MFFC
+  /// @param[in] solver_type SATソルバの実装タイプ
+  DtpgMFFC(const TpgNetwork& network,
 	   FaultType fault_type,
+	   const TpgMFFC& mffc,
 	   const string& just_type,
-	   const TpgNetwork& network,
-	   const TpgMFFC& mffc);
+	   const SatSolverType& solver_type = SatSolverType());
 
   /// @brief デストラクタ
   ~DtpgMFFC();

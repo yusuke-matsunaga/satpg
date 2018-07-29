@@ -178,7 +178,8 @@ dtpg_test(int argc,
     print_network(cout, network);
   }
 
-  DtpgTest dtpgtest(sat_type, sat_option, sat_outp, fault_type, just_type, network);
+  SatSolverType solver_type(sat_type, sat_option, sat_outp);
+  DtpgTest dtpgtest(network, fault_type, just_type, solver_type);
 
   pair<int, int> num_pair;
   if ( ffr ) {

@@ -18,10 +18,10 @@ from satpg_core import Val3
 ### @brief グラフ彩色を用いた圧縮を行う．
 def coloring(tv_list, algorithm = '') :
     n = len(tv_list)
-    #print('*** Graph Coloring({}) ***'.format(algorithm))
-    #print('# of initial patterns: {:8d}'.format(n))
+    print('*** Graph Coloring({}) ***'.format(algorithm))
+    print('# of initial patterns: {:8d}'.format(n))
     graph = gen_compat_graph(tv_list)
-    #print('gen_compat_graph() end')
+    print('gen_compat_graph() end')
     nc, color_map = graph.coloring(algorithm)
     #print('# of reduced patterns: {:8d}'.format(nc))
 
@@ -48,14 +48,6 @@ def mincov(fault_list, tv_list, network, fault_type, algorithm = '') :
     #print('*** Minimum Covering ***')
     #print('# of initial patterns: {:8d}'.format(len(tv_list)))
 
-    nf = len(fault_list)
-    fid_dict = {}
-    fid = 0
-    for fault in fault_list :
-        fid_dict[fault.id] = fid
-        fid += 1
-    assert fid == nf
-
     def do_fsim(fsim, tv_buff, fid_dict, tid_base, mincov) :
         assert len(tv_buff) <= 64
 
@@ -65,8 +57,19 @@ def mincov(fault_list, tv_list, network, fault_type, algorithm = '') :
             for patid in patid_list :
                 mincov.insert_elem(fid, tid_base + patid)
 
+    nf = len(fault_list)
     mincov = MinCov(nf, len(tv_list))
     fsim = Fsim('Fsim3', network, fault_type)
+    fsim.set_skip_all()
+
+    fid_dict = {}
+    fid = 0
+    for fault in fault_list :
+        fid_dict[fault.id] = fid
+        fsim.clear_skip(fault)
+        fid += 1
+    assert fid == nf
+
     tv_buff = []
     wpos = 0
     tid_base = 0

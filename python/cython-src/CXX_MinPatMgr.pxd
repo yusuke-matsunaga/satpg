@@ -19,9 +19,13 @@ cdef extern from "MinPatMgr.h" namespace "nsYm::nsSatpg" :
     cdef cppclass MinPatMgr :
         MinPatMgr()
         @staticmethod
+        void fault_reduction(const vector[const TpgFault*]& fault_list,
+                             const TpgNetwork& network,
+                             FaultType fault_type,
+                             const string& red_algorithm)
+        @staticmethod
         int coloring(const vector[const TpgFault*]& fault_list,
                      const vector[TestVector]& tv_list,
                      const TpgNetwork& network,
                      FaultType fault_type,
-                     const string& red_algorithm,
                      vector[TestVector]& new_tv_list)

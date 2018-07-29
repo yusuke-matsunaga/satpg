@@ -22,22 +22,18 @@
 BEGIN_NAMESPACE_YM_SATPG
 
 // @brief コンストラクタ
-// @param[in] sat_type SATタイプ
-// @param[in] sat_option SATオプション
-// @param[in] sat_outp SATソルバ用の出力ストリーム
+// @param[in] network 対象のネットワーク
 // @param[in] fault_type 故障の種類
-DtpgTest::DtpgTest(const string& sat_type,
-		   const string& sat_option,
-		   ostream* sat_outp,
+// @param[in] just_type Justifier の種類を表す文字列
+// @param[in] solver_type SATソルバのタイプ
+DtpgTest::DtpgTest(const TpgNetwork& network,
 		   FaultType fault_type,
 		   const string& just_type,
-		   const TpgNetwork& network) :
-  mSatType(sat_type),
-  mSatOption(sat_option),
-  mSatOutP(sat_outp),
+		   const SatSolverType& solver_type) :
+  mSolverType(solver_type),
+  mNetwork(network),
   mFaultType(fault_type),
   mJustType(just_type),
-  mNetwork(network),
   mFaultMgr(network)
 {
   mFsim.init_fsim3(network, fault_type);
@@ -60,7 +56,7 @@ DtpgTest::ffr_test()
   int detect_num = 0;
   int untest_num = 0;
   for ( auto& ffr: mNetwork.ffr_list() ) {
-    Dtpg_se dtpg(mSatType, mSatOption, mSatOutP, mFaultType, mJustType, mNetwork, ffr);
+    Dtpg_se dtpg(mNetwork, mFaultType, ffr, mJustType, mSolverType);
     for ( auto fault: ffr.fault_list() ) {
       if ( mFaultMgr.get(fault) == FaultStatus::Undetected ) {
 	TestVector testvect(mNetwork.input_num(), mNetwork.dff_num(), mFaultType);
@@ -104,7 +100,7 @@ DtpgTest::mffc_test()
   int detect_num = 0;
   int untest_num = 0;
   for ( auto& mffc: mNetwork.mffc_list() ) {
-    Dtpg_se dtpg(mSatType, mSatOption, mSatOutP, mFaultType, mJustType, mNetwork, mffc);
+    Dtpg_se dtpg(mNetwork, mFaultType, mffc, mJustType, mSolverType);
     for ( auto fault: mffc.fault_list() ) {
       if ( mFaultMgr.get(fault) == FaultStatus::Undetected ) {
 	// 故障に対するテスト生成を行なう．
@@ -149,7 +145,7 @@ DtpgTest::ffr_new_test()
   mDetectNum = 0;
   mUntestNum = 0;
   for ( auto& ffr: mNetwork.ffr_list() ) {
-    DtpgFFR dtpg(mSatType, mSatOption, mSatOutP, mFaultType, mJustType, mNetwork, ffr);
+    DtpgFFR dtpg(mNetwork, mFaultType, ffr, mJustType, mSolverType);
     for ( auto fault: ffr.fault_list() ) {
       if ( mFaultMgr.get(fault) == FaultStatus::Undetected ) {
 	DtpgResult result = dtpg.gen_pattern(fault);
@@ -186,7 +182,7 @@ DtpgTest::mffc_new_test()
   mDetectNum = 0;
   mUntestNum = 0;
   for ( auto& mffc: mNetwork.mffc_list() ) {
-    DtpgMFFC dtpg(mSatType, mSatOption, mSatOutP, mFaultType, mJustType, mNetwork, mffc);
+    DtpgMFFC dtpg(mNetwork, mFaultType, mffc, mJustType, mSolverType);
     for ( auto fault: mffc.fault_list() ) {
       if ( mFaultMgr.get(fault) == FaultStatus::Undetected ) {
 	// 故障に対するテスト生成を行なう．

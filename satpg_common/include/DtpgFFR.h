@@ -25,20 +25,16 @@ class DtpgFFR :
 public:
 
   /// @brief コンストラクタ
-  /// @param[in] sat_type SATソルバの種類を表す文字列
-  /// @param[in] sat_option SATソルバに渡すオプション文字列
-  /// @param[in] sat_outp SATソルバ用の出力ストリーム
+  /// @param[in] network 対象のネットワーク
   /// @param[in] fault_type 故障の種類
   /// @param[in] just_type Justifier の種類を表す文字列
-  /// @param[in] network 対象のネットワーク
   /// @param[in] ffr 故障伝搬の起点となる FFR
-  DtpgFFR(const string& sat_type,
-	  const string& sat_option,
-	  ostream* sat_outp,
+  /// @param[in] solver_type SATソルバの実装タイプ
+  DtpgFFR(const TpgNetwork& network,
 	  FaultType fault_type,
+	  const TpgFFR& ffr,
 	  const string& just_type,
-	  const TpgNetwork& network,
-	  const TpgFFR& ffr);
+	  const SatSolverType& solver_type = SatSolverType());
 
   /// @brief デストラクタ
   ~DtpgFFR();

@@ -24,11 +24,10 @@ cdef class DtpgFFR :
     def __cinit__(DtpgFFR self, TpgNetwork network, fault_type, TpgFFR ffr,
                   **kwargs) :
         cdef CXX_FaultType c_ftype = from_FaultType(fault_type)
-        cdef string c_sat_type = kwargs.get('sat_type', '').encode('UTF-8')
-        cdef string c_sat_option = kwargs.get('sat_option', '').encode('UTF-8')
+        cdef SatSolverType solver_type = kwargs.get('solver_type', SatSolverType())
         cdef string c_jt = kwargs.get('just_type', 'Just2').encode('UTF-8')
-        self._thisptr = new CXX_DtpgFFR(c_sat_type, c_sat_option, NULL, c_ftype, c_jt,
-                                        network._this, deref(ffr._thisptr))
+        self._thisptr = new CXX_DtpgFFR(network._this, c_ftype, deref(ffr._thisptr), c_jt,
+                                        solver_type._this)
 
     ### @brief 終了処理
     def __dealloc__(DtpgFFR self) :
@@ -63,11 +62,10 @@ cdef class DtpgMFFC :
     def __cinit__(DtpgMFFC self, TpgNetwork network, fault_type, TpgMFFC mffc,
                   **kwargs) :
         cdef CXX_FaultType c_ftype = from_FaultType(fault_type)
-        cdef string c_sat_type = kwargs.get('sat_type', '').encode('UTF-8')
-        cdef string c_sat_option = kwargs.get('sat_option', '').encode('UTF-8')
+        cdef SatSolverType solver_type = kwargs.get('solver_type', SatSolverType())
         cdef string c_jt = kwargs.get('just_type', 'Just2').encode('UTF-8')
-        self._thisptr = new CXX_DtpgMFFC(c_sat_type, c_sat_option, NULL, c_ftype, c_jt,
-                                         network._this, deref(mffc._thisptr))
+        self._thisptr = new CXX_DtpgMFFC(network._this, c_ftype, deref(mffc._thisptr), c_jt,
+                                         solver_type._this)
 
     ### @brief 終了処理
     def __dealloc__(DtpgMFFC self) :

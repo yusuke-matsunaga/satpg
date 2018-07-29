@@ -39,21 +39,17 @@ END_NONAMESPACE
 BEGIN_NAMESPACE_YM_SATPG
 
 // @brief コンストラクタ
-// @param[in] sat_type SATソルバの種類を表す文字列
-// @param[in] sat_option SATソルバに渡すオプション文字列
-// @param[in] sat_outp SATソルバ用の出力ストリーム
-// @param[in] fault_type 故障の種類
-// @param[in] bt バックトレーサー
 // @param[in] network 対象のネットワーク
+// @param[in] fault_type 故障の種類
 // @param[in] root 故障伝搬の起点となるノード
-DtpgEngine::DtpgEngine(const string& sat_type,
-		       const string& sat_option,
-		       ostream* sat_outp,
+// @param[in] just_type Justifier の種類を表す文字列
+// @param[in] solver_type SATソルバの実装タイプ
+DtpgEngine::DtpgEngine(const TpgNetwork& network,
 		       FaultType fault_type,
+		       const TpgNode* root,
 		       const string& just_type,
-		       const TpgNetwork& network,
-		       const TpgNode* root) :
-  mSolver(sat_type, sat_option, sat_outp),
+		       const SatSolverType& solver_type) :
+  mSolver(solver_type),
   mNetwork(network),
   mFaultType(fault_type),
   mRoot(root),

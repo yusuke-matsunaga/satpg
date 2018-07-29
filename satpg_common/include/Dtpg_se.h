@@ -32,55 +32,43 @@ class Dtpg_se
 public:
 
   /// @brief コンストラクタ(ノードモード)
-  /// @param[in] sat_type SATソルバの種類を表す文字列
-  /// @param[in] sat_option SATソルバに渡すオプション文字列
-  /// @param[in] sat_outp SATソルバ用の出力ストリーム
-  /// @param[in] fault_type 故障の種類
-  /// @param[in] just_type Justifier の種類を表す文字列
   /// @param[in] network 対象のネットワーク
+  /// @param[in] fault_type 故障の種類
   /// @param[in] node 故障のあるノード
-  Dtpg_se(const string& sat_type,
-	  const string& sat_option,
-	  ostream* sat_outp,
+  /// @param[in] just_type Justifier の種類を表す文字列
+  /// @param[in] solver_type SATソルバの実装タイプ
+  Dtpg_se(const TpgNetwork& network,
 	  FaultType fault_type,
+	  const TpgNode* node,
 	  const string& just_type,
-	  const TpgNetwork& network,
-	  const TpgNode* node);
+	  const SatSolverType& solver_type = SatSolverType());
 
   /// @brief コンストラクタ(ffrモード)
-  /// @param[in] sat_type SATソルバの種類を表す文字列
-  /// @param[in] sat_option SATソルバに渡すオプション文字列
-  /// @param[in] sat_outp SATソルバ用の出力ストリーム
-  /// @param[in] fault_type 故障の種類
-  /// @param[in] just_type Justifier の種類を表す文字列
   /// @param[in] network 対象のネットワーク
+  /// @param[in] fault_type 故障の種類
   /// @param[in] ffr 故障伝搬の起点となる FFR
-  Dtpg_se(const string& sat_type,
-	  const string& sat_option,
-	  ostream* sat_outp,
+  /// @param[in] just_type Justifier の種類を表す文字列
+  /// @param[in] solver_type SATソルバの実装タイプ
+  Dtpg_se(const TpgNetwork& network,
 	  FaultType fault_type,
+	  const TpgFFR& ffr,
 	  const string& just_type,
-	  const TpgNetwork& network,
-	  const TpgFFR& ffr);
+	  const SatSolverType& solver_type = SatSolverType());
 
   /// @brief コンストラクタ(mffcモード)
-  /// @param[in] sat_type SATソルバの種類を表す文字列
-  /// @param[in] sat_option SATソルバに渡すオプション文字列
-  /// @param[in] sat_outp SATソルバ用の出力ストリーム
-  /// @param[in] fault_type 故障の種類
-  /// @param[in] just_type Justifier の種類を表す文字列
   /// @param[in] network 対象のネットワーク
+  /// @param[in] fault_type 故障の種類
   /// @param[in] mffc 故障伝搬の起点となる MFFC
+  /// @param[in] just_type Justifier の種類を表す文字列
+  /// @param[in] solver_type SATソルバの実装タイプ
   ///
   /// この MFFC に含まれるすべての FFR が対象となる．
   /// FFR と MFFC が一致している場合は ffr モードと同じことになる．
-  Dtpg_se(const string& sat_type,
-	  const string& sat_option,
-	  ostream* sat_outp,
+  Dtpg_se(const TpgNetwork& network,
 	  FaultType fault_type,
+	  const TpgMFFC& mffc,
 	  const string& just_type,
-	  const TpgNetwork& network,
-	  const TpgMFFC& mffc);
+	  const SatSolverType& solver_type = SatSolverType());
 
   /// @brief デストラクタ
   ~Dtpg_se();

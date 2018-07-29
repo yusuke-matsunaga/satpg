@@ -109,6 +109,7 @@ set (minpat_SOURCES
   minpat/MpColGraph.cc
   minpat/MatrixGen.cc
   minpat/Analyzer.cc
+  minpat/FaultReducer.cc
   minpat/UndetChecker.cc
   minpat/DomChecker.cc
   )

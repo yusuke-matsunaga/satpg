@@ -38,20 +38,16 @@ class DomChecker
 public:
 
   /// @brief コンストラクタ
-  /// @param[in] sat_type SATソルバの種類を表す文字列
-  /// @param[in] sat_option SATソルバに渡すオプション文字列
-  /// @param[in] sat_outp SATソルバ用の出力ストリーム
-  /// @param[in] fault_type 故障の種類
   /// @param[in] network 対象のネットワーク
+  /// @param[in] fault_type 故障の種類
   /// @param[in] root 故障伝搬の起点となるノード
   /// @param[in] fault 故障伝搬をさせない故障
-  DomChecker(const string& sat_type,
-	     const string& sat_option,
-	     ostream* sat_outp,
+  /// @param[in] solver_type SATソルバの実装タイプ
+  DomChecker(const TpgNetwork& network,
 	     FaultType fault_type,
-	     const TpgNetwork& network,
 	     const TpgNode* root,
-	     const TpgFault* fault);
+	     const TpgFault* fault,
+	     const SatSolverType& solver_type = SatSolverType());
 
   /// @brief デストラクタ
   ~DomChecker();

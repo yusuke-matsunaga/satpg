@@ -12,7 +12,7 @@
 #include "TpgFault.h"
 #include "MpColGraph.h"
 #include "MatrixGen.h"
-#include "Analyzer.h"
+#include "FaultReducer.h"
 #include "FaultInfo.h"
 #include "ym/McMatrix.h"
 #include "ym/HashSet.h"
@@ -207,8 +207,21 @@ MinPatMgr::~MinPatMgr()
 {
 }
 
+// @brief 故障リストを縮約する．
+void
+MinPatMgr::fault_reduction(vector<const TpgFault*>& fault_list,
+			   const TpgNetwork& network,
+			   FaultType fault_type,
+			   const string& algorithm)
+{
+  if ( algorithm != string() ) {
+    FaultReducer reducer(network, fault_type);
+    reducer.fault_reduction(fault_list, algorithm);
+  }
+}
+
 // @brief 彩色問題でパタン圧縮を行う．
-// @param[in] tv_list 初期テストパタンのリスト
+// @param[in] tv_list 初期テストパタンのリストnn
 // @param[out] new_tv_list 圧縮結果のテストパタンのリスト
 // @return 結果のパタン数を返す．
 int
@@ -216,7 +229,6 @@ MinPatMgr::coloring(const vector<const TpgFault*>& fault_list,
 		    const vector<TestVector>& tv_list,
 		    const TpgNetwork& network,
 		    FaultType fault_type,
-		    const string& red_algorithm,
 		    vector<TestVector>& new_tv_list)
 {
   new_tv_list.clear();
@@ -225,23 +237,18 @@ MinPatMgr::coloring(const vector<const TpgFault*>& fault_list,
     return 0;
   }
 
-  vector<const TpgFault*> red_fault_list(fault_list);
-  if ( red_algorithm != string() ) {
-    Analyzer analyzer(network, fault_type);
-    analyzer.fault_reduction(red_fault_list, red_algorithm);
-  }
-
   MpColGraph graph(tv_list);
 
   //cout << " MpColGraph generated" << endl;
 
-  MatrixGen matgen(red_fault_list, tv_list, network, fault_type);
+  MatrixGen matgen(fault_list, tv_list, network, fault_type);
   McMatrix matrix = matgen.generate();
 
   //cout << " McMatrix generated" << endl;
 
   if ( debug ) {
-    cout << "# of faults: " << red_fault_list.size() << endl;
+    int nf = matrix.active_row_num();
+    cout << "# of faults: " << nf << endl;
     int n_sum = 0;
     int n_max = 0;
     for ( auto row: matrix.row_head_list() ) {
@@ -252,7 +259,7 @@ MinPatMgr::coloring(const vector<const TpgFault*>& fault_list,
       }
     }
     cout << "# of max detects: " << n_max << endl
-	 << "# of avg. detects: " << (n_sum / static_cast<double>(red_fault_list.size())) << endl;
+	 << "# of avg. detects: " << (n_sum / static_cast<double>(nf)) << endl;
   }
 
   // 被覆行列の縮約を行う．

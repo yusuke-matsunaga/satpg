@@ -17,6 +17,7 @@
 #include "DopList.h"
 #include "DopVerifyResult.h"
 #include "DtpgStats.h"
+#include "ym/SatSolverType.h"
 #include "ym/StopWatch.h"
 
 
@@ -31,17 +32,14 @@ class DtpgTest
 public:
 
   /// @brief コンストラクタ
-  /// @param[in] sat_type SATタイプ
-  /// @param[in] sat_option SATオプション
-  /// @param[in] sat_outp SATソルバ用の出力ストリーム
+  /// @param[in] network 対象のネットワーク
   /// @param[in] fault_type 故障の種類
   /// @param[in] just_type Justifier の種類を表す文字列
-  DtpgTest(const string& sat_type,
-	   const string& sat_option,
-	   ostream* sat_outp,
+  /// @param[in] solver_type SATソルバのタイプ
+  DtpgTest(const TpgNetwork& network,
 	   FaultType fault_type,
 	   const string& just_type,
-	   const TpgNetwork& network);
+	   const SatSolverType& solver_type = SatSolverType());
 
   /// @brief デストラクタ
   ~DtpgTest();
@@ -99,22 +97,16 @@ private:
   //////////////////////////////////////////////////////////////////////
 
   // SAT ソルバの種類
-  string mSatType;
+  SatSolverType mSolverType;
 
-  // SAT ソルバのオプション
-  string mSatOption;
-
-  // SAT ソルバのログ出力
-  ostream* mSatOutP;
+  // 対象のネットワーク
+  const TpgNetwork& mNetwork;
 
   // 故障の種類
   FaultType mFaultType;
 
   // Justifier の種類
   string mJustType;
-
-  // 対象のネットワーク
-  const TpgNetwork& mNetwork;
 
   // 故障マネージャ
   FaultStatusMgr mFaultMgr;

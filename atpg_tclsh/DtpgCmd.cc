@@ -31,12 +31,10 @@
 BEGIN_NAMESPACE_YM_SATPG
 
 void
-run_ffr_new(const string& sat_type,
-	    const string& sat_option,
-	    ostream* sat_outp,
+run_ffr_new(const TpgNetwork& network,
 	    FaultType fault_type,
 	    const string& just_type,
-	    const TpgNetwork& network,
+	    const SatSolverType& solver_type,
 	    FaultStatusMgr& fmgr,
 	    DetectOp& dop,
 	    UntestOp& uop,
@@ -44,7 +42,7 @@ run_ffr_new(const string& sat_type,
 {
   int nffr = network.ffr_num();
   for ( auto& ffr: network.ffr_list() ) {
-    DtpgFFR dtpg(sat_type, sat_option, sat_outp, fault_type, just_type, network, ffr);
+    DtpgFFR dtpg(network, fault_type, ffr, just_type, solver_type);
     for ( auto fault: ffr.fault_list() ) {
       if ( fmgr.get(fault) == FaultStatus::Undetected ) {
 	DtpgResult result = dtpg.gen_pattern(fault);
@@ -61,12 +59,10 @@ run_ffr_new(const string& sat_type,
 }
 
 void
-run_mffc_new(const string& sat_type,
-	     const string& sat_option,
-	     ostream* sat_outp,
+run_mffc_new(const TpgNetwork& network,
 	     FaultType fault_type,
 	     const string& just_type,
-	     const TpgNetwork& network,
+	     const SatSolverType& solver_type,
 	     FaultStatusMgr& fmgr,
 	     DetectOp& dop,
 	     UntestOp& uop,
@@ -74,7 +70,7 @@ run_mffc_new(const string& sat_type,
 {
   int n = network.mffc_num();
   for ( auto& mffc: network.mffc_list() ) {
-    DtpgMFFC dtpg(sat_type, sat_option, sat_outp, fault_type, just_type, network, mffc);
+    DtpgMFFC dtpg(network, fault_type, mffc, just_type, solver_type);
     for ( auto fault: mffc.fault_list() ) {
       if ( fmgr.get(fault) == FaultStatus::Undetected ) {
 	// 故障に対するテスト生成を行なう．
@@ -92,19 +88,17 @@ run_mffc_new(const string& sat_type,
 }
 
 void
-run_ffr(const string& sat_type,
-	const string& sat_option,
-	ostream* sat_outp,
+run_ffr(const TpgNetwork& network,
 	FaultType fault_type,
 	const string& just_type,
-	const TpgNetwork& network,
+	const SatSolverType& solver_type,
 	FaultStatusMgr& fmgr,
 	DetectOp& dop,
 	UntestOp& uop,
 	DtpgStats& stats)
 {
   for ( auto& ffr: network.ffr_list() ) {
-    Dtpg_se dtpg(sat_type, sat_option, sat_outp, fault_type, just_type, network, ffr);
+    Dtpg_se dtpg(network, fault_type, ffr, just_type, solver_type);
     for ( auto fault: ffr.fault_list() ) {
       if ( fmgr.get(fault) == FaultStatus::Undetected ) {
 	TestVector testvect(network.input_num(), network.dff_num(), fault_type);
@@ -122,19 +116,17 @@ run_ffr(const string& sat_type,
 }
 
 void
-run_mffc(const string& sat_type,
-	 const string& sat_option,
-	 ostream* sat_outp,
+run_mffc(const TpgNetwork& network,
 	 FaultType fault_type,
 	 const string& just_type,
-	 const TpgNetwork& network,
+	 const SatSolverType& solver_type,
 	 FaultStatusMgr& fmgr,
 	 DetectOp& dop,
 	 UntestOp& uop,
 	 DtpgStats& stats)
 {
   for ( auto& mffc: network.mffc_list() ) {
-    Dtpg_se dtpg(sat_type, sat_option, sat_outp, fault_type, just_type, network, mffc);
+    Dtpg_se dtpg(network, fault_type, mffc, just_type, solver_type);
     for ( auto fault: mffc.fault_list() ) {
       if ( fmgr.get(fault) == FaultStatus::Undetected ) {
 	// 故障に対するテスト生成を行なう．
@@ -326,26 +318,27 @@ DtpgCmd::cmd_proc(TclObjVector& objv)
     }
   }
 
+  SatSolverType solver_type(sat_type, sat_option, outp);
   DtpgStats stats;
   if ( engine_type == "ffr" ) {
-    run_ffr(sat_type, sat_option, outp, fault_type, just_type,
-	    _network(), fault_mgr, dop_list, uop_list, stats);
+    run_ffr(_network(), fault_type, just_type, solver_type,
+	    fault_mgr, dop_list, uop_list, stats);
   }
   else if ( engine_type == "mffc" ) {
-    run_mffc(sat_type, sat_option, outp, fault_type, just_type,
-	     _network(), fault_mgr, dop_list, uop_list, stats);
+    run_mffc(_network(), fault_type, just_type, solver_type,
+	     fault_mgr, dop_list, uop_list, stats);
   }
   else if ( engine_type == "ffr_new" ) {
-    run_ffr_new(sat_type, sat_option, outp, fault_type, just_type,
-		_network(), fault_mgr, dop_list, uop_list, stats);
+    run_ffr_new(_network(), fault_type, just_type, solver_type,
+		fault_mgr, dop_list, uop_list, stats);
   }
   else if ( engine_type == "mffc_new" ) {
-    run_mffc_new(sat_type, sat_option, outp, fault_type, just_type,
-		 _network(), fault_mgr, dop_list, uop_list, stats);
+    run_mffc_new(_network(), fault_type, just_type, solver_type,
+		 fault_mgr, dop_list, uop_list, stats);
   }
   else {
-    run_ffr_new(sat_type, sat_option, outp, fault_type, just_type,
-		_network(), fault_mgr, dop_list, uop_list, stats);
+    run_ffr_new(_network(), fault_type, just_type, solver_type,
+		fault_mgr, dop_list, uop_list, stats);
   }
 
   after_update_faults();
