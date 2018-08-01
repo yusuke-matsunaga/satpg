@@ -64,6 +64,16 @@ public:
 		 int k,
 		 vector<TestVector>& tv_list);
 
+  /// @brief テストパタンの核となる式を求める．
+  /// @param[in] fault 対象の故障
+  /// @param[in] k 繰り返し回数
+  /// @return テストパタンの核となる論理式
+  ///
+  /// 検出不能の場合は定数０が返される．
+  Expr
+  gen_core_expr(const TpgFault* fault,
+		int k);
+
 
 protected:
   //////////////////////////////////////////////////////////////////////

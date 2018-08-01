@@ -184,4 +184,51 @@ DtpgFFR::gen_k_patterns(const TpgFault* fault,
   }
 }
 
+// @brief テストパタンの核となる式を求める．
+// @param[in] fault 対象の故障
+// @param[in] k 繰り返し回数
+// @return テストパタンの核となる論理式
+//
+// 検出不能の場合は定数０が返される．
+Expr
+DtpgFFR::gen_core_expr(const TpgFault* fault,
+		       int k)
+{
+  const TpgNode* ffr_root = fault->tpg_onode()->ffr_root();
+  ASSERT_COND( ffr_root == root_node() );
+
+  // FFR 内の故障伝搬条件を ffr_cond に入れる．
+  NodeValList ffr_cond = ffr_propagate_condition(fault, fault_type());
+
+  // ffr_cond の内容を assumptions に追加する．
+  vector<SatLiteral> assumptions;
+  conv_to_assumptions(ffr_cond, assumptions);
+
+  Expr expr = Expr::const_zero();
+
+  vector<SatBool3> model;
+  SatBool3 sat_res = solve(assumptions, model);
+  if ( sat_res == SatBool3::True ) {
+    NodeValList suf_cond = get_sufficient_condition(fault, model);
+    NodeValList mand_cond;
+    // suf_cond の要素を1つづつ否定してみて充足するか調べる．
+    // 充足不能の場合，その割り当ては必要割り当てとなる．
+    for ( auto nv: suf_cond ) {
+      SatLiteral lit = conv_to_literal(nv);
+      vector<SatLiteral> assumptions1(assumptions);
+      assumptions1.push_back(~lit);
+      vector<SatBool3> dummy;
+      SatBool3 tmp_res = solve(assumptions1, dummy);
+      if ( tmp_res == SatBool3::False ) {
+	mand_cond.push_back(nv);
+      }
+    }
+    Expr expr1 = get_sufficient_conditions(fault, model);
+    expr = expr1;
+
+  }
+
+  return expr;
+}
+
 END_NAMESPACE_YM_SATPG
