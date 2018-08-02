@@ -209,23 +209,39 @@ DtpgFFR::gen_core_expr(const TpgFault* fault,
   vector<SatBool3> model;
   SatBool3 sat_res = solve(assumptions, model);
   if ( sat_res == SatBool3::True ) {
-    NodeValList suf_cond = get_sufficient_condition(fault, model);
     NodeValList mand_cond;
-    // suf_cond の要素を1つづつ否定してみて充足するか調べる．
-    // 充足不能の場合，その割り当ては必要割り当てとなる．
-    for ( auto nv: suf_cond ) {
-      SatLiteral lit = conv_to_literal(nv);
-      vector<SatLiteral> assumptions1(assumptions);
-      assumptions1.push_back(~lit);
-      vector<SatBool3> dummy;
-      SatBool3 tmp_res = solve(assumptions1, dummy);
-      if ( tmp_res == SatBool3::False ) {
-	mand_cond.push_back(nv);
+    {
+      NodeValList suf_cond = get_sufficient_condition(fault, model);
+      // suf_cond の要素を1つづつ否定してみて充足するか調べる．
+      // 充足不能の場合，その割り当ては必要割り当てとなる．
+      for ( auto nv: suf_cond ) {
+	SatLiteral lit = conv_to_literal(nv);
+	vector<SatLiteral> assumptions1(assumptions);
+	assumptions1.push_back(~lit);
+	vector<SatBool3> dummy;
+	SatBool3 tmp_res = solve(assumptions1, dummy);
+	if ( tmp_res == SatBool3::False ) {
+	  mand_cond.add(nv);
+	}
       }
     }
+    mand_cond.merge(ffr_cond);
+    SatVarId cvar = solver().new_variable();
+    SatLiteral clit(cvar);
     Expr expr1 = get_sufficient_conditions(fault, model);
-    expr = expr1;
+    expr |= expr1;
+    for ( auto i: Range(k) ) {
+      add_negation(expr1, clit);
+      vector<SatLiteral> assumptions1(assumptions);
+      assumptions1.push_back(clit);
 
+      SatBool3 tmp_res = solve(assumptions1, model);
+      if ( tmp_res == SatBool3::False ) {
+	break;
+      }
+      expr1 = get_sufficient_conditions(fault, model);
+      expr |= expr1;
+    }
   }
 
   return expr;
