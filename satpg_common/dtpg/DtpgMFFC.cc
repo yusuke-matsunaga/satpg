@@ -133,12 +133,11 @@ DtpgMFFC::gen_pattern(const TpgFault* fault)
   // ffr_cond の内容を assumptions に追加する．
   conv_to_assumptions(ffr_cond, assumptions);
 
-  vector<SatBool3> model;
-  SatBool3 sat_res = solve(assumptions, model);
+  SatBool3 sat_res = solve(assumptions);
   if ( sat_res == SatBool3::True ) {
-    NodeValList suf_cond = get_sufficient_condition(fault, model);
+    NodeValList suf_cond = get_sufficient_condition(fault);
     suf_cond.merge(ffr_cond);
-    TestVector testvect = backtrace(fault, suf_cond, model);
+    TestVector testvect = backtrace(fault, suf_cond);
     return DtpgResult(testvect);
   }
   else if ( sat_res == SatBool3::False ) {

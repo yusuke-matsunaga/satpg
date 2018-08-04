@@ -101,42 +101,43 @@ public:
 
   /// @brief 一つの SAT問題を解く．
   /// @param[in] assumptions 値の決まっている変数のリスト
-  /// @param[out] model SAT モデル
   /// @return 結果を返す．
   ///
   /// mSolver.solve() を呼び出すだけだが統計情報の更新を行っている．
+  /// SATだった場合のモデルは mSatModel に格納される．
   SatBool3
-  solve(const vector<SatLiteral>& assumptions,
-	vector<SatBool3>& model);
+  solve(const vector<SatLiteral>& assumptions);
+
+  /// @brief SAT問題が充足可能か調べる．
+  /// @param[in] assumptions 値の決まっている変数のリスト
+  /// @return 結果を返す．
+  ///
+  /// solve() との違いは結果のモデルを保持しない．
+  SatBool3
+  check(const vector<SatLiteral>& assumptions);
 
   /// @brief 十分条件を取り出す．
   /// @param[in] fault 対象の故障
-  /// @param[in] model SATモデル
   /// @return 十分条件を表す割当リストを返す．
   ///
   /// FFR内の故障伝搬条件は含まない．
   NodeValList
-  get_sufficient_condition(const TpgFault* fault,
-			   const vector<SatBool3>& model);
+  get_sufficient_condition(const TpgFault* fault);
 
   /// @brief 複数の十分条件を取り出す．
   /// @param[in] fault 対象の故障
-  /// @param[in] model SATモデル
   ///
   /// FFR内の故障伝搬条件は含まない．
   Expr
-  get_sufficient_conditions(const TpgFault* fault,
-			    const vector<SatBool3>& model);
+  get_sufficient_conditions(const TpgFault* fault);
 
   /// @brief バックトレースを行う．
   /// @param[in] fault 故障
   /// @param[in] suf_cond 十分条件の割り当て
-  /// @param[in] model SATモデル
   /// @return テストパタンを返す．
   TestVector
   backtrace(const TpgFault* fault,
-	    const NodeValList& suf_cond,
-	    const vector<SatBool3>& model);
+	    const NodeValList& suf_cond);
 
 
 protected:
@@ -354,6 +355,9 @@ private:
 
   // 故障伝搬条件を表す変数のマップ
   VidMap mDvarMap;
+
+  // SATの解を保持する配列
+  vector<SatBool3> mSatModel;
 
   // バックトレーサー
   Justifier mJustifier;

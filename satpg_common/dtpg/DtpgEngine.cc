@@ -415,12 +415,10 @@ DtpgEngine::make_dchain_cnf(const TpgNode* node)
 // @brief バックトレースを行う．
 // @param[in] fault 故障
 // @param[in] suf_cond 十分条件の割り当て
-// @param[in] model SATモデル
 // @return テストパタンを返す．
 TestVector
 DtpgEngine::backtrace(const TpgFault* fault,
-		      const NodeValList& suf_cond,
-		      const vector<SatBool3>& model)
+		      const NodeValList& suf_cond)
 {
   StopWatch timer;
   timer.start();
@@ -428,10 +426,10 @@ DtpgEngine::backtrace(const TpgFault* fault,
   // バックトレースを行う．
   TestVector testvect;
   if ( mFaultType == FaultType::TransitionDelay ) {
-    testvect = mJustifier(suf_cond, mHvarMap, mGvarMap, model);
+    testvect = mJustifier(suf_cond, mHvarMap, mGvarMap, mSatModel);
   }
   else {
-    testvect = mJustifier(suf_cond, mGvarMap, model);
+    testvect = mJustifier(suf_cond, mGvarMap, mSatModel);
   }
 
   timer.stop();
@@ -468,11 +466,9 @@ DtpgEngine::conv_to_assumptions(const NodeValList& assign_list,
 
 // @brief 一つの SAT問題を解く．
 // @param[in] assumptions 値の決まっている変数のリスト
-// @param[out] model SAT モデル
 // @return 結果を返す．
 SatBool3
-DtpgEngine::solve(const vector<SatLiteral>& assumptions,
-		  vector<SatBool3>& model)
+DtpgEngine::solve(const vector<SatLiteral>& assumptions)
 {
   StopWatch timer;
   timer.start();
@@ -480,7 +476,47 @@ DtpgEngine::solve(const vector<SatLiteral>& assumptions,
   SatStats prev_stats;
   mSolver.get_stats(prev_stats);
 
-  SatBool3 ans = mSolver.solve(assumptions, model);
+  SatBool3 ans = mSolver.solve(assumptions, mSatModel);
+
+  timer.stop();
+  USTime time = timer.time();
+
+  SatStats sat_stats;
+  mSolver.get_stats(sat_stats);
+  //sat_stats -= prev_stats;
+
+  if ( ans == SatBool3::True ) {
+    // パタンが求まった．
+    mStats.update_det(sat_stats, time);
+  }
+  else if ( ans == SatBool3::False ) {
+    // 検出不能と判定された．
+    mStats.update_red(sat_stats, time);
+  }
+  else {
+    // ans == SatBool3::X つまりアボート
+    mStats.update_abort(sat_stats, time);
+  }
+
+  return ans;
+}
+
+// @brief SAT問題が充足可能か調べる．
+// @param[in] assumptions 値の決まっている変数のリスト
+// @return 結果を返す．
+//
+// solve() との違いは結果のモデルを保持しない．
+SatBool3
+DtpgEngine::check(const vector<SatLiteral>& assumptions)
+{
+  StopWatch timer;
+  timer.start();
+
+  SatStats prev_stats;
+  mSolver.get_stats(prev_stats);
+
+  vector<SatBool3> dummy;
+  SatBool3 ans = mSolver.solve(assumptions, dummy);
 
   timer.stop();
   USTime time = timer.time();
@@ -507,11 +543,9 @@ DtpgEngine::solve(const vector<SatLiteral>& assumptions,
 
 // @brief 十分条件を取り出す．
 // @param[in] fault 対象の故障
-// @param[in] model SATモデル
 // @return 十分条件を表す割当リストを返す．
 NodeValList
-DtpgEngine::get_sufficient_condition(const TpgFault* fault,
-				     const vector<SatBool3>& model)
+DtpgEngine::get_sufficient_condition(const TpgFault* fault)
 {
   extern
   NodeValList
@@ -521,17 +555,15 @@ DtpgEngine::get_sufficient_condition(const TpgFault* fault,
 	  const vector<SatBool3>& model);
 
   const TpgNode* ffr_root = fault->tpg_onode()->ffr_root();
-  return extract(ffr_root, mGvarMap, mFvarMap, model);
+  return extract(ffr_root, mGvarMap, mFvarMap, mSatModel);
 }
 
 // @brief 複数の十分条件を取り出す．
 // @param[in] fault 対象の故障
-// @param[in] model SATモデル
 //
 // FFR内の故障伝搬条件は含まない．
 Expr
-DtpgEngine::get_sufficient_conditions(const TpgFault* fault,
-				      const vector<SatBool3>& model)
+DtpgEngine::get_sufficient_conditions(const TpgFault* fault)
 {
   extern
   Expr
@@ -541,7 +573,7 @@ DtpgEngine::get_sufficient_conditions(const TpgFault* fault,
 	      const vector<SatBool3>& model);
 
   const TpgNode* ffr_root = fault->tpg_onode()->ffr_root();
-  return extract_all(ffr_root, mGvarMap, mFvarMap, model);
+  return extract_all(ffr_root, mGvarMap, mFvarMap, mSatModel);
 }
 
 // @brief SATソルバに論理式の否定を追加する．

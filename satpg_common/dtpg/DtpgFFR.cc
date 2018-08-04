@@ -85,12 +85,11 @@ DtpgFFR::gen_pattern(const TpgFault* fault)
   vector<SatLiteral> assumptions;
   conv_to_assumptions(ffr_cond, assumptions);
 
-  vector<SatBool3> model;
-  SatBool3 sat_res = solve(assumptions, model);
+  SatBool3 sat_res = solve(assumptions);
   if ( sat_res == SatBool3::True ) {
-    NodeValList suf_cond = get_sufficient_condition(fault, model);
+    NodeValList suf_cond = get_sufficient_condition(fault);
     suf_cond.merge(ffr_cond);
-    TestVector testvect = backtrace(fault, suf_cond, model);
+    TestVector testvect = backtrace(fault, suf_cond);
     return DtpgResult(testvect);
   }
   else if ( sat_res == SatBool3::False ) {
@@ -124,12 +123,11 @@ DtpgFFR::gen_k_patterns(const TpgFault* fault,
   vector<SatLiteral> assumptions;
   conv_to_assumptions(ffr_cond, assumptions);
 
-  vector<SatBool3> model;
-  SatBool3 sat_res = solve(assumptions, model);
+  SatBool3 sat_res = solve(assumptions);
   if ( sat_res == SatBool3::True ) {
-    NodeValList suf_cond = get_sufficient_condition(fault, model);
+    NodeValList suf_cond = get_sufficient_condition(fault);
     suf_cond.merge(ffr_cond);
-    TestVector testvect = backtrace(fault, suf_cond, model);
+    TestVector testvect = backtrace(fault, suf_cond);
     DtpgResult ans(testvect);
     tv_list.clear();
     tv_list.push_back(testvect);
@@ -160,12 +158,11 @@ DtpgFFR::gen_k_patterns(const TpgFault* fault,
 	solver().add_clause(tmp_lits);
 	vector<SatLiteral> assumptions1(assumptions);
 	assumptions1.push_back(clit);
-	vector<SatBool3> model;
-	SatBool3 sat_res = solve(assumptions1, model);
+	SatBool3 sat_res = solve(assumptions1);
 	if ( sat_res == SatBool3::True ) {
-	  NodeValList suf_cond = get_sufficient_condition(fault, model);
+	  NodeValList suf_cond = get_sufficient_condition(fault);
 	  suf_cond.merge(ffr_cond);
-	  testvect = backtrace(fault, suf_cond, model);
+	  testvect = backtrace(fault, suf_cond);
 	  tv_list.push_back(testvect);
 	}
 	else {
@@ -206,20 +203,18 @@ DtpgFFR::gen_core_expr(const TpgFault* fault,
 
   Expr expr = Expr::const_zero();
 
-  vector<SatBool3> model;
-  SatBool3 sat_res = solve(assumptions, model);
+  SatBool3 sat_res = solve(assumptions);
   if ( sat_res == SatBool3::True ) {
     NodeValList mand_cond;
     {
-      NodeValList suf_cond = get_sufficient_condition(fault, model);
+      NodeValList suf_cond = get_sufficient_condition(fault);
       // suf_cond の要素を1つづつ否定してみて充足するか調べる．
       // 充足不能の場合，その割り当ては必要割り当てとなる．
       for ( auto nv: suf_cond ) {
 	SatLiteral lit = conv_to_literal(nv);
 	vector<SatLiteral> assumptions1(assumptions);
 	assumptions1.push_back(~lit);
-	vector<SatBool3> dummy;
-	SatBool3 tmp_res = solve(assumptions1, dummy);
+	SatBool3 tmp_res = check(assumptions1);
 	if ( tmp_res == SatBool3::False ) {
 	  mand_cond.add(nv);
 	}
@@ -228,18 +223,18 @@ DtpgFFR::gen_core_expr(const TpgFault* fault,
     mand_cond.merge(ffr_cond);
     SatVarId cvar = solver().new_variable();
     SatLiteral clit(cvar);
-    Expr expr1 = get_sufficient_conditions(fault, model);
+    Expr expr1 = get_sufficient_conditions(fault);
     expr |= expr1;
     for ( auto i: Range(k) ) {
       add_negation(expr1, clit);
       vector<SatLiteral> assumptions1(assumptions);
       assumptions1.push_back(clit);
 
-      SatBool3 tmp_res = solve(assumptions1, model);
+      SatBool3 tmp_res = solve(assumptions1);
       if ( tmp_res == SatBool3::False ) {
 	break;
       }
-      expr1 = get_sufficient_conditions(fault, model);
+      expr1 = get_sufficient_conditions(fault);
       expr |= expr1;
     }
   }

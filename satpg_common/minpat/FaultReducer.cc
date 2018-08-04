@@ -157,14 +157,13 @@ FaultReducer::init(const vector<const TpgFault*>& fault_list)
       NodeValList ffr_cond = ffr_propagate_condition(fault, mFaultType);
       vector<SatLiteral> assumptions;
       dtpg.conv_to_assumptions(ffr_cond, assumptions);
-      vector<SatBool3> model;
-      SatBool3 sat_res = dtpg.solve(assumptions, model);
+      SatBool3 sat_res = dtpg.solve(assumptions);
       if ( sat_res == SatBool3::True ) {
 	tmp_fault_list.push_back(fault);
 	// テストパタンを求めておく．
-	NodeValList suf_cond = dtpg.get_sufficient_condition(fault, model);
+	NodeValList suf_cond = dtpg.get_sufficient_condition(fault);
 	suf_cond.merge(ffr_cond);
-	TestVector testvect = dtpg.backtrace(fault, suf_cond, model);
+	TestVector testvect = dtpg.backtrace(fault, suf_cond);
 	testvect.fix_x_from_random(randgen);
 	tv_list.push_back(testvect);
       }
@@ -201,8 +200,7 @@ FaultReducer::init(const vector<const TpgFault*>& fault_list)
 	assumptions.reserve(ffr_cond2.size() + 1);
 	dtpg.conv_to_assumptions(ffr_cond2, assumptions);
 	assumptions.push_back(clit1);
-	vector<SatBool3> dummy;
-	SatBool3 sat_res = dtpg.solve(assumptions, dummy);
+	SatBool3 sat_res = dtpg.check(assumptions);
 	if ( sat_res == SatBool3::False ) {
 	  // fault2 を検出する条件のもとで fault1 を検出しない
 	  // 割り当てが存在しない．→ fault1 は支配されている．
