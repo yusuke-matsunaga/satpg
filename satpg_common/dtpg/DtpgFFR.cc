@@ -87,7 +87,7 @@ DtpgFFR::gen_pattern(const TpgFault* fault)
 
   SatBool3 sat_res = solve(assumptions);
   if ( sat_res == SatBool3::True ) {
-    NodeValList suf_cond = get_sufficient_condition(fault);
+    NodeValList suf_cond = get_sufficient_condition();
     suf_cond.merge(ffr_cond);
     TestVector testvect = backtrace(fault, suf_cond);
     return DtpgResult(testvect);
@@ -125,7 +125,7 @@ DtpgFFR::gen_k_patterns(const TpgFault* fault,
 
   SatBool3 sat_res = solve(assumptions);
   if ( sat_res == SatBool3::True ) {
-    NodeValList suf_cond = get_sufficient_condition(fault);
+    NodeValList suf_cond = get_sufficient_condition();
     suf_cond.merge(ffr_cond);
     TestVector testvect = backtrace(fault, suf_cond);
     DtpgResult ans(testvect);
@@ -160,7 +160,7 @@ DtpgFFR::gen_k_patterns(const TpgFault* fault,
 	assumptions1.push_back(clit);
 	SatBool3 sat_res = solve(assumptions1);
 	if ( sat_res == SatBool3::True ) {
-	  NodeValList suf_cond = get_sufficient_condition(fault);
+	  NodeValList suf_cond = get_sufficient_condition();
 	  suf_cond.merge(ffr_cond);
 	  testvect = backtrace(fault, suf_cond);
 	  tv_list.push_back(testvect);
@@ -205,11 +205,11 @@ DtpgFFR::gen_core_expr(const TpgFault* fault,
 
   SatBool3 sat_res = solve(assumptions);
   if ( sat_res == SatBool3::True ) {
-    NodeValList suf_cond = get_sufficient_condition(fault);
-    NodeValList mand_cond = get_mandatory_condition(fault, suf_cond);
+    NodeValList suf_cond = get_sufficient_condition();
+    NodeValList mand_cond = get_mandatory_condition(ffr_cond, suf_cond);
     SatVarId cvar = solver().new_variable();
     SatLiteral clit(cvar);
-    Expr expr1 = get_sufficient_conditions(fault);
+    Expr expr1 = get_sufficient_conditions();
     expr |= expr1;
     for ( auto i: Range(k) ) {
       add_negation(expr1, clit);
@@ -220,7 +220,7 @@ DtpgFFR::gen_core_expr(const TpgFault* fault,
       if ( tmp_res == SatBool3::False ) {
 	break;
       }
-      expr1 = get_sufficient_conditions(fault);
+      expr1 = get_sufficient_conditions();
       expr |= expr1;
     }
   }

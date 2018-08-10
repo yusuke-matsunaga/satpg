@@ -150,50 +150,50 @@ FaultReducer::init(const vector<const TpgFault*>& fault_list)
   RandGen randgen;
   for ( auto& ffr: mNetwork.ffr_list() ) {
     // FFR ごとに検出可能な故障をもとめる．
-    DtpgFFR dtpg(mNetwork, mFaultType, ffr, just_type);
     vector<const TpgFault*> tmp_fault_list;
-    vector<NodeValList> mand_cond_list;
     for ( auto fault: ffr.fault_list() ) {
-      if ( mDelMark[fault->id()] ) {
-	// すでに対象外だった．
-	continue;
+      if ( !mDelMark[fault->id()] ) {
+	tmp_fault_list.push_back(fault);
       }
+    }
+    if ( tmp_fault_list.empty() ) {
+      // 対象の故障がなかった．
+      continue;
+    }
+
+    DtpgFFR dtpg(mNetwork, mFaultType, ffr, just_type);
+#if 0
+    for ( auto fault: tmp_fault_list ) {
       NodeValList ffr_cond = ffr_propagate_condition(fault, mFaultType);
       vector<SatLiteral> assumptions;
       dtpg.conv_to_assumptions(ffr_cond, assumptions);
       SatBool3 sat_res = dtpg.solve(assumptions);
-      if ( sat_res == SatBool3::True ) {
-	tmp_fault_list.push_back(fault);
-	NodeValList suf_cond = dtpg.get_sufficient_condition(fault);
-	// 必要割り当てを求めておく．
-	NodeValList mand_cond = dtpg.get_mandatory_condition(fault, suf_cond);
-	mand_cond_list.push_back(mand_cond);
-	// テストパタンを求めておく．
-	suf_cond.merge(ffr_cond);
-	TestVector testvect = dtpg.backtrace(fault, suf_cond);
-	testvect.fix_x_from_random(randgen);
-	tv_list.push_back(testvect);
+      if ( sat_res != SatBool3::True ) {
+	cerr << "Error: " << fault->str() << " is not testable" << endl;
+	continue;
       }
-    }
 
+      NodeValList suf_cond = dtpg.get_sufficient_condition();
+      // 必要割り当てを求めておく．
+      //NodeValList mand_cond = ffr_mand_cond + ffr_cond;
+      //mand_cond_list.push_back(mand_cond);
+      // テストパタンを求めておく．
+      suf_cond.merge(ffr_cond);
+      TestVector testvect = dtpg.backtrace(fault, suf_cond);
+      testvect.fix_x_from_random(randgen);
+      tv_list.push_back(testvect);
+    }
+#endif
     // 支配関係を調べ，代表故障のみを残す．
     int nf = tmp_fault_list.size();
     for ( auto i1: Range(nf) ) {
       auto fault1 = tmp_fault_list[i1];
-      const NodeValList& mand_cond1 = mand_cond_list[i1];
-      // mand_cond1 を否定した節を加える．
-      // 制御変数は clit1
-      SatVarId cvar1 = dtpg.new_variable();
-      SatLiteral clit1(cvar1);
-      vector<SatLiteral> tmp_lits;
-      tmp_lits.reserve(mand_cond1.size() + 1);
-      tmp_lits.push_back(~clit1);
-      for ( auto nv: mand_cond1 ) {
-	SatLiteral lit1 = dtpg.conv_to_literal(nv);
-	tmp_lits.push_back(~lit1);
+      if ( mDelMark[fault1->id()] ) {
+	continue;
       }
-      dtpg.add_clause(tmp_lits);
-
+      const NodeValList ffr_cond1 = ffr_propagate_condition(fault1, mFaultType);
+      vector<SatLiteral> assumptions;
+      dtpg.conv_to_assumptions(ffr_cond1, assumptions);
       for ( auto i2: Range(nf) ) {
 	if ( i2 == i1 ) {
 	  continue;
@@ -202,17 +202,22 @@ FaultReducer::init(const vector<const TpgFault*>& fault_list)
 	if ( mDelMark[fault2->id()] ) {
 	  continue;
 	}
-	const NodeValList& mand_cond2 = mand_cond_list[i2];
-	vector<SatLiteral> assumptions;
-	assumptions.reserve(mand_cond2.size() + 1);
-	dtpg.conv_to_assumptions(mand_cond2, assumptions);
-	assumptions.push_back(clit1);
-	SatBool3 sat_res = dtpg.check(assumptions);
-	if ( sat_res == SatBool3::False ) {
-	  // fault2 を検出する条件のもとで fault1 を検出しない
-	  // 割り当てが存在しない．→ fault1 は支配されている．
-	  mDelMark[fault1->id()] = true;
-	  break;
+	NodeValList ffr_cond2 = ffr_propagate_condition(fault2, mFaultType);
+	ffr_cond2.diff(ffr_cond1);
+	bool unsat = true;
+	for ( auto nv: ffr_cond2 ) {
+	  vector<SatLiteral> assumptions1(assumptions);
+	  SatLiteral lit1 = dtpg.conv_to_literal(nv);
+	  assumptions1.push_back(~lit1);
+	  if ( dtpg.check(assumptions1) == SatBool3::True ) {
+	    unsat = false;
+	    break;
+	  }
+	}
+	if ( unsat ) {
+	  // fault1 を検出する条件のもとでは fault2 も検出される．
+	  // → fault2 は支配されている．
+	  mDelMark[fault2->id()] = true;
 	}
       }
     }
@@ -232,8 +237,8 @@ FaultReducer::init(const vector<const TpgFault*>& fault_list)
   }
 
   // 被覆行列の生成
-  MatrixGen matgen(mFaultList, tv_list, mNetwork, mFaultType);
-  mMatrix = matgen.generate();
+  //MatrixGen matgen(mFaultList, tv_list, mNetwork, mFaultType);
+  //mMatrix = matgen.generate();
 
   if ( mDebug ) {
     mTimer.stop();
@@ -256,6 +261,7 @@ FaultReducer::dom_reduction1()
   for ( auto fault1: mFaultList ) {
     UndetChecker undet_checker(mNetwork, mFaultType, fault1, mSolverType);
 
+#if 0
     // fault2 が fault1 を支配している時
     // fault2 に含まれる列は必ず fault1 にも含まれなければならない．
     vector<bool> col_mark(mMatrix.col_size(), false);
@@ -264,6 +270,7 @@ FaultReducer::dom_reduction1()
       ASSERT_COND( col >= 0 && col < col_mark.size() );
       col_mark[col] = true;
     }
+#endif
     for ( auto fault2: mFaultList ) {
       if ( fault2 == fault1 || mDelMark[fault2->id()] ) {
 	continue;
@@ -272,7 +279,9 @@ FaultReducer::dom_reduction1()
 	// 同じ FFR ならチェック済み
 	continue;
       }
+
       bool not_covered = false;
+#if 0
       int row2 = mRowIdMap[fault2->id()];
       for ( auto col: mMatrix.row_list(row2) ) {
 	ASSERT_COND( col >= 0 && col < col_mark.size() );
@@ -281,6 +290,7 @@ FaultReducer::dom_reduction1()
 	  break;
 	}
       }
+#endif
       if ( not_covered ) {
 	continue;
       }
@@ -327,6 +337,7 @@ FaultReducer::dom_reduction2()
     if ( mDelMark[fault1->id()] ) {
       continue;
     }
+#if 0
     // fault2 が fault1 を支配している時
     // fault2 に含まれる列は必ず fault1 にも含まれなければならない．
     vector<bool> col_mark(mMatrix.col_size(), false);
@@ -334,6 +345,7 @@ FaultReducer::dom_reduction2()
     for ( auto col: mMatrix.row_list(row1) ) {
       col_mark[col] = true;
     }
+#endif
     for ( auto& ffr2: mNetwork.ffr_list() ) {
       if ( ffr2.root() == fault1->tpg_onode()->ffr_root() ) {
 	continue;
@@ -344,6 +356,7 @@ FaultReducer::dom_reduction2()
 	  continue;
 	}
 	bool not_covered = false;
+#if 0
 	int row2 = mRowIdMap[fault2->id()];
 	for ( auto col: mMatrix.row_list(row2) ) {
 	  if ( !col_mark[col] ) {
@@ -351,6 +364,7 @@ FaultReducer::dom_reduction2()
 	    break;
 	  }
 	}
+#endif
 	if ( !not_covered ) {
 	  fault2_list.push_back(fault2);
 	}

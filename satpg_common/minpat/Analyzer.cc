@@ -140,7 +140,7 @@ Analyzer::gen_fault_list(const vector<bool>& mark,
       dtpg.conv_to_assumptions(ffr_cond, assumptions);
       SatBool3 sat_res = dtpg.solve(assumptions);
       if ( sat_res == SatBool3::True ) {
-	NodeValList suf_cond = dtpg.get_sufficient_condition(fault);
+	NodeValList suf_cond = dtpg.get_sufficient_condition();
 	suf_cond.merge(ffr_cond);
 	TestVector testvect = dtpg.backtrace(fault, suf_cond);
 	testvect.fix_x_from_random(randgen);
@@ -435,7 +435,8 @@ Analyzer::init(int loop_limit)
 	fault_list.push_back(fault);
 	ffr_cond_list.push_back(ffr_cond);
 	ffr_cond_array[fault->id()] = ffr_cond;
-	NodeValList suf_cond = dtpg.get_sufficient_condition(fault);
+	NodeValList suf_cond = dtpg.get_sufficient_condition();
+	suf_cond.merge(ffr_cond);
 	suf_cond_list.push_back(suf_cond);
 	mark[fault->id()] = true;
       }
@@ -701,7 +702,7 @@ Analyzer::analyze_fault(DtpgFFR& dtpg,
   if ( sat_res == SatBool3::True ) {
     // 検出可能
     // 検出条件の解析を行う．
-    Expr expr = dtpg.get_sufficient_conditions(fault, model);
+    Expr expr = dtpg.get_sufficient_conditions(model);
     NodeValList tmp_cond = common_cube(expr);
     // 必要条件を求める．
     // ffr_cond は無条件で必要条件となる．

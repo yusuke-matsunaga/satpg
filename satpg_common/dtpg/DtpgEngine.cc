@@ -542,10 +542,9 @@ DtpgEngine::check(const vector<SatLiteral>& assumptions)
 }
 
 // @brief 十分条件を取り出す．
-// @param[in] fault 対象の故障
 // @return 十分条件を表す割当リストを返す．
 NodeValList
-DtpgEngine::get_sufficient_condition(const TpgFault* fault)
+DtpgEngine::get_sufficient_condition()
 {
   extern
   NodeValList
@@ -554,8 +553,7 @@ DtpgEngine::get_sufficient_condition(const TpgFault* fault)
 	  const VidMap& fvar_map,
 	  const vector<SatBool3>& model);
 
-  const TpgNode* ffr_root = fault->tpg_onode()->ffr_root();
-  return extract(ffr_root, mGvarMap, mFvarMap, mSatModel);
+  return extract(mRoot, mGvarMap, mFvarMap, mSatModel);
 }
 
 // @brief 複数の十分条件を取り出す．
@@ -563,7 +561,7 @@ DtpgEngine::get_sufficient_condition(const TpgFault* fault)
 //
 // FFR内の故障伝搬条件は含まない．
 Expr
-DtpgEngine::get_sufficient_conditions(const TpgFault* fault)
+DtpgEngine::get_sufficient_conditions()
 {
   extern
   Expr
@@ -572,20 +570,18 @@ DtpgEngine::get_sufficient_conditions(const TpgFault* fault)
 	      const VidMap& fvar_map,
 	      const vector<SatBool3>& model);
 
-  const TpgNode* ffr_root = fault->tpg_onode()->ffr_root();
-  return extract_all(ffr_root, mGvarMap, mFvarMap, mSatModel);
+  return extract_all(mRoot, mGvarMap, mFvarMap, mSatModel);
 }
 
 // @brief 必要条件を取り出す．
-// @param[in] fault 対象の故障
+// @param[in] ffr_cond FFR内の伝搬条件
 // @param[in] suf_cond 十分条件
 // @return 必要条件を返す．
 NodeValList
-DtpgEngine::get_mandatory_condition(const TpgFault* fault,
+DtpgEngine::get_mandatory_condition(const NodeValList& ffr_cond,
 				    const NodeValList& suf_cond)
 {
   NodeValList mand_cond;
-  NodeValList ffr_cond = ffr_propagate_condition(fault, fault_type());
   vector<SatLiteral> assumptions;
   conv_to_assumptions(ffr_cond, assumptions);
   for ( auto nv: suf_cond ) {

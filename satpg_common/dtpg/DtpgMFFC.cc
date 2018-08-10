@@ -135,7 +135,7 @@ DtpgMFFC::gen_pattern(const TpgFault* fault)
 
   SatBool3 sat_res = solve(assumptions);
   if ( sat_res == SatBool3::True ) {
-    NodeValList suf_cond = get_sufficient_condition(fault);
+    NodeValList suf_cond = get_sufficient_condition();
     suf_cond.merge(ffr_cond);
     TestVector testvect = backtrace(fault, suf_cond);
     return DtpgResult(testvect);

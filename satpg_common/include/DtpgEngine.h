@@ -117,26 +117,24 @@ public:
   check(const vector<SatLiteral>& assumptions);
 
   /// @brief 十分条件を取り出す．
-  /// @param[in] fault 対象の故障
   /// @return 十分条件を表す割当リストを返す．
   ///
   /// FFR内の故障伝搬条件は含まない．
   NodeValList
-  get_sufficient_condition(const TpgFault* fault);
+  get_sufficient_condition();
 
   /// @brief 複数の十分条件を取り出す．
-  /// @param[in] fault 対象の故障
   ///
   /// FFR内の故障伝搬条件は含まない．
   Expr
-  get_sufficient_conditions(const TpgFault* fault);
+  get_sufficient_conditions();
 
   /// @brief 必要条件を取り出す．
-  /// @param[in] fault 対象の故障
+  /// @param[in] ffr_cond FFR内の伝搬条件
   /// @param[in] suf_cond 十分条件
   /// @return 必要条件を返す．
   NodeValList
-  get_mandatory_condition(const TpgFault* fault,
+  get_mandatory_condition(const NodeValList& ffr_cond,
 			  const NodeValList& suf_cond);
 
   /// @brief バックトレースを行う．
