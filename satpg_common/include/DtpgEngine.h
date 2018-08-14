@@ -116,6 +116,13 @@ public:
   SatBool3
   check(const vector<SatLiteral>& assumptions);
 
+  /// @brief 直前の solve() の結果からテストベクタを作る．
+  /// @return 作成したテストベクタを返す．
+  ///
+  /// この関数では単純に外部入力の値を記録する．
+  TestVector
+  get_tv();
+
   /// @brief 十分条件を取り出す．
   /// @return 十分条件を表す割当リストを返す．
   ///
@@ -186,22 +193,22 @@ protected:
   /// @brief 1時刻前の正常値の変数を返す．
   /// @param[in] node 対象のノード
   SatVarId
-  hvar(const TpgNode* node);
+  hvar(const TpgNode* node) const;
 
   /// @brief 正常値の変数を返す．
   /// @param[in] node 対象のノード
   SatVarId
-  gvar(const TpgNode* node);
+  gvar(const TpgNode* node) const;
 
   /// @brief 故障値の変数を返す．
   /// @param[in] node 対象のノード
   SatVarId
-  fvar(const TpgNode* node);
+  fvar(const TpgNode* node) const;
 
   /// @brief 伝搬条件の変数を返す．
   /// @param[in] node 対象のノード
   SatVarId
-  dvar(const TpgNode* node);
+  dvar(const TpgNode* node) const;
 
   /// @brief 1時刻前の正常値の変数を設定する．
   /// @param[in] node 対象のノード
@@ -242,6 +249,21 @@ protected:
   /// @brief 故障値の変数マップを返す．
   const VidMap&
   fvar_map() const;
+
+  /// @brief 1時刻前の正常値を得る．
+  /// @param[in] node 対象のノード
+  Val3
+  hval(const TpgNode* node) const;
+
+  /// @brief 正常値を得る．
+  /// @param[in] node 対象のノード
+  Val3
+  gval(const TpgNode* node) const;
+
+  /// @brief 故障値を得る．
+  /// @param[in] node 対象のノード
+  Val3
+  fval(const TpgNode* node) const;
 
   /// @brief 起点となるノードを返す．
   const TpgNode*
@@ -310,6 +332,11 @@ private:
   void
   set_tfi2_mark(const TpgNode* node);
 
+  /// @brief SATモデルから値を取り出す．
+  /// @param[in] var 変数番号
+  Val3
+  get_val(SatVarId var) const;
+
 
 private:
   //////////////////////////////////////////////////////////////////////
@@ -345,6 +372,12 @@ private:
 
   // 関係する出力ノードを入れておくリスト
   vector<const TpgNode*> mOutputList;
+
+  // 関係する１時刻目の外部入力ノードを入れておくリスト
+  vector<const TpgNode*> mAuxInputList;
+
+  // 関係する擬似外部入力ノードを入れておくリスト
+  vector<const TpgNode*> mPPIList;
 
   // 作業用のマークを入れておく配列
   // サイズは mMaxNodeId
@@ -457,7 +490,7 @@ DtpgEngine::output_list() const
 // @param[in] node 対象のノード
 inline
 SatVarId
-DtpgEngine::hvar(const TpgNode* node)
+DtpgEngine::hvar(const TpgNode* node) const
 {
   ASSERT_COND( mHvarMap(node) != kSatVarIdIllegal );
 
@@ -468,7 +501,7 @@ DtpgEngine::hvar(const TpgNode* node)
 // @param[in] node 対象のノード
 inline
 SatVarId
-DtpgEngine::gvar(const TpgNode* node)
+DtpgEngine::gvar(const TpgNode* node) const
 {
   return mGvarMap(node);
 }
@@ -477,7 +510,7 @@ DtpgEngine::gvar(const TpgNode* node)
 // @param[in] node 対象のノード
 inline
 SatVarId
-DtpgEngine::fvar(const TpgNode* node)
+DtpgEngine::fvar(const TpgNode* node) const
 {
   return mFvarMap(node);
 }
@@ -486,7 +519,7 @@ DtpgEngine::fvar(const TpgNode* node)
 // @param[in] node 対象のノード
 inline
 SatVarId
-DtpgEngine::dvar(const TpgNode* node)
+DtpgEngine::dvar(const TpgNode* node) const
 {
   return mDvarMap(node);
 }
@@ -559,6 +592,54 @@ DtpgEngine::fvar_map() const
   return mFvarMap;
 }
 
+// @brief 1時刻前の正常値を得る．
+// @param[in] node 対象のノード
+inline
+Val3
+DtpgEngine::hval(const TpgNode* node) const
+{
+  SatVarId var = hvar(node);
+  return get_val(var);
+}
+
+// @brief 正常値を得る．
+// @param[in] node 対象のノード
+inline
+Val3
+DtpgEngine::gval(const TpgNode* node) const
+{
+  SatVarId var = gvar(node);
+  return get_val(var);
+}
+
+// @brief 故障値を得る．
+// @param[in] node 対象のノード
+inline
+Val3
+DtpgEngine::fval(const TpgNode* node) const
+{
+  SatVarId var = fvar(node);
+  return get_val(var);
+}
+
+// @brief SATモデルから値を取り出す．
+// @param[in] var 変数番号
+inline
+Val3
+DtpgEngine::get_val(SatVarId var) const
+{
+  SatBool3 sat_val = mSatModel[var.val()];
+  if ( sat_val == SatBool3::True ) {
+    return Val3::_1;
+  }
+  else if ( sat_val == SatBool3::False ) {
+    return Val3::_0;
+  }
+  else {
+    return Val3::_X;
+  }
+}
+
 // @brief TFO マークをつける．
 inline
 void
@@ -570,6 +651,16 @@ DtpgEngine::set_tfo_mark(const TpgNode* node)
     mTfoList.push_back(node);
     if ( node->is_ppo() ) {
       mOutputList.push_back(node);
+    }
+    if ( mFaultType == FaultType::TransitionDelay ) {
+      if ( node->is_primary_input() ) {
+	mAuxInputList.push_back(node);
+      }
+    }
+    else {
+      if ( node->is_ppi() ) {
+	mPPIList.push_back(node);
+      }
     }
   }
 }
@@ -583,8 +674,18 @@ DtpgEngine::set_tfi_mark(const TpgNode* node)
   if ( (mMarkArray[id] & 3U) == 0U ) {
     mMarkArray[id] |= 2U;
     mTfiList.push_back(node);
-    if ( mFaultType == FaultType::TransitionDelay && node->is_dff_output() ) {
-      mDffList.push_back(node->dff());
+    if ( mFaultType == FaultType::TransitionDelay ) {
+      if ( node->is_dff_output() ) {
+	mDffList.push_back(node->dff());
+      }
+      else if ( node->is_primary_input() ) {
+	mAuxInputList.push_back(node);
+      }
+    }
+    else {
+      if ( node->is_ppi() ) {
+	mPPIList.push_back(node);
+      }
     }
   }
 }
@@ -598,6 +699,9 @@ DtpgEngine::set_tfi2_mark(const TpgNode* node)
   if ( ((mMarkArray[id] >> 2) & 1U) == 0U ) {
     mMarkArray[id] |= 4U;
     mTfi2List.push_back(node);
+    if ( node->is_ppi() ) {
+      mPPIList.push_back(node);
+    }
   }
 }
 

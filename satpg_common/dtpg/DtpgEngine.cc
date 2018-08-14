@@ -541,6 +541,34 @@ DtpgEngine::check(const vector<SatLiteral>& assumptions)
   return ans;
 }
 
+// @brief 直前の solve() の結果からテストベクタを作る．
+// @return 作成したテストベクタを返す．
+//
+// この関数では単純に外部入力の値を記録する．
+TestVector
+DtpgEngine::get_tv()
+{
+  NodeValList assign_list;
+  if ( mFaultType == FaultType::StuckAt ) {
+    for ( auto node: mPPIList ) {
+      bool val = gval(node) == Val3::_1;
+      assign_list.add(node, 1, val);
+    }
+  }
+  else {
+    for ( auto node: mPPIList ) {
+      bool val = hval(node) == Val3::_1;
+      assign_list.add(node, 0, val);
+    }
+    for ( auto node: mAuxInputList ) {
+      bool val = gval(node) == Val3::_1;
+      assign_list.add(node, 1, val);
+    }
+  }
+  return TestVector::new_from_assign_list(mNetwork.input_num(), mNetwork.dff_num(), mFaultType,
+					  assign_list);
+}
+
 // @brief 十分条件を取り出す．
 // @return 十分条件を表す割当リストを返す．
 NodeValList
