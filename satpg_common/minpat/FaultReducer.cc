@@ -69,6 +69,7 @@ FaultReducer::FaultReducer(const TpgNetwork& network,
   mFaultType(fault_type),
   mDebug(false)
 {
+  mFsim.init_fsim3(mNetwork, mFaultType);
 }
 
 // @brief デストラクタ
@@ -106,11 +107,16 @@ FaultReducer::fault_reduction(vector<const TpgFault*>& fault_list,
   // 初期化する．
   init(fault_list);
 
+  make_dom_candidate();
+
   // algorithm に従って縮約を行う．
   for ( auto opt_pair: opt_list ) {
     auto alg = opt_pair.first;
     auto opt = opt_pair.second;
-    if ( alg == "red1" ) {
+    if ( alg == "ffr" ) {
+      ffr_reduction();
+    }
+    else if ( alg == "red1" ) {
       dom_reduction1();
     }
     else if ( alg == "red2" ) {
@@ -118,10 +124,10 @@ FaultReducer::fault_reduction(vector<const TpgFault*>& fault_list,
     }
   }
 
-  // mDelMark のついていない故障を fault_list に入れる．
+  // mDeleted のついていない故障を fault_list に入れる．
   fault_list.clear();
   for ( auto fault: mFaultList ) {
-    if ( !mDelMark[fault->id()] ) {
+    if ( !mFaultInfoArray[fault->id()].mDeleted ) {
       fault_list.push_back(fault);
     }
   }
@@ -133,26 +139,195 @@ void
 FaultReducer::init(const vector<const TpgFault*>& fault_list)
 {
   if ( mDebug ) {
-    cout << "# of initial faults:                   " << fault_list.size() << endl;
     mTimer.reset();
     mTimer.start();
   }
 
-  // fault_list に含まれていない故障の mDelMark を true にする．
-  mDelMark.clear();
-  mDelMark.resize(mNetwork.max_fault_id(), true);
-  for ( auto fault: fault_list ) {
-    mDelMark[fault->id()] = false;
+  mFsim.set_skip_all();
+
+  // mFaultInfoArray を初期化する．
+  // fault_list に含まれる故障の mDelted だけ false にする．
+  mFaultInfoArray.clear();
+  mFaultInfoArray.resize(mNetwork.max_fault_id());
+  for ( auto id: Range(mNetwork.max_fault_id()) ) {
+    auto& fi = mFaultInfoArray[id];
+    fi.mDeleted = true;
+    fi.mPat = 0UL;
+    fi.mDetCount = 0;
   }
 
-  string just_type;
-  vector<TestVector> tv_list;
-  RandGen randgen;
+  mFaultList.clear();
+  mFaultList.reserve(fault_list.size());
+  for ( auto fault: fault_list ) {
+    mFaultList.push_back(fault);
+    mFaultInfoArray[fault->id()].mDeleted = false;
+    mFsim.clear_skip(fault);
+  }
+
+  // 各々の故障のテストベクタをもとめる(故障シミュレーション用)
+  RandGen rg;
+  for ( auto& ffr: mNetwork.ffr_list() ) {
+    string just_type;
+    DtpgFFR dtpg(mNetwork, mFaultType, ffr, just_type);
+    for ( auto fault: ffr.fault_list() ) {
+      if ( !mFaultInfoArray[fault->id()].mDeleted ) {
+	const NodeValList ffr_cond = ffr_propagate_condition(fault, mFaultType);
+	vector<SatLiteral> assumptions;
+	dtpg.conv_to_assumptions(ffr_cond, assumptions);
+	SatBool3 sat_res = dtpg.solve(assumptions);
+	ASSERT_COND( sat_res == SatBool3::True );
+	TestVector tv = dtpg.get_tv();
+	tv.fix_x_from_random(rg);
+	mTvList.push_back(tv);
+      }
+    }
+  }
+
+  if ( mDebug ) {
+    mTimer.stop();
+    cout << "TestVector generation" << endl;
+    cout << "CPU time:                              " << mTimer.time() << endl;
+  }
+}
+
+// @brief 故障シミュレーションを行って支配故障の候補を作る．
+void
+FaultReducer::make_dom_candidate()
+{
+  if ( mDebug ) {
+    mTimer.reset();
+    mTimer.start();
+  }
+
+  mFsim.clear_patterns();
+  int wpos = 0;
+  for ( auto tv: mTvList ) {
+    mFsim.set_pattern(wpos, tv);
+    ++ wpos;
+    if ( wpos == kPvBitLen ) {
+      do_fsim();
+      mFsim.clear_patterns();
+      wpos = 0;
+    }
+  }
+  if ( wpos > 0 ) {
+    do_fsim();
+  }
+  // mTvList を空にする．
+  vector<TestVector>().swap(mTvList);
+
+  RandGen rg;
+  TestVector tv(mNetwork.input_num(), mNetwork.dff_num(), mFaultType);
+  for ( ; ; ) {
+    for ( auto i: Range(kPvBitLen) ) {
+      tv.set_from_random(rg);
+      mFsim.set_pattern(i, tv);
+    }
+    if ( !do_fsim() ) {
+      break;
+    }
+  }
+
+  if ( mDebug ) {
+    mTimer.stop();
+    cout << "Fault Simulation" << endl;
+    cout << "CPU time:                              " << mTimer.time() << endl;
+  }
+}
+
+// @brief 故障シミュレーションを行って支配故障の候補を作る．
+bool
+FaultReducer::do_fsim()
+{
+  bool changed = false;
+  int n = mFsim.ppsfp();
+
+  // mPat の設定
+  bool first_time = false;
+  for ( auto i: Range(n) ) {
+    auto fault = mFsim.det_fault(i);
+    auto pat = mFsim.det_fault_pat(i);
+    auto& fi = mFaultInfoArray[fault->id()];
+    fi.mPat = pat;
+    if ( fi.mDetCount == 0 ) {
+      first_time = true;
+    }
+  }
+
+  vector<const TpgFault*> tmp_list;
+  if ( first_time ) {
+    tmp_list.reserve(n);
+  }
+  for ( auto i1: Range(n) ) {
+    auto fault1 = mFsim.det_fault(i1);
+    auto pat1 = mFsim.det_fault_pat(i1);
+    auto& fi1 = mFaultInfoArray[fault1->id()];
+    if ( fi1.mDetCount == 0 ) {
+      // pat1 を含むパタンを持っている故障を tmp_list に入れる．
+      tmp_list.clear();
+      for ( auto i2: Range(n) ) {
+	if ( i2 == i1 ) {
+	  continue;
+	}
+	auto fault2 = mFsim.det_fault(i2);
+	auto pat2 = mFsim.det_fault_pat(i2);
+	if ( (pat1 & pat2) == pat1 ) {
+	  // fault1 を検出しているパタンはすべて fault2 を検出している．
+	  tmp_list.push_back(fault2);
+	}
+      }
+      // tmp_list を mDomCandList にコピーする．
+      fi1.mDomCandList = tmp_list;
+    }
+    else {
+      // mDomCandList の要素のうち，pat1 を含むもののみを残す．
+      int rpos1 = 0;
+      int n1 = fi1.mDomCandList.size();
+      int wpos1 = 0;
+      for ( ; rpos1 < n1; ++ rpos1 ) {
+	auto fault2 = fi1.mDomCandList[rpos1];
+	auto pat2 = mFaultInfoArray[fault2->id()].mPat;
+	if ( (pat1 & pat2) == pat1 ) {
+	  fi1.mDomCandList[wpos1] = fault2;
+	  ++ wpos1;
+	}
+      }
+      if ( wpos1 < n1 ) {
+	vector<const TpgFault*> tmp_list(wpos1);
+	for ( auto i: Range(wpos1) ) {
+	  tmp_list[i] = fi1.mDomCandList[i];
+	}
+	fi1.mDomCandList.swap(tmp_list);
+	changed = true;
+      }
+    }
+    fi1.mDetCount += count_ones(pat1);
+  }
+
+  // mPat のクリア
+  for ( auto i: Range(n) ) {
+    auto fault = mFsim.det_fault(i);
+    mFaultInfoArray[fault->id()].mPat = 0UL;
+  }
+
+  return changed;
+}
+
+// @brief 同一 FFR 内の支配故障のチェックを行う．
+void
+FaultReducer::ffr_reduction()
+{
+  if ( mDebug ) {
+    cout << "# of initial faults:                   " << mFaultList.size() << endl;
+    mTimer.reset();
+    mTimer.start();
+  }
+
   for ( auto& ffr: mNetwork.ffr_list() ) {
     // FFR ごとに検出可能な故障をもとめる．
     vector<const TpgFault*> tmp_fault_list;
     for ( auto fault: ffr.fault_list() ) {
-      if ( !mDelMark[fault->id()] ) {
+      if ( !mFaultInfoArray[fault->id()].mDeleted ) {
 	tmp_fault_list.push_back(fault);
       }
     }
@@ -161,54 +336,37 @@ FaultReducer::init(const vector<const TpgFault*>& fault_list)
       continue;
     }
 
+    string just_type;
     DtpgFFR dtpg(mNetwork, mFaultType, ffr, just_type);
-#if 0
-    for ( auto fault: tmp_fault_list ) {
-      NodeValList ffr_cond = ffr_propagate_condition(fault, mFaultType);
-      vector<SatLiteral> assumptions;
-      dtpg.conv_to_assumptions(ffr_cond, assumptions);
-      SatBool3 sat_res = dtpg.solve(assumptions);
-      if ( sat_res != SatBool3::True ) {
-	cerr << "Error: " << fault->str() << " is not testable" << endl;
-	continue;
-      }
 
-      NodeValList suf_cond = dtpg.get_sufficient_condition();
-      // 必要割り当てを求めておく．
-      //NodeValList mand_cond = ffr_mand_cond + ffr_cond;
-      //mand_cond_list.push_back(mand_cond);
-      // テストパタンを求めておく．
-      suf_cond.merge(ffr_cond);
-      TestVector testvect = dtpg.backtrace(fault, suf_cond);
-      testvect.fix_x_from_random(randgen);
-      tv_list.push_back(testvect);
-    }
-#endif
     // 支配関係を調べ，代表故障のみを残す．
     int nf = tmp_fault_list.size();
     for ( auto i1: Range(nf) ) {
       auto fault1 = tmp_fault_list[i1];
-      if ( mDelMark[fault1->id()] ) {
+      auto& fi1 = mFaultInfoArray[fault1->id()];
+      if ( fi1.mDeleted ) {
 	continue;
       }
-      const NodeValList ffr_cond1 = ffr_propagate_condition(fault1, mFaultType);
+      NodeValList ffr_cond1 = ffr_propagate_condition(fault1, mFaultType);
       vector<SatLiteral> assumptions;
       dtpg.conv_to_assumptions(ffr_cond1, assumptions);
-      for ( auto i2: Range(nf) ) {
-	if ( i2 == i1 ) {
+      for ( auto fault2: fi1.mDomCandList ) {
+	if ( fault2->tpg_onode()->ffr_root() != fault1->tpg_onode()->ffr_root() ) {
 	  continue;
 	}
-	auto fault2 = tmp_fault_list[i2];
-	if ( mDelMark[fault2->id()] ) {
+	auto& fi2 = mFaultInfoArray[fault2->id()];
+	if ( fi2.mDeleted ) {
 	  continue;
 	}
 	NodeValList ffr_cond2 = ffr_propagate_condition(fault2, mFaultType);
 	ffr_cond2.diff(ffr_cond1);
 	bool unsat = true;
+	vector<SatLiteral> assumptions1(assumptions);
+	// プレースホルダ
+	assumptions1.push_back(kSatLiteralX);
 	for ( auto nv: ffr_cond2 ) {
-	  vector<SatLiteral> assumptions1(assumptions);
 	  SatLiteral lit1 = dtpg.conv_to_literal(nv);
-	  assumptions1.push_back(~lit1);
+	  assumptions1[assumptions.size()] = ~lit1;
 	  if ( dtpg.check(assumptions1) == SatBool3::True ) {
 	    unsat = false;
 	    break;
@@ -217,32 +375,17 @@ FaultReducer::init(const vector<const TpgFault*>& fault_list)
 	if ( unsat ) {
 	  // fault1 を検出する条件のもとでは fault2 も検出される．
 	  // → fault2 は支配されている．
-	  mDelMark[fault2->id()] = true;
+	  fi2.mDeleted = true;
+	  vector<const TpgFault*>().swap(fi2.mDomCandList);
 	}
       }
     }
   }
 
-  // 現時点で mDelMark の付いていない故障を mFaultList に入れる．
-  // 同時に故障番号をキーにして mFaultList 上の位置を格納する配列を作る．
-  mFaultList.clear();
-  mFaultList.reserve(fault_list.size());
-  mRowIdMap.clear();
-  mRowIdMap.resize(mNetwork.max_fault_id(), -1);
-  for ( auto fault: fault_list ) {
-    if ( !mDelMark[fault->id()] ) {
-      mRowIdMap[fault->id()] = mFaultList.size();
-      mFaultList.push_back(fault);
-    }
-  }
-
-  // 被覆行列の生成
-  //MatrixGen matgen(mFaultList, tv_list, mNetwork, mFaultType);
-  //mMatrix = matgen.generate();
-
   if ( mDebug ) {
     mTimer.stop();
-    cout << "after FFR dominance reduction:         " << mFaultList.size() << endl;
+    int n = count_faults();
+    cout << "after FFR dominance reduction:         " << n << endl;
     cout << "CPU time:                              " << mTimer.time() << endl;
   }
 }
@@ -259,20 +402,14 @@ FaultReducer::dom_reduction1()
   int check_num = 0;
   int success_num = 0;
   for ( auto fault1: mFaultList ) {
-    UndetChecker undet_checker(mNetwork, mFaultType, fault1, mSolverType);
-
-#if 0
-    // fault2 が fault1 を支配している時
-    // fault2 に含まれる列は必ず fault1 にも含まれなければならない．
-    vector<bool> col_mark(mMatrix.col_size(), false);
-    int row1 = mRowIdMap[fault1->id()];
-    for ( auto col: mMatrix.row_list(row1) ) {
-      ASSERT_COND( col >= 0 && col < col_mark.size() );
-      col_mark[col] = true;
+    auto& fi1 = mFaultInfoArray[fault1->id()];
+    if ( fi1.mDeleted ) {
+      continue;
     }
-#endif
+    UndetChecker undet_checker(mNetwork, mFaultType, fault1, mSolverType);
     for ( auto fault2: mFaultList ) {
-      if ( fault2 == fault1 || mDelMark[fault2->id()] ) {
+      auto& fi2 = mFaultInfoArray[fault2->id()];
+      if ( fault2 == fault1 || fi2.mDeleted ) {
 	continue;
       }
       if ( fault1->tpg_onode()->ffr_root() == fault2->tpg_onode()->ffr_root() ) {
@@ -280,40 +417,32 @@ FaultReducer::dom_reduction1()
 	continue;
       }
 
-      bool not_covered = false;
-#if 0
-      int row2 = mRowIdMap[fault2->id()];
-      for ( auto col: mMatrix.row_list(row2) ) {
-	ASSERT_COND( col >= 0 && col < col_mark.size() );
-	if ( !col_mark[col] ) {
-	  not_covered = true;
+      // fault1 が fault2 の mDomCandList に含まれるか調べる．
+      bool found = false;
+      for ( auto fault3: fi2.mDomCandList ) {
+	if ( fault3 == fault1 ) {
+	  found = true;
 	  break;
 	}
       }
-#endif
-      if ( not_covered ) {
-	continue;
-      }
-      ++ check_num;
-      SatBool3 res = undet_checker.check(fault2);
-      if ( res == SatBool3::False ) {
-	++ success_num;
-	// fault2 が検出可能の条件のもとで fault が検出不能となることはない．
-	// fault2 が fault を支配している．
-	mDelMark[fault1->id()] = true;
-	break;
+      if ( found ) {
+	++ check_num;
+	SatBool3 res = undet_checker.check(fault2);
+	if ( res == SatBool3::False ) {
+	  ++ success_num;
+	  // fault2 が検出可能の条件のもとで fault が検出不能となることはない．
+	  // fault2 が fault を支配している．
+	  fi1.mDeleted = true;
+	  vector<const TpgFault*>().swap(fi1.mDomCandList);
+	  break;
+	}
       }
     }
   }
 
   if ( mDebug ) {
     mTimer.stop();
-    int n = 0;
-    for ( auto fault: mFaultList ) {
-      if ( !mDelMark[fault->id()] ) {
-	++ n;
-      }
-    }
+    int n = count_faults();
     cout << "after semi-global dominance reduction: " << n << endl
 	 << "    # of total checks:                 " << check_num << endl
 	 << "    # of total successes:              " << success_num << endl
@@ -334,38 +463,28 @@ FaultReducer::dom_reduction2()
   int dom_num = 0;
   int success_num = 0;
   for ( auto fault1: mFaultList ) {
-    if ( mDelMark[fault1->id()] ) {
+    auto& fi1 = mFaultInfoArray[fault1->id()];
+    if ( fi1.mDeleted ) {
       continue;
     }
-#if 0
-    // fault2 が fault1 を支配している時
-    // fault2 に含まれる列は必ず fault1 にも含まれなければならない．
-    vector<bool> col_mark(mMatrix.col_size(), false);
-    int row1 = mRowIdMap[fault1->id()];
-    for ( auto col: mMatrix.row_list(row1) ) {
-      col_mark[col] = true;
-    }
-#endif
     for ( auto& ffr2: mNetwork.ffr_list() ) {
       if ( ffr2.root() == fault1->tpg_onode()->ffr_root() ) {
 	continue;
       }
       vector<const TpgFault*> fault2_list;
       for ( auto fault2: ffr2.fault_list() ) {
-	if ( mDelMark[fault2->id()] ) {
+	auto& fi2 = mFaultInfoArray[fault2->id()];
+	if ( fi2.mDeleted ) {
 	  continue;
 	}
-	bool not_covered = false;
-#if 0
-	int row2 = mRowIdMap[fault2->id()];
-	for ( auto col: mMatrix.row_list(row2) ) {
-	  if ( !col_mark[col] ) {
-	    not_covered = true;
+	bool found = false;
+	for ( auto fault3: fi2.mDomCandList ) {
+	  if ( fault3 == fault1 ) {
+	    found = true;
 	    break;
 	  }
 	}
-#endif
-	if ( !not_covered ) {
+	if ( found ) {
 	  fault2_list.push_back(fault2);
 	}
       }
@@ -381,11 +500,12 @@ FaultReducer::dom_reduction2()
 	  ++ success_num;
 	  // fault2 が検出可能の条件のもとで fault1 が検出不能となることはない．
 	  // fault2 が fault1 を支配している．
-	  mDelMark[fault1->id()] = true;
+	  fi1.mDeleted = true;
+	  vector<const TpgFault*>().swap(fi1.mDomCandList);
 	  break;
 	}
       }
-      if ( mDelMark[fault1->id()] ) {
+      if ( fi1.mDeleted ) {
 	break;
       }
     }
@@ -393,18 +513,26 @@ FaultReducer::dom_reduction2()
 
   if ( mDebug ) {
     mTimer.stop();
-    int n = 0;
-    for ( auto fault: mFaultList ) {
-      if ( !mDelMark[fault->id()] ) {
-	++ n;
-      }
-    }
+    int n = count_faults();
     cout << "after global dominance reduction:      " << n << endl;
     cout << "    # of total checkes:                " << check_num << endl
 	 << "    # of total successes:              " << success_num << endl
 	 << "    # of DomCheckers:                  " << dom_num << endl
 	 << "CPU time:                              " << mTimer.time() << endl;
   }
+}
+
+// @brief mFaultList 中の mDeleted マークが付いていない故障数を数える．
+int
+FaultReducer::count_faults() const
+{
+  int n = 0;
+  for ( auto fault: mFaultList ) {
+    if ( !mFaultInfoArray[fault->id()].mDeleted ) {
+      ++ n;
+    }
+  }
+  return n;
 }
 
 END_NAMESPACE_YM_SATPG

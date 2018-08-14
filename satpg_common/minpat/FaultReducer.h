@@ -9,6 +9,8 @@
 /// All rights reserved.
 
 #include "satpg.h"
+#include "Fsim.h"
+#include "TestVector.h"
 #include "ym/McMatrix.h"
 #include "ym/SatSolverType.h"
 #include "ym/StopWatch.h"
@@ -64,11 +66,22 @@ private:
 
   /// @brief 内部のデータ構造を初期化する．
   /// @param[in] fi_list 故障情報のリスト
-  ///
-  /// * この時点で FFR 内でわかる支配故障の縮約は行う．
-  /// * テストパタンの生成を行い，被覆行列を作る．
   void
   init(const vector<const TpgFault*>& fault_list);
+
+  /// @brief 故障シミュレーションを行って支配故障の候補を作る．
+  void
+  make_dom_candidate();
+
+  /// @brief 一回の故障シミュレーションを行う．
+  /// @retval true 支配故障のリストに変化があった．
+  /// @retval false 変化がなかった．
+  bool
+  do_fsim();
+
+  /// @brief 同一 FFR 内の支配故障のチェックを行う．
+  void
+  ffr_reduction();
 
   /// @brief 異なる FFR 間の支配故障の簡易チェックを行う．
   void
@@ -79,17 +92,41 @@ private:
   void
   dom_reduction2();
 
+  /// @brief mFaultList 中の mDeleted マークが付いていない故障数を数える．
+  int
+  count_faults() const;
+
 
 private:
   //////////////////////////////////////////////////////////////////////
   // データメンバ
   //////////////////////////////////////////////////////////////////////
 
+  // 故障に関するいくつかの情報をまとめたもの
+  struct FaultInfo
+  {
+    // 削除マーク
+    bool mDeleted;
+
+    // 故障シミュレーションの検出パタン
+    PackedVal mPat;
+
+    // この故障が支配している故障の候補リスト
+    vector<const TpgFault*> mDomCandList;
+
+    // 検出回数
+    int mDetCount;
+
+  };
+
   // 対象のネットワーク
   const TpgNetwork& mNetwork;
 
   // 故障の種類
   FaultType mFaultType;
+
+  // 故障シミュレータ
+  Fsim mFsim;
 
   // SATソルバのタイプ
   SatSolverType mSolverType;
@@ -100,15 +137,11 @@ private:
   // 故障リスト
   vector<const TpgFault*> mFaultList;
 
-  // 削除マーク
-  // 故障のID番号をキーにする．
-  vector<bool> mDelMark;
+  // 故障に関する情報を入れた配列
+  vector<FaultInfo> mFaultInfoArray;
 
-  // 故障番号をキーにして mFaultList 上の位置を格納する配列
-  vector<int> mRowIdMap;
-
-  // 被覆行列
-  McMatrix mMatrix;
+  // テストベクタのリスト
+  vector<TestVector> mTvList;
 
   // 計時を行うオブジェクト
   StopWatch mTimer;
