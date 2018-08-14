@@ -74,7 +74,9 @@ public:
   /// @brief 値割り当てをリテラルのリストに変換する．
   /// @param[in] assign_list 値の割り当てリスト
   /// @param[out] assumptions 変換したリテラルを追加するリスト
-  void
+  /// @retval true 正しく変換された．
+  /// @retval false CNF節を作っていない部分の割り当てがあった．
+  bool
   conv_to_assumptions(const NodeValList& assign_list,
 		      vector<SatLiteral>& assumptions);
 

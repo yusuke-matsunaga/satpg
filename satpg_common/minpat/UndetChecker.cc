@@ -98,7 +98,9 @@ UndetChecker::check(const TpgFault* fault)
   NodeValList ffr_cond = ffr_propagate_condition(fault, mFaultType);
 
   vector<SatLiteral> assumptions;
-  conv_to_assumptions(ffr_cond, assumptions);
+  if ( !conv_to_assumptions(ffr_cond, assumptions) ) {
+    return SatBool3::X;
+  }
 
   vector<SatBool3> model;
   SatBool3 res = solve(assumptions, model);
@@ -329,7 +331,7 @@ UndetChecker::conv_to_literal(NodeVal node_val)
 // @brief 値割り当てをリテラルのリストに変換する．
 // @param[in] assign_list 値の割り当てリスト
 // @param[out] assumptions 変換したリテラルを追加するリスト
-void
+bool
 UndetChecker::conv_to_assumptions(const NodeValList& assign_list,
 				  vector<SatLiteral>& assumptions)
 {
@@ -338,10 +340,12 @@ UndetChecker::conv_to_assumptions(const NodeValList& assign_list,
   assumptions.reserve(n + n0);
   for ( auto nv: assign_list ) {
     auto lit = conv_to_literal(nv);
-    if ( lit != kSatLiteralX ) {
-      assumptions.push_back(lit);
+    if ( lit == kSatLiteralX ) {
+      return false;
     }
+    assumptions.push_back(lit);
   }
+  return true;
 }
 
 // @brief 一つの SAT問題を解く．
