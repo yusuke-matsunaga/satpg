@@ -118,14 +118,13 @@ FaultReducer::fault_reduction(vector<const TpgFault*>& fault_list,
 
   make_dom_candidate(1);
 
+  ffr_reduction();
+
   // algorithm に従って縮約を行う．
   for ( auto opt_pair: opt_list ) {
     auto alg = opt_pair.first;
     auto opt = opt_pair.second;
-    if ( alg == "ffr" ) {
-      ffr_reduction();
-    }
-    else if ( alg == "red1" ) {
+    if ( alg == "red1" ) {
       dom_reduction1();
     }
     else if ( alg == "red2" ) {
@@ -647,8 +646,10 @@ FaultReducer::dom_reduction3()
     mTimer.stop();
     int n = count_faults();
     cout << "after global dominance reduction:      " << n << endl;
-    cout << "    # of total checkes:                " << check_num << endl
-	 << "    # of total successes:              " << success_num << endl
+    cout << "    # of total checkes(1):             " << check_num << endl
+	 << "    # of total successes(1):           " << success_num << endl
+	 << "    # of total checkes(2):             " << u_check_num << endl
+	 << "    # of total successes(2):           " << u_success_num << endl
 	 << "    # of DomCheckers:                  " << dom_num << endl
 	 << "CPU time:                              " << mTimer.time() << endl;
   }
