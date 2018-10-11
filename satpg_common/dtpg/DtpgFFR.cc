@@ -201,7 +201,7 @@ DtpgFFR::gen_core_expr(const TpgFault* fault,
   vector<SatLiteral> assumptions;
   conv_to_assumptions(ffr_cond, assumptions);
 
-  Expr expr = Expr::const_zero();
+  Expr expr = Expr::zero();
 
   SatBool3 sat_res = solve(assumptions);
   if ( sat_res == SatBool3::True ) {

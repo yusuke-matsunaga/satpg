@@ -638,13 +638,13 @@ void
 DtpgEngine::add_negation(const Expr& expr,
 			 SatLiteral clit)
 {
-  if ( expr.is_posiliteral() ) {
+  if ( expr.is_posi_literal() ) {
     int id = expr.varid().val();
     const TpgNode* node = mNetwork.node(id);
     SatLiteral lit(gvar(node));
     solver().add_clause(~clit, ~lit);
   }
-  else if ( expr.is_negaliteral() ) {
+  else if ( expr.is_nega_literal() ) {
     int id = expr.varid().val();
     const TpgNode* node = mNetwork.node(id);
     SatLiteral lit(gvar(node));
@@ -678,13 +678,13 @@ DtpgEngine::add_negation(const Expr& expr,
 SatLiteral
 DtpgEngine::_add_negation_sub(const Expr& expr)
 {
-  if ( expr.is_posiliteral() ) {
+  if ( expr.is_posi_literal() ) {
     int id = expr.varid().val();
     const TpgNode* node = mNetwork.node(id);
     SatLiteral lit(gvar(node));
     return lit;
   }
-  else if ( expr.is_negaliteral() ) {
+  else if ( expr.is_nega_literal() ) {
     int id = expr.varid().val();
     const TpgNode* node = mNetwork.node(id);
     SatLiteral lit(gvar(node));

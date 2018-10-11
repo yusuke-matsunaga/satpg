@@ -12,6 +12,7 @@
 #include "CplxGateInfo.h"
 #include "GateType.h"
 #include "Val3.h"
+#include "ym/Range.h"
 
 
 BEGIN_NAMESPACE_YM_SATPG
@@ -28,7 +29,7 @@ count_expr(const Expr& expr)
 
   int n = 1;
   int nc = expr.child_num();
-  for ( int i = 0; i < nc; ++ i ) {
+  for ( int i: Range(nc) ) {
     n += count_expr(expr.child(i));
   }
   return n;
@@ -41,7 +42,7 @@ extra_node_count(const Expr& expr,
 {
   // まず入力部分に挿入されるノード数を数える．
   int n = 0;
-  for ( int i = 0; i < ni; ++ i ) {
+  for ( int i: Range(ni) ) {
     int p_num = expr.litnum(VarId(i), false);
     int n_num = expr.litnum(VarId(i), true);
     ASSERT_COND( p_num > 0 || n_num > 0 );
@@ -78,11 +79,11 @@ ccv_sub(const Expr& expr,
   if ( expr.is_one() ) {
     return Val3::_1;
   }
-  if ( expr.is_posiliteral() ) {
+  if ( expr.is_posi_literal() ) {
     int iid = expr.varid().val();
     return ivals[iid];
   }
-  if ( expr.is_negaliteral() ) {
+  if ( expr.is_nega_literal() ) {
     int iid = expr.varid().val();
     return ~ivals[iid];
   }
@@ -90,7 +91,7 @@ ccv_sub(const Expr& expr,
   int nc = expr.child_num();
   if ( expr.is_and() ) {
     bool has_x = false;
-    for ( int i = 0; i < nc; ++ i ) {
+    for ( int i: Range(nc) ) {
       Val3 ival = ccv_sub(expr.child(i), ivals);
       if ( ival == Val3::_0 ) {
 	return Val3::_0;
@@ -107,7 +108,7 @@ ccv_sub(const Expr& expr,
 
   if ( expr.is_or() ) {
     bool has_x = false;
-    for ( int i = 0; i < nc; ++ i ) {
+    for ( int i: Range(nc) ) {
       Val3 ival = ccv_sub(expr.child(i), ivals);
       if ( ival == Val3::_1 ) {
 	return Val3::_1;
@@ -124,7 +125,7 @@ ccv_sub(const Expr& expr,
 
   if ( expr.is_xor() ) {
     Val3 val = Val3::_0;
-    for ( int i = 0; i < nc; ++ i ) {
+    for ( int i: Range(nc) ) {
       Val3 ival = ccv_sub(expr.child(i), ivals);
       if ( ival == Val3::_X ) {
 	return Val3::_X;
@@ -237,7 +238,7 @@ Expr
 SimpleGateInfo::expr() const
 {
   // ダミー
-  return Expr::const_zero();
+  return Expr::invalid();
 }
 
 // @brief 追加ノード数を返す．
@@ -271,7 +272,7 @@ CplxGateInfo::CplxGateInfo(int ni,
   mCVal(ni * 2)
 {
   mExtraNodeNum = extra_node_count(expr, ni);
-  for (int i = 0; i < ni; ++ i) {
+  for ( int i: Range(ni) ) {
     mCVal[i * 2 + 0] = calc_c_val(expr, ni, i, Val3::_0);
     mCVal[i * 2 + 1] = calc_c_val(expr, ni, i, Val3::_1);
   }
@@ -345,11 +346,11 @@ TpgGateInfoMgr::TpgGateInfoMgr()
 // @brief デストラクタ
 TpgGateInfoMgr::~TpgGateInfoMgr()
 {
-  for (int i = 0; i < 10; ++ i) {
+  for ( int i: {0, 1, 2, 3, 4, 5, 6, 7, 8, 9} ) {
     delete mSimpleType[i];
   }
-  for (int i = 0; i < mList.size(); ++ i) {
-    delete mList[i];
+  for ( auto p: mList ) {
+    delete p;
   }
 }
 

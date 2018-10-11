@@ -360,7 +360,8 @@ TpgNetworkImpl::set(const BnNetwork& network)
   //////////////////////////////////////////////////////////////////////
   int extra_node_num = 0;
   int nl = network.logic_num();
-  for ( auto src_node: network.logic_list() ) {
+  for ( auto src_id: network.logic_id_list() ) {
+    auto src_node = network.node(src_id);
     BnNodeType logic_type = src_node->type();
     if ( logic_type == BnNodeType::Expr ) {
       const TpgGateInfo* node_info = node_info_list[src_node->func_id()];
@@ -459,10 +460,11 @@ TpgNetworkImpl::set(const BnNetwork& network)
 
   //////////////////////////////////////////////////////////////////////
   // 論理ノードを作成する．
-  // BnNetwork::logic() はトポロジカルソートされているので
+  // BnNetwork::logic_id_list() はトポロジカルソートされているので
   // 結果として TpgNode もトポロジカル順に並べられる．
   //////////////////////////////////////////////////////////////////////
-  for ( auto src_node: network.logic_list() ) {
+  for ( auto src_id: network.logic_id_list() ) {
+    auto src_node = network.node(src_id);
     const TpgGateInfo* node_info = nullptr;
     BnNodeType logic_type = src_node->type();
     if ( logic_type == BnNodeType::Expr ) {
@@ -485,7 +487,7 @@ TpgNetworkImpl::set(const BnNetwork& network)
 				    connection_list);
 
     // ノードを登録する．
-    node_map.reg(src_node->id(), node);
+    node_map.reg(src_id, node);
   }
 
 

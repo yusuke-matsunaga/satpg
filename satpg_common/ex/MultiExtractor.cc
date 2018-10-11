@@ -67,7 +67,7 @@ MultiExtractor::get_assignments(const TpgNode* root)
   mExprMap.clear();
 
   // 故障差の伝搬している経路を探す．
-  Expr expr = Expr::const_zero();
+  Expr expr = Expr::zero();
   for ( auto spo: mSpoList ) {
     // spo に到達する故障伝搬経路の
     // side input の値を記録する．
@@ -132,7 +132,7 @@ MultiExtractor::record_sensitized_node(const TpgNode* node)
     // * 故障差の伝搬しているファンインには record_sensitized_node() を呼ぶ．
     // * そうでない fault-cone 内のファンインには record_masking_node() を呼ぶ．
     // * それ以外のファンインには record_side_input() を呼ぶ．
-    expr = Expr::const_one();
+    expr = Expr::one();
     for ( auto inode: node->fanin_list() ) {
       Expr expr1;
       if ( mFconeMark.check(inode->id()) ) {
@@ -186,7 +186,7 @@ MultiExtractor::record_masking_node(const TpgNode* node)
     }
     if ( has_cnode ) {
       // 制御値を持つノードの値を確定させる．
-      expr = Expr::const_zero();
+      expr = Expr::zero();
       for ( auto cnode: c1node_list ) {
 	expr |= record_masking_node(cnode);
       }
@@ -198,7 +198,7 @@ MultiExtractor::record_masking_node(const TpgNode* node)
       // ここに来たということは全てのファンインに故障差が伝搬していないか
       // 複数のファンインの故障差が打ち消し合っているのですべてのファンイン
       // に再帰する．
-      expr = Expr::const_one();
+      expr = Expr::one();
       for ( auto inode: node->fanin_list() ) {
 	if ( mFconeMark.check(inode->id()) ) {
 	  if ( gval(inode) != fval(inode) ) {

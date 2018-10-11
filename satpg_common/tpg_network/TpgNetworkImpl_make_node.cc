@@ -414,11 +414,11 @@ TpgNetworkImpl::make_cplx_node(const string& name,
 			       int fanout_num,
 			       vector<pair<int, int>>& connection_list)
 {
-  if ( expr.is_posiliteral() ) {
+  if ( expr.is_posi_literal() ) {
     int iid = expr.varid().val();
     return leaf_nodes[iid * 2 + 0];
   }
-  if ( expr.is_negaliteral() ) {
+  if ( expr.is_nega_literal() ) {
     int iid = expr.varid().val();
     return leaf_nodes[iid * 2 + 1];
   }
@@ -457,7 +457,7 @@ TpgNetworkImpl::make_cplx_node(const string& name,
   for ( auto i: Range(nc) ) {
     // 美しくないけどスマートなやり方を思いつかない．
     const Expr& expr1 = expr.child(i);
-    if ( expr1.is_posiliteral() ) {
+    if ( expr1.is_posi_literal() ) {
       int iid = expr1.varid().val();
       if ( inode_array[iid].mNode == nullptr ) {
 	inode_array[iid].set(node, i);

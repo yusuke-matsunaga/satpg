@@ -770,12 +770,12 @@ Analyzer::common_cube(const Expr& expr)
   ASSERT_COND( !expr.is_constant() );
 
   NodeValList cube;
-  if ( expr.is_posiliteral() ) {
+  if ( expr.is_posi_literal() ) {
     int id = expr.varid().val();
     const TpgNode* node = mNetwork.node(id);
     cube.add(node, 1, true);
   }
-  else if ( expr.is_negaliteral() ) {
+  else if ( expr.is_nega_literal() ) {
     int id = expr.varid().val();
     const TpgNode* node = mNetwork.node(id);
     cube.add(node, 1, false);
@@ -825,28 +825,28 @@ Analyzer::_restrict_sub(const Expr& expr,
 {
   ASSERT_COND( !expr.is_constant() );
 
-  if ( expr.is_posiliteral() ) {
+  if ( expr.is_posi_literal() ) {
     VarId var = expr.varid();
     bool val;
     if ( val_map.find(var, val) ) {
       if ( val == false ) {
-	return Expr::const_zero();
+	return Expr::zero();
       }
       else if ( val == true ) {
-	return Expr::const_one();
+	return Expr::one();
       }
     }
     return expr;
   }
-  else if ( expr.is_negaliteral() ) {
+  else if ( expr.is_nega_literal() ) {
     VarId var = expr.varid();
     bool val;
     if ( val_map.find(var, val) ) {
       if ( val == false ) {
-	return Expr::const_one();
+	return Expr::one();
       }
       else if ( val == true ) {
-	return Expr::const_zero();
+	return Expr::zero();
       }
     }
     return expr;
@@ -873,7 +873,7 @@ Analyzer::_restrict_sub(const Expr& expr,
     ASSERT_NOT_REACHED;
   }
 
-  return Expr::const_zero();
+  return Expr::zero();
 }
 
 END_NAMESPACE_YM_SATPG
