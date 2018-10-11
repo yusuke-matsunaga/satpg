@@ -404,5 +404,5 @@ int
 main(int argc,
      char** argv)
 {
-  return nsYm::nsSatpg::fsim2test(argc, argv);
+  return SATPG_NAMESPACE::fsim2test(argc, argv);
 }

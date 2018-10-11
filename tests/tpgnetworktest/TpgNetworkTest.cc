@@ -46,5 +46,7 @@ main(int argc,
     return 255;
   }
 
-  nsYm::nsSatpg::loop_test(100, argv[1]);
+  SATPG_NAMESPACE::loop_test(100, argv[1]);
+
+  return 0;
 }

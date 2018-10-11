@@ -33,5 +33,5 @@ int
 main(int argc,
      char** argv)
 {
-  nsYm::nsSatpg::TpgFaultTest(argc, argv);
+  SATPG_NAMESPACE::TpgFaultTest(argc, argv);
 }

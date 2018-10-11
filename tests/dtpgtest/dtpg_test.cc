@@ -217,5 +217,5 @@ int
 main(int argc,
      char** argv)
 {
-  return nsYm::nsSatpg::dtpg_test(argc, argv);
+  return SATPG_NAMESPACE::dtpg_test(argc, argv);
 }

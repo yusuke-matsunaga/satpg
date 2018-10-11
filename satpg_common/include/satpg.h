@@ -10,7 +10,7 @@
 /// All rights reserved.
 
 #include "ym_config.h"
-
+#include "version_config.h"
 
 // 名前空間の定義ファイル
 // 必ず先頭でインクルードしなければならない．
@@ -22,11 +22,13 @@
 
 #define BEGIN_NAMESPACE_YM_SATPG \
 BEGIN_NAMESPACE_YM \
-BEGIN_NAMESPACE(nsSatpg)
+BEGIN_NAMESPACE(SATPG_NSNAME)
 
 #define END_NAMESPACE_YM_SATPG \
-END_NAMESPACE(nsSatpg) \
+END_NAMESPACE(SATPG_NSNAME) \
 END_NAMESPACE_YM
+
+#define SATPG_NAMESPACE YM_NAMESPACE::SATPG_NSNAME
 
 
 BEGIN_NAMESPACE_YM_SATPG
