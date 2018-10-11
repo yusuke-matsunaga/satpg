@@ -104,3 +104,12 @@ add_custom_command (
   COMMAND ${CMAKE_COMMAND}
   ARGS -E copy $<TARGET_FILE:satpg_core_d> ${CMAKE_CURRENT_BINARY_DIR}/debug/satpg_core.so
   )
+
+
+# ===================================================================
+#  インストールターゲットの設定
+# ===================================================================
+
+install ( TARGETS satpg_core
+  DESTINATION "${YM_PYTHON_LIBDIR}"
+  )

@@ -11,16 +11,18 @@ set (CMAKE_CXX_STANDARD 14)
 # ===================================================================
 # プロジェクト名，バージョンの設定
 # ===================================================================
-project (satpg)
-set (SATPG_VERSION_MAJOR 1)
-set (SATPG_VERSION_MINOR 0)
-set (SATPG_VERSION ${SATPG_VERSION_MAJOR}.${SATPG_VERSION_MINOR})
+set ( YM_VERSION_MAJOR 1 )
+set ( YM_VERSION_MINOR 0 )
+set ( YM_VERSION "${YM_VERSION_MAJOR}.${YM_VERSION_MINOR}" )
+project ( satpg VERSION "${YM_VERSION}" )
+
+set ( YM_PROJECT_STRING "${PROJECT_NAME}-${PROJECT_VERSION}" )
 
 # 名前空間
-set (SATPG_NAMESPACE "nsSatpg")
+set ( SATPG_NSNAME "nsSatpg" )
 
-# ライブラリのインストールディレクトリ
-set ( YM_INSTALL_LIBDIR "lib/satpg" )
+# インストールディレクトリ
+set ( CMAKE_INSTALL_PREFIX "${PROJECT_BINARY_DIR}/stage" )
 
 
 # ===================================================================
@@ -41,6 +43,9 @@ include (FindDoxygen)
 set( Python_ADDITIONAL_VERSIONS 3.7 3.6 3.5 3.4 3.3 3.2 3.1 )
 include( FindPythonInterp )
 include( FindPythonLibs )
+
+set( YM_PYTHON_STRING "python${PYTHON_VERSION_MAJOR}.${PYTHON_VERSION_MINOR}" )
+set( YM_PYTHON_LIBDIR "lib/${YM_PYTHON_STRING}/site-packages/${YM_PROJECT_STRING}" )
 
 include( UseCython )
 
@@ -75,6 +80,19 @@ configure_file(
 
 
 # ===================================================================
+# スクリプトファイルの生成
+# ===================================================================
+
+if ( PYTHONINTERP_FOUND )
+  configure_file(
+    "${PROJECT_SOURCE_DIR}/etc/ym_python.in"
+    "${PROJECT_BINARY_DIR}/ym_python"
+    @ONLY
+    )
+endif ()
+
+
+# ===================================================================
 # インクルードパスの設定
 # ===================================================================
 include_directories (
@@ -101,8 +119,6 @@ add_subdirectory ( ym-logic )
 add_subdirectory ( ym-cell )
 add_subdirectory ( ym-bnet )
 add_subdirectory ( ym-combopt )
-#add_subdirectory ( ym-udgraph )
-#add_subdirectory ( ym-mincov )
 add_subdirectory ( ym-sat )
 add_subdirectory ( ym-tclpp )
 
@@ -128,3 +144,7 @@ endif ()
 # ===================================================================
 #  インストールターゲットの設定
 # ===================================================================
+
+install ( PROGRAMS ${PROJECT_BINARY_DIR}/ym_python
+  DESTINATION bin
+  )

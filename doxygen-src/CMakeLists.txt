@@ -5,7 +5,8 @@
 
 # doxygen の対象となるヘッダファイル(のパタン)を YM_DOXY_SRCS に入れる．
 set ( YM_DOXY_SRCS )
-foreach (dir
+foreach ( dir
+    "${PROJECT_BINARY_DIR}"
     "${CMAKE_CURRENT_SOURCE_DIR}"
     )
   list ( APPEND YM_DOXY_SRCS ${dir} )
@@ -30,7 +31,7 @@ string ( REPLACE ";" " " YM_DOXY_INPUT "${YM_DOXY_SRCS}" )
 # Doxyfile の生成
 configure_file (
   "${CMAKE_CURRENT_SOURCE_DIR}/Doxyfile.in"
-  "Doxyfile"
+  "${CMAKE_CURRENT_BINARY_DIR}/Doxyfile"
   )
 
 # doxygen 用ターゲット
@@ -49,5 +50,5 @@ add_custom_command(
 # 生成物のインストールルール
 install (DIRECTORY
   "${CMAKE_CURRENT_BINARY_DIR}/docs"
-  DESTINATION share/satpg-${SATPG_VERSION}/
+  DESTINATION "share/${YM_PROJECT_STRING}"
   )
