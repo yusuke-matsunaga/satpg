@@ -38,23 +38,14 @@ list ( APPEND CMAKE_MODULE_PATH
   )
 
 include (FindDoxygen)
-
-# Python のバージョン指定
-set( Python_ADDITIONAL_VERSIONS 3.7 3.6 3.5 3.4 3.3 3.2 3.1 )
-include( FindPythonInterp )
-include( FindPythonLibs )
-
-set( YM_PYTHON_STRING "python${PYTHON_VERSION_MAJOR}.${PYTHON_VERSION_MINOR}" )
-set( YM_PYTHON_LIBDIR "lib/${YM_PYTHON_STRING}/site-packages/${YM_PROJECT_STRING}" )
-
 include( UseCython )
-
 find_package(Gperftools)
 
 include (YmUtils)
 
 ym_init ( "" )
 
+ym_init_python ()
 
 # ===================================================================
 # google-test は内蔵のものを使う．
@@ -88,6 +79,10 @@ if ( PYTHONINTERP_FOUND )
     "${PROJECT_SOURCE_DIR}/etc/ym_python.in"
     "${PROJECT_BINARY_DIR}/ym_python"
     @ONLY
+    )
+
+  install ( PROGRAMS ${PROJECT_BINARY_DIR}/ym_python
+    DESTINATION bin
     )
 endif ()
 
@@ -132,7 +127,29 @@ add_subdirectory ( atpg_tclsh )
 add_subdirectory ( python )
 
 if ( DOXYGEN_FOUND )
-  add_subdirectory ( doxygen-src )
+  # doxygen の対象となるヘッダファイル(のパタン)を YM_DOXY_SRCS に入れる．
+  set ( YM_DOXY_SRCS )
+  foreach ( dir
+      "${PROJECT_BINARY_DIR}"
+      "${PROJECT_SOURCE_DIR}/doxygen-src"
+      )
+    list ( APPEND YM_DOXY_SRCS ${dir} )
+  endforeach()
+  foreach ( dir
+      "satpg_common"
+      "ym-bnet"
+      "ym-cell"
+      "ym-combopt"
+      "ym-common"
+      "ym-logic"
+      "ym-sat"
+      "ym-tclpp"
+      )
+    list ( APPEND YM_DOXY_SRCS "${PROJECT_SOURCE_DIR}/${dir}/include" )
+  endforeach ()
+  list ( APPEND YM_DOXY_SRCS "${PROJECT_SOURCE_DIR}/atpg_tclsh" )
+
+  ym_add_doxygen ()
 endif ()
 
 
@@ -144,7 +161,3 @@ endif ()
 # ===================================================================
 #  インストールターゲットの設定
 # ===================================================================
-
-install ( PROGRAMS ${PROJECT_BINARY_DIR}/ym_python
-  DESTINATION bin
-  )
