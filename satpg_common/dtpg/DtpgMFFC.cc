@@ -135,7 +135,7 @@ DtpgMFFC::gen_pattern(const TpgFault* fault)
 
   SatBool3 sat_res = solve(assumptions);
   if ( sat_res == SatBool3::True ) {
-    NodeValList suf_cond = get_sufficient_condition();
+    NodeValList suf_cond = get_sufficient_condition(ffr_root);
     suf_cond.merge(ffr_cond);
     TestVector testvect = backtrace(fault, suf_cond);
     return DtpgResult(testvect);
@@ -146,6 +146,39 @@ DtpgMFFC::gen_pattern(const TpgFault* fault)
   else { // sat_res == SatBool3::X
     return DtpgResult::make_undetected();
   }
+}
+
+// @brief 十分条件を取り出す．
+// @param[in] root 対象の故障のあるFFRの根のノード
+// @return 十分条件を表す割当リストを返す．
+NodeValList
+DtpgMFFC::get_sufficient_condition(const TpgNode* root)
+{
+  extern
+  NodeValList
+  extract(const TpgNode* root,
+	  const VidMap& gvar_map,
+	  const VidMap& fvar_map,
+	  const vector<SatBool3>& model);
+
+  return extract(root, gvar_map(), fvar_map(), sat_model());
+}
+
+// @brief 複数の十分条件を取り出す．
+// @param[in] root 対象の故障のあるFFRの根のノード
+//
+// FFR内の故障伝搬条件は含まない．
+Expr
+DtpgMFFC::get_sufficient_conditions(const TpgNode* root)
+{
+  extern
+  Expr
+  extract_all(const TpgNode* root,
+	      const VidMap& gvar_map,
+	      const VidMap& fvar_map,
+	      const vector<SatBool3>& model);
+
+  return extract_all(root, gvar_map(), fvar_map(), sat_model());
 }
 
 // @brief mffc 内の影響が root まで伝搬する条件のCNF式を作る．

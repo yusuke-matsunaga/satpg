@@ -52,6 +52,38 @@ public:
   DtpgResult
   gen_pattern(const TpgFault* fault);
 
+  /// 使用禁止の宣言
+  /// @brief 十分条件を取り出す．
+  /// @return 十分条件を表す割当リストを返す．
+  ///
+  /// * FFR内の故障伝搬条件は含まない．
+  NodeValList
+  get_sufficient_condition() = delete;
+
+  /// 使用禁止の宣言
+  /// @brief 複数の十分条件を取り出す．
+  ///
+  /// * FFR内の故障伝搬条件は含まない．
+  Expr
+  get_sufficient_conditions() = delete;
+
+  /// @brief 十分条件を取り出す．
+  /// @param[in] root 対象の故障のあるFFRの根のノード
+  /// @return 十分条件を表す割当リストを返す．
+  ///
+  /// * root は MFFC モードの時 mRoot と異なる．
+  /// * FFR内の故障伝搬条件は含まない．
+  NodeValList
+  get_sufficient_condition(const TpgNode* root);
+
+  /// @brief 複数の十分条件を取り出す．
+  /// @param[in] root 対象の故障のあるFFRの根のノード
+  ///
+  /// * root は MFFC モードの時 mRoot と異なる．
+  /// * FFR内の故障伝搬条件は含まない．
+  Expr
+  get_sufficient_conditions(const TpgNode* root);
+
 
 protected:
   //////////////////////////////////////////////////////////////////////

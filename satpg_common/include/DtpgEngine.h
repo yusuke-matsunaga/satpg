@@ -126,13 +126,13 @@ public:
   /// @brief 十分条件を取り出す．
   /// @return 十分条件を表す割当リストを返す．
   ///
-  /// FFR内の故障伝搬条件は含まない．
+  /// * FFR内の故障伝搬条件は含まない．
   NodeValList
   get_sufficient_condition();
 
   /// @brief 複数の十分条件を取り出す．
   ///
-  /// FFR内の故障伝搬条件は含まない．
+  /// * FFR内の故障伝搬条件は含まない．
   Expr
   get_sufficient_conditions();
 
@@ -264,6 +264,10 @@ protected:
   /// @param[in] node 対象のノード
   Val3
   fval(const TpgNode* node) const;
+
+  /// @brief 直前の solve() の解を返す．
+  const vector<SatBool3>&
+  sat_model() const;
 
   /// @brief 起点となるノードを返す．
   const TpgNode*
@@ -620,6 +624,14 @@ DtpgEngine::fval(const TpgNode* node) const
 {
   SatVarId var = fvar(node);
   return get_val(var);
+}
+
+// @brief 直前の solve() の解を返す．
+inline
+const vector<SatBool3>&
+DtpgEngine::sat_model() const
+{
+  return mSatModel;
 }
 
 // @brief SATモデルから値を取り出す．

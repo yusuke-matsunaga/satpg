@@ -585,7 +585,6 @@ DtpgEngine::get_sufficient_condition()
 }
 
 // @brief 複数の十分条件を取り出す．
-// @param[in] fault 対象の故障
 //
 // FFR内の故障伝搬条件は含まない．
 Expr
