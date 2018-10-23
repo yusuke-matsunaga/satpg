@@ -21,7 +21,7 @@ include_directories(
 #  テスト用のターゲットの設定
 # ===================================================================
 
-add_executable ( DtpgTest
+ym_add_gtest ( DtpgTest
   DtpgTest.cc
   ../../tests/dtpgtest/DtpgTest.cc
   $<TARGET_OBJECTS:satpg_common_ad>
@@ -35,22 +35,5 @@ add_executable ( DtpgTest
   $<TARGET_OBJECTS:ym_bnet_ad>
   $<TARGET_OBJECTS:ym_sat_ad>
   $<TARGET_OBJECTS:ym_combopt_ad>
-  )
-
-target_compile_options ( DtpgTest
-  PRIVATE "-g"
-  )
-
-target_compile_definitions ( DtpgTest
-  PRIVATE "-DDATAPATH=\"${CMAKE_CURRENT_SOURCE_DIR}/data/\""
-  )
-
-target_link_libraries ( DtpgTest
-  ${YM_LIB_DEPENDS}
-  pthread
-  ${GTEST_BOTH_LIBRARIES}
-  )
-
-add_test ( DtpgTest
-  DtpgTest
+  DEFINITIONS "-DDATAPATH=\"${CMAKE_CURRENT_SOURCE_DIR}/data/\""
   )
