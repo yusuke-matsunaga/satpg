@@ -320,13 +320,7 @@ TpgNetwork::set(const BnNetwork& network)
 bool
 TpgNetwork::read_blif(const string& filename)
 {
-  BnNetwork network;
-  bool stat = nsBnet::read_blif(network, filename);
-  if ( stat ) {
-    set(network);
-  }
-
-  return stat;
+  return read_blif(filename, ClibCellLibrary());
 }
 
 // @brief blif ファイルを読み込む．
@@ -337,8 +331,8 @@ bool
 TpgNetwork::read_blif(const string& filename,
 		      const ClibCellLibrary& cell_library)
 {
-  BnNetwork network;
-  bool stat = nsBnet::read_blif(network, filename, cell_library);
+  BnNetwork network = BnNetwork::read_blif(filename, cell_library);
+  bool stat = network.node_num() != 0;
   if ( stat ) {
     set(network);
   }
@@ -352,8 +346,8 @@ TpgNetwork::read_blif(const string& filename,
 bool
 TpgNetwork::read_iscas89(const string& filename)
 {
-  BnNetwork network;
-  bool stat = nsBnet::read_iscas89(network, filename);
+  BnNetwork network = BnNetwork::read_iscas89(filename);
+  bool stat = network.node_num() != 0;
   if ( stat ) {
     set(network);
   }

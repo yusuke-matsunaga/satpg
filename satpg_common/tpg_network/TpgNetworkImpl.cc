@@ -349,7 +349,8 @@ TpgNetworkImpl::set(const BnNetwork& network)
   TpgGateInfoMgr node_info_mgr;
   vector<const TpgGateInfo*> node_info_list;
   node_info_list.reserve(network.expr_num());
-  for ( auto expr: network.expr_list() ) {
+  for ( int i: Range(network.expr_num()) ) {
+    auto expr = network.expr(i);
     int ni = expr.input_size();
     const TpgGateInfo* node_info = node_info_mgr.complex_type(ni, expr);
     node_info_list.push_back(node_info);
@@ -360,15 +361,15 @@ TpgNetworkImpl::set(const BnNetwork& network)
   //////////////////////////////////////////////////////////////////////
   int extra_node_num = 0;
   int nl = network.logic_num();
-  for ( auto src_id: network.logic_id_list() ) {
-    auto src_node = network.node(src_id);
-    BnNodeType logic_type = src_node->type();
+  for ( int src_id: network.logic_id_list() ) {
+    auto& src_node = network.node(src_id);
+    BnNodeType logic_type = src_node.type();
     if ( logic_type == BnNodeType::Expr ) {
-      const TpgGateInfo* node_info = node_info_list[src_node->func_id()];
+      const TpgGateInfo* node_info = node_info_list[src_node.func_id()];
       extra_node_num += node_info->extra_node_num();
     }
     else if ( logic_type == BnNodeType::Xor || logic_type == BnNodeType::Xnor ) {
-      int ni = src_node->fanin_num();
+      int ni = src_node.fanin_num();
       extra_node_num += (ni - 2);
     }
   }
@@ -381,14 +382,15 @@ TpgNetworkImpl::set(const BnNetwork& network)
   // BnPort は複数ビットの場合があり，さらに入出力が一緒なのでめんどくさい
   vector<int> input_map;
   vector<int> output_map;
-  for ( auto port: network.port_list() ) {
-    for ( auto i: Range(port->bit_width() ) ) {
-      int id = port->bit(i);
-      const BnNode* node = network.node(id);
-      if ( node->is_input() ) {
+  for ( int i: Range(network.port_num()) ) {
+    auto& port = network.port(i);
+    for ( auto b: Range(port.bit_width() ) ) {
+      int id = port.bit(b);
+      auto& node = network.node(id);
+      if ( node.is_input() ) {
 	input_map.push_back(id);
       }
-      else if ( node->is_output() ) {
+      else if ( node.is_output() ) {
 	output_map.push_back(id);
       }
       else {
@@ -401,14 +403,15 @@ TpgNetworkImpl::set(const BnNetwork& network)
   int dff_num = network.dff_num();
 
   int dff_control_num = 0;
-  for ( auto dff: network.dff_list() ) {
+  for ( int i: Range(network.dff_num()) ) {
+    auto& dff = network.dff(i);
     // まずクロックで一つ
     ++ dff_control_num;
-    if ( dff->clear() != kBnNullId ) {
+    if ( dff.clear() != kBnNullId ) {
       // クリア端子で一つ
       ++ dff_control_num;
     }
-    if ( dff->preset() != kBnNullId ) {
+    if ( dff.preset() != kBnNullId ) {
       // プリセット端子で一つ
       ++ dff_control_num;
     }
@@ -422,7 +425,6 @@ TpgNetworkImpl::set(const BnNetwork& network)
   mNodeNum = 0;
   mFaultNum = 0;
 
-
   vector<pair<int, int> > connection_list;
 
   //////////////////////////////////////////////////////////////////////
@@ -430,10 +432,10 @@ TpgNetworkImpl::set(const BnNetwork& network)
   //////////////////////////////////////////////////////////////////////
   for ( auto i: Range(mInputNum) ) {
     int id = input_map[i];
-    const BnNode* src_node = network.node(id);
-    ASSERT_COND( src_node->is_input() );
-    int nfo = src_node->fanout_num();
-    TpgNode* node = make_input_node(i, src_node->name(), nfo);
+    auto& src_node = network.node(id);
+    ASSERT_COND( src_node.is_input() );
+    int nfo = src_node.fanout_num();
+    TpgNode* node = make_input_node(i, src_node.name(), nfo);
     mPPIArray[i] = node;
 
     node_map.reg(id, node);
@@ -444,17 +446,17 @@ TpgNetworkImpl::set(const BnNetwork& network)
   // DFFの出力ノードを作成する．
   //////////////////////////////////////////////////////////////////////
   for ( auto i: Range(mDffNum) ) {
-    const BnDff* src_dff = network.dff(i);
-    const BnNode* src_node = network.node(src_dff->output());
-    ASSERT_COND( src_node->is_input() );
-    int nfo = src_node->fanout_num();
+    auto& src_dff = network.dff(i);
+    auto& src_node = network.node(src_dff.output());
+    ASSERT_COND( src_node.is_input() );
+    int nfo = src_node.fanout_num();
     TpgDff* dff = &mDffArray[i];
     int iid = i + mInputNum;
-    TpgNode* node = make_dff_output_node(iid, dff, src_node->name(), nfo);
+    TpgNode* node = make_dff_output_node(iid, dff, src_node.name(), nfo);
     mPPIArray[iid] = node;
     dff->mOutput = node;
 
-    node_map.reg(src_node->id(), node);
+    node_map.reg(src_node.id(), node);
   }
 
 
@@ -463,12 +465,12 @@ TpgNetworkImpl::set(const BnNetwork& network)
   // BnNetwork::logic_id_list() はトポロジカルソートされているので
   // 結果として TpgNode もトポロジカル順に並べられる．
   //////////////////////////////////////////////////////////////////////
-  for ( auto src_id: network.logic_id_list() ) {
-    auto src_node = network.node(src_id);
+  for ( int src_id: network.logic_id_list() ) {
+    auto& src_node = network.node(src_id);
     const TpgGateInfo* node_info = nullptr;
-    BnNodeType logic_type = src_node->type();
+    BnNodeType logic_type = src_node.type();
     if ( logic_type == BnNodeType::Expr ) {
-      node_info = node_info_list[src_node->func_id()];
+      node_info = node_info_list[src_node.func_id()];
     }
     else {
       ASSERT_COND( logic_type != BnNodeType::TvFunc );
@@ -478,12 +480,12 @@ TpgNetworkImpl::set(const BnNetwork& network)
 
     // ファンインのノードを取ってくる．
     vector<TpgNode*> fanin_array;
-    fanin_array.reserve(src_node->fanin_num());
-    for ( auto iid: src_node->fanin_id_list() ) {
+    fanin_array.reserve(src_node.fanin_num());
+    for ( auto iid: src_node.fanin_id_list() ) {
       fanin_array.push_back(node_map.get(iid));
     }
-    int nfo = src_node->fanout_num();
-    TpgNode* node = make_logic_node(src_node->name(), node_info, fanin_array, nfo,
+    int nfo = src_node.fanout_num();
+    TpgNode* node = make_logic_node(src_node.name(), node_info, fanin_array, nfo,
 				    connection_list);
 
     // ノードを登録する．
@@ -496,11 +498,11 @@ TpgNetworkImpl::set(const BnNetwork& network)
   //////////////////////////////////////////////////////////////////////
   for ( auto i: Range(mOutputNum) ) {
     int id = output_map[i];
-    const BnNode* src_node = network.node(id);
-    ASSERT_COND( src_node->is_output() );
-    TpgNode* inode = node_map.get(src_node->fanin_id(0));
+    auto& src_node = network.node(id);
+    ASSERT_COND( src_node.is_output() );
+    TpgNode* inode = node_map.get(src_node.fanin_id(0));
     string buf = "*";
-    buf += src_node->name();
+    buf += src_node.name();
     TpgNode* node = make_output_node(i, buf, inode);
     connection_list.push_back(make_pair(inode->id(), node->id()));
     mPPOArray[i] = node;
@@ -511,11 +513,11 @@ TpgNetworkImpl::set(const BnNetwork& network)
   // DFFの入力ノードを作成する．
   //////////////////////////////////////////////////////////////////////
   for ( auto i: Range(mDffNum) ) {
-    const BnDff* src_dff = network.dff(i);
-    const BnNode* src_node = network.node(src_dff->input());
+    auto& src_dff = network.dff(i);
+    auto& src_node = network.node(src_dff.input());
 
-    TpgNode* inode = node_map.get(src_node->fanin_id(0));
-    string dff_name = src_dff->name();
+    TpgNode* inode = node_map.get(src_node.fanin_id(0));
+    string dff_name = src_dff.name();
     string input_name = dff_name + ".input";
     TpgDff* dff = &mDffArray[i];
     int oid = i + mOutputNum;
@@ -525,17 +527,17 @@ TpgNetworkImpl::set(const BnNetwork& network)
     dff->mInput = node;
 
     // クロック端子を作る．
-    const BnNode* src_clock = network.node(src_dff->clock());
-    TpgNode* clock_fanin = node_map.get(src_clock->fanin_id(0));
+    auto& src_clock = network.node(src_dff.clock());
+    TpgNode* clock_fanin = node_map.get(src_clock.fanin_id(0));
     string clock_name = dff_name + ".clock";
     TpgNode* clock = make_dff_clock_node(dff, clock_name, clock_fanin);
     connection_list.push_back(make_pair(clock_fanin->id(), clock->id()));
     dff->mClock = clock;
 
     // クリア端子を作る．
-    if ( src_dff->clear() != kBnNullId ) {
-      const BnNode* src_clear = network.node(src_dff->clear());
-      TpgNode* clear_fanin = node_map.get(src_clear->fanin_id(0));
+    if ( src_dff.clear() != kBnNullId ) {
+      auto& src_clear = network.node(src_dff.clear());
+      TpgNode* clear_fanin = node_map.get(src_clear.fanin_id(0));
       string clear_name = dff_name + ".clear";
       TpgNode* clear = make_dff_clear_node(dff, clear_name, clear_fanin);
       connection_list.push_back(make_pair(clear_fanin->id(), clear->id()));
@@ -543,9 +545,9 @@ TpgNetworkImpl::set(const BnNetwork& network)
     }
 
     // プリセット端子を作る．
-    if ( src_dff->preset() != kBnNullId ) {
-      const BnNode* src_preset = network.node(src_dff->preset());
-      TpgNode* preset_fanin = node_map.get(src_preset->fanin_id(0));
+    if ( src_dff.preset() != kBnNullId ) {
+      auto& src_preset = network.node(src_dff.preset());
+      TpgNode* preset_fanin = node_map.get(src_preset.fanin_id(0));
       string preset_name = dff_name + ".preset";
       TpgNode* preset = make_dff_preset_node(dff, preset_name, preset_fanin);
       connection_list.push_back(make_pair(preset_fanin->id(), preset->id()));
