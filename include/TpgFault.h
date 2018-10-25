@@ -185,10 +185,10 @@ END_NAMESPACE_SATPG
 BEGIN_NAMESPACE_YM
 // TpgFault へのポインタをキーにしたハッシュ関数クラスの定義
 template <>
-struct HashFunc<SATPG_NSNAME::TpgFault*>
+struct HashFunc<SATPG_NAMESPACE::TpgFault*>
 {
   SizeType
-  operator()(SATPG_NSNAME::TpgFault* fault) const
+  operator()(SATPG_NAMESPACE::TpgFault* fault) const
   {
     return fault->id();
   }
