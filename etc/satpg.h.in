@@ -39,9 +39,6 @@
 /// @brief プロジェクトの名前空間名
 #define SATPG_NSNAME @SATPG_NSNAME@
 
-/// @brief プロジェクトの名前空間名の文字列
-#define SATPG_NSNAME_STR "@SATPG_NSNAME@"
-
 /// @brief satpg 用の名前空間の開始
 #define BEGIN_NAMESPACE_SATPG \
 BEGIN_NAMESPACE_YM \
@@ -56,7 +53,7 @@ END_NAMESPACE_YM
 #define SATPG_NAMESPACE YM_NAMESPACE::SATPG_NSNAME
 
 /// @brief satpg 用の名前空間の文字列
-#define SATPG_NAMESPACE_STR YM_NSNAME_STR "::" SATPG_NSNAME_STR
+#define SATPG_NAMESPACE_STR YM_NAMESPACE_STR "::@SATPG_NSNAME@"
 
 
 BEGIN_NAMESPACE_SATPG

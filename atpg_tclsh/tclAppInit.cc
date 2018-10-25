@@ -133,7 +133,7 @@ int
 Tcl_AppInit(Tcl_Interp* interp)
 {
   using namespace std;
-  using nsYm::nsSatpg::atpg_init;
+  using SATPG_NAMESPACE::atpg_init;
 
   if (Tcl_Init(interp) == TCL_ERROR) {
     return TCL_ERROR;
