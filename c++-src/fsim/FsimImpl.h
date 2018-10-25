@@ -16,7 +16,7 @@
 #include "ym/Array.h"
 
 
-BEGIN_NAMESPACE_YM_SATPG
+BEGIN_NAMESPACE_SATPG
 
 //////////////////////////////////////////////////////////////////////
 /// @class FsimImpl FsimImpl.h "FsimImpl.h"
@@ -231,6 +231,6 @@ public:
 // インライン関数の定義
 //////////////////////////////////////////////////////////////////////
 
-END_NAMESPACE_YM_SATPG
+END_NAMESPACE_SATPG
 
 #endif // FSIMIMPL_H

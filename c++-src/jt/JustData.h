@@ -16,7 +16,7 @@
 #include "Val3.h"
 
 
-BEGIN_NAMESPACE_YM_SATPG
+BEGIN_NAMESPACE_SATPG
 
 //////////////////////////////////////////////////////////////////////
 /// @class JustData JustData.h "JustData.h"
@@ -164,6 +164,6 @@ JustData::record_value(const TpgNode* node,
   }
 }
 
-END_NAMESPACE_YM_SATPG
+END_NAMESPACE_SATPG
 
 #endif // JUSTDATA_H

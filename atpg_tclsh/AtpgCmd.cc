@@ -16,7 +16,7 @@
 #include "GateType.h"
 
 
-BEGIN_NAMESPACE_YM_SATPG
+BEGIN_NAMESPACE_SATPG
 
 //////////////////////////////////////////////////////////////////////
 // AtpgCmd
@@ -330,4 +330,4 @@ AtpgCmd::misc_time() const
   return mMgr->misc_time();
 }
 
-END_NAMESPACE_YM_SATPG
+END_NAMESPACE_SATPG

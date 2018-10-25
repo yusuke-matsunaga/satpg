@@ -28,7 +28,7 @@
 #include "VidMap.h"
 
 
-BEGIN_NAMESPACE_YM_SATPG
+BEGIN_NAMESPACE_SATPG
 
 //////////////////////////////////////////////////////////////////////
 /// @class UndetChecker UndetChecker.h "UndetChecker.h"
@@ -530,6 +530,6 @@ UndetChecker::set_prev_tfi_mark(const TpgNode* node)
   }
 }
 
-END_NAMESPACE_YM_SATPG
+END_NAMESPACE_SATPG
 
 #endif // UNDETCHECKER_H

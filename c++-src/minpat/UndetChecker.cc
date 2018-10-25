@@ -34,7 +34,7 @@ const int debug_dtpg = 0;
 END_NONAMESPACE
 
 
-BEGIN_NAMESPACE_YM_SATPG
+BEGIN_NAMESPACE_SATPG
 
 // @brief コンストラクタ
 // @param[in] network 対象のネットワーク
@@ -422,4 +422,4 @@ UndetChecker::make_prev_cnf(const TpgNode* node)
   mHvalEnc.make_cnf(node);
 }
 
-END_NAMESPACE_YM_SATPG
+END_NAMESPACE_SATPG

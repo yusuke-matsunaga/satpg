@@ -12,7 +12,7 @@
 #include "AtpgCmd.h"
 
 
-BEGIN_NAMESPACE_YM_SATPG
+BEGIN_NAMESPACE_SATPG
 
 //////////////////////////////////////////////////////////////////////
 // テストパタンを表示するコマンド
@@ -51,6 +51,6 @@ private:
 
 };
 
-END_NAMESPACE_YM_SATPG
+END_NAMESPACE_SATPG
 
 #endif // PRINTPATCMD_H

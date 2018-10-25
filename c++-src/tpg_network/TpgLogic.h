@@ -12,7 +12,7 @@
 #include "TpgNode.h"
 
 
-BEGIN_NAMESPACE_YM_SATPG
+BEGIN_NAMESPACE_SATPG
 
 //////////////////////////////////////////////////////////////////////
 /// @class TpgLogic TpgLogic.h "TpgLogic.h"
@@ -407,6 +407,6 @@ private:
 
 };
 
-END_NAMESPACE_YM_SATPG
+END_NAMESPACE_SATPG
 
 #endif // TPGLOGIC_H

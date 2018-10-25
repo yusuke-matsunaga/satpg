@@ -12,7 +12,7 @@
 #include "ym/Array.h"
 
 
-BEGIN_NAMESPACE_YM_SATPG
+BEGIN_NAMESPACE_SATPG
 
 //////////////////////////////////////////////////////////////////////
 /// @class TpgMFFC TpgMFFC.h "TpgMFFC.h"
@@ -241,6 +241,6 @@ TpgMFFC::set(const TpgNode* root,
   mFaultList = fault_list;
 }
 
-END_NAMESPACE_YM_SATPG
+END_NAMESPACE_SATPG
 
 #endif // TPGMFFC_H

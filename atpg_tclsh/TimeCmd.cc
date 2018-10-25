@@ -13,7 +13,7 @@
 #include "TimeCmd.h"
 
 
-BEGIN_NAMESPACE_YM_SATPG
+BEGIN_NAMESPACE_SATPG
 
 //////////////////////////////////////////////////////////////////////
 // ストップウォッチ操作を行うコマンド用のクラス
@@ -167,4 +167,4 @@ TimeCmd::cmd_proc(TclObjVector& objv)
   return code;
 }
 
-END_NAMESPACE_YM_SATPG
+END_NAMESPACE_SATPG

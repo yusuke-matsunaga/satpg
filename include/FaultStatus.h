@@ -11,7 +11,7 @@
 #include "satpg.h"
 
 
-BEGIN_NAMESPACE_YM_SATPG
+BEGIN_NAMESPACE_SATPG
 
 //////////////////////////////////////////////////////////////////////
 /// @brief 故障の状態
@@ -74,6 +74,6 @@ __int_to_fault_status(int val)
   return FaultStatus::Undetected;
 }
 
-END_NAMESPACE_YM_SATPG
+END_NAMESPACE_SATPG
 
 #endif // FAULTSTATUS_H

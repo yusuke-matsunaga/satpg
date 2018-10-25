@@ -13,7 +13,7 @@
 #include "ym/StopWatch.h"
 
 
-BEGIN_NAMESPACE_YM_SATPG
+BEGIN_NAMESPACE_SATPG
 
 //////////////////////////////////////////////////////////////////////
 // 情報を表示するコマンド
@@ -55,6 +55,6 @@ private:
 
 };
 
-END_NAMESPACE_YM_SATPG
+END_NAMESPACE_SATPG
 
 #endif // PRINTSTATSCMD_H

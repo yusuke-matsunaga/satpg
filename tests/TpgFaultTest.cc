@@ -11,7 +11,7 @@
 #include "TpgNode.h"
 
 
-BEGIN_NAMESPACE_YM_SATPG
+BEGIN_NAMESPACE_SATPG
 
 int
 TpgFaultTest(int argc,
@@ -26,7 +26,7 @@ TpgFaultTest(int argc,
   return 0;
 }
 
-END_NAMESPACE_YM_SATPG
+END_NAMESPACE_SATPG
 
 
 int

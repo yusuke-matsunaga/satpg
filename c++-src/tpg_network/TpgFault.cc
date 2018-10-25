@@ -18,7 +18,7 @@
 #include "ym/Range.h"
 
 
-BEGIN_NAMESPACE_YM_SATPG
+BEGIN_NAMESPACE_SATPG
 
 // @relates TpgFault
 // @brief 故障が励起してFFRの根まで伝搬する条件を求める．
@@ -314,4 +314,4 @@ TpgBranchFault::str() const
   return ans.str();
 }
 
-END_NAMESPACE_YM_SATPG
+END_NAMESPACE_SATPG

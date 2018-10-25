@@ -12,7 +12,7 @@
 #include "satpg.h"
 
 
-BEGIN_NAMESPACE_YM_SATPG
+BEGIN_NAMESPACE_SATPG
 
 //////////////////////////////////////////////////////////////////////
 /// @class NodeVal NodeVal.h "td/NodeVal.h"
@@ -184,6 +184,6 @@ operator>=(const NodeVal& left,
   return !operator<(left, right);
 }
 
-END_NAMESPACE_YM_SATPG
+END_NAMESPACE_SATPG
 
 #endif // NODEVAL_H

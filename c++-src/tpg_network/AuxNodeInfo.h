@@ -14,7 +14,7 @@
 #include "ym/Alloc.h"
 
 
-BEGIN_NAMESPACE_YM_SATPG
+BEGIN_NAMESPACE_SATPG
 
 //////////////////////////////////////////////////////////////////////
 /// @class AuxNodeInfo AuxNodeInfo.h "AuxNodeInfo.h"
@@ -240,6 +240,6 @@ AuxNodeInfo::input_fault(int pos,
   return mInputFaults[(pos * 2) + val];
 }
 
-END_NAMESPACE_YM_SATPG
+END_NAMESPACE_SATPG
 
 #endif // AUXNODEINFO_H

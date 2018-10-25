@@ -12,7 +12,7 @@
 #include "satpg.h"
 
 
-BEGIN_NAMESPACE_YM_SATPG
+BEGIN_NAMESPACE_SATPG
 
 //////////////////////////////////////////////////////////////////////
 /// @brief 故障の種類を表す列挙型
@@ -71,6 +71,6 @@ __int_to_fault_type(int fval)
   return FaultType::None;
 }
 
-END_NAMESPACE_YM_SATPG
+END_NAMESPACE_SATPG
 
 #endif // FAULTTYPE_H

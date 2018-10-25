@@ -11,7 +11,7 @@
 #include "satpg.h"
 
 
-BEGIN_NAMESPACE_YM_SATPG
+BEGIN_NAMESPACE_SATPG
 
 //////////////////////////////////////////////////////////////////////
 /// @class ColCov ColCov.h "ColCov.h"
@@ -178,6 +178,6 @@ ColCov::conflict_list() const
   return mConflictList;
 }
 
-END_NAMESPACE_YM_SATPG
+END_NAMESPACE_SATPG
 
 #endif // COLCOV_H

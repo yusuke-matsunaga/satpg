@@ -12,7 +12,7 @@
 #include "UntestOp.h"
 
 
-BEGIN_NAMESPACE_YM_SATPG
+BEGIN_NAMESPACE_SATPG
 
 //////////////////////////////////////////////////////////////////////
 /// @class UopList UopList.h "UopList.h"
@@ -61,6 +61,6 @@ private:
 
 };
 
-END_NAMESPACE_YM_SATPG
+END_NAMESPACE_SATPG
 
 #endif // UOPLIST_H

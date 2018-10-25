@@ -11,7 +11,7 @@
 #include "AtpgMgr.h"
 
 
-BEGIN_NAMESPACE_YM_SATPG
+BEGIN_NAMESPACE_SATPG
 
 //////////////////////////////////////////////////////////////////////
 // 故障の設定を行うコマンド
@@ -43,4 +43,4 @@ SetFault::cmd_proc(TclObjVector& objv)
   return TCL_OK;
 }
 
-END_NAMESPACE_YM_SATPG
+END_NAMESPACE_SATPG

@@ -11,7 +11,7 @@
 #include "FaultStatusMgr.h"
 
 
-BEGIN_NAMESPACE_YM_SATPG
+BEGIN_NAMESPACE_SATPG
 
 void
 loop_test(ymuint loop_count,
@@ -33,7 +33,7 @@ loop_test(ymuint loop_count,
   cout << endl;
 }
 
-END_NAMESPACE_YM_SATPG
+END_NAMESPACE_SATPG
 
 int
 main(int argc,

@@ -12,7 +12,7 @@
 #include "Val3.h"
 
 
-BEGIN_NAMESPACE_YM_SATPG
+BEGIN_NAMESPACE_SATPG
 
 //////////////////////////////////////////////////////////////////////
 // クラス TpgLogicNOR2
@@ -283,4 +283,4 @@ TpgLogicNORN::noval() const
   return Val3::_1;
 }
 
-END_NAMESPACE_YM_SATPG
+END_NAMESPACE_SATPG

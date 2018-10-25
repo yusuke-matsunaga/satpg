@@ -12,7 +12,7 @@
 #include "TpgDffControl.h"
 
 
-BEGIN_NAMESPACE_YM_SATPG
+BEGIN_NAMESPACE_SATPG
 
 //////////////////////////////////////////////////////////////////////
 /// @class TpgDffClear TpgDffClear.h "TpgDffClear.h"
@@ -62,6 +62,6 @@ private:
 
 };
 
-END_NAMESPACE_YM_SATPG
+END_NAMESPACE_SATPG
 
 #endif // TPGDFFCLEAR_H

@@ -14,7 +14,7 @@
 #include "ym/RandGen.h"
 
 
-BEGIN_NAMESPACE_YM_SATPG
+BEGIN_NAMESPACE_SATPG
 
 //////////////////////////////////////////////////////////////////////
 /// @class BitVectorRep BitVectorRep.h "BitVectorRep.h"
@@ -377,6 +377,6 @@ operator<<(ostream& s,
   return s << bvp->bin_str();
 }
 
-END_NAMESPACE_YM_SATPG
+END_NAMESPACE_SATPG
 
 #endif // BITVECTORREP_H

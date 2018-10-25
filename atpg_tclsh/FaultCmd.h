@@ -12,7 +12,7 @@
 #include "AtpgCmd.h"
 
 
-BEGIN_NAMESPACE_YM_SATPG
+BEGIN_NAMESPACE_SATPG
 
 //////////////////////////////////////////////////////////////////////
 // 故障の設定を行うコマンド
@@ -35,6 +35,6 @@ protected:
 
 };
 
-END_NAMESPACE_YM_SATPG
+END_NAMESPACE_SATPG
 
 #endif // FAULTCMD_H

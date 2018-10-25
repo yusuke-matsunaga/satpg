@@ -15,7 +15,7 @@
 #include "ym/SatSolver.h"
 
 
-BEGIN_NAMESPACE_YM_SATPG_SA
+BEGIN_NAMESPACE_SATPG_SA
 
 //////////////////////////////////////////////////////////////////////
 /// @class StructSat StructSat.h "sa/StructSat.h"
@@ -374,6 +374,6 @@ StructSat::debug() const
   return mDebugFlag;
 }
 
-END_NAMESPACE_YM_SATPG_SA
+END_NAMESPACE_SATPG_SA
 
 #endif // STRUCTSAT_H

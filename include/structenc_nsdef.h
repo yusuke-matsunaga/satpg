@@ -15,16 +15,16 @@
 // namespace でネストするのがいやなので define マクロでごまかす．
 //////////////////////////////////////////////////////////////////////
 
-#define BEGIN_NAMESPACE_YM_SATPG_STRUCTENC \
-BEGIN_NAMESPACE_YM_SATPG \
+#define BEGIN_NAMESPACE_SATPG_STRUCTENC \
+BEGIN_NAMESPACE_SATPG \
 BEGIN_NAMESPACE(nsStructEnc)
 
-#define END_NAMESPACE_YM_SATPG_STRUCTENC \
+#define END_NAMESPACE_SATPG_STRUCTENC \
 END_NAMESPACE(nsStructEnc) \
-END_NAMESPACE_YM_SATPG
+END_NAMESPACE_SATPG
 
 
-BEGIN_NAMESPACE_YM_SATPG_STRUCTENC
+BEGIN_NAMESPACE_SATPG_STRUCTENC
 
 //////////////////////////////////////////////////////////////////////
 // クラス名の宣言
@@ -33,18 +33,18 @@ BEGIN_NAMESPACE_YM_SATPG_STRUCTENC
 class StructEnc;
 class PropCone;
 
-END_NAMESPACE_YM_SATPG_STRUCTENC
+END_NAMESPACE_SATPG_STRUCTENC
 
 
 //////////////////////////////////////////////////////////////////////
 // 外部から用いられるクラス名のエクスポート
 //////////////////////////////////////////////////////////////////////
 
-BEGIN_NAMESPACE_YM_SATPG
+BEGIN_NAMESPACE_SATPG
 
 using nsStructEnc::StructEnc;
 
-END_NAMESPACE_YM_SATPG
+END_NAMESPACE_SATPG
 
 
 #endif // STRUCT_ENC_NSDEF_H

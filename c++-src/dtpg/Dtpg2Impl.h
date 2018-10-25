@@ -15,7 +15,7 @@
 #include "ym/RandGen.h"
 
 
-BEGIN_NAMESPACE_YM_SATPG
+BEGIN_NAMESPACE_SATPG
 
 //////////////////////////////////////////////////////////////////////
 /// @class Dtpg2Impl Dtpg2Impl.h "Dtpg2Impl.h"
@@ -101,6 +101,6 @@ private:
 // インライン関数の定義
 //////////////////////////////////////////////////////////////////////
 
-END_NAMESPACE_YM_SATPG
+END_NAMESPACE_SATPG
 
 #endif // DTPG2IMPL_H

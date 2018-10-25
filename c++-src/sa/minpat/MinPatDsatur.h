@@ -13,7 +13,7 @@
 #include "FaultAnalyzer.h"
 
 
-BEGIN_NAMESPACE_YM_SATPG_SA
+BEGIN_NAMESPACE_SATPG_SA
 
 //////////////////////////////////////////////////////////////////////
 /// @class MinPatDsatur MinPatDsatur.h "MinPatDsatur.h"
@@ -152,6 +152,6 @@ private:
   ymuint mCompatNum;
 };
 
-END_NAMESPACE_YM_SATPG_SA
+END_NAMESPACE_SATPG_SA
 
 #endif // MINPATDSATUR_H

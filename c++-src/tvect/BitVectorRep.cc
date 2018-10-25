@@ -10,7 +10,7 @@
 #include "BitVectorRep.h"
 
 
-BEGIN_NAMESPACE_YM_SATPG
+BEGIN_NAMESPACE_SATPG
 
 // @brief ベクタ長を指定してオブジェクトを作る．
 // @param[in] len ベクタ長
@@ -409,4 +409,4 @@ BitVectorRep::hex_str() const
   return ans;
 }
 
-END_NAMESPACE_YM_SATPG
+END_NAMESPACE_SATPG

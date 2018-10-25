@@ -9,7 +9,7 @@
 #include "AuxNodeInfo.h"
 
 
-BEGIN_NAMESPACE_YM_SATPG
+BEGIN_NAMESPACE_SATPG
 
 //////////////////////////////////////////////////////////////////////
 // クラス AuxNodeInfo
@@ -123,4 +123,4 @@ AuxNodeInfo::set_input_fault(int ipos,
   mInputFaults[(ipos * 2) + val] = f;
 }
 
-END_NAMESPACE_YM_SATPG
+END_NAMESPACE_SATPG

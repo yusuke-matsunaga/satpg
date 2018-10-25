@@ -13,7 +13,7 @@
 #include "ym/SatBool3.h"
 
 
-BEGIN_NAMESPACE_YM_SATPG
+BEGIN_NAMESPACE_SATPG
 
 //////////////////////////////////////////////////////////////////////
 /// @brief 3値を表す列挙型
@@ -223,6 +223,6 @@ __int_to_val3(int val)
   return Val3::_X;
 }
 
-END_NAMESPACE_YM_SATPG
+END_NAMESPACE_SATPG
 
 #endif // VAL3_H

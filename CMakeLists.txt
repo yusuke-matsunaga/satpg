@@ -58,8 +58,8 @@ ym_use_gtest ()
 # ===================================================================
 
 configure_file(
-  "${PROJECT_SOURCE_DIR}/etc/version_config.h.in"
-  "${PROJECT_BINARY_DIR}/version_config.h"
+  "${PROJECT_SOURCE_DIR}/etc/satpg.h.in"
+  "${PROJECT_BINARY_DIR}/satpg.h"
   )
 
 

@@ -18,7 +18,7 @@
 #include "ym/SatBool3.h"
 
 
-BEGIN_NAMESPACE_YM_SATPG
+BEGIN_NAMESPACE_SATPG
 
 //////////////////////////////////////////////////////////////////////
 /// @class MultiExtractor MultiExtractor.h "MultiExtractor.h"
@@ -167,6 +167,6 @@ MultiExtractor::fval(const TpgNode* node)
   return bool3_to_val3(mSatModel[mFvarMap(node).val()]);
 }
 
-END_NAMESPACE_YM_SATPG
+END_NAMESPACE_SATPG
 
 #endif // MULTIEXTRACTOR_H

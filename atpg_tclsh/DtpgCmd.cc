@@ -28,7 +28,7 @@
 #include "UopList.h"
 
 
-BEGIN_NAMESPACE_YM_SATPG
+BEGIN_NAMESPACE_SATPG
 
 void
 run_ffr_new(const TpgNetwork& network,
@@ -465,4 +465,4 @@ DtpgCmd::cmd_proc(TclObjVector& objv)
   return TCL_OK;
 }
 
-END_NAMESPACE_YM_SATPG
+END_NAMESPACE_SATPG

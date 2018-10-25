@@ -12,7 +12,7 @@
 #include "AtpgCmd.h"
 
 
-BEGIN_NAMESPACE_YM_SATPG
+BEGIN_NAMESPACE_SATPG
 
 //////////////////////////////////////////////////////////////////////
 // 逆順故障シミュレーションを行うコマンド
@@ -48,6 +48,6 @@ private:
 
 };
 
-END_NAMESPACE_YM_SATPG
+END_NAMESPACE_SATPG
 
 #endif // RFSIMCMD_H

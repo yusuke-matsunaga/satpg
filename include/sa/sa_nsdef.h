@@ -20,16 +20,16 @@
 // namespace でネストするのがいやなので define マクロでごまかす．
 //////////////////////////////////////////////////////////////////////
 
-#define BEGIN_NAMESPACE_YM_SATPG_SA \
-BEGIN_NAMESPACE_YM_SATPG \
+#define BEGIN_NAMESPACE_SATPG_SA \
+BEGIN_NAMESPACE_SATPG \
 BEGIN_NAMESPACE(nsSa)
 
-#define END_NAMESPACE_YM_SATPG_SA \
+#define END_NAMESPACE_SATPG_SA \
 END_NAMESPACE(nsSa) \
-END_NAMESPACE_YM_SATPG
+END_NAMESPACE_SATPG
 
 
-BEGIN_NAMESPACE_YM_SATPG_SA
+BEGIN_NAMESPACE_SATPG_SA
 
 //////////////////////////////////////////////////////////////////////
 // クラス名の宣言
@@ -42,6 +42,6 @@ class RtpgStats;
 class MinPat;
 class MinPatStats;
 
-END_NAMESPACE_YM_SATPG_SA
+END_NAMESPACE_SATPG_SA
 
 #endif // SATPG_SA_H

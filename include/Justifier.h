@@ -13,7 +13,7 @@
 #include "ym/SatBool3.h"
 
 
-BEGIN_NAMESPACE_YM_SATPG
+BEGIN_NAMESPACE_SATPG
 
 class JustImpl;
 
@@ -77,6 +77,6 @@ private:
 
 };
 
-END_NAMESPACE_YM_SATPG
+END_NAMESPACE_SATPG
 
 #endif // JUSTIFIER_H

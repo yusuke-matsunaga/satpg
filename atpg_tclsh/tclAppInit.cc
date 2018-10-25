@@ -58,13 +58,13 @@ extern
 int
 TCL_LOCAL_APPINIT _ANSI_ARGS_((Tcl_Interp *interp));
 
-BEGIN_NAMESPACE_YM_SATPG
+BEGIN_NAMESPACE_SATPG
 
 extern
 int
 atpg_init(Tcl_Interp* interp);
 
-END_NAMESPACE_YM_SATPG
+END_NAMESPACE_SATPG
 
 /*
  *----------------------------------------------------------------------

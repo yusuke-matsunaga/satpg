@@ -13,7 +13,7 @@
 #include "ym/HashFunc.h"
 
 
-BEGIN_NAMESPACE_YM_SATPG
+BEGIN_NAMESPACE_SATPG
 
 //////////////////////////////////////////////////////////////////////
 /// @class TpgFault TpgFault.h "TpgFault.h"
@@ -180,7 +180,7 @@ operator<<(ostream& s,
   return s << f->str();
 }
 
-END_NAMESPACE_YM_SATPG
+END_NAMESPACE_SATPG
 
 BEGIN_NAMESPACE_YM
 // TpgFault へのポインタをキーにしたハッシュ関数クラスの定義

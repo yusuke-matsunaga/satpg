@@ -12,7 +12,7 @@
 #include "DetectOp.h"
 
 
-BEGIN_NAMESPACE_YM_SATPG
+BEGIN_NAMESPACE_SATPG
 
 //////////////////////////////////////////////////////////////////////
 /// @class DopTvList DopTvList.h "DopTvList.h"
@@ -70,6 +70,6 @@ private:
 
 };
 
-END_NAMESPACE_YM_SATPG
+END_NAMESPACE_SATPG
 
 #endif // DOPTVLIST_H

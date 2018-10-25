@@ -11,7 +11,7 @@
 #include "satpg.h"
 
 
-BEGIN_NAMESPACE_YM_SATPG
+BEGIN_NAMESPACE_SATPG
 
 class MpColGraph;
 
@@ -246,6 +246,6 @@ MpNodeIterator::operator!=(const MpNodeIterator& right) const
   return !operator==(right);
 }
 
-END_NAMESPACE_YM_SATPG
+END_NAMESPACE_SATPG
 
 #endif // MPNODELIST_H

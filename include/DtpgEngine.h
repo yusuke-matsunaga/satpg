@@ -29,7 +29,7 @@
 #include "VidMap.h"
 
 
-BEGIN_NAMESPACE_YM_SATPG
+BEGIN_NAMESPACE_SATPG
 
 //////////////////////////////////////////////////////////////////////
 /// @class DtpgEngine DtpgEngine.h "DtpgEngine.h"
@@ -717,6 +717,6 @@ DtpgEngine::set_tfi2_mark(const TpgNode* node)
   }
 }
 
-END_NAMESPACE_YM_SATPG
+END_NAMESPACE_SATPG
 
 #endif // DTPGENGINE_H

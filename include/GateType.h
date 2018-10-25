@@ -12,7 +12,7 @@
 #include "satpg.h"
 
 
-BEGIN_NAMESPACE_YM_SATPG
+BEGIN_NAMESPACE_SATPG
 
 //////////////////////////////////////////////////////////////////////
 /// @brief 論理ゲートの種類を表す列挙型
@@ -106,6 +106,6 @@ __int_to_gate_type(int val)
   return GateType::Const0;
 }
 
-END_NAMESPACE_YM_SATPG
+END_NAMESPACE_SATPG
 
 #endif // GATETYPE_H

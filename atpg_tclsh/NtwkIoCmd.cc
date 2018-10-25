@@ -15,7 +15,7 @@
 #include "ym/MsgMgr.h"
 
 
-BEGIN_NAMESPACE_YM_SATPG
+BEGIN_NAMESPACE_SATPG
 
 //////////////////////////////////////////////////////////////////////
 // blif 形式のファイルを読み込むコマンド
@@ -170,4 +170,4 @@ WriteNetwork::cmd_proc(TclObjVector& objv)
   return TCL_OK;
 }
 
-END_NAMESPACE_YM_SATPG
+END_NAMESPACE_SATPG

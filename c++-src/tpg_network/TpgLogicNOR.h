@@ -12,7 +12,7 @@
 #include "TpgLogic.h"
 
 
-BEGIN_NAMESPACE_YM_SATPG
+BEGIN_NAMESPACE_SATPG
 
 //////////////////////////////////////////////////////////////////////
 /// @class TpgLogicNOR2 TpgLogicNOR.h "TpgLogicNOR.h"
@@ -294,6 +294,6 @@ public:
 
 };
 
-END_NAMESPACE_YM_SATPG
+END_NAMESPACE_SATPG
 
 #endif // TPGLOGICNOR_H

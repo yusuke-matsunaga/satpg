@@ -10,7 +10,7 @@
 #include "TpgDffOutput.h"
 
 
-BEGIN_NAMESPACE_YM_SATPG
+BEGIN_NAMESPACE_SATPG
 
 //////////////////////////////////////////////////////////////////////
 // クラス TpgDffOutput
@@ -50,4 +50,4 @@ TpgDffOutput::dff() const
   return mDff;
 }
 
-END_NAMESPACE_YM_SATPG
+END_NAMESPACE_SATPG

@@ -12,7 +12,7 @@
 #include "TpgNode.h"
 
 
-BEGIN_NAMESPACE_YM_SATPG
+BEGIN_NAMESPACE_SATPG
 
 //////////////////////////////////////////////////////////////////////
 /// @class TpgDffControl TpgDffControl.h "TpgDffControl.h"
@@ -84,6 +84,6 @@ private:
 
 };
 
-END_NAMESPACE_YM_SATPG
+END_NAMESPACE_SATPG
 
 #endif // TPGDFFCONTROL_H

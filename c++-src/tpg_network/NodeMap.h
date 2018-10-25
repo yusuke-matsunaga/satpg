@@ -13,7 +13,7 @@
 #include "ym/HashMap.h"
 
 
-BEGIN_NAMESPACE_YM_SATPG
+BEGIN_NAMESPACE_SATPG
 
 //////////////////////////////////////////////////////////////////////
 /// @class NodeMap NodeMap.h "NodeMap.h"
@@ -63,6 +63,6 @@ private:
 
 };
 
-END_NAMESPACE_YM_SATPG
+END_NAMESPACE_SATPG
 
 #endif // NODEMAP_H

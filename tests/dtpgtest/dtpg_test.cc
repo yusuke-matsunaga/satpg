@@ -18,7 +18,7 @@
 #include "ym/StopWatch.h"
 
 
-BEGIN_NAMESPACE_YM_SATPG
+BEGIN_NAMESPACE_SATPG
 
 const char* argv0 = "";
 
@@ -210,7 +210,7 @@ dtpg_test(int argc,
   return n;
 }
 
-END_NAMESPACE_YM_SATPG
+END_NAMESPACE_SATPG
 
 
 int

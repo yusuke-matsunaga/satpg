@@ -10,7 +10,7 @@
 #include "NodeMap.h"
 
 
-BEGIN_NAMESPACE_YM_SATPG
+BEGIN_NAMESPACE_SATPG
 
 //////////////////////////////////////////////////////////////////////
 // クラス NodeMap
@@ -48,4 +48,4 @@ NodeMap::get(int bnnode_id) const
   return nullptr;
 }
 
-END_NAMESPACE_YM_SATPG
+END_NAMESPACE_SATPG

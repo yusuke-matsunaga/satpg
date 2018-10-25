@@ -15,7 +15,7 @@
 #include "Fsim.h"
 
 
-BEGIN_NAMESPACE_YM_SATPG
+BEGIN_NAMESPACE_SATPG
 
 //////////////////////////////////////////////////////////////////////
 // AtpgMgr
@@ -89,4 +89,4 @@ AtpgMgr::after_set_network()
   mTdFaultMgr = new FaultStatusMgr(_network());
 }
 
-END_NAMESPACE_YM_SATPG
+END_NAMESPACE_SATPG

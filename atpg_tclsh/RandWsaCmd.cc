@@ -17,7 +17,7 @@
 #include "ym/TclPopt.h"
 
 
-BEGIN_NAMESPACE_YM_SATPG
+BEGIN_NAMESPACE_SATPG
 
 // @brief コンストラクタ
 RandWsaCmd::RandWsaCmd(AtpgMgr* mgr) :
@@ -115,4 +115,4 @@ RandWsaCmd::cmd_proc(TclObjVector& objv)
   return 0;
 }
 
-END_NAMESPACE_YM_SATPG
+END_NAMESPACE_SATPG

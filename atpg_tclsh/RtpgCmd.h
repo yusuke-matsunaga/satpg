@@ -12,7 +12,7 @@
 #include "AtpgCmd.h"
 
 
-BEGIN_NAMESPACE_YM_SATPG
+BEGIN_NAMESPACE_SATPG
 
 //////////////////////////////////////////////////////////////////////
 // 故障シミュレーションを実行するコマンド
@@ -63,6 +63,6 @@ private:
 
 };
 
-END_NAMESPACE_YM_SATPG
+END_NAMESPACE_SATPG
 
 #endif // RTPGCMD_H

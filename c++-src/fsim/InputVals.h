@@ -12,7 +12,7 @@
 #include "fsim_nsdef.h"
 
 
-BEGIN_NAMESPACE_YM_SATPG_FSIM
+BEGIN_NAMESPACE_SATPG_FSIM
 
 //////////////////////////////////////////////////////////////////////
 /// @class InputVals InputVals.h "InputVals.h"
@@ -252,6 +252,6 @@ private:
 
 };
 
-END_NAMESPACE_YM_SATPG_FSIM
+END_NAMESPACE_SATPG_FSIM
 
 #endif // INPUTVALS_H

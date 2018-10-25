@@ -12,7 +12,7 @@
 #include "TpgLogic.h"
 
 
-BEGIN_NAMESPACE_YM_SATPG
+BEGIN_NAMESPACE_SATPG
 
 //////////////////////////////////////////////////////////////////////
 /// @class TpgLogicXOR2 TpgLogicXOR.h "TpgLogicXOR.h"
@@ -84,6 +84,6 @@ public:
 
 };
 
-END_NAMESPACE_YM_SATPG
+END_NAMESPACE_SATPG
 
 #endif // TPGLOGICXOR_H

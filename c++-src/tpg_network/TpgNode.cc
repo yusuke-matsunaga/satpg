@@ -13,7 +13,7 @@
 #include "Val3.h"
 
 
-BEGIN_NAMESPACE_YM_SATPG
+BEGIN_NAMESPACE_SATPG
 
 // @brief GateType のストリーム演算子
 ostream&
@@ -286,4 +286,4 @@ TpgNode::set_fanout_num(int fanout_num,
   }
 }
 
-END_NAMESPACE_YM_SATPG
+END_NAMESPACE_SATPG

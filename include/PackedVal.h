@@ -11,7 +11,7 @@
 #include "satpg.h"
 
 
-BEGIN_NAMESPACE_YM_SATPG
+BEGIN_NAMESPACE_SATPG
 
 //////////////////////////////////////////////////////////////////////
 /// @brief 1ワードのビットベクタを表す型
@@ -64,6 +64,6 @@ count_ones(PackedVal word)
   return word;
 }
 
-END_NAMESPACE_YM_SATPG
+END_NAMESPACE_SATPG
 
 #endif // PACKEDVAL_H

@@ -12,7 +12,7 @@
 #include "DetectOp.h"
 
 
-BEGIN_NAMESPACE_YM_SATPG
+BEGIN_NAMESPACE_SATPG
 
 //////////////////////////////////////////////////////////////////////
 /// @class DopBase DopBase.h "DopBase.h"
@@ -55,6 +55,6 @@ private:
 
 };
 
-END_NAMESPACE_YM_SATPG
+END_NAMESPACE_SATPG
 
 #endif // DOPBASE_H

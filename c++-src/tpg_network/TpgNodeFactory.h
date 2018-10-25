@@ -13,7 +13,7 @@
 #include "ym/Alloc.h"
 
 
-BEGIN_NAMESPACE_YM_SATPG
+BEGIN_NAMESPACE_SATPG
 
 //////////////////////////////////////////////////////////////////////
 /// @class TpgNodeFactory TpgNodeFactory.h "TpgNodeFactory.h"
@@ -144,6 +144,6 @@ private:
 
 };
 
-END_NAMESPACE_YM_SATPG
+END_NAMESPACE_SATPG
 
 #endif // TPGNODEFACTORY_H

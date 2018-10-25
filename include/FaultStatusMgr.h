@@ -13,7 +13,7 @@
 #include "FaultStatus.h"
 
 
-BEGIN_NAMESPACE_YM_SATPG
+BEGIN_NAMESPACE_SATPG
 
 //////////////////////////////////////////////////////////////////////
 /// @class FaultStatusMgr FaultStatusMgr.h "FaultStatusMgr.h"
@@ -65,6 +65,6 @@ private:
 
 };
 
-END_NAMESPACE_YM_SATPG
+END_NAMESPACE_SATPG
 
 #endif // FAULTSTATUSMGR_H

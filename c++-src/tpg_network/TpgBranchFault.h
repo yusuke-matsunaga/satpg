@@ -11,7 +11,7 @@
 #include "TpgFaultBase.h"
 
 
-BEGIN_NAMESPACE_YM_SATPG
+BEGIN_NAMESPACE_SATPG
 
 //////////////////////////////////////////////////////////////////////
 /// @class TpgBranchFault TpgBranchFault.h "TpgBranchFault.h"
@@ -95,6 +95,6 @@ private:
 
 };
 
-END_NAMESPACE_YM_SATPG
+END_NAMESPACE_SATPG
 
 #endif // TPGBRANCHFAULT_H

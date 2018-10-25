@@ -11,7 +11,7 @@
 #include "ym/FileRegion.h"
 
 
-BEGIN_NAMESPACE_YM_SATPG
+BEGIN_NAMESPACE_SATPG
 
 // @brief コンストラクタ
 AtpgMsgHandler::AtpgMsgHandler()
@@ -57,4 +57,4 @@ AtpgMsgHandler::msg_obj() const
   return mMsg;
 }
 
-END_NAMESPACE_YM_SATPG
+END_NAMESPACE_SATPG

@@ -10,7 +10,7 @@
 #include "TpgDffInput.h"
 
 
-BEGIN_NAMESPACE_YM_SATPG
+BEGIN_NAMESPACE_SATPG
 
 //////////////////////////////////////////////////////////////////////
 // クラス TpgDffInput
@@ -52,4 +52,4 @@ TpgDffInput::dff() const
   return mDff;
 }
 
-END_NAMESPACE_YM_SATPG
+END_NAMESPACE_SATPG

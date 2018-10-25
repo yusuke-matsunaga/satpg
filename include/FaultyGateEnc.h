@@ -12,7 +12,7 @@
 #include "ym/SatSolver.h"
 
 
-BEGIN_NAMESPACE_YM_SATPG
+BEGIN_NAMESPACE_SATPG
 
 //////////////////////////////////////////////////////////////////////
 /// @class FaultyGateEnc FaultyGateEnc.h "FaultyGateEnc.h"
@@ -77,6 +77,6 @@ private:
 
 };
 
-END_NAMESPACE_YM_SATPG
+END_NAMESPACE_SATPG
 
 #endif // FAULTYGATEENC_H

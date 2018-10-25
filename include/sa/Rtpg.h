@@ -13,7 +13,7 @@
 #include "sa/sa_nsdef.h"
 
 
-BEGIN_NAMESPACE_YM_SATPG_SA
+BEGIN_NAMESPACE_SATPG_SA
 
 //////////////////////////////////////////////////////////////////////
 /// @class Rtpg Rtpg.h "sa/Rtpg.h"
@@ -71,6 +71,6 @@ extern
 Rtpg*
 new_Rtpg1();
 
-END_NAMESPACE_YM_SATPG_SA
+END_NAMESPACE_SATPG_SA
 
 #endif // RTPG_H

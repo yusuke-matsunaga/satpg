@@ -12,7 +12,7 @@
 #include "TpgLogic.h"
 
 
-BEGIN_NAMESPACE_YM_SATPG
+BEGIN_NAMESPACE_SATPG
 
 //////////////////////////////////////////////////////////////////////
 /// @class TpgLogicC1 TpgLogicC1.h "TpgLogicC1.h"
@@ -61,6 +61,6 @@ private:
 
 };
 
-END_NAMESPACE_YM_SATPG
+END_NAMESPACE_SATPG
 
 #endif // TPGLOGICC1_H

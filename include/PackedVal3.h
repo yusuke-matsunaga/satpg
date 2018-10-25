@@ -12,7 +12,7 @@
 #include "PackedVal.h"
 
 
-BEGIN_NAMESPACE_YM_SATPG
+BEGIN_NAMESPACE_SATPG
 
 //////////////////////////////////////////////////////////////////////
 /// @class PackedVal3 PackedVal3.h "PackedVal3.h"
@@ -515,6 +515,6 @@ diff(PackedVal3 left,
   return (val0_0 & ~val0_1 & ~val1_0 & val1_1) | (~val0_0 & val0_1 & val1_0 & ~val1_1);
 }
 
-END_NAMESPACE_YM_SATPG
+END_NAMESPACE_SATPG
 
 #endif // PACKEDVAL_H

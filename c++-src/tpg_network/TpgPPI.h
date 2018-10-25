@@ -12,7 +12,7 @@
 #include "TpgNode.h"
 
 
-BEGIN_NAMESPACE_YM_SATPG
+BEGIN_NAMESPACE_SATPG
 
 //////////////////////////////////////////////////////////////////////
 /// @class TpgPPI TpgPPI.h "TpgPPI.h"
@@ -98,6 +98,6 @@ private:
 
 };
 
-END_NAMESPACE_YM_SATPG
+END_NAMESPACE_SATPG
 
 #endif // TPGPPI_H

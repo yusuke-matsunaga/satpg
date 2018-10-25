@@ -13,7 +13,7 @@
 #include "ym/McMatrix.h"
 
 
-BEGIN_NAMESPACE_YM_SATPG
+BEGIN_NAMESPACE_SATPG
 
 class MpColGraph;
 
@@ -126,6 +126,6 @@ private:
 // インライン関数の定義
 //////////////////////////////////////////////////////////////////////
 
-END_NAMESPACE_YM_SATPG
+END_NAMESPACE_SATPG
 
 #endif // MINPATMGR_H

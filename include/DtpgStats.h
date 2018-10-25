@@ -16,7 +16,7 @@
 #include "ym/SatStats.h"
 
 
-BEGIN_NAMESPACE_YM_SATPG
+BEGIN_NAMESPACE_SATPG
 
 //////////////////////////////////////////////////////////////////////
 /// @class DtpgStats DtpgStats.h "DtpgStats.h"
@@ -188,6 +188,6 @@ DtpgStats::merge(const DtpgStats& src)
   mBackTraceTime += src.mBackTraceTime;
 }
 
-END_NAMESPACE_YM_SATPG
+END_NAMESPACE_SATPG
 
 #endif // DTPGSTATS_H

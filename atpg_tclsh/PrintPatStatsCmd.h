@@ -12,7 +12,7 @@
 #include "AtpgCmd.h"
 
 
-BEGIN_NAMESPACE_YM_SATPG
+BEGIN_NAMESPACE_SATPG
 
 //////////////////////////////////////////////////////////////////////
 // テストパタンの諸元を表示するコマンド
@@ -48,6 +48,6 @@ private:
 
 };
 
-END_NAMESPACE_YM_SATPG
+END_NAMESPACE_SATPG
 
 #endif // PRINTPATSATSCMD_H

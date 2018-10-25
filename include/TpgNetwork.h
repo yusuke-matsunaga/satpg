@@ -16,7 +16,7 @@
 #include "ym/Array.h"
 
 
-BEGIN_NAMESPACE_YM_SATPG
+BEGIN_NAMESPACE_SATPG
 
 class TpgNetworkImpl;
 
@@ -311,6 +311,6 @@ void
 print_network(ostream& s,
 	      const TpgNetwork& network);
 
-END_NAMESPACE_YM_SATPG
+END_NAMESPACE_SATPG
 
 #endif // TPGNETWORK_H

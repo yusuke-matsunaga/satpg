@@ -12,7 +12,7 @@
 #include "ym/RandGen.h"
 
 
-BEGIN_NAMESPACE_YM_SATPG
+BEGIN_NAMESPACE_SATPG
 
 // 長さ0のベクタ
 TEST(BitVectorTest, constructor_0)
@@ -437,4 +437,4 @@ TEST(BitVectorTest, merge)
   EXPECT_EQ( bv3, bv4 );
 }
 
-END_NAMESPACE_YM_SATPG
+END_NAMESPACE_SATPG

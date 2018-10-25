@@ -10,7 +10,7 @@
 #include "TpgDffClock.h"
 
 
-BEGIN_NAMESPACE_YM_SATPG
+BEGIN_NAMESPACE_SATPG
 
 //////////////////////////////////////////////////////////////////////
 // クラス TpgDffClock
@@ -39,4 +39,4 @@ TpgDffClock::is_dff_clock() const
   return true;
 }
 
-END_NAMESPACE_YM_SATPG
+END_NAMESPACE_SATPG

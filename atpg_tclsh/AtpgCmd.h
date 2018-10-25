@@ -17,7 +17,7 @@
 #include "ym/USTime.h"
 
 
-BEGIN_NAMESPACE_YM_SATPG
+BEGIN_NAMESPACE_SATPG
 
 // 前方参照のためのクラス宣言
 class AtpgMgr;
@@ -121,6 +121,6 @@ private:
 
 };
 
-END_NAMESPACE_YM_SATPG
+END_NAMESPACE_SATPG
 
 #endif // ATPGCMD_H

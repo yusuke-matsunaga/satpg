@@ -14,7 +14,7 @@
 #include "ym/HashMap.h"
 
 
-BEGIN_NAMESPACE_YM_SATPG
+BEGIN_NAMESPACE_SATPG
 
 //////////////////////////////////////////////////////////////////////
 /// @class DtpgMFFC DtpgMFFC.h "DtpgMFFC.h"
@@ -131,6 +131,6 @@ private:
 // インライン関数の定義
 //////////////////////////////////////////////////////////////////////
 
-END_NAMESPACE_YM_SATPG
+END_NAMESPACE_SATPG
 
 #endif // DTPGMFFC_H

@@ -4,34 +4,62 @@
 /// @file satpg.h
 /// @brief SATPG 用の名前空間の定義
 ///
+/// 必ず先頭でインクルードしなければならない．
+///
 /// @author Yusuke Matsunaga (松永 裕介)
 ///
 /// Copyright (C) 2005-2010, 2012, 2013, 2017 Yusuke Matsunaga
 /// All rights reserved.
 
 #include "ym_config.h"
-#include "version_config.h"
 
-// 名前空間の定義ファイル
-// 必ず先頭でインクルードしなければならない．
+
+//////////////////////////////////////////////////////////////////////
+// バージョン変数の設定
+//////////////////////////////////////////////////////////////////////
+
+/// @brief プロジェクトの major バージョン
+#define SATPG_VERSION_MAJIR @PROJECT_VERSION_MAJOR@
+
+/// @brief プロジェクトの minor バージョン
+#define SATPG_VERSION_MINOR @PROJECT_VERSION_MINOR@
+
+/// @brief プロジェクトのバージョン
+#define SATPG_VERSION @PROJECT_VERSION@
+
+/// @brief プロジェクトのバージョンの文字列
+#define SATPG_VERSION_STR "@PROJECT_VERSION@"
+
 
 //////////////////////////////////////////////////////////////////////
 // 名前空間の定義用マクロ
 // namespace でネストするのがいやなので define マクロでごまかす．
 //////////////////////////////////////////////////////////////////////
 
-#define BEGIN_NAMESPACE_YM_SATPG \
+/// @brief プロジェクトの名前空間名
+#define SATPG_NSNAME @SATPG_NSNAME@
+
+/// @brief プロジェクトの名前空間名の文字列
+#define SATPG_NSNAME_STR "@SATPG_NSNAME@"
+
+/// @brief satpg 用の名前空間の開始
+#define BEGIN_NAMESPACE_SATPG \
 BEGIN_NAMESPACE_YM \
 BEGIN_NAMESPACE(SATPG_NSNAME)
 
-#define END_NAMESPACE_YM_SATPG \
+/// @brief satpg 用の名前空間の終了
+#define END_NAMESPACE_SATPG \
 END_NAMESPACE(SATPG_NSNAME) \
 END_NAMESPACE_YM
 
+/// @brief satpg 用の名前空間
 #define SATPG_NAMESPACE YM_NAMESPACE::SATPG_NSNAME
 
+/// @brief satpg 用の名前空間の文字列
+#define SATPG_NAMESPACE_STR YM_NSNAME_STR "::" SATPG_NSNAME_STR
 
-BEGIN_NAMESPACE_YM_SATPG
+
+BEGIN_NAMESPACE_SATPG
 
 //////////////////////////////////////////////////////////////////////
 // クラス名の宣言
@@ -70,6 +98,6 @@ enum class FaultType;
 enum class GateType;
 enum class Val3;
 
-END_NAMESPACE_YM_SATPG
+END_NAMESPACE_SATPG
 
 #endif // SATPG_H

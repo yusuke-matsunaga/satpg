@@ -17,7 +17,7 @@
 #include "satpg.h"
 
 
-BEGIN_NAMESPACE_YM_SATPG
+BEGIN_NAMESPACE_SATPG
 
 //////////////////////////////////////////////////////////////////////
 /// @class StopwatchObj TimeCmd.h "TimeCmd.h"
@@ -107,6 +107,6 @@ private:
   USTime mTotalTime;
 };
 
-END_NAMESPACE_YM_SATPG
+END_NAMESPACE_SATPG
 
 #endif // TIMECMD_H

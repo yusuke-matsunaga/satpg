@@ -12,7 +12,7 @@
 #include "TpgDffControl.h"
 
 
-BEGIN_NAMESPACE_YM_SATPG
+BEGIN_NAMESPACE_SATPG
 
 //////////////////////////////////////////////////////////////////////
 /// @class TpgDffClock TpgDffClock.h "TpgDffClock.h"
@@ -61,6 +61,6 @@ private:
 
 };
 
-END_NAMESPACE_YM_SATPG
+END_NAMESPACE_SATPG
 
 #endif // TPGDFFCLOCK_H

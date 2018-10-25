@@ -14,7 +14,7 @@
 #include "ym/RandGen.h"
 
 
-BEGIN_NAMESPACE_YM_SATPG
+BEGIN_NAMESPACE_SATPG
 
 //////////////////////////////////////////////////////////////////////
 /// @class TestVector TestVector.h "TestVector.h"
@@ -878,6 +878,6 @@ operator<<(ostream& s,
   return s << tv.bin_str();
 }
 
-END_NAMESPACE_YM_SATPG
+END_NAMESPACE_SATPG
 
 #endif // TESTVECTOR_H

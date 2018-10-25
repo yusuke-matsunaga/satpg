@@ -15,7 +15,7 @@
 #include "ym/SatSolver.h"
 
 
-BEGIN_NAMESPACE_YM_SATPG
+BEGIN_NAMESPACE_SATPG
 
 class MakeCnfTest :
 public ::testing::Test
@@ -543,4 +543,4 @@ TEST_F(MakeCnfTest, XNOR2)
   do_test(2, kGateXNOR, vals);
 }
 
-END_NAMESPACE_YM_SATPG
+END_NAMESPACE_SATPG

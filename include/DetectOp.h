@@ -13,7 +13,7 @@
 #include "FaultType.h"
 
 
-BEGIN_NAMESPACE_YM_SATPG
+BEGIN_NAMESPACE_SATPG
 
 //////////////////////////////////////////////////////////////////////
 /// @class DetectOp DetectOp.h "DetectOp.h"
@@ -74,6 +74,6 @@ new_DopVerify(Fsim& fsim,
 DetectOp*
 new_DopDummy();
 
-END_NAMESPACE_YM_SATPG
+END_NAMESPACE_SATPG
 
 #endif // DETECTOP_H

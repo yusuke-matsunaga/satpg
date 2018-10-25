@@ -13,7 +13,7 @@
 #include "NodeVal.h"
 
 
-BEGIN_NAMESPACE_YM_SATPG
+BEGIN_NAMESPACE_SATPG
 
 //////////////////////////////////////////////////////////////////////
 /// @class NodeValList NodeValList.h "td/NodeValList.h"
@@ -424,6 +424,6 @@ operator-(const NodeValList& src_list1,
   return tmp.operator-=(src_list2);
 }
 
-END_NAMESPACE_YM_SATPG
+END_NAMESPACE_SATPG
 
 #endif // NODEVALLIST_H

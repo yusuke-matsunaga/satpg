@@ -14,7 +14,7 @@
 #include "NodeValList.h"
 #include "GateEnc.h"
 
-BEGIN_NAMESPACE_YM_SATPG
+BEGIN_NAMESPACE_SATPG
 
 extern
 NodeValList
@@ -23,9 +23,9 @@ extract(const TpgNode*,
 	const VidMap&,
 	const vector<SatBool3>&);
 
-END_NAMESPACE_YM_SATPG
+END_NAMESPACE_SATPG
 
-BEGIN_NAMESPACE_YM_SATPG_STRUCTENC
+BEGIN_NAMESPACE_SATPG_STRUCTENC
 
 BEGIN_NONAMESPACE
 
@@ -241,4 +241,4 @@ PropCone::make_dchain_cnf(const TpgNode* node)
   }
 }
 
-END_NAMESPACE_YM_SATPG_STRUCTENC
+END_NAMESPACE_SATPG_STRUCTENC

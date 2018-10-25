@@ -11,7 +11,7 @@
 #include "Val3.h"
 
 
-BEGIN_NAMESPACE_YM_SATPG
+BEGIN_NAMESPACE_SATPG
 
 TEST(Val3Test, val3_to_int)
 {
@@ -104,4 +104,4 @@ TEST(Val3Test, xor_op)
   }
 }
 
-END_NAMESPACE_YM_SATPG
+END_NAMESPACE_SATPG

@@ -10,7 +10,7 @@
 #include "TpgDffPreset.h"
 
 
-BEGIN_NAMESPACE_YM_SATPG
+BEGIN_NAMESPACE_SATPG
 
 //////////////////////////////////////////////////////////////////////
 // クラス TpgDffPreset
@@ -39,4 +39,4 @@ TpgDffPreset::is_dff_preset() const
   return true;
 }
 
-END_NAMESPACE_YM_SATPG
+END_NAMESPACE_SATPG

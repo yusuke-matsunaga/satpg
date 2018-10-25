@@ -14,7 +14,7 @@
 #include "ym/SatBool3.h"
 
 
-BEGIN_NAMESPACE_YM_SATPG
+BEGIN_NAMESPACE_SATPG
 
 class JustData;
 
@@ -169,6 +169,6 @@ JustImpl::mark(const TpgNode* node,
   return static_cast<bool>((mMarkArray[node->id()] >> time) & 1U);
 }
 
-END_NAMESPACE_YM_SATPG
+END_NAMESPACE_SATPG
 
 #endif // JUSTIMPL_H

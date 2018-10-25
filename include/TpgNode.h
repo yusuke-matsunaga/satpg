@@ -14,7 +14,7 @@
 #include "ym/Array.h"
 
 
-BEGIN_NAMESPACE_YM_SATPG
+BEGIN_NAMESPACE_SATPG
 
 //////////////////////////////////////////////////////////////////////
 /// @class TpgNode TpgNode.h "TpgNode.h"
@@ -403,6 +403,6 @@ TpgNode::imm_dom() const
   return mImmDom;
 }
 
-END_NAMESPACE_YM_SATPG
+END_NAMESPACE_SATPG
 
 #endif // TPGNODE_H

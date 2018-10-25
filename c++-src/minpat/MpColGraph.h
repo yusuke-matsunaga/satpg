@@ -11,7 +11,7 @@
 #include "satpg.h"
 
 
-BEGIN_NAMESPACE_YM_SATPG
+BEGIN_NAMESPACE_SATPG
 
 //////////////////////////////////////////////////////////////////////
 /// @class MpColGraph MpColGraph.h "MpColGraph.h"
@@ -257,6 +257,6 @@ MpColGraph::set_color(const vector<int>& node_id_list,
   }
 }
 
-END_NAMESPACE_YM_SATPG
+END_NAMESPACE_SATPG
 
 #endif // MPCOLGRAPH_H

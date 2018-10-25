@@ -13,7 +13,7 @@
 #include "ym/Expr.h"
 
 
-BEGIN_NAMESPACE_YM_SATPG
+BEGIN_NAMESPACE_SATPG
 
 //////////////////////////////////////////////////////////////////////
 /// @class FaultInfo FaultInfo.h "FaultInfo.h"
@@ -144,6 +144,6 @@ FaultInfo::testvect() const
   return mTestVector;
 }
 
-END_NAMESPACE_YM_SATPG
+END_NAMESPACE_SATPG
 
 #endif // FAULTINFO_H

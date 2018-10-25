@@ -20,7 +20,7 @@
 #include "ym/MStopWatch.h"
 
 
-BEGIN_NAMESPACE_YM_SATPG
+BEGIN_NAMESPACE_SATPG
 
 //////////////////////////////////////////////////////////////////////
 /// @brief タイマーのモード
@@ -275,6 +275,6 @@ AtpgMgr::reg_network_handler(T1Binder<const TpgNetwork&>* handler)
   mNtwkBindMgr.reg_binder(handler);
 }
 
-END_NAMESPACE_YM_SATPG
+END_NAMESPACE_SATPG
 
 #endif // ATPGMGR_H

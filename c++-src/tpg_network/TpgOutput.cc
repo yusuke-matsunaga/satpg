@@ -10,7 +10,7 @@
 #include "TpgOutput.h"
 
 
-BEGIN_NAMESPACE_YM_SATPG
+BEGIN_NAMESPACE_SATPG
 
 //////////////////////////////////////////////////////////////////////
 // クラス TpgOutput
@@ -39,4 +39,4 @@ TpgOutput::is_primary_output() const
   return true;
 }
 
-END_NAMESPACE_YM_SATPG
+END_NAMESPACE_SATPG

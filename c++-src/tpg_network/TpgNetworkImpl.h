@@ -18,7 +18,7 @@
 #include "ym/SimpleAlloc.h"
 
 
-BEGIN_NAMESPACE_YM_SATPG
+BEGIN_NAMESPACE_SATPG
 
 class TpgNodeInfo;
 class AuxNodeInfo;
@@ -773,6 +773,6 @@ TpgNetworkImpl::rep_fault_list() const
   return Array<const TpgFault*>(mRepFaultArray, 0, rep_fault_num());
 }
 
-END_NAMESPACE_YM_SATPG
+END_NAMESPACE_SATPG
 
 #endif // TPGNETWORKIMPL_H

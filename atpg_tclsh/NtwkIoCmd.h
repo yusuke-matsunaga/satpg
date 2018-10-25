@@ -13,7 +13,7 @@
 #include "ym/TclPopt.h"
 
 
-BEGIN_NAMESPACE_YM_SATPG
+BEGIN_NAMESPACE_SATPG
 
 //////////////////////////////////////////////////////////////////////
 // blif 形式のファイルを読み込むコマンド
@@ -88,6 +88,6 @@ protected:
 
 };
 
-END_NAMESPACE_YM_SATPG
+END_NAMESPACE_SATPG
 
 #endif // NTWKIOCMD_H

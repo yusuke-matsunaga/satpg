@@ -12,7 +12,7 @@
 #include "TimeCmd.h"
 
 
-BEGIN_NAMESPACE_YM_SATPG
+BEGIN_NAMESPACE_SATPG
 
 // 初期化関数
 int
@@ -46,4 +46,4 @@ misc_init(Tcl_Interp* interp)
   return TCL_OK;
 }
 
-END_NAMESPACE_YM_SATPG
+END_NAMESPACE_SATPG

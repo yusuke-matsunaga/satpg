@@ -12,7 +12,7 @@
 #include "satpg.h"
 
 
-BEGIN_NAMESPACE_YM_SATPG
+BEGIN_NAMESPACE_SATPG
 
 //////////////////////////////////////////////////////////////////////
 /// @class UntestOp UntestOp.h "UntestOp.h"
@@ -56,6 +56,6 @@ new_UopSkip(int threshold,
 UntestOp*
 new_UopDummy();
 
-END_NAMESPACE_YM_SATPG
+END_NAMESPACE_SATPG
 
 #endif // UNTESTOP_H

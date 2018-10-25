@@ -12,7 +12,7 @@
 #include "BitVectorRep.h"
 
 
-BEGIN_NAMESPACE_YM_SATPG
+BEGIN_NAMESPACE_SATPG
 
 //////////////////////////////////////////////////////////////////////
 /// @class BitVector BitVector.h "BitVector.h"
@@ -623,6 +623,6 @@ BitVector::uniquefy()
   }
 }
 
-END_NAMESPACE_YM_SATPG
+END_NAMESPACE_SATPG
 
 #endif // BITVECTOR_H

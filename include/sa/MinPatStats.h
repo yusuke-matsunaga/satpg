@@ -14,7 +14,7 @@
 #include "ym/USTime.h"
 
 
-BEGIN_NAMESPACE_YM_SATPG_SA
+BEGIN_NAMESPACE_SATPG_SA
 
 //////////////////////////////////////////////////////////////////////
 /// @class MinPatStats MinPatStats.h "sa/MinPatStats.h"
@@ -130,6 +130,6 @@ MinPatStats::time() const
   return mTime;
 }
 
-END_NAMESPACE_YM_SATPG_SA
+END_NAMESPACE_SATPG_SA
 
 #endif // MINPATSTATS_H

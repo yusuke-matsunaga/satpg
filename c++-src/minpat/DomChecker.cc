@@ -35,7 +35,7 @@ const int debug_dtpg = 0;
 END_NONAMESPACE
 
 
-BEGIN_NAMESPACE_YM_SATPG
+BEGIN_NAMESPACE_SATPG
 
 // @brief コンストラクタ
 // @param[in] network 対象のネットワーク
@@ -495,4 +495,4 @@ DomChecker::solve(const vector<SatLiteral>& assumptions,
   return ans;
 }
 
-END_NAMESPACE_YM_SATPG
+END_NAMESPACE_SATPG

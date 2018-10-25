@@ -13,7 +13,7 @@
 #include "TestVector.h"
 
 
-BEGIN_NAMESPACE_YM_SATPG
+BEGIN_NAMESPACE_SATPG
 
 //////////////////////////////////////////////////////////////////////
 /// @class DtpgResult DtpgResult.h "DtpgResult.h"
@@ -172,6 +172,6 @@ DtpgResult::testvector() const
   return mTestVector;
 }
 
-END_NAMESPACE_YM_SATPG
+END_NAMESPACE_SATPG
 
 #endif // DTPGRESULT_H

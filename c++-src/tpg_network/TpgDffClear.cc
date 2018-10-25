@@ -10,7 +10,7 @@
 #include "TpgDffClear.h"
 
 
-BEGIN_NAMESPACE_YM_SATPG
+BEGIN_NAMESPACE_SATPG
 
 //////////////////////////////////////////////////////////////////////
 // クラス TpgDffClear
@@ -39,4 +39,4 @@ TpgDffClear::is_dff_clear() const
   return true;
 }
 
-END_NAMESPACE_YM_SATPG
+END_NAMESPACE_SATPG

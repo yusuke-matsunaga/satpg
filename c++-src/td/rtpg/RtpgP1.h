@@ -13,7 +13,7 @@
 #include "ym/RandGen.h"
 
 
-BEGIN_NAMESPACE_YM_SATPG_TD
+BEGIN_NAMESPACE_SATPG_TD
 
 //////////////////////////////////////////////////////////////////////
 /// @class RtpgP1 RtpgP1.h "RtpgP1.h"
@@ -79,6 +79,6 @@ private:
 
 };
 
-END_NAMESPACE_YM_SATPG_TD
+END_NAMESPACE_SATPG_TD
 
 #endif // RTPGP1_H

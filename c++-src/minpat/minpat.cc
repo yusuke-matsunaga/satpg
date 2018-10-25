@@ -18,7 +18,7 @@
 #include "ym/StopWatch.h"
 
 
-BEGIN_NAMESPACE_YM_SATPG
+BEGIN_NAMESPACE_SATPG
 
 BEGIN_NONAMESPACE
 
@@ -169,4 +169,4 @@ minpat(const vector<const TpgFault*>& fault_list,
   return nc;
 }
 
-END_NAMESPACE_YM_SATPG
+END_NAMESPACE_SATPG

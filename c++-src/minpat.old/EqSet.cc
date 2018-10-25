@@ -12,7 +12,7 @@
 #include "Fsim.h"
 
 
-BEGIN_NAMESPACE_YM_SATPG_SA
+BEGIN_NAMESPACE_SATPG_SA
 
 //////////////////////////////////////////////////////////////////////
 // クラス EqSet
@@ -277,4 +277,4 @@ EqSet::dump(ostream& s) const
   s << endl;
 }
 
-END_NAMESPACE_YM_SATPG_SA
+END_NAMESPACE_SATPG_SA

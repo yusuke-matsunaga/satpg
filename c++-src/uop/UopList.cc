@@ -10,7 +10,7 @@
 #include "UopList.h"
 
 
-BEGIN_NAMESPACE_YM_SATPG
+BEGIN_NAMESPACE_SATPG
 
 //////////////////////////////////////////////////////////////////////
 // クラス UopList
@@ -49,4 +49,4 @@ UopList::operator()(const TpgFault* f)
   }
 }
 
-END_NAMESPACE_YM_SATPG
+END_NAMESPACE_SATPG

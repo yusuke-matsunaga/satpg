@@ -13,7 +13,7 @@
 #include "TpgNode.h"
 
 
-BEGIN_NAMESPACE_YM_SATPG
+BEGIN_NAMESPACE_SATPG
 
 class JustData;
 
@@ -130,6 +130,6 @@ Just2::node_value(const TpgNode* node,
   return mTmpArray[index] / mWeightArray[index];
 }
 
-END_NAMESPACE_YM_SATPG
+END_NAMESPACE_SATPG
 
 #endif // JUST2_H

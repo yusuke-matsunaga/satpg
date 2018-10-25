@@ -17,7 +17,7 @@
 #include "ym/StopWatch.h"
 
 
-BEGIN_NAMESPACE_YM_SATPG
+BEGIN_NAMESPACE_SATPG
 
 //////////////////////////////////////////////////////////////////////
 /// @class FaultReducer FaultReducer.h "FaultReducer.h"
@@ -165,6 +165,6 @@ private:
 
 };
 
-END_NAMESPACE_YM_SATPG
+END_NAMESPACE_SATPG
 
 #endif // FAULTREDUCER_H

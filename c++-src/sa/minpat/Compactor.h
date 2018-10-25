@@ -12,7 +12,7 @@
 #include "sa/sa_nsdef.h"
 
 
-BEGIN_NAMESPACE_YM_SATPG_SA
+BEGIN_NAMESPACE_SATPG_SA
 
 class FgMgr;
 
@@ -134,6 +134,6 @@ private:
 
 };
 
-END_NAMESPACE_YM_SATPG_SA
+END_NAMESPACE_SATPG_SA
 
 #endif // COMPACTOR_H

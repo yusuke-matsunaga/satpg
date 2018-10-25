@@ -19,7 +19,7 @@
 #include "ym/RandGen.h"
 
 
-BEGIN_NAMESPACE_YM_SATPG
+BEGIN_NAMESPACE_SATPG
 
 BEGIN_NONAMESPACE
 
@@ -681,4 +681,4 @@ FaultReducer::count_faults() const
   return n;
 }
 
-END_NAMESPACE_YM_SATPG
+END_NAMESPACE_SATPG

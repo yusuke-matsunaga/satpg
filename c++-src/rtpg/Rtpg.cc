@@ -10,7 +10,7 @@
 #include "Rtpg.h"
 
 
-BEGIN_NAMESPACE_YM_SATPG
+BEGIN_NAMESPACE_SATPG
 
 //////////////////////////////////////////////////////////////////////
 // クラス Rtpg
@@ -75,4 +75,4 @@ Rtpg::pattern_list() const
   return mPatternList;
 }
 
-END_NAMESPACE_YM_SATPG
+END_NAMESPACE_SATPG
