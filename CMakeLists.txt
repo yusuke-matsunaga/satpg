@@ -126,20 +126,13 @@ add_subdirectory ( tests/tpgnetworktest )
 
 if ( DOXYGEN_FOUND )
   # doxygen の対象となるヘッダファイル(のパタン)を YM_DOXY_SRCS に入れる．
-  set ( YM_DOXY_SRCS )
-  foreach ( dir
-      "${PROJECT_BINARY_DIR}/ym_config.h"
-      "${PROJECT_BINARY_DIR}/satpg.h"
-      "${PROJECT_SOURCE_DIR}/dox-src"
-      "${PROJECT_SOURCE_DIR}/include"
-      )
-    list ( APPEND YM_DOXY_SRCS ${dir} )
-  endforeach()
-  foreach ( dir
-      ${YM_SUBMODULE_LIST}
-      )
-    list ( APPEND YM_DOXY_SRCS "${PROJECT_SOURCE_DIR}/${dir}/include" )
-  endforeach ()
+  set ( YM_DOXY_SRCS
+    "${PROJECT_BINARY_DIR}/ym_config.h"
+    "${PROJECT_BINARY_DIR}/satpg.h"
+    "${PROJECT_SOURCE_DIR}/etc/mainpage.h"
+    "${PROJECT_SOURCE_DIR}/include"
+    ${YM_SUBMODULE_INCLUDE_LIST}
+    )
   list ( APPEND YM_DOXY_SRCS "${PROJECT_SOURCE_DIR}/atpg_tclsh" )
 
   ym_add_doxygen ()

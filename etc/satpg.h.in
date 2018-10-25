@@ -30,6 +30,9 @@
 /// @brief プロジェクトのバージョンの文字列
 #define SATPG_VERSION_STR "@PROJECT_VERSION@"
 
+/// @brief バージョン付きのプロジェクト名の文字列
+#define SATPG_PROJECT_STR "@YM_PROJECT_STRING@"
+
 
 //////////////////////////////////////////////////////////////////////
 // 名前空間の定義用マクロ
