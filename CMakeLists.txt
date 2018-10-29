@@ -101,7 +101,6 @@ ym_init_submodules (
 include_directories (
   ${PROJECT_SOURCE_DIR}/include
   ${PROJECT_BINARY_DIR}
-  ${YM_SUBMODULE_INCLUDE_LIST}
   )
 
 
@@ -112,6 +111,7 @@ include_directories (
 foreach ( dir ${YM_SUBMODULE_LIST} )
   add_subdirectory ( ${dir} )
 endforeach ()
+add_subdirectory ( ym-tclpp )
 
 add_subdirectory ( c++-src )
 add_subdirectory ( c++-test )
@@ -119,9 +119,7 @@ add_subdirectory ( cython-src )
 add_subdirectory ( py-src )
 add_subdirectory ( atpg_tclsh )
 
-add_subdirectory ( tests/fsimtest )
-add_subdirectory ( tests/dtpgtest )
-add_subdirectory ( tests/tpgnetworktest )
+add_subdirectory ( tests )
 
 if ( DOXYGEN_FOUND )
   # doxygen の対象となるヘッダファイル(のパタン)を YM_DOXY_SRCS に入れる．

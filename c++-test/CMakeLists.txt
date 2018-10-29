@@ -3,6 +3,7 @@
 # インクルードパスの設定
 # ===================================================================
 include_directories(
+  ${YM_SUBMODULE_INCLUDE_LIST}
   ${GTEST_INCLUDE_DIR}
   )
 

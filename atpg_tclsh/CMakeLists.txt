@@ -4,6 +4,9 @@
 # インクルードパスの設定
 # ===================================================================
 include_directories (
+  ${PROJECT_SOURCE_DIR}/include
+  ${YM_SUBMODULE_INCLUDE_LIST}
+  ${PROJECT_SOURCE_DIR}/ym-tclpp/include
   ${TCL_INCLUDE_PATH}
   )
 
@@ -44,6 +47,7 @@ add_executable(atpg_tclsh
   $<TARGET_OBJECTS:satpg_fsimsa3>
   $<TARGET_OBJECTS:satpg_fsimtd2>
   $<TARGET_OBJECTS:satpg_fsimtd3>
+  $<TARGET_OBJECTS:ym_tclpp>
   ${YM_SUBMODULE_OBJ_A_LIST}
   )
 
@@ -78,6 +82,7 @@ add_executable(atpg_tclsh_p
   $<TARGET_OBJECTS:satpg_fsimsa3_p>
   $<TARGET_OBJECTS:satpg_fsimtd2_p>
   $<TARGET_OBJECTS:satpg_fsimtd3_p>
+  $<TARGET_OBJECTS:ym_tclpp_p>
   ${YM_SUBMODULE_OBJ_P_LIST}
   )
 
@@ -112,6 +117,7 @@ add_executable(atpg_tclsh_d
   $<TARGET_OBJECTS:satpg_fsimsa3_ad>
   $<TARGET_OBJECTS:satpg_fsimtd2_ad>
   $<TARGET_OBJECTS:satpg_fsimtd3_ad>
+  $<TARGET_OBJECTS:ym_tclpp_ad>
   ${YM_SUBMODULE_OBJ_AD_LIST}
   )
 
