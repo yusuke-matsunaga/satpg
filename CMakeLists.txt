@@ -92,7 +92,6 @@ ym_init_submodules (
   ym-common
   ym-logic
   ym-sat
-  ym-tclpp
   )
 
 
@@ -117,8 +116,8 @@ endforeach ()
 add_subdirectory ( c++-src )
 add_subdirectory ( c++-test )
 add_subdirectory ( cython-src )
+add_subdirectory ( py-src )
 add_subdirectory ( atpg_tclsh )
-add_subdirectory ( python )
 
 add_subdirectory ( tests/fsimtest )
 add_subdirectory ( tests/dtpgtest )
