@@ -11,7 +11,7 @@
 #include "TpgFault.h"
 #include "TestVector.h"
 #include "Fsim.h"
-#include "ym/RandGen.h"
+#include <random>
 #include "ym/StopWatch.h"
 
 
@@ -166,8 +166,9 @@ ppsfp_test(Fsim& fsim,
 // @param[in] tvmgr テストベクタを管理するオブジェクト
 // @param[in] nv 生成するパタン数
 // @param[out] tv_list 生成されたパタンを格納するベクタ
+template<class URNG>
 void
-randgen(RandGen& rg,
+randgen(URNG& rg,
 	int input_num,
 	int dff_num,
 	FaultType fault_type,
@@ -353,7 +354,7 @@ fsim2test(int argc,
     ASSERT_NOT_REACHED;
   }
 
-  RandGen rg;
+  std::mt19937 rg;
   vector<TestVector> tv_list;
 
   int input_num = network.input_num();

@@ -13,7 +13,7 @@
 #include "TestVector.h"
 #include "InputVector.h"
 #include "DffVector.h"
-#include "ym/RandGen.h"
+#include <random>
 #include "ym/TclPopt.h"
 
 
@@ -76,7 +76,7 @@ RandWsaCmd::cmd_proc(TclObjVector& objv)
   Fsim& fsim = _td_fsim2();
 
   double total_wsa = 0.0;
-  RandGen rg;
+  std::mt19937 rg;
   if ( fsm ) {
     // FSM モード
     iv.set_from_random(rg);

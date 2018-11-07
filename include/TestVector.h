@@ -11,7 +11,7 @@
 #include "satpg.h"
 #include "FaultType.h"
 #include "BitVector.h"
-#include "ym/RandGen.h"
+#include <random>
 
 
 BEGIN_NAMESPACE_SATPG
@@ -243,13 +243,15 @@ public:
   /// @brief 乱数パタンを設定する．
   /// @param[in] randgen 乱数生成器
   /// @note 結果はかならず 0 か 1 になる．(Xは含まれない)
+  template<class URNG>
   void
-  set_from_random(RandGen& randgen);
+  set_from_random(URNG& randgen);
 
   /// @brief X の部分を乱数で 0/1 に設定する．
   /// @param[in] randgen 乱数生成器
+  template<class URNG>
   void
-  fix_x_from_random(RandGen& randgen);
+  fix_x_from_random(URNG& randgen);
 
 
 public:
@@ -814,18 +816,20 @@ TestVector::init()
 
 // @brief 乱数パタンを設定する．
 // @param[in] randgen 乱数生成器
+template<class URNG>
 inline
 void
-TestVector::set_from_random(RandGen& randgen)
+TestVector::set_from_random(URNG& randgen)
 {
   mVector.set_from_random(randgen);
 }
 
 // @brief X の部分を乱数で 0/1 に設定する．
 // @param[in] randgen 乱数生成器
+template<class URNG>
 inline
 void
-TestVector::fix_x_from_random(RandGen& randgen)
+TestVector::fix_x_from_random(URNG& randgen)
 {
   mVector.fix_x_from_random(randgen);
 }

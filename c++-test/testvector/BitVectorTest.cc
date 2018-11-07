@@ -9,7 +9,7 @@
 
 #include "gtest/gtest.h"
 #include "BitVector.h"
-#include "ym/RandGen.h"
+#include <random>
 
 
 BEGIN_NAMESPACE_SATPG
@@ -333,7 +333,7 @@ TEST(BitVectorTest, uniq_set_from_random)
   BitVector bv1(bv0);
 
   // bv1 を乱数で再設定
-  RandGen rg;
+  std::mt19937 rg;
   bv1.set_from_random(rg);
 
   // bv0 が元のままであることを確認．

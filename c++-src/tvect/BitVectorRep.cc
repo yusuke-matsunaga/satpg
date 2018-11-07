@@ -283,50 +283,6 @@ BitVectorRep::set_from_hex(const string& hex_string)
   return true;
 }
 
-// @brief 乱数パタンを設定する．
-// @param[in] randgen 乱数生成器
-void
-BitVectorRep::set_from_random(RandGen& randgen)
-{
-  int nb = block_num(len());
-  for ( int i = 0; i < nb; i += 2 ) {
-    PackedVal v = randgen.uint64();
-    int i0 = i;
-    int i1 = i + 1;
-    if ( i == nb - 2 ) {
-      mPat[i0] = ~v & mMask;
-      mPat[i1] =  v & mMask;
-    }
-    else {
-      mPat[i0] = ~v;
-      mPat[i1] =  v;
-    }
-  }
-}
-
-// @brief X の部分を乱数で 0/1 に設定する．
-// @param[in] randgen 乱数生成器
-void
-BitVectorRep::fix_x_from_random(RandGen& randgen)
-{
-  int nb = block_num(len());
-  for ( int i = 0; i < nb; i += 2 ) {
-    int i0 = i;
-    int i1 = i + 1;
-    // X のビットマスク
-    PackedVal xmask = mPat[i0] & mPat[i1];
-    if ( i == nb - 2 ) {
-      xmask &= mMask;
-    }
-    if ( xmask == kPvAll0 ) {
-      continue;
-    }
-    PackedVal v = randgen.uint64();
-    mPat[i0] &= ~(~v & xmask);
-    mPat[i1] &= ~( v & xmask);
-  }
-}
-
 // @breif ビットベクタをマージする．
 // @note X 以外で相異なるビットがあったら false を返す．
 bool

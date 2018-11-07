@@ -10,7 +10,7 @@ from libcpp cimport bool
 from libcpp.string cimport string
 from CXX_FaultType cimport FaultType
 from CXX_Val3 cimport Val3
-from CXX_RandGen cimport RandGen
+
 
 cdef extern from "TestVector.h" namespace "nsYm::nsSatpg" :
 
@@ -38,8 +38,6 @@ cdef extern from "TestVector.h" namespace "nsYm::nsSatpg" :
         void set_input_val(int pos, Val3 val)
         void set_dff_val(int pos, Val3 val)
         void set_aux_input_val(int pos, Val3 val)
-        void set_from_random(RandGen& randgen)
-        void fix_x_from_random(RandGen& randgen)
 
     bool is_compatible(const TestVector& left, const TestVector& right)
     bool is_equal(const TestVector& left, const TestVector& right)

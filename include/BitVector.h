@@ -10,6 +10,7 @@
 
 
 #include "BitVectorRep.h"
+#include <random>
 
 
 BEGIN_NAMESPACE_SATPG
@@ -143,13 +144,15 @@ public:
   /// @param[in] randgen 乱数生成器
   ///
   /// - 結果はかならず 0 か 1 になる．(Xは含まれない)
+  template<class URNG>
   void
-  set_from_random(RandGen& randgen);
+  set_from_random(URNG& randgen);
 
   /// @brief X の部分を乱数で 0/1 に設定する．
   /// @param[in] randgen 乱数生成器
+  template<class URNG>
   void
-  fix_x_from_random(RandGen& randgen);
+  fix_x_from_random(URNG& randgen);
 
 
 public:
@@ -590,9 +593,10 @@ BitVector::set_from_hex(const string& hex_string)
 // @param[in] randgen 乱数生成器
 //
 // - 結果はかならず 0 か 1 になる．(Xは含まれない)
+template<class URNG>
 inline
 void
-BitVector::set_from_random(RandGen& randgen)
+BitVector::set_from_random(URNG& randgen)
 {
   uniquefy();
 
@@ -601,9 +605,10 @@ BitVector::set_from_random(RandGen& randgen)
 
 // @brief X の部分を乱数で 0/1 に設定する．
 // @param[in] randgen 乱数生成器
+template<class URNG>
 inline
 void
-BitVector::fix_x_from_random(RandGen& randgen)
+BitVector::fix_x_from_random(URNG& randgen)
 {
   uniquefy();
 

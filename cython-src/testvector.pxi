@@ -156,16 +156,6 @@ cdef class TestVector :
         cdef CXX_Val3 c_val = from_Val3(val)
         self._this.set_aux_input_val(pos, c_val)
 
-    ### @brief 乱数パタンを設定する．
-    ### @param[in] randgen 乱数発生器
-    def set_from_random(TestVector self, RandGen randgen) :
-        self._this.set_from_random(randgen._this)
-
-    ### @brief Xの部分を乱数で 0/1 に設定する．
-    ### @param[in] randgen 乱数発生器
-    def fix_x_from_random(TestVector self, RandGen randgen) :
-        self._this.fix_x_from_random(randgen._this)
-
     ### @brief 両立関係演算子
     @staticmethod
     def is_compatible(TestVector left, TestVector right) :

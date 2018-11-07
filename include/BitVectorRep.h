@@ -11,7 +11,7 @@
 #include "satpg.h"
 #include "Val3.h"
 #include "PackedVal.h"
-#include "ym/RandGen.h"
+#include <random>
 
 
 BEGIN_NAMESPACE_SATPG
@@ -169,13 +169,15 @@ public:
   /// @param[in] randgen 乱数生成器
   ///
   /// - 結果はかならず 0 か 1 になる．(Xは含まれない)
+  template<class URNG>
   void
-  set_from_random(RandGen& randgen);
+  set_from_random(URNG& randgen);
 
   /// @brief X の部分を乱数で 0/1 に設定する．
   /// @param[in] randgen 乱数生成器
+  template<class URNG>
   void
-  fix_x_from_random(RandGen& randgen);
+  fix_x_from_random(URNG& randgen);
 
   /// @breif ビットベクタをマージする．
   /// @note X 以外で相異なるビットがあったら false を返す．
@@ -324,6 +326,56 @@ BitVectorRep::set_val(int pos,
   case Val3::_X:
     mPat[block0] |=  mask;
     mPat[block1] |=  mask;
+  }
+}
+
+// @brief 乱数パタンを設定する．
+// @param[in] randgen 乱数生成器
+template<class URNG>
+inline
+void
+BitVectorRep::set_from_random(URNG& randgen)
+{
+  std::uniform_int_distribution<PackedVal> rd;
+  int nb = block_num(len());
+  for ( int i = 0; i < nb; i += 2 ) {
+    PackedVal v = rd(randgen);
+    int i0 = i;
+    int i1 = i + 1;
+    if ( i == nb - 2 ) {
+      mPat[i0] = ~v & mMask;
+      mPat[i1] =  v & mMask;
+    }
+    else {
+      mPat[i0] = ~v;
+      mPat[i1] =  v;
+    }
+  }
+}
+
+// @brief X の部分を乱数で 0/1 に設定する．
+// @param[in] randgen 乱数生成器
+template<class URNG>
+inline
+void
+BitVectorRep::fix_x_from_random(URNG& randgen)
+{
+  std::uniform_int_distribution<PackedVal> rd;
+  int nb = block_num(len());
+  for ( int i = 0; i < nb; i += 2 ) {
+    int i0 = i;
+    int i1 = i + 1;
+    // X のビットマスク
+    PackedVal xmask = mPat[i0] & mPat[i1];
+    if ( i == nb - 2 ) {
+      xmask &= mMask;
+    }
+    if ( xmask == kPvAll0 ) {
+      continue;
+    }
+    PackedVal v = rd(randgen);
+    mPat[i0] &= ~(~v & xmask);
+    mPat[i1] &= ~( v & xmask);
   }
 }
 

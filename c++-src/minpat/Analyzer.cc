@@ -18,7 +18,7 @@
 #include "MatrixGen.h"
 #include "ym/McMatrix.h"
 #include "ym/Range.h"
-#include "ym/RandGen.h"
+#include <random>
 
 
 BEGIN_NAMESPACE_SATPG
@@ -124,7 +124,7 @@ Analyzer::gen_fault_list(const vector<bool>& mark,
 {
   string just_type;
 
-  RandGen randgen;
+  std::mt19937 randgen;
   int n0 = 0;
   int n1 = 0;
   for ( auto& ffr: mNetwork.ffr_list() ) {

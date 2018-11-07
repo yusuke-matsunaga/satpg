@@ -16,7 +16,7 @@
 #include "NodeValList.h"
 #include "MatrixGen.h"
 #include "ym/Range.h"
-#include "ym/RandGen.h"
+#include <random>
 
 
 BEGIN_NAMESPACE_SATPG
@@ -179,7 +179,7 @@ FaultReducer::init(const vector<const TpgFault*>& fault_list,
   }
 
   // 各々の故障のテストベクタをもとめる(故障シミュレーション用)
-  RandGen rg;
+  std::mt19937 rg;
   for ( auto& ffr: mNetwork.ffr_list() ) {
     string just_type;
     DtpgFFR dtpg(mNetwork, mFaultType, ffr, just_type);
@@ -253,7 +253,7 @@ FaultReducer::make_dom_candidate(int loop_limit)
   // mTvList を空にする．
   vector<TestVector>().swap(mTvList);
 
-  RandGen rg;
+  std::mt19937 rg;
   TestVector tv(mNetwork.input_num(), mNetwork.dff_num(), mFaultType);
   for ( int nc_count = 0; nc_count < loop_limit; ) {
     for ( auto i: Range(kPvBitLen) ) {
