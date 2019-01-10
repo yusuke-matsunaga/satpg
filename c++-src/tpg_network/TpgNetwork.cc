@@ -14,6 +14,7 @@
 #include "GateType.h"
 
 #include "ym/BnNetwork.h"
+#include "ym/ClibCellLibrary.h"
 
 
 BEGIN_NAMESPACE_SATPG

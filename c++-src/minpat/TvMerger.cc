@@ -306,7 +306,7 @@ TvMerger::select_bit(const vector<int>& signature)
   // (nb - 1) - (i + 1) までのブロックリストのユニオンを計算する．
   vector<vector<int>> accum_block_list_array2(nb);
   cur_block_list.clear();
-  for ( auto i: Range(nb - 1, -1, -1) ) {
+  for ( int i: Range_<int, -1>(nb - 1, -1) ) {
     accum_block_list_array2[i] = cur_block_list;
     int bit = bit_list[i];
     int val = signature[bit];
